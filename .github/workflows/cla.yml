@@ -17,13 +17,13 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PERSONAL_ACCESS_TOKEN : ${{ secrets.CLA_PERSONAL_ACCESS_TOKEN }}
         with:
-          # Signatures are stored in https://github.com/PrairieLearn/cla
+          # Signatures are stored in https://github.com/EarthSciML/cla
           remote-organization-name: EarthSciML 
           remote-repository-name: cla 
           path-to-signatures: signatures.json
           path-to-document: https://github.com/EarthSciML/cla/blob/main/CLA.md
           branch: main
-          allowlist: dependabot[bot],ctessum
+          allowlist: dependabot[bot]
           custom-pr-sign-comment: I have reviewed and hereby sign the CLA
           create-file-commit-message: Create signatures.json
           signed-commit-message: '$contributorName signed the CLA in $pullRequestNo'
