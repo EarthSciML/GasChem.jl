@@ -7,16 +7,78 @@ using InteractiveUtils
 # ╔═╡ 6cbe3c3e-4831-11ec-35e5-976f483e39f5
 using Catalyst, OrdinaryDiffEq, StochasticDiffEq,DiffEqBase,Plots
 
+# ╔═╡ 84264760-cfec-46c2-bc39-f6a0d3ea2f6f
+using Unitful
+
+# ╔═╡ ecd823f1-386d-4422-9c9f-cccaafb0d6a2
+module MyUnits
+using Unitful
+@unit ppb "ppb" Number 1/1000000000 false
+end
+# adding unit "ppb" to Unitful 
+
 # ╔═╡ adbe3fb1-fa14-4a2a-8263-daa606476f26
 md"""
 ### Building Model
+
+This atmospheric chemical system model is built based on the Super Fast Chemical Mechanism, which is one of the simplest representations of atmospheric chemistry. It can efficiently simulate background tropheric ozone chemistry and perform well for those species included in the mechanism. The chemical equations we used is included in the supporting table S2 of the paper:
+"Evaluating simplified chemical mechanisms within present-day simulations of the Community Earth System Model version 1.2 with CAM4 (CESM1.2 CAM-chem):
+MOZART-4 vs. Reduced Hydrocarbon vs. Super-Fast chemistry" (2018), Benjamin Brown-Steiner, Noelle E. Selin, Ronald G. Prinn, Simone Tilmes, Louisa Emmons, Jean-François Lamarque, and Philip Cameron-Smith.
 """
 
-# ╔═╡ 90c0a52b-eeeb-49fc-a610-847b5d470fa1
-@parameters r1 r2 r3 r6 r7 r9 r11 r12 r13a r13b r14 r15 r17 r21a r21c r22 rr1 rr2 rr3 rr4 rr5 rr6  r4 r5 r10 t
+# ╔═╡ 9c182a06-6e8a-486c-bdcc-d37955b9cc98
+Unitful.register(MyUnits)
 
-# ╔═╡ a9c420fb-dc6e-410f-adc8-a905204e9b94
-@variables O3(t) OH(t) HO2(t) O2(t) H2O(t) NO(t) NO2(t) CH4(t) CH3O2(t) CH2O(t) CO(t) CH3OOH(t) CH3O(t) DMS(t) SO2(t) ISOP(t) H2O2(t)
+# ╔═╡ 603dcd88-0453-4868-97ee-a122d3f5105a
+begin
+	@parameters r1 [unit = u"ppb/s"]
+	@parameters r2 [unit = u"ppb/s"]
+	@parameters r3 [unit = u"ppb/s"]
+	@parameters r6 [unit = u"ppb/s"]
+	@parameters r7 [unit = u"ppb/s"]
+	@parameters r9 [unit = u"ppb/s"]
+	@parameters r11 [unit = u"ppb/s"]
+	@parameters r12 [unit = u"ppb/s"]
+	@parameters r13a [unit = u"ppb/s"]
+	@parameters r13b [unit = u"ppb/s"]
+	@parameters r14 [unit = u"ppb/s"]
+	@parameters r15 [unit = u"ppb/s"]
+	@parameters r17 [unit = u"ppb/s"]
+	@parameters r21a [unit = u"ppb/s"]
+	@parameters r21c [unit = u"ppb/s"]
+	@parameters r22 [unit = u"ppb/s"]
+	@parameters rr1 [unit = u"ppb/s"]
+	@parameters rr2 [unit = u"ppb/s"]
+	@parameters rr3 [unit = u"ppb/s"]
+	@parameters rr4 [unit = u"ppb/s"]
+	@parameters rr5 [unit = u"ppb/s"]
+	@parameters rr6  [unit = u"ppb/s"]
+	@parameters r4 [unit = u"ppb/s"]
+	@parameters r5 [unit = u"ppb/s"]
+	@parameters r10 [unit = u"ppb/s"]
+	@parameters t [unit = u"s"]
+end
+
+# ╔═╡ 03da0a02-499e-427b-8480-dd067990e24c
+begin
+	@variables O3(t) [unit = u"ppb"]
+	@variables OH(t) [unit = u"ppb"]
+	@variables HO2(t) [unit = u"ppb"]
+	@variables O2(t) [unit = u"ppb"]
+	@variables H2O(t) [unit = u"ppb"]
+	@variables NO(t) [unit = u"ppb"]
+	@variables NO2(t) [unit = u"ppb"]
+	@variables CH4(t) [unit = u"ppb"]
+	@variables CH3O2(t) [unit = u"ppb"]
+	@variables CH2O(t) [unit = u"ppb"]
+	@variables CO(t) [unit = u"ppb"]
+	@variables CH3OOH(t) [unit = u"ppb"]
+	@variables CH3O(t) [unit = u"ppb"]
+	@variables DMS(t) [unit = u"ppb"]
+	@variables SO2(t) [unit = u"ppb"]
+	@variables ISOP(t) [unit = u"ppb"]
+	@variables H2O2(t) [unit = u"ppb"]
+end
 
 # ╔═╡ a9692a6b-a936-47a3-a729-53653411c5aa
 rxs = [Reaction(r1, [O3,OH], [HO2,O2], [1,1], [1,1]) #O3 + OH --> HO2 + O2
@@ -62,6 +124,7 @@ rxs = [Reaction(r1, [O3,OH], [HO2,O2], [1,1], [1,1]) #O3 + OH --> HO2 + O2
 	   Reaction(r10,[OH,CO],[HO2],[1,1],[1])
 	   #OH + CO = HO2
 	   ] 
+# We ignored aqueous chemistry
 
 # ╔═╡ f3cf1cfb-93f3-4e29-95aa-14a98a51c892
 @named rs = ReactionSystem(rxs, t)
