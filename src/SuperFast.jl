@@ -384,6 +384,7 @@ DiffEqBase = "2b5f629d-d688-5b77-993f-72d75c75574e"
 OrdinaryDiffEq = "1dea7af3-3e70-54e6-95c3-0bf5283fa5ed"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 StochasticDiffEq = "789caeaf-c7a9-5a7d-9973-96adeb23e2a0"
+Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 
 [compat]
 Catalyst = "~10.2.0"
@@ -391,6 +392,7 @@ DiffEqBase = "~6.76.0"
 OrdinaryDiffEq = "~5.67.0"
 Plots = "~1.23.6"
 StochasticDiffEq = "~6.41.0"
+Unitful = "~1.9.2"
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000002
@@ -1167,9 +1169,9 @@ uuid = "a63ad114-7e13-5084-954f-fe012c677804"
 
 [[ModelingToolkit]]
 deps = ["AbstractTrees", "ArrayInterface", "ConstructionBase", "DataStructures", "DiffEqBase", "DiffEqCallbacks", "DiffEqJump", "DiffRules", "Distributed", "Distributions", "DocStringExtensions", "DomainSets", "Graphs", "IfElse", "InteractiveUtils", "JuliaFormatter", "LabelledArrays", "Latexify", "Libdl", "LinearAlgebra", "MacroTools", "NaNMath", "NonlinearSolve", "RecursiveArrayTools", "Reexport", "Requires", "RuntimeGeneratedFunctions", "SafeTestsets", "SciMLBase", "Serialization", "Setfield", "SparseArrays", "SpecialFunctions", "StaticArrays", "SymbolicUtils", "Symbolics", "UnPack", "Unitful"]
-git-tree-sha1 = "c9d6d91b6a976b668309691ea21a459d7bcf4f59"
+git-tree-sha1 = "d9bbe2b0141a2387dcb6cd00a7019a5b39d7d8b9"
 uuid = "961ee093-0014-501f-94e3-6117800e7a78"
-version = "7.1.2"
+version = "7.1.3"
 
 [[MozillaCACerts_jll]]
 uuid = "14a3606d-f60d-562e-9121-12d972cd8159"
@@ -1953,9 +1955,12 @@ version = "0.9.1+5"
 
 # ╔═╡ Cell order:
 # ╠═6cbe3c3e-4831-11ec-35e5-976f483e39f5
+# ╠═84264760-cfec-46c2-bc39-f6a0d3ea2f6f
 # ╟─adbe3fb1-fa14-4a2a-8263-daa606476f26
-# ╠═90c0a52b-eeeb-49fc-a610-847b5d470fa1
-# ╠═a9c420fb-dc6e-410f-adc8-a905204e9b94
+# ╠═ecd823f1-386d-4422-9c9f-cccaafb0d6a2
+# ╠═9c182a06-6e8a-486c-bdcc-d37955b9cc98
+# ╠═603dcd88-0453-4868-97ee-a122d3f5105a
+# ╠═03da0a02-499e-427b-8480-dd067990e24c
 # ╠═a9692a6b-a936-47a3-a729-53653411c5aa
 # ╠═f3cf1cfb-93f3-4e29-95aa-14a98a51c892
 # ╠═253dff51-e1c2-498c-8948-8c6176c8bc4d
