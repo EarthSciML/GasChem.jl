@@ -111,5 +111,45 @@ rxs = [Reaction(r1, [O3,OH], [HO2,O2], [1,1], [1,1]) #O3 + OH --> HO2 + O2
 ```
 which in Jupyter notebooks will give the figure that represents the reation networks.
 
-![Chemical Network Graph](chemical reactions.png)
+![Chemical Network Graph](https://github.com/jialinl6/GasChemMTK.jl/blob/jialinl6-patch-1/docs/src/chemical%20reactions.png)
+
+We build a function that can predict the change of the concentration of the chemicals in the superfast mechanism with input of temperature, the initial concentrations and reaction rates of photolysis reactions. 
+```julia
+function ozone(T_,a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,z)
+	u₀map_ = [O3 => a, OH => b, HO2 => c, O2 => d, H2O => e, NO => f, NO2 => g, CH4 => h, CH3O2 => i, CH2O => j, CO => k, CH3OOH => l, CH3O => m, DMS => n, SO2 => o, ISOP => p, H2O2 => q]
+	parammap_ = [r1 => 1.7*10^(-12)*exp(-940/T_)*2.46*10^10, 
+	r2 => 1.0*10^(-14)*exp(-490/T_)*2.46*10^10,
+	r3 => 4.8*10^(-11)*exp(250/T_)*2.46*10^10,
+	r6 => 3.0*10^(-12)*exp(-1500/T_)*2.46*10^10,
+	r7 => 3.5*10^(-12)*exp(250/T_)*2.46*10^10,
+	r9 => 2.45*10^(-12)*exp(-1775/T_)*2.46*10^10,
+	r11 => 5.50*10^(-12)*exp(125/T_)*2.46*10^10,
+	r12 => 4.10*10^(-13)*exp(750/T_)*2.46*10^10,
+	r13a => 2.70*10^(-12)*exp(200/T_)*2.46*10^10,
+	r13b => 1.10*10^(-12)*exp(200/T_)*2.46*10^10,
+	r14 => 2.80*10^(-12)*exp(300/T_)*2.46*10^10,
+	r15 => 9.50*10^(-14)*exp(390/T_)/10*2.46*10^10,
+	r17 => 1.10*10^(-11)*exp(-240/T_)*2.46*10^10,
+	r21a => 2.70*10^(-11)*exp(390/T_)*2.46*10^10,
+	r21c => 2.70*10^(-11)*exp(390/T_)/2*2.46*10^10,
+	r22 => 5.59*10^(-15)*exp(-1814/T_)*2.46*10^10,
+	rr2 => r,
+	rr3 => s,
+	rr4 => t,
+	rr5 => t,
+	rr6 => u,
+	r4 => 3.0*10^(-13)*exp(460/T_)*2.46*10^10,
+	r5 => 1.8*10^(-12)*2.46*10^10,
+	r10 => 1.5*10^(-13)*2.46*10^10
+]
+	oprob_ = ODEProblem(rs, u₀map_, tspan, parammap_)
+	sol_ = solve(oprob_, Tsit5(), saveat=10.)
+	plot(sol_,ylim=[0,z], lw=2)
+end
+```
+For example, below is the graph at 220K, when the initial concentrations are as followed: O3 => 10.0, OH => 10.0, HO2 => 10.0, O2 => 2.1*(10^8), H2O => 450.0, NO => 0.0, NO2 => 10.0, CH4 => 1700, CH3O2 => 0.01, CH2O => 0.15, CO => 275, CH3OOH => 1.6, CH3O => 0.0, DMS => 50, SO2 => 2.0, ISOP => 0.15, H2O2 => 2.34, and the potolysis rates for rr2 to rr6 are 1.0097*10^-5, 0.0149, 0.00014, 0.00014 and 8.9573*10^-6.
+```julia
+ozone(220,10.0, 10.0, 10.0, 2.1*(10^8), 450.0, 0.0, 10.0, 1700.0, 0.01, 0.15, 275.0, 1.6, 0.0, 50, 2.0, 0.15, 2.34, 1.0097*10^-5, 0.0149, 0.00014, 8.9573*10^-6,30)
+```
+![Example1 Graph](https://github.com/jialinl6/GasChemMTK.jl/blob/jialinl6-patch-1/docs/src/example.svg)
 
