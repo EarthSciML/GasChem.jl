@@ -147,7 +147,7 @@ function ozone(T_,a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,z)
 	plot(sol_,ylim=[0,z], lw=2)
 end
 ```
-For example, below is the graph at 220K, when the initial concentrations are as followed: O3 => 10.0, OH => 10.0, HO2 => 10.0, O2 => 2.1*(10^8), H2O => 450.0, NO => 0.0, NO2 => 10.0, CH4 => 1700, CH3O2 => 0.01, CH2O => 0.15, CO => 275, CH3OOH => 1.6, CH3O => 0.0, DMS => 50, SO2 => 2.0, ISOP => 0.15, H2O2 => 2.34, and the potolysis rates for rr2 to rr6 are 1.0097*10^-5, 0.0149, 0.00014, 0.00014 and 8.9573*10^-6.
+For example, below is the graph at 220K, when the initial concentrations are as followed: O3 => 10.0, OH => 10.0, HO2 => 10.0, O2 => 2.1*(10^8), H2O => 450.0, NO => 0.0, NO2 => 10.0, CH4 => 1700, CH3O2 => 0.01, CH2O => 0.15, CO => 275, CH3OOH => 1.6, CH3O => 0.0, DMS => 50, SO2 => 2.0, ISOP => 0.15, H2O2 => 2.34, and the potolysis rates for rr2 to rr6 are 1.0097* 10^-5, 0.0149, 0.00014, 0.00014 and 8.9573* 10^-6.
 ```julia
 ozone(220,10.0, 10.0, 10.0, 2.1*(10^8), 450.0, 0.0, 10.0, 1700.0, 0.01, 0.15, 275.0, 1.6, 0.0, 50, 2.0, 0.15, 2.34, 1.0097*10^-5, 0.0149, 0.00014, 8.9573*10^-6,30)
 ```
