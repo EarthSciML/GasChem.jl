@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Home · GasChemMTK.jl</title><script data-outdated-warner src="assets/warner.js"></script><link rel="canonical" href="https://EarthSciML.github.io/GasChemMTK.jl/"/><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.039/juliamono-regular.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.11/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="assets/documenter.js"></script><script src="siteinfo.js"></script><script src="../versions.js"></script><script src="../copy.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href>GasChemMTK.jl</a></span></div><form class="docs-search" action="search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li class="is-active"><a class="tocitem" href>Home</a><ul class="internal"><li><a class="tocitem" href="#Illustrative-Example"><span>Illustrative Example</span></a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href>Home</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Home</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/EarthSciML/GasChemMTK.jl/blob/master/docs/src/index.md#" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="GasChemMTK"><a class="docs-heading-anchor" href="#GasChemMTK">GasChemMTK</a><a id="GasChemMTK-1"></a><a class="docs-heading-anchor-permalink" href="#GasChemMTK" title="Permalink"></a></h1><p>This atmospheric chemical system model <a href="https://github.com/EarthSciML/GasChemMTK.jl">GasChemMTK</a> is built based on the Super Fast Chemical Mechanism, which is one of the simplest representations of atmospheric chemistry. It can efficiently simulate background tropheric ozone chemistry and perform well for those species included in the mechanism. The chemical equations used is included in the supporting table S2 of the paper, &quot;Evaluating simplified chemical mechanisms within present-day simulations of the Community Earth System Model version 1.2 with CAM4 (CESM1.2 CAM-chem): MOZART-4 vs. Reduced Hydrocarbon vs. Super-Fast chemistry&quot; (2018), Benjamin Brown-Steiner, Noelle E. Selin, Ronald G. Prinn, Simone Tilmes, Louisa Emmons, Jean-François Lamarque, and Philip Cameron-Smith.</p><h2 id="Illustrative-Example"><a class="docs-heading-anchor" href="#Illustrative-Example">Illustrative Example</a><a id="Illustrative-Example-1"></a><a class="docs-heading-anchor-permalink" href="#Illustrative-Example" title="Permalink"></a></h2><p>Here is a simple example of generating, visualizing and solving the superfast model. We first define all parameters and variables.</p><pre><code class="language-julia hljs">begin
+	@parameters r1 [unit = u&quot;ppb/s&quot;]
+	@parameters r2 [unit = u&quot;ppb/s&quot;]
+	@parameters r3 [unit = u&quot;ppb/s&quot;]
+	@parameters r6 [unit = u&quot;ppb/s&quot;]
+	@parameters r7 [unit = u&quot;ppb/s&quot;]
+	@parameters r9 [unit = u&quot;ppb/s&quot;]
+	@parameters r11 [unit = u&quot;ppb/s&quot;]
+	@parameters r12 [unit = u&quot;ppb/s&quot;]
+	@parameters r13a [unit = u&quot;ppb/s&quot;]
+	@parameters r13b [unit = u&quot;ppb/s&quot;]
+	@parameters r14 [unit = u&quot;ppb/s&quot;]
+	@parameters r15 [unit = u&quot;ppb/s&quot;]
+	@parameters r17 [unit = u&quot;ppb/s&quot;]
+	@parameters r21a [unit = u&quot;ppb/s&quot;]
+	@parameters r21c [unit = u&quot;ppb/s&quot;]
+	@parameters r22 [unit = u&quot;ppb/s&quot;]
+	@parameters rr1 [unit = u&quot;ppb/s&quot;]
+	@parameters rr2 [unit = u&quot;ppb/s&quot;]
+	@parameters rr3 [unit = u&quot;ppb/s&quot;]
+	@parameters rr4 [unit = u&quot;ppb/s&quot;]
+	@parameters rr5 [unit = u&quot;ppb/s&quot;]
+	@parameters rr6  [unit = u&quot;ppb/s&quot;]
+	@parameters r4 [unit = u&quot;ppb/s&quot;]
+	@parameters r5 [unit = u&quot;ppb/s&quot;]
+	@parameters r10 [unit = u&quot;ppb/s&quot;]
+	@parameters t [unit = u&quot;s&quot;]
+	@variables O3(t) [unit = u&quot;ppb&quot;]
+	@variables OH(t) [unit = u&quot;ppb&quot;]
+	@variables HO2(t) [unit = u&quot;ppb&quot;]
+	@variables O2(t) [unit = u&quot;ppb&quot;]
+	@variables H2O(t) [unit = u&quot;ppb&quot;]
+	@variables NO(t) [unit = u&quot;ppb&quot;]
+	@variables NO2(t) [unit = u&quot;ppb&quot;]
+	@variables CH4(t) [unit = u&quot;ppb&quot;]
+	@variables CH3O2(t) [unit = u&quot;ppb&quot;]
+	@variables CH2O(t) [unit = u&quot;ppb&quot;]
+	@variables CO(t) [unit = u&quot;ppb&quot;]
+	@variables CH3OOH(t) [unit = u&quot;ppb&quot;]
+	@variables CH3O(t) [unit = u&quot;ppb&quot;]
+	@variables DMS(t) [unit = u&quot;ppb&quot;]
+	@variables SO2(t) [unit = u&quot;ppb&quot;]
+	@variables ISOP(t) [unit = u&quot;ppb&quot;]
+	@variables H2O2(t) [unit = u&quot;ppb&quot;]
+end</code></pre><p>Then we define the chemical reaction model.</p><pre><code class="language-julia hljs">rxs = [Reaction(r1, [O3,OH], [HO2,O2], [1,1], [1,1]) #O3 + OH --&gt; HO2 + O2
+       Reaction(r2, [HO2,O3], [O2,OH],[1,1],[2,1])#HO2 + O3 --&gt; 2O2 + OH
+	   Reaction(r3, [HO2,OH], [HO2,O2],[1,1],[1,1]) #HO2 + OH --&gt; H2O + O2
+	   Reaction(r6, [NO,O3], [NO2,O2],[1,1],[1,1]) #NO + O3 --&gt; NO2 + O2
+	   Reaction(r7, [HO2,NO], [NO2,OH],[1,1],[1,1]) #HO2 + NO --&gt; NO2 + OH
+	   Reaction(r9, [CH4, OH], [CH3O2, H2O],[1,1],[1,1]) #CH4 + OH --&gt; CH3O2 + H2O
+	   Reaction(r11, [CH2O,OH], [CO,H2O,HO2],[1,1],[1,1,1]) 
+	   #CH2O + OH --&gt; CO + H2O + HO2
+	   Reaction(r12, [CH3O2,HO2], [CH3OOH,O2],[1,1],[1,1]) 
+	   #CH3O2 + HO2 --&gt; CH3OOH + O2
+	   Reaction(r13a, [CH3OOH,OH], [CH3O2,H2O],[1,1],[1,1]) 
+	   #CH3OOH + OH --&gt; CH3O2 + H2O
+	   Reaction(r13b, [CH3OOH,OH], [CH3O,H2O,OH],[1,1],[1,1,1]) 
+	   #CH3OOH + OH --&gt; CH3O + H2O + OH
+	   Reaction(r14, [CH3O2,NO], [CH2O,HO2,NO2],[1,1],[1,1,1])
+	   #CH3O2 + NO --&gt; CH2O + HO2 + NO2
+	   Reaction(r15, [CH3O2,CH3O2], [CH2O,H2O],[10,10],[20,8])
+	   #10CH3O2 + 10CH3O2 --&gt; 20CH2O + 8HO2
+	   Reaction(r17, [DMS,OH], [SO2],[1,1],[1]) 
+	   #DMS + OH --&gt; SO2
+	   Reaction(r21a, [ISOP,OH], [CH3O2],[1,1],[2])
+	   #ISOP +OH --&gt; 2CH3O2
+	   Reaction(r21c, [ISOP,OH], [ISOP,OH],[2,2],[2,1])
+	   #2ISOP + 2OH --&gt; 2ISOP + OH
+	   Reaction(r22, [ISOP,O3], [CH2O,CH3O2,HO2,CO], [1,1.0], [0.87,1.86,0.06,0.05])
+	   #ISOP + O3 --&gt; 0.87CH2O + 1.86CH3O2 + 0.06HO2 + 0.05CO
+	   Reaction(rr2, [H2O2], [OH], [1], [2])
+	   #H2O2 --&gt; 2OH
+	   Reaction(rr3, [NO2], [NO,O3], [1], [1,1])
+	   #NO2 --&gt; NO + O3
+	   Reaction(rr4, [CH2O], [CO,HO2], [1], [1,2])
+	   #CH2O --&gt; CO + 2HO2
+	   Reaction(rr5, [CH2O], [CO], [1], [1])
+	   #CH2O --&gt; CO
+	   Reaction(rr6, [CH3OOH], [CH2O,HO2,OH], [1], [1,1,1])
+	   #CH3OOH --&gt; CH2O + HO2 + OH
+	   Reaction(r4, [HO2],[H2O2,O2],[2],[1,1])
+	   #HO2 + HO2 = H2O2 + O2
+	   Reaction(r5,[OH,H2O2],[H2O,HO2],[1,1],[1,1])
+	   #OH + H2O2 = H2O + HO2
+	   Reaction(r10,[OH,CO],[HO2],[1,1],[1])
+	   #OH + CO = HO2
+	   ] </code></pre><pre><code class="language-julia hljs">@named rs = ReactionSystem(rxs, t)</code></pre><p>which in Jupyter notebooks will give the figure that represents the reation networks.</p><p><img src="https://github.com/jialinl6/GasChemMTK.jl/blob/jialinl6-patch-1/docs/src/chemical%20reactions.png" alt="Chemical Network Graph"/></p><p>We build a function that can predict the change of the concentration of the chemicals in the superfast mechanism with input of temperature, the initial concentrations and reaction rates of photolysis reactions. </p><pre><code class="language-julia hljs">function ozone(T_,a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,z)
+	u₀map_ = [O3 =&gt; a, OH =&gt; b, HO2 =&gt; c, O2 =&gt; d, H2O =&gt; e, NO =&gt; f, NO2 =&gt; g, CH4 =&gt; h, CH3O2 =&gt; i, CH2O =&gt; j, CO =&gt; k, CH3OOH =&gt; l, CH3O =&gt; m, DMS =&gt; n, SO2 =&gt; o, ISOP =&gt; p, H2O2 =&gt; q]
+	parammap_ = [r1 =&gt; 1.7*10^(-12)*exp(-940/T_)*2.46*10^10, 
+	r2 =&gt; 1.0*10^(-14)*exp(-490/T_)*2.46*10^10,
+	r3 =&gt; 4.8*10^(-11)*exp(250/T_)*2.46*10^10,
+	r6 =&gt; 3.0*10^(-12)*exp(-1500/T_)*2.46*10^10,
+	r7 =&gt; 3.5*10^(-12)*exp(250/T_)*2.46*10^10,
+	r9 =&gt; 2.45*10^(-12)*exp(-1775/T_)*2.46*10^10,
+	r11 =&gt; 5.50*10^(-12)*exp(125/T_)*2.46*10^10,
+	r12 =&gt; 4.10*10^(-13)*exp(750/T_)*2.46*10^10,
+	r13a =&gt; 2.70*10^(-12)*exp(200/T_)*2.46*10^10,
+	r13b =&gt; 1.10*10^(-12)*exp(200/T_)*2.46*10^10,
+	r14 =&gt; 2.80*10^(-12)*exp(300/T_)*2.46*10^10,
+	r15 =&gt; 9.50*10^(-14)*exp(390/T_)/10*2.46*10^10,
+	r17 =&gt; 1.10*10^(-11)*exp(-240/T_)*2.46*10^10,
+	r21a =&gt; 2.70*10^(-11)*exp(390/T_)*2.46*10^10,
+	r21c =&gt; 2.70*10^(-11)*exp(390/T_)/2*2.46*10^10,
+	r22 =&gt; 5.59*10^(-15)*exp(-1814/T_)*2.46*10^10,
+	rr2 =&gt; r,
+	rr3 =&gt; s,
+	rr4 =&gt; t,
+	rr5 =&gt; t,
+	rr6 =&gt; u,
+	r4 =&gt; 3.0*10^(-13)*exp(460/T_)*2.46*10^10,
+	r5 =&gt; 1.8*10^(-12)*2.46*10^10,
+	r10 =&gt; 1.5*10^(-13)*2.46*10^10
+]
+	oprob_ = ODEProblem(rs, u₀map_, tspan, parammap_)
+	sol_ = solve(oprob_, Tsit5(), saveat=10.)
+	plot(sol_,ylim=[0,z], lw=2)
+end</code></pre><p>For example, below is the graph at 220K, when the initial concentrations are as followed: O3 =&gt; 10.0, OH =&gt; 10.0, HO2 =&gt; 10.0, O2 =&gt; 2.1<em>(10^8), H2O =&gt; 450.0, NO =&gt; 0.0, NO2 =&gt; 10.0, CH4 =&gt; 1700, CH3O2 =&gt; 0.01, CH2O =&gt; 0.15, CO =&gt; 275, CH3OOH =&gt; 1.6, CH3O =&gt; 0.0, DMS =&gt; 50, SO2 =&gt; 2.0, ISOP =&gt; 0.15, H2O2 =&gt; 2.34, and the potolysis rates for rr2 to rr6 are 1.0097</em> 10^-5, 0.0149, 0.00014, 0.00014 and 8.9573* 10^-6.</p><pre><code class="language-julia hljs">ozone(220,10.0, 10.0, 10.0, 2.1*(10^8), 450.0, 0.0, 10.0, 1700.0, 0.01, 0.15, 275.0, 1.6, 0.0, 50, 2.0, 0.15, 2.34, 1.0097*10^-5, 0.0149, 0.00014, 8.9573*10^-6,30)</code></pre><p><img src="https://github.com/jialinl6/GasChemMTK.jl/blob/jialinl6-patch-1/docs/src/example.svg" alt="Example1 Graph"/></p></article><nav class="docs-footer"><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.12 on <span class="colophon-date" title="Friday 21 January 2022 16:58">Friday 21 January 2022</span>. Using Julia version 1.7.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
