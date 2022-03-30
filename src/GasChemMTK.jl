@@ -1,5 +1,5 @@
 module GasChemMTK
 
-# Write your package code here.
+include("SuperFast.jl")
 
 end

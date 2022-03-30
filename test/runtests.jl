@@ -1,6 +1,6 @@
 using GasChemMTK
-using Test
+using Test, SafeTestsets
 
 @testset "GasChemMTK.jl" begin
-    # Write your tests here.
+    @safetestset "SuperFast" begin include("superfast_test.jl") end
 end
