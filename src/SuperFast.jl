@@ -155,5 +155,5 @@ function superfast()
         )
     ]
 
-    @named gaschem = ReactionSystem(rxs, t)
+    @named superfast = ReactionSystem(rxs, t)
 end
