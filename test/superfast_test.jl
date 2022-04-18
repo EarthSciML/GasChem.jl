@@ -112,7 +112,8 @@ tspan = (0.0, 360.0)
         0.04813088503493186, 47.095364149128066, 4.904635850872059, 0.03716992293694597, 6.10272019987819]
 
     rs = superfast()
-    test0 = solve(ODEProblem(rs, [], tspan, []), Tsit5(), saveat=10.0)[37]
+    test0 = solve(ODEProblem(rs, [], tspan, [], combinatoric_ratelaws=false),
+        Tsit5(), saveat=10.0)[37]
 
     test0 ≈ u_0
 end
@@ -120,62 +121,43 @@ end
 
 # Unit Test 1: DMS sensitivity
 @test begin
-    u_dms = [-0.119651
-        -1.91224e-5
-        -3.0225e-5
-        -0.952411
-        0.0153949
-        -0.0153949
-        0.0182646
-        -7.30047e-6
-        -0.0788379
-        -0.0257533
-        0.0961116
-        0.00144204
-        -0.00974384
-        29.033
-        0.966983
-        0.0109903
-        0.00929881]
+    u_dms = [-0.10454668241866116, -1.9561605858194185e-5, -3.106460965346882e-5, -0.8721702694892883, 
+        0.01413278507411686, -0.014132785074119525, 0.01575054090062622, -7.867413024767563e-6, 
+        -0.06822413033228258, -0.024976983204615943, 0.08260452379232675, 0.0013381731267192443, 
+        -0.00827163263979424, 29.115734664081053, 0.884265335919002, 0.010897006340774007, 
+        0.005929640287532401]
 
 
     rs1 = superfast()
     @unpack DMS = rs1
-    o1 = solve(ODEProblem(rs1, [DMS => 76], tspan, []), Tsit5(), saveat=10.0)[37]
+    o1 = solve(ODEProblem(rs1, [DMS => 76], tspan, [], combinatoric_ratelaws=false),
+        Tsit5(), saveat=10.0)[37]
     rs2 = superfast()
     @unpack DMS = rs2
-    o2 = solve(ODEProblem(rs2, [DMS => 46], tspan, []), Tsit5(), saveat=10.0)[37]
+    o2 = solve(ODEProblem(rs2, [DMS => 46], tspan, [], combinatoric_ratelaws=false),
+        Tsit5(), saveat=10.0)[37]
     test1 = o1 - o2
+    show(test1)
 
     isapprox(test1, u_dms, atol=0.001)
 end
 
 # Unit Test 2: ISOP sensitivity
 @test begin
-    u_isop = [0.162031
-        9.9153e-6
-        6.39096e-5
-        0.0112869
-        -0.0231624
-        0.0231624
-        0.00147313
-        2.79975e-5
-        0.0170129
-        0.122394
-        0.0217178
-        0.468289
-        0.00558679
-        0.0440626
-        -0.0440626
-        0.104439
-        -0.196991]
+    u_isop = [0.19336828659473682, 1.0685775858082821e-5, 7.076499857528739e-5, -0.17313149571418762, 
+        -0.02789769637570849, 0.027897696375725367, 0.002074193934959112, 3.291535138988148e-5, 
+        0.009772053847200368, 0.13093633177930075, 0.02578705498143563, 0.4232688152161239, 
+        0.003514871089915446, 0.06245985978962665, -0.06245985978971191, 0.12306857235330271, 
+        -0.1816813083119273]
 
     rs1 = superfast()
     @unpack ISOP = rs1
-    o1 = solve(ODEProblem(rs1, [ISOP => 0.54], tspan, []), Tsit5(), saveat=10.0)[37]
+    o1 = solve(ODEProblem(rs1, [ISOP => 0.54], tspan, [], combinatoric_ratelaws=false),
+        Tsit5(), saveat=10.0)[37]
     rs2 = superfast()
     @unpack DMS = rs2
-    o2 = solve(ODEProblem(rs2, [ISOP => 0.13], tspan, []), Tsit5(), saveat=10.0)[37]
+    o2 = solve(ODEProblem(rs2, [ISOP => 0.13], tspan, [], combinatoric_ratelaws=false),
+        Tsit5(), saveat=10.0)[37]
     test2 = o1 - o2
 
     isapprox(test2, u_isop, atol=0.001)
@@ -183,30 +165,19 @@ end
 
 #  Unit Test 3: NO2 sensitivity
 @test begin
-    u_no2 = [46.0443
-        0.0131283
-        -0.00821943
-        274.906
-        31.0163
-        58.9837
-        -1.15577
-        -0.0016614
-        4.02589
-        0.114852
-        -4.81128
-        -0.671062
-        0.178781
-        -0.0322685
-        0.0322685
-        -2.22193e-6
-        -2.24779]
+    u_no2 = [45.815087932097704, 0.013328805337888702, -0.008154146012015293, 273.282846391201, 31.258199725882818, 
+        58.741800274117125, -1.1583771009886732, -0.0016345572367544173, 4.248228113696371, 0.11145439953256098, 
+        -4.825757003368722, -0.6655461575521526, 0.17728188903200487, -0.0326876923416977, 0.03268769234170188, 
+        -2.8970739651600855e-6, -2.1221615022511964]
 
     rs1 = superfast()
     @unpack NO2, DMS = rs1
-    o1 = solve(ODEProblem(rs1, [NO2 => 100.0, DMS => 0.1], tspan, []), Tsit5(), saveat=10.0)[37]
+    o1 = solve(ODEProblem(rs1, [NO2 => 100.0, DMS => 0.1], tspan, [], combinatoric_ratelaws=false),
+        Tsit5(), saveat=10.0)[37]
     rs2 = superfast()
     @unpack DMS = rs2
-    o2 = solve(ODEProblem(rs2, [DMS => 0.1], tspan, []), Tsit5(), saveat=10.0)[37]
+    o2 = solve(ODEProblem(rs2, [DMS => 0.1], tspan, [], combinatoric_ratelaws=false),
+        Tsit5(), saveat=10.0)[37]
     test3 = o1 - o2
 
     isapprox(test3, u_no2, atol=0.001)
@@ -215,30 +186,19 @@ end
 # Unit Test 4: CO sensitivity
 @test begin
 
-    u_co = [-0.270119
-        -1.07774e-6
-        -4.94023e-5
-        0.0691338
-        0.0326809
-        -0.0326809
-        -0.00479081
-        -8.59785e-7
-        0.0154504
-        0.0015244
-        -449.16
-        0.00507079
-        0.00245152
-        -0.143228
-        0.143228
-        -0.00262908
-        -0.269762]
+    u_co = [-0.19374842177177598, -7.322530996479624e-7, -4.9982433397066265e-5, 0.07323837280273438, 0.02489297323498274, 
+        -0.02489297323498274, -0.004745941171449886, -9.307982231501413e-7, 0.016005009668049297, 0.0025908944365184705, 
+        -449.25449589497924, 0.004702944975692347, 0.002387216023426779, -0.14281726933401728, 0.14281726933383787, 
+        -0.003033451056312593, -0.2643188520018276]
 
     rs1 = superfast()
     @unpack CO = rs1
-    o1 = solve(ODEProblem(rs1, [CO => 50.0], tspan, []), Tsit5(), saveat=10.0)[37]
+    o1 = solve(ODEProblem(rs1, [CO => 50.0], tspan, [], combinatoric_ratelaws=false),
+        Tsit5(), saveat=10.0)[37]
     rs2 = superfast()
     @unpack CO = rs2
-    o2 = solve(ODEProblem(rs2, [CO => 500.0], tspan, []), Tsit5(), saveat=10.0)[37]
+    o2 = solve(ODEProblem(rs2, [CO => 500.0], tspan, [], combinatoric_ratelaws=false),
+        Tsit5(), saveat=10.0)[37]
     test4 = o1 - o2
 
     isapprox(test4, u_co, atol=0.001)
@@ -246,32 +206,21 @@ end
 
 # Unit Test 5: CH4 sensitivity
 @test begin
-    u_ch4 = [0.00678343
-        -6.14978e-7
-        2.55066e-6
-        -0.00222483
-        -0.000951862
-        0.000951862
-        299.983
-        1.22716e-6
-        0.0166712
-        0.00478461
-        0.00115292
-        0.0110191
-        8.07883e-5
-        0.00349039
-        -0.00349039
-        6.41573e-5
-        -0.00423393]
+    u_ch4 = [0.006649456926439257, 4.413243541762671e-7, 2.2178601063442565e-6, -0.0018857717514038086, -0.0009518353413664471,
+        0.0009518353413784375, 299.9852769741426, 1.1206847614626843e-6, 0.014825256722076574, 0.0043752558306748845,
+        0.0009512747102462527, 0.00972499591066045, 5.316223970119188e-5, 0.002665966645722051, -0.0026659666457140574,
+        5.6697457754134595e-5, -0.0038979033301602684]
 
 
     rs1 = superfast()
     @unpack CH4 = rs1
-    o1 = solve(ODEProblem(rs1, [CH4 => 1900.0], tspan, []), Tsit5(), saveat=10.0)[37]
+    o1 = solve(ODEProblem(rs1, [CH4 => 1900.0], tspan, [], combinatoric_ratelaws=false),
+        Tsit5(), saveat=10.0)[37]
     rs2 = superfast()
     @unpack CH4 = rs2
-    o2 = solve(ODEProblem(rs2, [CH4 => 1600.0], tspan, []), Tsit5(), saveat=10.0)[37]
+    o2 = solve(ODEProblem(rs2, [CH4 => 1600.0], tspan, [], combinatoric_ratelaws=false),
+        Tsit5(), saveat=10.0)[37]
     test5 = o1 - o2
-
+    
     isapprox(test5, u_ch4, atol=0.001)
 end
