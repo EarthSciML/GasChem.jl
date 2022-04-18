@@ -111,7 +111,7 @@ rxs = [Reaction(r1, [O3,OH], [HO2,O2], [1,1], [1,1]) #O3 + OH --> HO2 + O2
 ```
 which in Jupyter notebooks will give the figure that represents the reation networks.
 
-![Chemical Network Graph](https://github.com/jialinl6/GasChemMTK.jl/blob/jialinl6-patch-1/docs/src/chemical%20reactions.png)
+![Chemical Network Graph](chemicalreactions.png)
 
 We build a function that can predict the change of the concentration of the chemicals in the superfast mechanism with input of temperature, the initial concentrations and reaction rates of photolysis reactions. 
 ```julia
@@ -151,5 +151,9 @@ For example, below is the graph at 220K, when the initial concentrations are as 
 ```julia
 ozone(220,10.0, 10.0, 10.0, 2.1*(10^8), 450.0, 0.0, 10.0, 1700.0, 0.01, 0.15, 275.0, 1.6, 0.0, 50, 2.0, 0.15, 2.34, 1.0097*10^-5, 0.0149, 0.00014, 8.9573*10^-6,30)
 ```
-![Example1 Graph](https://github.com/jialinl6/GasChemMTK.jl/blob/jialinl6-patch-1/docs/src/example.svg)
+![Example1 Graph](example.svg)
 
+
+```@docs
+superfast
+```

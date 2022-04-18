@@ -10,14 +10,24 @@ using Unitful
 end
 Unitful.register(MyUnits)
 
+"""
+    superfast()
 
-#=
 This atmospheric chemical system model is built based on the Super Fast Chemical Mechanism, which is one of the simplest representations of atmospheric chemistry. It can efficiently simulate background tropheric ozone chemistry and perform well for those species included in the mechanism. The chemical equations we used is included in the supporting table S2 of the paper:
+
 "Evaluating simplified chemical mechanisms within present-day simulations of the Community Earth System Model version 1.2 with CAM4 (CESM1.2 CAM-chem):
 MOZART-4 vs. Reduced Hydrocarbon vs. Super-Fast chemistry" (2018), Benjamin Brown-Steiner, Noelle E. Selin, Ronald G. Prinn, Simone Tilmes, Louisa Emmons, Jean-François Lamarque, and Philip Cameron-Smith.
 
 The input of the function is Temperature, concentrations of all chemicals, and reaction rates of photolysis reactions 
-=#
+
+# Example
+```
+using OrdinaryDiffEq, Plots
+rs = superfast()
+sol = solve(ODEProblem(rs, [], (0,360), []), Tsit5())
+plot(sol)
+```
+"""
 function superfast()
     @parameters jH2O2 = 1.0097 * 10.0^-5 [unit = u"ppb/s"]
     @parameters jNO2 = 0.0149 [unit = u"ppb/s"]

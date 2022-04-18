@@ -1,7 +1,7 @@
 using GasChemMTK
 using Documenter
 
-DocMeta.setdocmeta!(GasChemMTK, :DocTestSetup, :(using DepositionMTK); recursive=true)
+DocMeta.setdocmeta!(GasChemMTK, :DocTestSetup, :(using GasChemMTK); recursive=true)
 
 makedocs(;
     modules=[GasChemMTK],
