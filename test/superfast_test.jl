@@ -137,7 +137,6 @@ end
     o2 = solve(ODEProblem(rs2, [DMS => 46], tspan, [], combinatoric_ratelaws=false),
         Tsit5(), saveat=10.0)[37]
     test1 = o1 - o2
-    show(test1)
 
     isapprox(test1, u_dms, atol=0.001)
 end
