@@ -55,9 +55,9 @@ jobs:
       - run: |
           julia --project=docs -e '
             using Documenter: DocMeta, doctest
-            using GasChemMTK
-            DocMeta.setdocmeta!(GasChemMTK, :DocTestSetup, :(using GasChemMTK); recursive=true)
-            doctest(GasChemMTK)'
+            using GasChem
+            DocMeta.setdocmeta!(GasChem, :DocTestSetup, :(using GasChem); recursive=true)
+            doctest(GasChem)'
       - run: julia --project=docs docs/make.jl
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
