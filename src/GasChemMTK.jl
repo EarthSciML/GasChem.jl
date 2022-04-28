@@ -1,4 +1,4 @@
-module GasChemMTK
+module GasChem
 
 include("SuperFast.jl")
 

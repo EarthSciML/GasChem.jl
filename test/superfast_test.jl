@@ -1,4 +1,4 @@
-using GasChemMTK
+using GasChem
 using Test, OrdinaryDiffEq, ModelingToolkit
 
 #=
