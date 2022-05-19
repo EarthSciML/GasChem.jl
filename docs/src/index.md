@@ -1,10 +1,10 @@
 ```@meta
-CurrentModule = GasChemMTK
+CurrentModule = GasChem
 ```
 
-# GasChemMTK
+# GasChem
 
-This atmospheric chemical system model [GasChemMTK](https://github.com/EarthSciML/GasChemMTK.jl) is built based on the Super Fast Chemical Mechanism, which is one of the simplest representations of atmospheric chemistry. It can efficiently simulate background tropheric ozone chemistry and perform well for those species included in the mechanism. The chemical equations used is included in the supporting table S2 of the paper,
+This atmospheric chemical system model [GasChem](https://github.com/EarthSciML/GasChem.jl) is built based on the Super Fast Chemical Mechanism, which is one of the simplest representations of atmospheric chemistry. It can efficiently simulate background tropheric ozone chemistry and perform well for those species included in the mechanism. The chemical equations used is included in the supporting table S2 of the paper,
 "Evaluating simplified chemical mechanisms within present-day simulations of the Community Earth System Model version 1.2 with CAM4 (CESM1.2 CAM-chem):
 MOZART-4 vs. Reduced Hydrocarbon vs. Super-Fast chemistry" (2018), Benjamin Brown-Steiner, Noelle E. Selin, Ronald G. Prinn, Simone Tilmes, Louisa Emmons, Jean-François Lamarque, and Philip Cameron-Smith.
 
@@ -111,7 +111,7 @@ rxs = [Reaction(r1, [O3,OH], [HO2,O2], [1,1], [1,1]) #O3 + OH --> HO2 + O2
 ```
 which in Jupyter notebooks will give the figure that represents the reation networks.
 
-![Chemical Network Graph](https://github.com/jialinl6/GasChemMTK.jl/blob/jialinl6-patch-1/docs/src/chemical%20reactions.png)
+![Chemical Network Graph](chemicalreactions.png)
 
 We build a function that can predict the change of the concentration of the chemicals in the superfast mechanism with input of temperature, the initial concentrations and reaction rates of photolysis reactions. 
 ```julia
@@ -151,5 +151,9 @@ For example, below is the graph at 220K, when the initial concentrations are as 
 ```julia
 ozone(220,10.0, 10.0, 10.0, 2.1*(10^8), 450.0, 0.0, 10.0, 1700.0, 0.01, 0.15, 275.0, 1.6, 0.0, 50, 2.0, 0.15, 2.34, 1.0097*10^-5, 0.0149, 0.00014, 8.9573*10^-6,30)
 ```
-![Example1 Graph](https://github.com/jialinl6/GasChemMTK.jl/blob/jialinl6-patch-1/docs/src/example.svg)
+![Example1 Graph](example.svg)
 
+
+```@docs
+superfast
+```
