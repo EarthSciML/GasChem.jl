@@ -1,6 +1,6 @@
 """
 This julia file define the model containing Gas-phase part of full chemistry model.
-The rates fuctions are in "lowfunctions.jl", "ratesfunctions.jl", and "RateLawUtilFuncs.jl"
+The rates fuctions are in "Lawfunctions.jl", "Ratesfunctions.jl", and "RateLawUtilFuncs.jl"
 The original model is form:
 https://github.com/geoschem
 
@@ -59,7 +59,7 @@ using OrdinaryDiffEq
 using DifferentialEquations
 using PyPlot
 
-include("Lowfunctions.jl")
+include("Lawfunctions.jl")
 include("Ratesfunctions.jl")
 include("RateLawUtilFuncs.jl")
 
