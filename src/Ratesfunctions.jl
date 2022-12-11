@@ -5,7 +5,7 @@ https://github.com/geoschem
 """
 
 
-include("Lowfunctions.jl")
+include("Lawfunctions.jl")
 include("RateLawUtilFuncs.jl")
 
 
