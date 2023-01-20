@@ -57,6 +57,9 @@ using Unitful
     # first column: 200K
     # second column:294K
 
+
+    actinic_flux = [1.391E+12, 1.627E+12, 1.664E+12, 9.278E+11, 7.842E+12, 4.680E+12, 9.918E+12, 1.219E+13, 6.364E+14, 4.049E+14, 3.150E+14, 5.889E+14, 7.678E+14, 5.045E+14, 8.902E+14, 3.853E+15, 1.547E+16, 2.131E+17]
+
 """
     cos_solar_zenith_angle(lat, LST, DOY)
 This function is to compute the cosine of the solar zenith angle, given the day of the year and local solar hour
@@ -78,49 +81,116 @@ The input variables: lat=latitude(°), LST=Local Solar Time(hour), DOY=Day of Ye
 
     #   Functions to interpolate cross sections & quantum yields to calculate J values:
 
-    function calc_J_o31D(actinic_flux,T)
-        @parameters σ_1 = IfElse.ifelse(T <= 200, table_σ_o31D_jx[:,1], table_σ_o31D_jx[:,3]) 
-        @parameters σ_ = IfElse.ifelse((T < 260)&(T > 200), (table_σ_o31D_jx[:,2].-table_σ_o31D_jx[:,1])*(T-200)/(260-200) .+ table_σ_o31D_jx[:,1], σ_1)
-        @parameters σ = IfElse.ifelse((T < 320)&(T >= 260), (table_σ_o31D_jx[:,3].-table_σ_o31D_jx[:,2])*(T-260)/(320-260) .+ table_σ_o31D_jx[:,2], σ_)
-        r = actinic_flux .* σ * ϕ_o31D_jx
-        return r
-    end
-
     function calc_J_H2O2(actinic_flux,T)
-        @parameters σ_ = IfElse.ifelse(T <= 200, table_σ_H2O2_jx[:,1], table_σ_H2O2_jx[:,2])
-        @parameters σ = IfElse.ifelse((T < 300)&(T > 200), (table_σ_H2O2_jx[:,2].-table_σ_H2O2_jx[:,1])*(T-200)/(300-200) .+ table_σ_H2O2_jx[:,1], σ_)
+        # @parameters σ_ = IfElse.ifelse(T <= 200, table_σ_H2O2_jx[:,1], table_σ_H2O2_jx[:,2])
+        # @parameters σ = IfElse.ifelse((T < 300)&(T > 200), (table_σ_H2O2_jx[:,2].-table_σ_H2O2_jx[:,1])*(T-200)/(300-200) .+ table_σ_H2O2_jx[:,1], σ_)
+        # r = actinic_flux .* σ * ϕ_H2O2_jx
+        # return r
+
+        #a = IfElse.ifelse(T <= 10, 5, 10)
+        #return a*r
+
+            if T <= 200
+                σ = table_σ_H2O2_jx[:,1]
+            elseif T >= 300
+                σ = table_σ_H2O2_jx[:,2]
+            elseif 200 < T < 300
+                σ = (table_σ_H2O2_jx[:,2].-table_σ_H2O2_jx[:,1])*(T-200)/(300-200) .+ table_σ_H2O2_jx[:,1]
+            end
         r = actinic_flux .* σ * ϕ_H2O2_jx
         return r
     end
 
+    @register calc_J_H2O2(actinic_flux,T)
+
+    """
+    calc_J_o31D(actinic_flux,T)
+This function is to calculate the J values of O3(1D) reaction with given actinic flux(unit: quanta*cm^-2*s^-1) and temperature(unit:K)
+"""
+    function calc_J_o31D(actinic_flux,T)
+            if T <= 200
+                σ = table_σ_o31D_jx[:,1]
+            elseif T > 320
+                σ = table_σ_o31D_jx[:,3]
+            elseif 200 < T <= 260
+                σ = (table_σ_o31D_jx[:,2].-table_σ_o31D_jx[:,1])*(T-200)/(260-200) .+ table_σ_o31D_jx[:,1]
+            elseif 260 < T <= 320
+                σ = (table_σ_o31D_jx[:,3].-table_σ_o31D_jx[:,2])*(T-260)/(320-260) .+ table_σ_o31D_jx[:,2]
+            end
+        r = actinic_flux .* σ * ϕ_o31D_jx
+        return r 
+    end
+
+    @register calc_J_o31D(actinic_flux,T)
+
+    """
+    calc_J_CH2Oa(actinic_flux, T)
+This function is to calculate the J values of CH2O(a) reaction with given actinic flux(unit: quanta*cm^-2*s^-1) and temperature(unit:K)
+"""
     function calc_J_CH2Oa(actinic_flux, T)
-        @parameters σ_ = IfElse.ifelse(T <= 223, table_σ_CH2Oa_jx[:,1], table_σ_CH2Oa_jx[:,2])
-        @parameters σ = IfElse.ifelse((T < 298)&(T > 223), (table_σ_CH2Oa_jx[:,2].-table_σ_CH2Oa_jx[:,1])*(T-223)/(298-223) .+ table_σ_CH2Oa_jx[:,1], σ_)
-        r = actinic_flux .* σ * ϕ_CH2Oa_jx
+            if T <= 223
+                r = actinic_flux .* table_σ_CH2Oa_jx[:,1] * ϕ_CH2Oa_jx
+            elseif T >= 298
+                r = actinic_flux .* table_σ_CH2Oa_jx[:,2] * ϕ_CH2Oa_jx
+            elseif 223 < T < 298
+                k = (T-223)/(298-223)
+                σ = (table_σ_CH2Oa_jx[:,2]-table_σ_CH2Oa_jx[:,1])*k + table_σ_CH2Oa_jx[:,1]
+                r = actinic_flux .* σ * ϕ_CH2Oa_jx
+            end
         return r
     end
 
-    function calc_J_CH2Ob(actinic_flux, T)
-        @parameters σ_ = IfElse.ifelse(T <= 223, table_σ_CH2Ob_jx[:,1], table_σ_CH2Ob_jx[:,2])
-        @parameters σ = IfElse.ifelse((T < 298)&(T > 223), (table_σ_CH2Ob_jx[:,2].-table_σ_CH2Ob_jx[:,1])*(T-223)/(298-223) .+ table_σ_CH2Ob_jx[:,1], σ_)
-        r = actinic_flux .* σ * ϕ_CH2Ob_jx
-        return r
-    end
-
-    function calc_J_CH3OOH(actinic_flux,T)
-        r = actinic_flux .* table_σ_CH3OOH_jx * ϕ_CH2Ob_jx
-        return r
-    end
-
-    function calc_J_NO2(actinic_flux, T)
-        @parameters σ_ = IfElse.ifelse(T <= 200, table_σ_NO2_jx[:,1], table_σ_NO2_jx[:,2])
-        @parameters σ = IfElse.ifelse((T < 294)&(T > 200), (table_σ_NO2_jx[:,2].-table_σ_NO2_jx[:,1])*(T-200)/(294-200) .+ table_σ_NO2_jx[:,1], σ_)
-        r = actinic_flux .* σ * ϕ_NO2_jx
-        return r
-    end
-
-    actinic_flux = [1.391E+12, 1.627E+12, 1.664E+12, 9.278E+11, 7.842E+12, 4.680E+12, 9.918E+12, 1.219E+13, 6.364E+14, 4.049E+14, 3.150E+14, 5.889E+14, 7.678E+14, 5.045E+14, 8.902E+14, 3.853E+15, 1.547E+16, 2.131E+17]
+    @register calc_J_CH2Oa(actinic_flux, T)
     
+    """
+    calc_J_CH2Ob(actinic_flux, T)
+This function is to calculate the J values of CH2O(a) reaction with given actinic flux(unit: quanta*cm^-2*s^-1) and temperature(unit:K)
+"""
+    function calc_J_CH2Ob(actinic_flux, T)
+            if T <= 223
+                r = actinic_flux .* table_σ_CH2Ob_jx[:,1] * ϕ_CH2Ob_jx
+            elseif T >= 298
+                r = actinic_flux .* table_σ_CH2Ob_jx[:,2] * ϕ_CH2Ob_jx
+            elseif 223 < T < 298
+                k = (T-223)/(298-223)
+                σ = (table_σ_CH2Ob_jx[:,2]-table_σ_CH2Ob_jx[:,1])*k + table_σ_CH2Ob_jx[:,1]
+                r = actinic_flux .* σ * ϕ_CH2Ob_jx
+            end
+        return r
+    end
+
+    @register calc_J_CH2Ob(actinic_flux, T)
+
+    """
+    calc_J_CH3OOH(actinic_flux,T)
+This function is to calculate the J values of CH3OOH reaction with given actinic flux(unit: quanta*cm^-2*s^-1) and temperature(unit:K)
+"""
+    function calc_J_CH3OOH(actinic_flux,T)
+            r = actinic_flux .* table_σ_CH3OOH_jx * ϕ_CH3OOH_jx
+        return r
+    end
+
+    @register calc_J_CH3OOH(actinic_flux,T)
+
+    """
+    calc_J_NO2(actinic_flux, t)
+This function is to calculate the J values of NO2 reaction with given actinic flux(unit: quanta*cm^-2*s^-1) and temperature(unit:K)
+"""
+    function calc_J_NO2(actinic_flux, T)
+            if T <= 200
+                r = actinic_flux .* table_σ_NO2_jx[:,1] * ϕ_NO2_jx
+            elseif T >= 294
+                r = actinic_flux .* table_σ_NO2_jx[:,2] * ϕ_NO2_jx
+            elseif 200 < T < 294
+                k = (T-200)/(294-200)
+                σ = (table_σ_NO2_jx[:,2]-table_σ_NO2_jx[:,1])*k + table_σ_NO2_jx[:,1]
+                r = actinic_flux .* σ * ϕ_NO2_jx
+            end
+        return r
+    end
+
+    @register calc_J_NO2(actinic_flux, T)
+
     # Get Doy of Year
     function Get_DOY(t)
         dayofyear(Dates.unix2datetime(t))
@@ -145,17 +215,9 @@ The input variables: lat=latitude(°), LST=Local Solar Time(hour), DOY=Day of Ye
         return r
     end
 
-#   Get mean photolysis rates at different time
+    @register calc_flux(t, lat)
 
-    function mean_J_o31D(t,lat,T)
-        flux = calc_flux(t,lat)
-        j = calc_J_o31D(flux,T)./WL
-        r = 0
-        for i in 1:17
-            r += 1/2*(j[i]+j[i+1])*(WL[i+1]-WL[i])
-        end
-        return r
-    end
+#   Get mean photolysis rates at different time
 
     function mean_J_H2O2(t,lat,T)
         flux = calc_flux(t,lat)
@@ -167,6 +229,20 @@ The input variables: lat=latitude(°), LST=Local Solar Time(hour), DOY=Day of Ye
         return r
     end
 
+    @register mean_J_H2O2(t,lat,T)
+
+    function mean_J_o31D(t,lat,T)
+        flux = calc_flux(t,lat)
+        j = calc_J_o31D(flux,T)./WL
+        r = 0
+        for i in 1:17
+            r += 1/2*(j[i]+j[i+1])*(WL[i+1]-WL[i])
+        end
+        return r
+    end
+
+    @register mean_J_o31D(t,lat,T)
+
     function mean_J_CH2Oa(t,lat,T)
         flux = calc_flux(t,lat)
         j = calc_J_CH2Oa(flux,T)./WL
@@ -176,6 +252,8 @@ The input variables: lat=latitude(°), LST=Local Solar Time(hour), DOY=Day of Ye
         end
         return r
     end
+
+    @register mean_J_CH2Oa(t,lat,T)
 
     function mean_J_CH2Ob(t,lat,T)
         flux = calc_flux(t,lat)
@@ -187,6 +265,8 @@ The input variables: lat=latitude(°), LST=Local Solar Time(hour), DOY=Day of Ye
         return r
     end
 
+    @register mean_J_CH2Ob(t,lat,T)
+
     function mean_J_CH3OOH(t,lat,T)
         flux = calc_flux(t,lat)
         j = calc_J_CH3OOH(flux,T)./WL
@@ -196,6 +276,8 @@ The input variables: lat=latitude(°), LST=Local Solar Time(hour), DOY=Day of Ye
         end
         return r
     end
+
+    @register mean_J_CH3OOH(t,lat,T)
 
     function mean_J_NO2(t,lat,T)
         flux = calc_flux(t,lat)
@@ -207,17 +289,18 @@ The input variables: lat=latitude(°), LST=Local Solar Time(hour), DOY=Day of Ye
         return r
     end
 
+    @register mean_J_NO2(t,lat,T)
+
 #   Build Fast-JX model
-    function fast_jx()
+    function fast_jx(t)
         @parameters T = 298
         @parameters lat = 30
         @parameters j_unit = 1 [unit = u"s^-1"]
-        @parameters t 
 
         @variables j_h2o2(t) = 1.0097 * 10.0^-5 [unit = u"s^-1"]
         @variables j_CH2Oa(t) = 0.00014 [unit = u"s^-1"]
         @variables j_o31D(t) =4.0*10.0^-3 [unit = u"s^-1"]
-        @variables j_CH2Ob(t) = 0.00014 [unit = u"s^-1"]
+        #@variables j_CH2Ob(t) = 0.00014 [unit = u"s^-1"]
         @variables j_CH3OOH(t) =8.9573 * 10.0^-6 [unit = u"s^-1"]
         @variables j_NO2(t) =0.0149 [unit = u"s^-1"]
 
@@ -225,29 +308,29 @@ The input variables: lat=latitude(°), LST=Local Solar Time(hour), DOY=Day of Ye
         j_h2o2 ~ mean_J_H2O2(t,lat,T)*j_unit
         j_CH2Oa ~ mean_J_CH2Oa(t,lat,T)*j_unit
         j_o31D ~ mean_J_o31D(t,lat,T)*j_unit
-        j_CH2Ob ~ mean_J_CH2Ob(t,lat,T)*j_unit
+        #j_CH2Ob ~ mean_J_CH2Ob(t,lat,T)*j_unit
         j_CH3OOH ~ mean_J_CH3OOH(t,lat,T)*j_unit
         j_NO2 ~ mean_J_NO2(t,lat,T)*j_unit
         ]
 
-        @named fj = ODESystem(eqs,t,[j_h2o2, j_CH2Oa, j_o31D, j_CH2Ob, j_CH3OOH, j_NO2],[])
+        @named fj = ODESystem(eqs,t,[j_h2o2, j_CH2Oa, j_o31D, j_CH3OOH, j_NO2],[lat,j_unit,T])
     end
 
-    fj = fast_jx()
-    simplified_sys = structural_simplify(fj)
-    tspan = (0.0, 36000.0)
-    sol = solve(ODEProblem(simplified_sys, [], tspan, [], combinatoric_ratelaws=false, check_length=false),Tsit5(), saveat=10.0)
-    using Plots
+    # fj = fast_jx(t)
+    # simplified_sys = structural_simplify(fj)
+    # tspan = (0.0, 36000.0)
+    # sol = solve(ODEProblem(simplified_sys, [], tspan, [], combinatoric_ratelaws=false, check_length=false),Tsit5(), saveat=10.0)
+    # using Plots
     #plot(sol)
 
 
-    @variables a(t)
-    @parameters t
-    D = Differential(t)
-    eqn = [ a ~ t]
-    @named ep = ODESystem(eqn,t,[a],[])
-    sim_sys = structural_simplify(ep)
+    # @variables a(t)
+    # @parameters t
+    # D = Differential(t)
+    # eqn = [ a ~ t]
+    # @named ep = ODESystem(eqn,t,[a],[])
+    # sim_sys = structural_simplify(ep)
 
-    eqn_2 = [ D(a) ~ t ]
-    @named ep2 = ODESystem(eqn_2,t,[a],[])
-    sim_sys2 = structural_simplify(ep2)
+    # eqn_2 = [ D(a) ~ t ]
+    # @named ep2 = ODESystem(eqn_2,t,[a],[])
+    # sim_sys2 = structural_simplify(ep2)
