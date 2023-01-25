@@ -24,9 +24,9 @@ end
 
 """
 Compose superfast and fast-jx models together.
-"""
-# Example:
-```julia
+
+# Example
+```
 using GasChem
 
 @parameters t 
@@ -38,6 +38,7 @@ sol = solve(ODEProblem(connect, [], tspan, [], combinatoric_ratelaws=false),Tsit
 using Plots
 plot(sol,ylims=(0,20),xlabel="Time (second)", ylabel="concentration (ppb)",legend=:outertopright)
 ```
+"""
 function compose_fastjx_superfast(fastjx, superfast)
   r_sf = remove_D(superfast)
   @named connected = ODESystem([
