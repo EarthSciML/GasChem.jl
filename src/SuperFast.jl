@@ -1,6 +1,3 @@
-using Catalyst
-using Unitful
-
 export superfast
 
 # Add unit "ppb" to Unitful 
@@ -30,12 +27,15 @@ plot(sol)
 
 We set `combinatoric_ratelaws=false` because we are modeling macroscopic rather than microscopic behavior. See [here](https://docs.juliahub.com/ModelingToolkit/Qmdqu/3.14.0/systems/ReactionSystem/#ModelingToolkit.oderatelaw) and [here](https://github.com/SciML/Catalyst.jl/issues/311).
 """
-function superfast()
-    @parameters jH2O2 = 1.0097 * 10.0^-5 [unit = u"s^-1"]
-    @parameters jNO2 = 0.0149 [unit = u"s^-1"]
-    @parameters jCH20a = 0.00014 [unit = u"s^-1"]
-    @parameters jCH20b = 0.00014 [unit = u"s^-1"]
-    @parameters jCH3OOH = 8.9573 * 10.0^-6 [unit = u"s^-1"]
+function superfast(t)
+    @variables jO31D(t) = 4.0*10.0^-3 [unit = u"s^-1"]
+    @parameters j2OH = 2.2*10.0^-10 [unit = u"(s*ppb)^-1"]
+    @variables jH2O2(t) = 1.0097 * 10.0^-5 [unit = u"s^-1"]
+    @variables jNO2(t) = 0.0149 [unit = u"s^-1"]
+    @variables jCH2Oa(t) = 0.00014 [unit = u"s^-1"]
+    # TODO(JL): What's difference between the two photolysis reactions of CH2O, do we really need both? (@variables jCH20b(t) = 0.00014 [unit = u"s^-1"])
+    @variables jCH3OOH(t) = 8.9573 * 10.0^-6 [unit = u"s^-1"]
+
     @parameters k1 = 1.7e-12 [unit = u"(s*ppb)^-1"] T1 = -940 [unit = u"K"]
     @parameters k2 = 1.0e-14 [unit = u"(s*ppb)^-1"] T2 = -490 [unit = u"K"]
     @parameters k3 = 4.8e-11 [unit = u"(s*ppb)^-1"] T3 = 250 [unit = u"K"]
@@ -58,6 +58,7 @@ function superfast()
     @parameters T = 280.0 [unit = u"K"]
 
     @variables O3(t) = 10.0 [unit = u"ppb"]
+    @variables O1d(t) = 0 [unit = u"ppb"]
     @variables OH(t) = 10.0 [unit = u"ppb"]
     @variables HO2(t) = 10.0 [unit = u"ppb"]
     @variables O2(t) = 2.1 * (10.0^8) [unit = u"ppb"]
@@ -75,7 +76,7 @@ function superfast()
     @variables ISOP(t) = 0.15 [unit = u"ppb"]
     @variables H2O2(t) = 2.34 [unit = u"ppb"]
 
-    c = 2.46e10 # TODO: What is this constant?
+    c = 2.46e10 # TODO(JL): What is this constant?
     rate(k, Tc) = k * exp(Tc / T) * c
 
     # Create reaction system, ignoring aqueous chemistry.
@@ -112,14 +113,18 @@ function superfast()
         Reaction(rate(k15, T15), [ISOP, OH], [ISOP, OH], [2, 2], [2, 1])
         #ISOP + O3 --> 0.87CH2O + 1.86CH3O2 + 0.06HO2 + 0.05CO
         Reaction(rate(k16, T16), [ISOP, O3], [CH2O, CH3O2, HO2, CO], [1, 1.0], [0.87, 1.86, 0.06, 0.05])
+        #O3 -> O2 + O(1D)
+        Reaction(jO31D*10^(-20),[O3], [O1d,O2], [1], [1,1]) # TODO(JL): Is 10^(-20) a reasonable value?
+        #O(1D) + H2O -> 2OH
+        Reaction(j2OH, [O1d,H2O],[OH],[1,1],[2])
         #H2O2 --> 2OH
         Reaction(jH2O2, [H2O2], [OH], [1], [2])
         #NO2 --> NO + O3
         Reaction(jNO2, [NO2], [NO, O3], [1], [1, 1])
         #CH2O --> CO + 2HO2
-        Reaction(jCH20a, [CH2O], [CO, HO2], [1], [1, 2])
+        Reaction(jCH2Oa, [CH2O], [CO, HO2], [1], [1, 2])
         #CH2O --> CO
-        Reaction(jCH20b, [CH2O], [CO], [1], [1])
+        # TODO(JL): What's difference between the two photolysis reactions of CH2O, do we really need both? (Reaction(jCH20b, [CH2O], [CO], [1], [1]))
         #CH3OOH --> CH2O + HO2 + OH
         Reaction(jCH3OOH, [CH3OOH], [CH2O, HO2, OH], [1], [1, 1, 1])
         #HO2 + HO2 = H2O2 + O2
@@ -131,4 +136,5 @@ function superfast()
     ]
 
     @named superfast = ReactionSystem(rxs, t)
+    return superfast
 end
