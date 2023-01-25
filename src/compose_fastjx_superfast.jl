@@ -4,22 +4,22 @@ Converting the ReactionSystem to an ODESystem adds extra terms for the derivativ
 """
 function remove_D(superfast)
 
-  @unpack jO31D, jH2O2, jNO2, jCH2Oa, jCH3OOH = superfast
+    @unpack jO31D, jH2O2, jNO2, jCH2Oa, jCH3OOH = superfast
 
-  sf = convert(ODESystem, superfast, combinatoric_ratelaws=false)
-  D = Differential(t)
-  terms_to_remove = [D(jH2O2), D(jCH2Oa), D(jO31D), D(jCH3OOH), D(jNO2)]
-  sf_eqs = Equation[]
-  for eq in equations(sf)
-      should_remove = false
-      for term in terms_to_remove
-          if isequal(term, eq.lhs)
-              should_remove = true
-          end
-      end
-      should_remove ? continue : push!(sf_eqs, eq)
-  end
-  ODESystem(sf_eqs, t, states(sf), parameters(sf); name=nameof(superfast))
+    sf = convert(ODESystem, superfast, combinatoric_ratelaws = false)
+    D = Differential(t)
+    terms_to_remove = [D(jH2O2), D(jCH2Oa), D(jO31D), D(jCH3OOH), D(jNO2)]
+    sf_eqs = Equation[]
+    for eq in equations(sf)
+        should_remove = false
+        for term in terms_to_remove
+            if isequal(term, eq.lhs)
+                should_remove = true
+            end
+        end
+        should_remove ? continue : push!(sf_eqs, eq)
+    end
+    ODESystem(sf_eqs, t, states(sf), parameters(sf); name = nameof(superfast))
 end
 
 """
@@ -40,13 +40,18 @@ plot(sol,ylims=(0,20),xlabel="Time (second)", ylabel="concentration (ppb)",legen
 ```
 """
 function compose_fastjx_superfast(fastjx, superfast)
-  r_sf = remove_D(superfast)
-  @named connected = ODESystem([
-  r_sf.jH2O2 ~ fastjx.j_h2o2
-  r_sf.jCH2Oa ~ fastjx.j_CH2Oa
-  r_sf.jCH3OOH ~ fastjx.j_CH3OOH
-  r_sf.jNO2 ~ fastjx.j_NO2
-  r_sf.jO31D ~ fastjx.j_o31D], t, systems=[r_sf, fastjx])
-  simplified_sys = structural_simplify(connected)
-  return simplified_sys
+    r_sf = remove_D(superfast)
+    @named connected = ODESystem(
+        [
+            r_sf.jH2O2 ~ fastjx.j_h2o2
+            r_sf.jCH2Oa ~ fastjx.j_CH2Oa
+            r_sf.jCH3OOH ~ fastjx.j_CH3OOH
+            r_sf.jNO2 ~ fastjx.j_NO2
+            r_sf.jO31D ~ fastjx.j_o31D
+        ],
+        t,
+        systems = [r_sf, fastjx],
+    )
+    simplified_sys = structural_simplify(connected)
+    return simplified_sys
 end
