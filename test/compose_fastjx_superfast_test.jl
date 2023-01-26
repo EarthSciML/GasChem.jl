@@ -1,5 +1,5 @@
 using GasChem
-using Test
+using Test, OrdinaryDiffEq, ModelingToolkit
 
 #   Unit Test
 @test begin
