@@ -1,4 +1,4 @@
-export fast_jx
+export fast_jx, mean_J_CH2Oa, mean_J_CH3OOH, mean_J_o31D, mean_J_H2O2, mean_J_NO2
 
 """
 Description: This is a box model used to calculate the photolysis reaction rate constant using the Fast-JX scheme (Neu, J. L., Prather, M. J., and Penner, J. E. (2007), Global atmospheric chemistry: Integrating over fractional cloud cover, J. Geophys. Res., 112, D11306, doi:10.1029/2006JD008007.)

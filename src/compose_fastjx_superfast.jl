@@ -3,7 +3,7 @@ export remove_D, compose_fastjx_superfast
 Converting the ReactionSystem to an ODESystem adds extra terms for the derivatives of the photolysis rate constants. We need to remove these terms before adding the fast-jx equations.
 """
 function remove_D(superfast)
-
+    @parameters t
     @unpack jO31D, jH2O2, jNO2, jCH2Oa, jCH3OOH = superfast
 
     sf = convert(ODESystem, superfast, combinatoric_ratelaws = false)
@@ -40,6 +40,7 @@ plot(sol,ylims=(0,20),xlabel="Time (second)", ylabel="concentration (ppb)",legen
 ```
 """
 function compose_fastjx_superfast(fastjx, superfast)
+    @parameters t
     r_sf = remove_D(superfast)
     @named connected = ODESystem(
         [
