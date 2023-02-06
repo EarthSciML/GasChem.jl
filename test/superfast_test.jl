@@ -1,5 +1,5 @@
 using GasChem
-using Test, OrdinaryDiffEq, ModelingToolkit
+using DifferentialEquations, ModelingToolkit
 
 #=
 
@@ -133,9 +133,9 @@ tspan = (0.0, 360.0)
     ]
 
     @parameters t
-    rs = superfast(t)
+    rs = SuperFast(t).sys
     test0 = solve(
-        ODEProblem(rs, [], tspan, [], combinatoric_ratelaws = false),
+        ODEProblem(rs, [], tspan, []),
         Tsit5(),
         saveat = 10.0,
     )[37]
@@ -167,17 +167,17 @@ end
     ]
 
     @parameters t
-    rs1 = superfast(t)
+    rs1 = SuperFast(t).sys
     @unpack DMS = rs1
     o1 = solve(
-        ODEProblem(rs1, [DMS => 76], tspan, [], combinatoric_ratelaws = false),
+        ODEProblem(rs1, [DMS => 76], tspan, []),
         Tsit5(),
         saveat = 10.0,
     )[37]
-    rs2 = superfast(t)
+    rs2 = SuperFast(t).sys
     @unpack DMS = rs2
     o2 = solve(
-        ODEProblem(rs2, [DMS => 46], tspan, [], combinatoric_ratelaws = false),
+        ODEProblem(rs2, [DMS => 46], tspan, []),
         Tsit5(),
         saveat = 10.0,
     )[37]
@@ -210,17 +210,17 @@ end
     ]
 
     @parameters t
-    rs1 = superfast(t)
+    rs1 = SuperFast(t).sys
     @unpack ISOP = rs1
     o1 = solve(
-        ODEProblem(rs1, [ISOP => 0.54], tspan, [], combinatoric_ratelaws = false),
+        ODEProblem(rs1, [ISOP => 0.54], tspan, []),
         Tsit5(),
         saveat = 10.0,
     )[37]
-    rs2 = superfast(t)
+    rs2 = SuperFast(t).sys
     @unpack DMS = rs2
     o2 = solve(
-        ODEProblem(rs2, [ISOP => 0.13], tspan, [], combinatoric_ratelaws = false),
+        ODEProblem(rs2, [ISOP => 0.13], tspan, []),
         Tsit5(),
         saveat = 10.0,
     )[37]
@@ -253,7 +253,7 @@ end
     ]
 
     @parameters t
-    rs1 = superfast(t)
+    rs1 = SuperFast(t).sys
     @unpack NO2, DMS = rs1
     o1 = solve(
         ODEProblem(
@@ -266,10 +266,10 @@ end
         Tsit5(),
         saveat = 10.0,
     )[37]
-    rs2 = superfast(t)
+    rs2 = SuperFast(t).sys
     @unpack DMS = rs2
     o2 = solve(
-        ODEProblem(rs2, [DMS => 0.1], tspan, [], combinatoric_ratelaws = false),
+        ODEProblem(rs2, [DMS => 0.1], tspan, []),
         Tsit5(),
         saveat = 10.0,
     )[37]
@@ -303,17 +303,17 @@ end
     ]
 
     @parameters t
-    rs1 = superfast(t)
+    rs1 = SuperFast(t).sys
     @unpack CO = rs1
     o1 = solve(
-        ODEProblem(rs1, [CO => 50.0], tspan, [], combinatoric_ratelaws = false),
+        ODEProblem(rs1, [CO => 50.0], tspan, []),
         Tsit5(),
         saveat = 10.0,
     )[37]
-    rs2 = superfast(t)
+    rs2 = SuperFast(t).sys
     @unpack CO = rs2
     o2 = solve(
-        ODEProblem(rs2, [CO => 500.0], tspan, [], combinatoric_ratelaws = false),
+        ODEProblem(rs2, [CO => 500.0], tspan, []),
         Tsit5(),
         saveat = 10.0,
     )[37]
@@ -348,17 +348,17 @@ end
     ]
 
     @parameters t
-    rs1 = superfast(t)
+    rs1 = SuperFast(t).sys
     @unpack CH4 = rs1
     o1 = solve(
-        ODEProblem(rs1, [CH4 => 1900.0], tspan, [], combinatoric_ratelaws = false),
+        ODEProblem(rs1, [CH4 => 1900.0], tspan, []),
         Tsit5(),
         saveat = 10.0,
     )[37]
-    rs2 = superfast(t)
+    rs2 = SuperFast(t).sys
     @unpack CH4 = rs2
     o2 = solve(
-        ODEProblem(rs2, [CH4 => 1600.0], tspan, [], combinatoric_ratelaws = false),
+        ODEProblem(rs2, [CH4 => 1600.0], tspan, []),
         Tsit5(),
         saveat = 10.0,
     )[37]

@@ -1,5 +1,6 @@
 using GasChem
-using Test, OrdinaryDiffEq, ModelingToolkit
+using EarthSciMLBase
+using DifferentialEquations, ModelingToolkit
 
 #   Unit Test
 @test begin
@@ -24,12 +25,10 @@ using Test, OrdinaryDiffEq, ModelingToolkit
         6.676368920250184,
     ]
     @parameters t
-    sf = superfast(t)
-    fj = fast_jx(t)
-    connect = compose_fastjx_superfast(fj, sf)
+    sf = SuperFast(t) + FastJX(t)
     tspan = (0.0, 3600 * 24)
     sol = solve(
-        ODEProblem(connect, [], tspan, [], combinatoric_ratelaws = false),
+        ODEProblem(structural_simplify(get_mtk(sf)), [], tspan, []),
         Tsit5(),
         saveat = 10.0,
     )

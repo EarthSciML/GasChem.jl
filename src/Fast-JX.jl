@@ -1,10 +1,6 @@
-export fast_jx, mean_J_CH2Oa, mean_J_CH3OOH, mean_J_o31D, mean_J_H2O2, mean_J_NO2
+export FastJX
 
-"""
-Description: This is a box model used to calculate the photolysis reaction rate constant using the Fast-JX scheme (Neu, J. L., Prather, M. J., and Penner, J. E. (2007), Global atmospheric chemistry: Integrating over fractional cloud cover, J. Geophys. Res., 112, D11306, doi:10.1029/2006JD008007.)
-"""
-
-#   Basic Input information: 
+# Basic Input information: 
 
 # Effective wavelength in 18 bins covering 177–850 nm
 const WL = [187, 191, 193, 196, 202, 208, 211, 214, 261, 267, 277, 295, 303, 310, 316, 333, 380, 574]
@@ -313,33 +309,39 @@ end
 @register mean_J_NO2(t, lat, T)
 
 """
+Description: This is a box model used to calculate the photolysis reaction rate constant using the Fast-JX scheme 
+(Neu, J. L., Prather, M. J., and Penner, J. E. (2007), Global atmospheric chemistry: Integrating over fractional cloud cover, J. Geophys. Res., 112, D11306, doi:10.1029/2006JD008007.)
+
 Build Fast-JX model
 # Example
 ```
     @parameters t
-    fj = fast_jx(t)
+    fj = FastJX(t)
 ```
 """
-function fast_jx(t)
-    @parameters T = 298
-    @parameters lat = 30
-    @parameters j_unit = 1 [unit = u"s^-1"]
+struct FastJX <: EarthSciMLODESystem
+    sys::ODESystem
+    function FastJX(t)
+        @parameters T = 298
+        @parameters lat = 30
+        @parameters j_unit = 1 [unit = u"s^-1"]
 
-    @variables j_h2o2(t) = 1.0097 * 10.0^-5 [unit = u"s^-1"]
-    @variables j_CH2Oa(t) = 0.00014 [unit = u"s^-1"]
-    @variables j_o31D(t) = 4.0 * 10.0^-3 [unit = u"s^-1"]
-    @variables j_CH3OOH(t) = 8.9573 * 10.0^-6 [unit = u"s^-1"]
-    @variables j_NO2(t) = 0.0149 [unit = u"s^-1"]
-    # TODO(JL): What's difference between the two photolysis reactions of CH2O, do we really need both? (@variables j_CH2Ob(t) = 0.00014 [unit = u"s^-1"]) (j_CH2Ob ~ mean_J_CH2Ob(t,lat,T)*j_unit)
+        @variables j_h2o2(t) = 1.0097 * 10.0^-5 [unit = u"s^-1"]
+        @variables j_CH2Oa(t) = 0.00014 [unit = u"s^-1"]
+        @variables j_o31D(t) = 4.0 * 10.0^-3 [unit = u"s^-1"]
+        @variables j_CH3OOH(t) = 8.9573 * 10.0^-6 [unit = u"s^-1"]
+        @variables j_NO2(t) = 0.0149 [unit = u"s^-1"]
+        # TODO(JL): What's difference between the two photolysis reactions of CH2O, do we really need both? 
+        # (@variables j_CH2Ob(t) = 0.00014 [unit = u"s^-1"]) (j_CH2Ob ~ mean_J_CH2Ob(t,lat,T)*j_unit)
 
-    eqs = [
-        j_h2o2 ~ mean_J_H2O2(t, lat, T) * j_unit
-        j_CH2Oa ~ mean_J_CH2Oa(t, lat, T) * j_unit
-        j_o31D ~ mean_J_o31D(t, lat, T) * j_unit
-        j_CH3OOH ~ mean_J_CH3OOH(t, lat, T) * j_unit
-        j_NO2 ~ mean_J_NO2(t, lat, T) * j_unit
-    ]
+        eqs = [
+            j_h2o2 ~ mean_J_H2O2(t, lat, T) * j_unit
+            j_CH2Oa ~ mean_J_CH2Oa(t, lat, T) * j_unit
+            j_o31D ~ mean_J_o31D(t, lat, T) * j_unit
+            j_CH3OOH ~ mean_J_CH3OOH(t, lat, T) * j_unit
+            j_NO2 ~ mean_J_NO2(t, lat, T) * j_unit
+        ]
 
-    @named fj =
-        ODESystem(eqs, t, [j_h2o2, j_CH2Oa, j_o31D, j_CH3OOH, j_NO2], [lat, j_unit, T])
+        new(ODESystem(eqs, t, [j_h2o2, j_CH2Oa, j_o31D, j_CH3OOH, j_NO2], [lat, j_unit, T]; name=:fastjx))
+    end
 end
