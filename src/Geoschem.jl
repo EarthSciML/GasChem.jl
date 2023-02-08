@@ -52,31 +52,15 @@ REFERENCES (alphabetical order)
 """
 
 
-
-using Catalyst
-using Unitful
-using OrdinaryDiffEq
-using DifferentialEquations
-using PyPlot
-
 include("Lawfunctions.jl")
 include("Ratesfunctions.jl")
 include("RateLawUtilFuncs.jl")
 
-export fullchem
+export FullChem
 
-# Add unit "ppb" to Unitful 
-module MyUnits
-using Unitful
-@unit ppb "ppb" Number 1 / 1000000000 false
-end
-Unitful.register(MyUnits)
-
-
-
-
-begin
-    function fullchem()
+struct FullChem <: EarthSciMLODESystem
+    sys::ODESystem
+    function FullChem()
     
         @parameters t [unit = u"s"]
         
@@ -858,17 +842,7 @@ begin
     
         ]
     
-        @named fullchem = ReactionSystem(fc,t)
+        @named sys = ReactionSystem(fc,t)
+        new(convert(ODESystem, sys; combinatoric_ratelaws=false))
     end
 end
-
-rs = fullchem()
-
-
-#Test, plot the changing of O3, NO2 and ISOP
-@unpack O3, NO2, ISOP = rs
-rs_solved = solve(ODEProblem(rs, [], (0,1), [], combinatoric_ratelaws=false),Tsit5())
-plt.plot(rs_solved.t, rs_solved[O3])
-plt.plot(rs_solved.t, rs_solved[NO2])
-plt.plot(rs_solved.t, rs_solved[ISOP])
-plt.show()

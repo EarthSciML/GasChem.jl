@@ -8,5 +8,6 @@ using Unitful
 include("SuperFast.jl")
 include("Fast-JX.jl")
 include("compose_fastjx_superfast.jl")
+include("Geoschem.jl")
 
 end
