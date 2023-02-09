@@ -11,4 +11,7 @@ using Test, SafeTestsets
     @safetestset "compose_fastjx_superfast" begin
         include("compose_fastjx_superfast_test.jl")
     end
+    @safetestset "geoschem_test" begin
+        include("geoschem_test.jl")
+    end
 end
