@@ -1,6 +1,6 @@
 using GasChem
 using Test
-using OrdinaryDiffEq, ModelingToolkit
+using DifferentialEquations, ModelingToolkit
 
 tspan = (0.0,360.0)
 
