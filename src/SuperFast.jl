@@ -31,6 +31,7 @@ and [here](https://github.com/SciML/Catalyst.jl/issues/311).
 """
 struct SuperFast <: EarthSciMLODESystem
     sys::ODESystem
+    rxn_sys::ReactionSystem
     function SuperFast(t)
         @variables jO31D(t) = 4.0 * 10.0^-3 [unit = u"s^-1"]
         @parameters j2OH = 2.2 * 10.0^-10 [unit = u"(s*ppb)^-1"]
@@ -139,7 +140,7 @@ struct SuperFast <: EarthSciMLODESystem
             #OH + CO = HO2
             Reaction(k19 * c, [OH, CO], [HO2], [1, 1], [1])
         ]
-        sys = ReactionSystem(rxs, t; name=:superfast)
-        new(convert(ODESystem, sys; combinatoric_ratelaws=false))
+        rxn_sys = ReactionSystem(rxs, t; name=:superfast)
+        new(convert(ODESystem, rxn_sys; combinatoric_ratelaws=false), rxn_sys)
     end
 end
