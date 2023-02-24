@@ -3,7 +3,7 @@ using Test, SafeTestsets
 
 @testset "GasChem.jl" begin
     @safetestset "SuperFast" begin
-        include("superfast_test.jl")
+         include("superfast_test.jl")
     end
     @safetestset "FastJX" begin
         include("fastjx_test.jl")
@@ -12,6 +12,6 @@ using Test, SafeTestsets
         include("compose_fastjx_superfast_test.jl")
     end
     @safetestset "geoschem_test" begin
-        include("geoschem_test.jl")
+         include("geoschem_test.jl")
     end
 end
