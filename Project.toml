@@ -12,7 +12,7 @@ ModelingToolkit = "961ee093-0014-501f-94e3-6117800e7a78"
 Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 
 [compat]
-Catalyst = "10, 11, 12"
+Catalyst = "10, 11, 12, 13"
 DifferentialEquations = "7"
 EarthSciMLBase = "0.4"
 ModelingToolkit = "8"
