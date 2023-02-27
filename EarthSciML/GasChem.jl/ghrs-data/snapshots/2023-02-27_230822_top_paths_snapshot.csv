@@ -1,0 +1,11 @@
+url_path,views_total,views_unique
+/EarthSciML/GasChem.jl,21,5
+/EarthSciML/GasChem.jl/tree/main/src,13,4
+/EarthSciML/GasChem.jl/blob/main/src/Fast-JX.jl,12,3
+/EarthSciML/GasChem.jl/blob/main/src/SuperFast.jl,11,4
+/EarthSciML/GasChem.jl/pulls,6,1
+/EarthSciML/GasChem.jl/actions,5,1
+/EarthSciML/GasChem.jl/actions/workflows/CompatHelper.yml,5,1
+/EarthSciML/GasChem.jl/blob/main/src/Geoschem.jl,4,2
+/EarthSciML/GasChem.jl/pull/24,4,1
+/EarthSciML/GasChem.jl/blob/main/src/Ratesfunctions.jl,3,2
