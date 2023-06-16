@@ -1,9 +1,7 @@
-export FastJX
+export FastJX, j_mean_NO2, j_mean_o31D, j_mean_H2O2, j_mean_CH2Oa, j_mean_CH3OOH
 
 # Effective wavelength in 18 bins covering 177–850 nm
 const WL = SA_F32[187, 191, 193, 196, 202, 208, 211, 214, 261, 267, 277, 295, 303, 310, 316, 333, 380, 574]
-# const WL_edges = SVector{19, Float32}([177.0; [(WL[i+1] + WL[i])/2 for i ∈ 1:length(WL)-1]; 850])
-const ΔWL = SVector{17, Float32}([WL[i+1] - WL[i] for i ∈ 1:length(WL)-1])
 
 """
 Create a vector of interpolators to interpolate the cross sections σ (TODO: What are the units?) for different wavelengths (in nm) and temperatures (in K).
@@ -68,9 +66,9 @@ const ϕ_NO2_jx = 1.0f0
 const actinic_flux = SA_F32[1.391E+12, 1.627E+12, 1.664E+12, 9.278E+11, 7.842E+12, 4.680E+12, 9.918E+12, 1.219E+13, 6.364E+14, 4.049E+14, 3.150E+14, 5.889E+14, 7.678E+14, 5.045E+14, 8.902E+14, 3.853E+15, 1.547E+16, 2.131E+17]
 
 """
-    cos_solar_zenith_angle(lat, LST, DOY)
-This function is to compute the cosine of the solar zenith angle, given the day of the year and local solar hour
-The input variables: lat=latitude(°), LST=Local Solar Time(hour), DOY=Day of Year
+    cos_solar_zenith_angle(lat, t, long)
+This function is to compute the cosine of the solar zenith angle, given the unixtime, latitude and longitude
+The input variables: lat=latitude(°), long=longitude(°), t=unixtime(s)
     the cosine of the solar zenith angle (SZA) is given by:                                                                            .
            cos(SZA) = sin(LAT)*sin(DEC) + cos(LAT)*cos(DEC)*cos(AHR)
                                                                             
@@ -78,14 +76,32 @@ The input variables: lat=latitude(°), LST=Local Solar Time(hour), DOY=Day of Ye
                  DEC = the solar declination angle,
                  AHR = the hour angle, all in radians.  All in radians
 """
-function cos_solar_zenith_angle(lat, time)
-    dt = Dates.unix2datetime(time)
-    LST = Dates.hour(dt) + Dates.minute(dt) / 60 + Dates.second(dt) / 3600.0 # Hour of day
-    DOY = dayofyear(dt) # Day of year
+function cos_solar_zenith_angle(lat, t, long)
+    DOY = dayofyear(Dates.unix2datetime(t))
+    hours = 
+        Dates.hour(Dates.unix2datetime(t)) + 
+        Dates.minute(Dates.unix2datetime(t)) / 60 + 
+        Dates.second(Dates.unix2datetime(t)) / 3600
+    y = Dates.year(Dates.unix2datetime(t))
+    if mod(y,4)==0
+        γ = 2*pi/366*(DOY-1+(hours-12)/24) # the fraction year in radians
+    else 
+        γ = 2*pi/365*(DOY-1+(hours-12)/24) # the fraction year in radians
+    end
+    Eot = 229.18*(0.000075+0.001868*cos(γ)-0.032077*sin(γ)-0.014615*cos(γ*2)-0.040849*sin(γ*2))
 
-    LAT = abs(lat * pi / 180.0) #lat>0, northern hemisphere; lat<0, southern hemisphere
-    DEC = -23.45 * pi / 180.0 * cos(360.0 / 365.0 * (DOY + 10.0))
-    AHR = 15.0 * pi / 180.0 * (LST - 12.0)
+    timezone = floor(long/15)
+    time_offset = Eot + 4*(long-15*timezone) # in minute
+    dt = floor(long/15) # in hour
+    t_local = t + dt*3600 # in second
+    tst = 
+        Dates.hour(Dates.unix2datetime(t_local)) + 
+        Dates.minute(Dates.unix2datetime(t_local)) / 60 + 
+        Dates.second(Dates.unix2datetime(t_local)) / 3600 + time_offset/60
+    AHR = deg2rad(15)*(tst-12) # in radians
+    
+    LAT = abs(lat * pi / 180) #lat>0, northern hemisphere; lat<0, southern hemisphere
+    DEC = asin(sin(deg2rad(-23.44))*cos(deg2rad(360/365.24*(DOY+10)+360/pi*0.0167*sin(deg2rad(360/365.24*(DOY-2))))))
     CSZA = sin(LAT) * sin(DEC) + cos(LAT) * cos(DEC) * cos(AHR)
     return CSZA
 end
@@ -101,27 +117,25 @@ end
 """   
 Get mean photolysis rates at different times
 """
-function j_mean(σ_interp, ϕ, time, lat, Temperature)
-    csa = cos_solar_zenith_angle(lat, time)
+function j_mean(σ_interp, ϕ, time, lat, long, Temperature)
+    csa = cos_solar_zenith_angle(lat, time, long)
     j = zero(Temperature)
-    for i in 1:17
-        j1 = calc_flux(csa, actinic_flux[i]) * σ_interp[i](Temperature) * ϕ / WL[i]
-        j2 = calc_flux(csa, actinic_flux[i+1]) * σ_interp[i+1](Temperature) * ϕ / WL[i+1]
-        j += (j1 + j2)/2 * ΔWL[i]
+    for i in 1:18
+        j += calc_flux(csa, actinic_flux[i]) * σ_interp[i](Temperature) * ϕ 
     end
     j
 end
 
-j_mean_H2O2(t, lat, T) = j_mean(σ_H2O2_interp, ϕ_H2O2_jx, t, lat, T)
-@register j_mean_H2O2(t, lat, T)
-j_mean_CH2Oa(t, lat, T) = j_mean(σ_CH2Oa_interp, ϕ_CH2Oa_jx, t, lat, T)
-@register j_mean_CH2Oa(t, lat, T)
-j_mean_CH3OOH(t, lat, T) = j_mean(σ_CH3OOH_interp, ϕ_CH3OOH_jx, t, lat, T)
-@register j_mean_CH3OOH(t, lat, T)
-j_mean_NO2(t, lat, T) = j_mean(σ_NO2_interp, ϕ_NO2_jx,  t, lat, T)
-@register j_mean_NO2(t, lat, T)
-j_mean_o31D(t, lat, T) = j_mean(σ_o31D_interp, ϕ_o31D_jx,  t, lat, T)
-@register j_mean_o31D(t, lat, T)
+j_mean_H2O2(t, lat, long, T) = j_mean(σ_H2O2_interp, ϕ_H2O2_jx, t, lat, long, T)
+@register j_mean_H2O2(t, lat, long, T)
+j_mean_CH2Oa(t, lat, long, T) = j_mean(σ_CH2Oa_interp, ϕ_CH2Oa_jx, t, lat, long, T)
+@register j_mean_CH2Oa(t, lat, long, T)
+j_mean_CH3OOH(t, lat, long, T) = j_mean(σ_CH3OOH_interp, ϕ_CH3OOH_jx, t, lat, long, T)
+@register j_mean_CH3OOH(t, lat, long, T)
+j_mean_NO2(t, lat, long, T) = j_mean(σ_NO2_interp, ϕ_NO2_jx,  t, lat, long, T)
+@register j_mean_NO2(t, lat, long, T)
+j_mean_o31D(t, lat, long, T) = j_mean(σ_o31D_interp, ϕ_o31D_jx,  t, lat, long, T)
+@register j_mean_o31D(t, lat, long, T)
 
 """
 Description: This is a box model used to calculate the photolysis reaction rate constant using the Fast-JX scheme 
@@ -139,6 +153,7 @@ struct FastJX <: EarthSciMLODESystem
     function FastJX(t)
         @parameters T = 298
         @parameters lat = 30
+        @parameters long = 0
         @parameters j_unit = 1 [unit = u"s^-1"]
 
         @variables j_h2o2(t) = 1.0097 * 10.0^-5 [unit = u"s^-1"]
@@ -150,13 +165,13 @@ struct FastJX <: EarthSciMLODESystem
         # (@variables j_CH2Ob(t) = 0.00014 [unit = u"s^-1"]) (j_CH2Ob ~ mean_J_CH2Ob(t,lat,T)*j_unit)
 
         eqs = [
-            j_h2o2 ~  j_mean_H2O2(t, lat, T) * j_unit
-            j_CH2Oa ~ j_mean_CH2Oa(t, lat, T) * j_unit
-            j_o31D ~ j_mean_o31D(t, lat, T) * j_unit
-            j_CH3OOH ~ j_mean_CH3OOH(t, lat, T) * j_unit
-            j_NO2 ~ j_mean_NO2(t, lat, T) * j_unit
+            j_h2o2 ~  j_mean_H2O2(t, lat, long, T) * j_unit
+            j_CH2Oa ~ j_mean_CH2Oa(t, lat, long, T) * j_unit
+            j_o31D ~ j_mean_o31D(t, lat, long, T) * j_unit
+            j_CH3OOH ~ j_mean_CH3OOH(t, lat, long, T) * j_unit
+            j_NO2 ~ j_mean_NO2(t, lat, long, T) * j_unit
         ]
 
-        new(ODESystem(eqs, t, [j_h2o2, j_CH2Oa, j_o31D, j_CH3OOH, j_NO2], [lat, j_unit, T]; name=:fastjx))
+        new(ODESystem(eqs, t, [j_h2o2, j_CH2Oa, j_o31D, j_CH3OOH, j_NO2], [lat, long, j_unit, T]; name=:fastjx))
     end
 end
