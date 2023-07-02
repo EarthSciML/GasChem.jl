@@ -19,7 +19,7 @@ Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 
 [compat]
 BenchmarkTools = "1"
-Catalyst = "10, 11, 12, 13"
+Catalyst = "10, 11, 12"
 DifferentialEquations = "7"
 EarthSciMLBase = "0.4"
 Interpolations = "0.14"
