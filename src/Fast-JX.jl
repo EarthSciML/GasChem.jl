@@ -1,4 +1,4 @@
-export FastJX, j_mean_NO2, j_mean_o31D, j_mean_H2O2, j_mean_CH2Oa, j_mean_CH3OOH
+export FastJX
 
 # Effective wavelength in 18 bins covering 177–850 nm
 const WL = SA_F32[187, 191, 193, 196, 202, 208, 211, 214, 261, 267, 277, 295, 303, 310, 316, 333, 380, 574]
