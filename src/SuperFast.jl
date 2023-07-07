@@ -120,9 +120,9 @@ struct SuperFast <: EarthSciMLODESystem
             Reaction(rate(k16, T16), [ISOP, O3], [CH2O, CH3O2, HO2, CO], [1, 1.0],
                 [0.87, 1.86, 0.06, 0.05])
             #O3 -> O2 + O(1D)
-            Reaction(jO31D * 10^(-20), [O3], [O1d, O2], [1], [1, 1]) # TODO(JL): Is 10^(-20) a reasonable value?
+            Reaction(jO31D * 10^(-21), [O3], [O1d, O2], [1], [1, 1]) # TODO(JL): Is 10^(-20) a reasonable value?
             #O(1D) + H2O -> 2OH
-            Reaction(j2OH, [O1d, H2O], [OH], [1, 1], [2])
+            Reaction(j2OH * 10^2, [O1d, H2O], [OH], [1, 1], [2])
             #H2O2 --> 2OH
             Reaction(jH2O2, [H2O2], [OH], [1], [2])
             #NO2 --> NO + O3
