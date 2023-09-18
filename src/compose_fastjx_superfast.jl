@@ -37,7 +37,8 @@ plot(sol,ylims=(0,20),xlabel="Time (second)", ylabel="concentration (ppb)",legen
 ```
 """
 function Base.:(+)(s::SuperFast, f::FastJX)::ComposedEarthSciMLSystem
-    remove_D!(s.sys)
+    sys = param_to_var(s.sys, :jO31D, :jH2O2, :jNO2, :jCH2Oa, :jCH3OOH)
+    s = SuperFast(sys, s.rxn_sys)
     ComposedEarthSciMLSystem(
         ConnectorSystem([
             s.sys.jH2O2 ~ f.sys.j_h2o2

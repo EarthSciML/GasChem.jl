@@ -24,7 +24,7 @@ using DifferentialEquations, ModelingToolkit
         0.543857042446943,
         3.3684450021603682,
     ]
-    @parameters t
+    @variables t
     sf = SuperFast(t) + FastJX(t)
     tspan = (0.0, 3600 * 24)
     sol = solve(

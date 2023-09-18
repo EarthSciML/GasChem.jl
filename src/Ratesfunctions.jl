@@ -4,11 +4,6 @@ https://github.com/geoschem
 
 """
 
-
-include("Lawfunctions.jl")
-include("RateLawUtilFuncs.jl")
-
-
 DU1 = 1  # Dust (Reff = 0.151 um)
 DU2 = 2  # Dust (Reff = 0.253 um)
 DU3 = 3  # Dust (Reff = 0.402 um)

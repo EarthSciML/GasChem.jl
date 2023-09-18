@@ -1,7 +1,7 @@
 """
 This julia file define the model containing Gas-phase part of full chemistry model.
 The rates fuctions are in "Lawfunctions.jl", "Ratesfunctions.jl", and "RateLawUtilFuncs.jl"
-The original model is form:
+The original model is from:
 https://github.com/geoschem
 
 ===============================================================================
@@ -64,296 +64,296 @@ struct FullChem <: EarthSciMLODESystem
     
         @parameters t [unit = u"s"]
         
-        @variables A3O2(t)        =59.469  [unit = u"ppb"]   #CH3CH2CH2OO; Primary RO2 from C3H8
-        @variables ACET(t)        =87.473  [unit = u"ppb"]   #CH3C(O)CH3; Acetone
-        @variables ACTA(t)        =70.187  [unit = u"ppb"]   #CH3C(O)OH; Acetic acid
-        @variables AERI(t)        =30.013  [unit = u"ppb"]   #I; Dissolved iodine
-        @variables ALD2(t)        =9.4976  [unit = u"ppb"]   #CH3CHO; Acetaldehyde
-        @variables ALK4(t)        =8.4827  [unit = u"ppb"]   #>= C4 alkanes
-        @variables AONITA(t)      =77.604  [unit = u"ppb"]   #Aerosol-phase organic nitrate from aromatic precursors
-        @variables AROMRO2(t)     =77.132  [unit = u"ppb"]   #generic peroxy radical from aromatic oxidation
-        @variables AROMP4(t)      =52.322  [unit = u"ppb"]   #Generic C4 product from aromatic oxidation
-        @variables AROMP5(t)      =4.8975  [unit = u"ppb"]   #Generic C5 product from aromatic oxidation
-        @variables ATO2(t)        =88.056  [unit = u"ppb"]   #CH3C(O)CH2O2; RO2 from acetone
-        @variables ATOOH(t)       =95.672  [unit = u"ppb"]   #CH3C(O)CH2OOH; ATO2 peroxide
-        @variables B3O2(t)        =44.692  [unit = u"ppb"]   #CH3CH(OO)CH3; Secondary RO2 from C3H8
-        @variables BALD(t)        =35.859  [unit = u"ppb"]   #benzaldehyde and tolualdehyde
-        @variables BENZ(t)        =18.166  [unit = u"ppb"]   #C6H6; Benzene
-        @variables BENZO(t)       =92.094  [unit = u"ppb"]   #C6H5O radical
-        @variables BENZO2(t)      =45.770  [unit = u"ppb"]   #C6H5O2 radical
-        @variables BENZP(t)       =45.646  [unit = u"ppb"]   #hydroperoxide from BENZO2
-        @variables Br(t)          =56.283  [unit = u"ppb"]   #Br; Atomic bromine
-        @variables Br2(t)         =98.265  [unit = u"ppb"]   #Br2; Molecular bromine
-        @variables BrCl(t)        =70.858  [unit = u"ppb"]   #BrCl; Bromine chloride
-        @variables BrNO2(t)       =15.765  [unit = u"ppb"]   #BrNO2; Nitryl bromide
-        @variables BrNO3(t)       =8.8808  [unit = u"ppb"]   #BrNO3; Bromine nitrate
-        @variables BrO(t)         =90.871  [unit = u"ppb"]   #BrO; Bromine monoxide
-        @variables BRO2(t)        =90.134  [unit = u"ppb"]   #C6H5O2 ; Peroxy radical from BENZ oxidation
-        @variables BrSALA(t)      =5.6082  [unit = u"ppb"]   #Br; Fine sea salt bromine
-        @variables BrSALC(t)      =23.602  [unit = u"ppb"]   #Br; Course sea salt bromine
-        @variables BZCO3(t)       =34.301  [unit = u"ppb"]   #benzoylperoxy radical
-        @variables BZCO3H(t)      =18.280  [unit = u"ppb"]   #perbenzoic acid
-        @variables BZPAN(t)       =25.224  [unit = u"ppb"]   #peroxybenzoyl nitrate
-        @variables C2H2(t)        =64.023  [unit = u"ppb"]   #C2H2; Ethyne
-        @variables C2H4(t)        =48.832  [unit = u"ppb"]   #Ethylene
-        @variables C2H6(t)        =95.500  [unit = u"ppb"]   #C2H6; Ethane
-        @variables C3H8(t)        =93.457  [unit = u"ppb"]   #C3H8; Propane
-        @variables C4HVP1(t)      =90.362  [unit = u"ppb"]   #C4 hydroxy-vinyl-peroxy radicals from HPALDs
-        @variables C4HVP2(t)      =60.972  [unit = u"ppb"]   #C4 hydroxy-vinyl-peroxy radicals from HPALDs
-        @variables CCl4(t)        =38.249  [unit = u"ppb"]   #CCl4; Carbon tetrachloride
-        @variables CFC11(t)       =16.012  [unit = u"ppb"]   #CCl3F ; CFC-11, R-11, Freon 11
-        @variables CFC12(t)       =60.683  [unit = u"ppb"]   #CCl2F2; CFC-12, R-12, Freon 12
-        @variables CFC113(t)      =99.375  [unit = u"ppb"]   #C2Cl3F3; CFC-113, Freon 113
-        @variables CFC114(t)      =82.883  [unit = u"ppb"]   #C2Cl2F4; CFC-114, Freon 114
-        @variables CFC115(t)      =63.617  [unit = u"ppb"]   #C2ClF5; CFC-115, Freon 115
-        @variables CH2Br2(t)      =53.658  [unit = u"ppb"]   #CH3Br2; Dibromomethane
-        @variables CH2Cl2(t)      =6.5485  [unit = u"ppb"]   #CH2Cl2; Dichloromethane
-        @variables CH2I2(t)       =62.463  [unit = u"ppb"]   #CH2I2; Diiodomethane
-        @variables CH2IBr(t)      =98.965  [unit = u"ppb"]   #CH2IBr; Bromoiodomethane
-        @variables CH2ICl(t)      =33.656  [unit = u"ppb"]   #CH2ICl; Chloroiodomethane
-        @variables CH2O(t)        =34.136  [unit = u"ppb"]   #CH2O; Formaldehyde
-        @variables CH2OO(t)       =72.666  [unit = u"ppb"]   #CH2OO; Criegee intermediate
-        @variables CH3Br(t)       =76.768  [unit = u"ppb"]   #CH3Br; Methyl bromide
-        @variables CH3CCl3(t)     =99.842  [unit = u"ppb"]   #CH3CCl3; Methyl chloroform
-        @variables CH3CHOO(t)     =27.830  [unit = u"ppb"]   #CH3CHOO; Criegee intermediate
-        @variables CH3Cl(t)       =14.055  [unit = u"ppb"]   #CH3Cl; Chloromethane
-        @variables CH3I(t)        =19.671  [unit = u"ppb"]   #CH3I; Methyl iodide
-        @variables CH4(t)         =6.9330  [unit = u"ppb"]   #CH4; Methane
-        @variables CHBr3(t)       =84.204  [unit = u"ppb"]   #CHBr3; Tribromethane
-        @variables CHCl3(t)       =79.435  [unit = u"ppb"]   #CHCl3; Chloroform
-        @variables Cl(t)          =47.484  [unit = u"ppb"]   #Cl; Atomic chlorine
-        @variables Cl2(t)         =71.292  [unit = u"ppb"]   #Cl2; Molecular chlorine
-        @variables Cl2O2(t)       =96.248  [unit = u"ppb"]   #Cl2O2; Dichlorine dioxide
-        @variables ClNO2(t)       =36.482  [unit = u"ppb"]   #ClNO2; Nitryl chloride
-        @variables ClNO3(t)       =55.020  [unit = u"ppb"]   #ClONO2; Chlorine nitrate
-        @variables ClO(t)         =0.9863  [unit = u"ppb"]   #ClO; Chlorine monoxide
-        @variables ClOO(t)        =53.802  [unit = u"ppb"]   #ClOO; Chlorine dioxide
-        @variables CO(t)          =32.978  [unit = u"ppb"]   #CO; Carbon monoxide
-        @variables CO2(t)         =55.611  [unit = u"ppb"]   #CO2; Carbon dioxide
-        @variables CSL(t)         =23.332  [unit = u"ppb"]   #cresols and xylols
-        @variables DMS(t)         =5.8615  [unit = u"ppb"]   #(CH3)2S; Dimethylsulfide
-        @variables EOH(t)         =18.988  [unit = u"ppb"]   #C2H5OH; Ethanol
-        @variables ETHLN(t)       =69.851  [unit = u"ppb"]   #CHOCH2ONO2; Ethanal nitrate
-        @variables ETHN(t)        =24.767  [unit = u"ppb"]   #stable hydroxy-nitrooxy-ethane
-        @variables ETHP(t)        =59.843  [unit = u"ppb"]   #stable hydroxy-hydroperoxy-ethane
-        @variables ETNO3(t)       =11.558  [unit = u"ppb"]   #C2H5ONO2; Ethyl nitrate
-        @variables ETO(t)         =85.116  [unit = u"ppb"]   #hydroxy-alkoxy-ethane radical
-        @variables ETOO(t)        =24.842  [unit = u"ppb"]   #hydroxy-peroxy-ethane radical, formed from ethene + OH
-        @variables ETO2(t)        =29.300  [unit = u"ppb"]   #CH3CH2OO; Ethylperoxy radical
-        @variables ETP(t)         =81.950  [unit = u"ppb"]   #CH3CH2OOH; Ethylhydroperoxide
-        @variables GLYC(t)        =20.407  [unit = u"ppb"]   #HOCH2CHO; Glycoaldehyde
-        @variables GLYX(t)        =81.571  [unit = u"ppb"]   #CHOCHO; Glyoxal
-        @variables H(t)           =7.6410  [unit = u"ppb"]   #H; Atomic hydrogen
-        @variables H1211(t)       =46.027  [unit = u"ppb"]   #CBrClF2; H-1211
-        @variables H1301(t)       =36.584  [unit = u"ppb"]   #CBrF3; H-1301
-        @variables H2402(t)       =52.639  [unit = u"ppb"]   #C2Br2F4; H-2402
-        @variables H2O(t)         =56.623  [unit = u"ppb"]   #H2O; Water vapor
-        @variables H2O2(t)        =44.325  [unit = u"ppb"]   #H2O2; Hydrogen peroxide
-        @variables HAC(t)         =88.335  [unit = u"ppb"]   #HOCH2C(O)CH3; Hydroxyacetone
-        @variables HBr(t)         =15.715  [unit = u"ppb"]   #HBr; Hypobromic acid
-        @variables HC5A(t)        =44.638  [unit = u"ppb"]   #C5H8O2; Isoprene-4,1-hydroxyaldehyde
-        @variables HCFC123(t)     =22.296  [unit = u"ppb"]   #C2HCl2F3; HCFC-123, R-123, Freon 123
-        @variables HCFC141b(t)    =93.091  [unit = u"ppb"]   #C(CH3)Cl2F; HCFC-141b, R-141b, Freon 141b
-        @variables HCFC142b(t)    =81.415  [unit = u"ppb"]   #C(CH3)ClF2; HCFC-142b, R-142b, Freon 142b
-        @variables HCFC22(t)      =16.333  [unit = u"ppb"]   #CHClF2 ; HCFC-22, R-22, Freon 22
-        @variables HCl(t)         =87.644  [unit = u"ppb"]   #HCl; Hydrochloric acid
-        @variables HCOOH(t)       =99.489  [unit = u"ppb"]   #HCOOH; Formic acid
-        @variables HI(t)          =68.377  [unit = u"ppb"]   #HI; Hydrogen iodide
-        @variables HMHP(t)        =16.437  [unit = u"ppb"]   #HOCH2OOH; Hydroxymethyl hydroperoxide
-        @variables HMML(t)        =33.654  [unit = u"ppb"]   #C4H6O3; Hydroxymethyl-methyl-a-lactone
-        @variables HMS(t)         =54.099  [unit = u"ppb"]   #HOCH2SO3-; hydroxymethanesulfonate
-        @variables HNO2(t)        =18.174  [unit = u"ppb"]   #HONO; Nitrous acid
-        @variables HNO3(t)        =62.170  [unit = u"ppb"]   #HNO3; Nitric acid
-        @variables HNO4(t)        =39.302  [unit = u"ppb"]   #HNO4; Pernitric acid
-        @variables HO2(t)         =58.306  [unit = u"ppb"]   #HO2; Hydroperoxyl radical
-        @variables HOBr(t)        =59.529  [unit = u"ppb"]   #HOBr; Hypobromous acid
-        @variables HOCl(t)        =90.397  [unit = u"ppb"]   #HOCl; Hypochlorous acid
-        @variables HOI(t)         =35.827  [unit = u"ppb"]   #HOI; Hypoiodous acid
-        @variables HONIT(t)       =58.760  [unit = u"ppb"]   #2nd gen monoterpene organic nitrate
-        @variables HPALD1(t)      =73.164  [unit = u"ppb"]   #O=CHC(CH3)=CHCH2OOH; d-4,1-C5-hydroperoxyaldehyde
-        @variables HPALD1OO(t)    =34.759  [unit = u"ppb"]   #peroxy radicals from HPALD1
-        @variables HPALD2(t)      =1.0291  [unit = u"ppb"]   #HOOCH2C(CH3)=CHCH=O; d-1,4-C5-hydroperoxyaldehyde
-        @variables HPALD2OO(t)    =28.332  [unit = u"ppb"]   #peroxy radicals from HPALD2
-        @variables HPALD3(t)      =91.404  [unit = u"ppb"]   #O=CHC(CH3)OOHCH=CH2; b-2,1-C5-hydroperoxyaldehyde
-        @variables HPALD4(t)      =14.949  [unit = u"ppb"]   #CH2=C(CH3)CHOOHCH=O; b-3,4-C5-hydroperoxyaldehyde
-        @variables HPETHNL(t)     =90.330  [unit = u"ppb"]   #CHOCH2OOH; hydroperoxyethanal
-        @variables I(t)           =85.092  [unit = u"ppb"]   #I; Atmoic iodine
-        @variables I2(t)          =49.639  [unit = u"ppb"]   #I2; Molecular iodine
-        @variables I2O2(t)        =70.687  [unit = u"ppb"]   #I2O2; Diiodine dioxide
-        @variables I2O3(t)        =85.950  [unit = u"ppb"]   #I2O3; Diiodine trioxide
-        @variables I2O4(t)        =36.304  [unit = u"ppb"]   #I2O4; Diiodine tetraoxide
-        @variables IBr(t)         =46.529  [unit = u"ppb"]   #IBr; Iodine monobromide
-        @variables ICHE(t)        =17.739  [unit = u"ppb"]   #C5H8O3; Isoprene hydroxy-carbonyl-epoxides
-        @variables ICHOO(t)       =75.448  [unit = u"ppb"]   #peroxy radical from IEPOXD
-        @variables ICl(t)         =32.124  [unit = u"ppb"]   #ICl; Iodine monochloride
-        @variables ICN(t)         =22.128  [unit = u"ppb"]   #C5H7NO4; Lumped isoprene carbonyl nitrates
-        @variables ICNOO(t)       =12.649  [unit = u"ppb"]   #peroxy radicals from ICN
-        @variables ICPDH(t)       =71.736  [unit = u"ppb"]   #C5H10O5; Isoprene dihydroxy hydroperoxycarbonyl
-        @variables IDC(t)         =28.840  [unit = u"ppb"]   #C5H6O2; Lumped isoprene dicarbonyls
-        @variables IDCHP(t)       =2.3035  [unit = u"ppb"]   #C5H8O5; Isoprene dicarbonyl hydroxy dihydroperoxide
-        @variables IDHDP(t)       =21.649  [unit = u"ppb"]   #C5H12O6; Isoprene dihydroxy dihydroperoxide
-        @variables IDHNBOO(t)     =25.086  [unit = u"ppb"]   #peroxy radicals from INPB
-        @variables IDHNDOO1(t)    =15.276  [unit = u"ppb"]   #peroxy radicals from INPD
-        @variables IDHNDOO2(t)    =61.961  [unit = u"ppb"]   #peroxy radicals from INPD
-        @variables IDHPE(t)       =94.216  [unit = u"ppb"]   #C5H10O5; Isoprene dihydroxy hydroperoxy epoxide
-        @variables IDN(t)         =13.328  [unit = u"ppb"]   #C5H8N2O6; Lumped isoprene dinitrates
-        @variables IDNOO(t)       =44.188  [unit = u"ppb"]   #peroxy radicals from IDN
-        @variables IEPOXA(t)      =60.554  [unit = u"ppb"]   #C5H10O3; trans-Beta isoprene epoxydiol
-        @variables IEPOXAOO(t)    =27.948  [unit = u"ppb"]   #peroxy radical from trans-Beta isoprene epoxydiol
-        @variables IEPOXB(t)      =38.609  [unit = u"ppb"]   #C5H10O3; cis-Beta isoprene epoxydiol
-        @variables IEPOXBOO(t)    =87.094  [unit = u"ppb"]   #peroxy radical from cis-Beta isoprene epoxydiol
-        @variables IEPOXD(t)      =8.0346  [unit = u"ppb"]   #C5H10O3; Delta isoprene epoxydiol
-        @variables IHN1(t)        =11.028  [unit = u"ppb"]   #C5H9NO4; Isoprene-d-4-hydroxy-1-nitrate
-        @variables IHN2(t)        =71.286  [unit = u"ppb"]   #C5H9NO4; Isoprene-b-1-hydroxy-2-nitrate
-        @variables IHN3(t)        =82.443  [unit = u"ppb"]   #C5H9NO4; Isoprene-b-4-hydroxy-3-nitrate
-        @variables IHN4(t)        =91.975  [unit = u"ppb"]   #C5H9NO4; Isoprene-d-1-hydroxy-4-nitrate
-        @variables IHOO1(t)       =27.517  [unit = u"ppb"]   #peroxy radical from OH addition to isoprene at C1
-        @variables IHOO4(t)       =51.624  [unit = u"ppb"]   #peroxy radical from OH addition to isoprene at C4
-        @variables IHPNBOO(t)     =66.363  [unit = u"ppb"]   #peroxy radicals from INPB
-        @variables IHPNDOO(t)     =63.447  [unit = u"ppb"]   #peroxy radicals from INPD
-        @variables IHPOO1(t)      =79.476  [unit = u"ppb"]   #peroxy radical from ISOPOOH
-        @variables IHPOO2(t)      =58.328  [unit = u"ppb"]   #peroxy radical from ISOPOOH
-        @variables IHPOO3(t)      =5.9515  [unit = u"ppb"]   #peroxy radical from ISOPOOH
-        @variables INA(t)         =26.490  [unit = u"ppb"]   #alkoxy radical from INO2D
-        @variables INDIOL(t)      =52.424  [unit = u"ppb"]   #Generic aerosol phase organonitrate hydrolysis product
-        @variables INO(t)         =73.106  [unit = u"ppb"]   #INO; Nitrosyl iodide
-        @variables INO2B(t)       =25.723  [unit = u"ppb"]   #beta-peroxy radicals from isoprene + NO3
-        @variables INO2D(t)       =30.524  [unit = u"ppb"]   #delta-peroxy radicals from isoprene + NO3
-        @variables INPB(t)        =96.224  [unit = u"ppb"]   #C5H9NO5; Lumped isoprene beta-hydroperoxy nitrates
-        @variables INPD(t)        =80.193  [unit = u"ppb"]   #C5H9NO5; Lumped isoprene delta-hydroperoxy nitrates
-        @variables IO(t)          =26.615  [unit = u"ppb"]   #IO; Iodine monoxide
-        @variables IONITA(t)      =25.539  [unit = u"ppb"]   #Aerosol-phase organic nitrate from isoprene precursors
-        @variables IONO(t)        =56.756  [unit = u"ppb"]   #IONO; Nitryl iodide
-        @variables IONO2(t)       =53.992  [unit = u"ppb"]   #IONO2; Iodine nitrate
-        @variables IPRNO3(t)      =22.638  [unit = u"ppb"]   #C3H8ONO2; Isopropyl nitrate
-        @variables ISALA(t)       =79.006  [unit = u"ppb"]   #I; Fine sea salt iodine
-        @variables ISALC(t)       =13.184  [unit = u"ppb"]   #I; Coarse sea salt iodine
-        @variables ISOP(t)        =83.240  [unit = u"ppb"]   #CH2=C(CH3)CH=CH2; Isoprene
-        @variables ISOPNOO1(t)    =60.043  [unit = u"ppb"]   #peroxy radicals from IHN2
-        @variables ISOPNOO2(t)    =71.160  [unit = u"ppb"]   #peroxy radicals from IHN3
-        @variables ITCN(t)        =26.206  [unit = u"ppb"]   #C5H9NO7; Lumped tetrafunctional isoprene carbonyl-nitrates
-        @variables ITHN(t)        =11.572  [unit = u"ppb"]   #C5H11NO7; Lumped tetrafunctional isoprene hydroxynitrates
-        @variables KO2(t)         =84.868  [unit = u"ppb"]   #RO2 from >3 ketones
-        @variables LBRO2H(t)      =61.633  [unit = u"ppb"]   #Dummy spc to track oxidation of BRO2 by HO2
-        @variables LBRO2N(t)      =11.255  [unit = u"ppb"]   #Dummy spc to track oxidation of BRO2 by NO
-        @variables LIMO(t)        =53.446  [unit = u"ppb"]   #C10H16; Limonene
-        @variables LIMO2(t)       =92.794  [unit = u"ppb"]   #RO2 from LIMO
-        @variables LISOPOH(t)     =92.199  [unit = u"ppb"]   #Dummy spc to track oxidation of ISOP by OH
-        @variables LISOPNO3(t)    =29.918  [unit = u"ppb"]   #Dummy spc to track oxidation of ISOP by NO3
-        @variables LNRO2H(t)      =29.939  [unit = u"ppb"]   #Dummy spc to track oxidation of NRO2 by HO2
-        @variables LNRO2N(t)      =57.661  [unit = u"ppb"]   #Dummy spc to track oxidation of NRO2 by NO
-        @variables LTRO2H(t)      =46.441  [unit = u"ppb"]   #Dummy spc to track oxidation of TRO2 by HO2
-        @variables LTRO2N(t)      =28.826  [unit = u"ppb"]   #Dummy spc to track oxidation of TRO2 by NO
-        @variables LVOC(t)        =47.079  [unit = u"ppb"]   #C5H14O5; Gas-phase low-volatility non-IEPOX product of ISOPOOH (RIP) oxidation
-        @variables LVOCOA(t)      =97.788  [unit = u"ppb"]   #C5H14O5; Aerosol-phase low-volatility non-IEPOX product of ISOPOOH (RIP) oxidation
-        @variables LXRO2H(t)      =62.462  [unit = u"ppb"]   #Dummy spc to track oxidation of XRO2 by HO2
-        @variables LXRO2N(t)      =39.337  [unit = u"ppb"]   #Dummy spc to track oxidation of XRO2 by NO
-        @variables MACR(t)        =17.935  [unit = u"ppb"]   #CH2=C(CH3)CHO; Methacrolein
-        @variables MACR1OO(t)     =91.114  [unit = u"ppb"]   #peroxyacyl radical from MACR + OH
-        @variables MACR1OOH(t)    =61.547  [unit = u"ppb"]   #CH2=C(CH3)C(O)OOH; Peracid from MACR
-        @variables MACRNO2(t)     =97.585  [unit = u"ppb"]   #Product of MCRHN + OH
-        @variables MAP(t)         =61.421  [unit = u"ppb"]   #CH3C(O)OOH; Peroxyacetic acid
-        @variables MCO3(t)        =0.6220  [unit = u"ppb"]   #CH3C(O)OO; Peroxyacetyl radical
-        @variables MCRDH(t)       =23.756  [unit = u"ppb"]   #C4H8O3; Dihydroxy-MACR
-        @variables MCRENOL(t)     =43.151  [unit = u"ppb"]   #C4H6O2; Lumped enols from MVK/MACR
-        @variables MCRHN(t)       =5.5067  [unit = u"ppb"]   #HOCH2C(ONO2)(CH3)CHO; Hydroxynitrate from MACR
-        @variables MCRHNB(t)      =2.8277  [unit = u"ppb"]   #O2NOCH2C(OH)(CH3)CHO; Hydroxynitrate from MACR
-        @variables MCRHP(t)       =0.2048  [unit = u"ppb"]   #HOCH2C(OOH)(CH3)CHO; Hydroxy-hydroperoxy-MACR
-        @variables MCROHOO(t)     =49.422  [unit = u"ppb"]   #peroxy radical from MACR + OH
-        @variables MCT(t)         =77.753  [unit = u"ppb"]   #methylcatechols
-        @variables MEK(t)         =61.732  [unit = u"ppb"]   #RC(O)R; Methyl ethyl ketone
-        @variables MENO3(t)       =89.773  [unit = u"ppb"]   #CH3ONO2; methyl nitrate
-        @variables MGLY(t)        =93.209  [unit = u"ppb"]   #CH3COCHO; Methylglyoxal
-        @variables MO2(t)         =73.881  [unit = u"ppb"]   #CH3O2; Methylperoxy radical
-        @variables MOH(t)         =55.585  [unit = u"ppb"]   #CH3OH; Methanol
-        @variables MONITA(t)      =61.052  [unit = u"ppb"]   #Aerosol-phase organic nitrate from monoterpene precursors
-        @variables MONITS(t)      =71.179  [unit = u"ppb"]   #Saturated 1st gen monoterpene organic nitrate
-        @variables MONITU(t)      =23.294  [unit = u"ppb"]   #Unsaturated 1st gen monoterpene organic nitrate
-        @variables MP(t)          =25.386  [unit = u"ppb"]   #CH3OOH; Methylhydroperoxide
-        @variables MPAN(t)        =89.575  [unit = u"ppb"]   #CH2=C(CH3)C(O)OONO2; Peroxymethacroyl nitrate (PMN)
-        @variables MPN(t)         =59.399  [unit = u"ppb"]   #CH3O2NO2; Methyl peroxy nitrate
-        @variables MSA(t)         =82.711  [unit = u"ppb"]   #CH4SO3; Methanesulfonic acid
-        @variables MTPA(t)        =25.413  [unit = u"ppb"]   #Lumped monoterpenes: a-pinene, b-pinene, sabinene, carene
-        @variables MTPO(t)        =8.9141  [unit = u"ppb"]   #Other monoterpenes: Terpinene, terpinolene, myrcene, ocimene, other monoterpenes
-        @variables MVK(t)         =62.109  [unit = u"ppb"]   #CH2=CHC(=O)CH3; Methyl vinyl ketone
-        @variables MVKDH(t)       =97.635  [unit = u"ppb"]   #HOCH2CH2OHC(O)CH3; Dihydroxy-MVK
-        @variables MVKHC(t)       =98.159  [unit = u"ppb"]   #C4H6O3; MVK hydroxy-carbonyl
-        @variables MVKHCB(t)      =50.621  [unit = u"ppb"]   #C4H6O3; MVK hydroxy-carbonyl
-        @variables MVKHP(t)       =35.334  [unit = u"ppb"]   #C4H8O4; MVK hydroxy-hydroperoxide
-        @variables MVKN(t)        =48.570  [unit = u"ppb"]   #HOCH2CH(ONO2)C(=O)CH3; Hydroxynitrate from MVK
-        @variables MVKOHOO(t)     =41.490  [unit = u"ppb"]   #peroxy radical from MVK + OH
-        @variables MVKPC(t)       =8.2590  [unit = u"ppb"]   #OCHCH(OOH)C(O)CH3; MVK hydroperoxy-carbonyl
-        @variables N(t)           =56.891  [unit = u"ppb"]   #N; Atomic nitrogen
-        @variables N2O(t)         =50.751  [unit = u"ppb"]   #N2O; Nitrous oxide
-        @variables N2O5(t)        =19.118  [unit = u"ppb"]   #N2O5; Dinitrogen pentoxide
-        @variables NAP(t)         =33.270  [unit = u"ppb"]   #C10H8; Naphthalene; IVOC surrogate
-        @variables NIT(t)         =77.088  [unit = u"ppb"]   #NIT; Fine mode inorganic nitrate
-        @variables NITs(t)        =56.341  [unit = u"ppb"]   #NITs; Coarse mode inorganic nitrate
-        @variables NO(t)          =54.454  [unit = u"ppb"]   #NO; Nitric oxide
-        @variables NO2(t)         =5.5605  [unit = u"ppb"]   #NO2; Nitrogen dioxide
-        @variables NO3(t)         =31.739  [unit = u"ppb"]   #NO3; Nitrate radical
-        @variables NPHEN(t)       =87.002  [unit = u"ppb"]   #nitrophenols
-        @variables NPRNO3(t)      =58.488  [unit = u"ppb"]   #C3H8ONO2; n-propyl nitrate
-        @variables NRO2(t)        =83.618  [unit = u"ppb"]   #Peroxy radical from NAP oxidation
-        @variables O(t)           =14.164  [unit = u"ppb"]   #O(3P); Ground state atomic oxygen
-        @variables O1D(t)         =17.648  [unit = u"ppb"]   #O(1D); Excited atomic oxygen
-        @variables O3(t)          =2.1326  [unit = u"ppb"]   #O3; Ozone
-        @variables O3A(t)         =28.223  [unit = u"ppb"]   #O3; Ozone in accum seasalt
-        @variables O3C(t)         =49.728  [unit = u"ppb"]   #O3; Ozone in coarse seasalt
-        @variables OClO(t)        =60.037  [unit = u"ppb"]   #OClO; Chlorine dioxide
-        @variables OCS(t)         =20.867  [unit = u"ppb"]   #COS; Carbonyl sulfide
-        @variables OH(t)          =19.293  [unit = u"ppb"]   #OH; Hydroxyl radical
-        @variables OIO(t)         =51.406  [unit = u"ppb"]   #OIO; Iodine dioxide
-        @variables OLND(t)        =63.247  [unit = u"ppb"]   #Monoterpene-derived NO3-alkene adduct
-        @variables OLNN(t)        =95.667  [unit = u"ppb"]   #Monoterpene-derived NO3 adduct
-        @variables OTHRO2(t)      =74.722  [unit = u"ppb"]   #Other C2 RO2 not from C2H6 oxidation
-        @variables PAN(t)         =59.945  [unit = u"ppb"]   #CH3C(O)OONO2; Peroxyacetylnitrate
-        @variables PHEN(t)        =59.463  [unit = u"ppb"]   #phenol
-        @variables PIO2(t)        =94.953  [unit = u"ppb"]   #RO2 from MTPA
-        @variables PIP(t)         =96.809  [unit = u"ppb"]   #Peroxides from MTPA
-        @variables PO2(t)         =25.827  [unit = u"ppb"]   #HOCH2CH(OO)CH3; RO2 from propene
-        @variables PP(t)          =61.804  [unit = u"ppb"]   #HOCH2CH(OOH)CH3; Peroxide from PO2
-        @variables PPN(t)         =94.436  [unit = u"ppb"]   #CH3CH2C(O)OONO2; Peroxypropionylnitrate
-        @variables PRN1(t)        =87.618  [unit = u"ppb"]   #O2NOCH2CH(OO)CH3; RO2 from propene + NO3
-        @variables PROPNN(t)      =33.842  [unit = u"ppb"]   #CH3C(=O)CH2ONO2; Propanone nitrate
-        @variables PRPE(t)        =63.131  [unit = u"ppb"]   #C3H6; >= C3 alkenes
-        @variables PRPN(t)        =43.083  [unit = u"ppb"]   #O2NOCH2CH(OOH)CH3; Peroxide from PRN1
-        @variables PYAC(t)        =79.104  [unit = u"ppb"]   #CH3COCOOH; Pyruvic acid
-        @variables R4N1(t)        =37.438  [unit = u"ppb"]   #RO2 from R4N2
-        @variables R4N2(t)        =46.153  [unit = u"ppb"]   #RO2NO; >= C4 alkylnitrates
-        @variables R4O2(t)        =36.162  [unit = u"ppb"]   #RO2 from ALK4
-        @variables R4P(t)         =40.804  [unit = u"ppb"]   #CH3CH2CH2CH2OOH; Peroxide from R4O2
-        @variables RA3P(t)        =57.025  [unit = u"ppb"]   #CH3CH2CH2OOH; Peroxide from A3O2
-        @variables RB3P(t)        =72.421  [unit = u"ppb"]   #CH3CH(OOH)CH3; Peroxide from B3O2
-        @variables RCHO(t)        =37.680  [unit = u"ppb"]   #CH3CH2CHO; >= C3 aldehydes
-        @variables RCO3(t)        =63.108  [unit = u"ppb"]   #CH3CH2C(O)OO; Peroxypropionyl radical
-        @variables RIPA(t)        =42.881  [unit = u"ppb"]   #HOCH2C(OOH)(CH3)CH=CH2; 1,2-ISOPOOH
-        @variables RIPB(t)        =24.737  [unit = u"ppb"]   #HOCH2C(OOH)(CH3)CH=CH2; 4,3-ISOPOOH
-        @variables RIPC(t)        =57.374  [unit = u"ppb"]   #C5H10O3; d(1,4)-ISOPOOH
-        @variables RIPD(t)        =5.9941  [unit = u"ppb"]   #C5H10O3; d(4,1)-ISOPOOH
-        @variables ROH(t)         =67.750  [unit = u"ppb"]   #C3H7OH; > C2 alcohols
-        @variables RP(t)          =38.598  [unit = u"ppb"]   #CH3CH2C(O)OOH; Peroxide from RCO3
-        @variables SALAAL(t)      =37.928  [unit = u"ppb"]   #Accumulation mode seasalt aerosol alkalinity
-        @variables SALCAL(t)      =13.651  [unit = u"ppb"]   #Coarse mode seasalt aerosol alkalinity
-        @variables SALACL(t)      =41.613  [unit = u"ppb"]   #Cl; Fine chloride
-        @variables SALCCL(t)      =41.813  [unit = u"ppb"]   #Cl; Coarse chloride
-        @variables SALASO2(t)     =46.971  [unit = u"ppb"]   #SO2; Fine seasalt
-        @variables SALCSO2(t)     =98.028  [unit = u"ppb"]   #SO2; Coarse seasalt
-        @variables SALASO3(t)     =18.107  [unit = u"ppb"]   #SO3--; Fine seasalt
-        @variables SALCSO3(t)     =51.008  [unit = u"ppb"]   #SO3--; Coarse chloride
-        @variables SO2(t)         =6.2180  [unit = u"ppb"]   #SO2; Sulfur dioxide
-        @variables SO4(t)         =97.494  [unit = u"ppb"]   #SO4; Sulfate
-        @variables SO4s(t)        =74.244  [unit = u"ppb"]   #SO4 on sea-salt; Sulfate
-        @variables SOAGX(t)       =82.469  [unit = u"ppb"]   #CHOCHO; Aerosol-phase glyoxal
-        @variables SOAIE(t)       =81.289  [unit = u"ppb"]   #C5H10O3; Aerosol-phase IEPOX
-        @variables TOLU(t)        =58.265  [unit = u"ppb"]   #C7H8; Toluene
-        @variables TRO2(t)        =10.659  [unit = u"ppb"]   #Peroxy radical from TOLU oxidation
-        @variables XYLE(t)        =24.563  [unit = u"ppb"]   #C8H10; Xylene
-        @variables XRO2(t)        =25.058  [unit = u"ppb"]   #Peroxy radical from XYLE oxidation
-        @variables H2(t)          =97.924  [unit = u"ppb"]   #H2; Molecular hydrogen
-        @variables N2(t)          =36.998  [unit = u"ppb"]   #N2; Molecular nitrogen
-        @variables O2(t)          =51.201  [unit = u"ppb"]   #O2; Molecular oxygen
-        @variables RCOOH(t)       =12.892  [unit = u"ppb"]   #C2H5C(O)OH; > C2 organic acids 
+        @species A3O2(t)        =59.469  [unit = u"ppb"]   #CH3CH2CH2OO; Primary RO2 from C3H8
+        @species ACET(t)        =87.473  [unit = u"ppb"]   #CH3C(O)CH3; Acetone
+        @species ACTA(t)        =70.187  [unit = u"ppb"]   #CH3C(O)OH; Acetic acid
+        @species AERI(t)        =30.013  [unit = u"ppb"]   #I; Dissolved iodine
+        @species ALD2(t)        =9.4976  [unit = u"ppb"]   #CH3CHO; Acetaldehyde
+        @species ALK4(t)        =8.4827  [unit = u"ppb"]   #>= C4 alkanes
+        @species AONITA(t)      =77.604  [unit = u"ppb"]   #Aerosol-phase organic nitrate from aromatic precursors
+        @species AROMRO2(t)     =77.132  [unit = u"ppb"]   #generic peroxy radical from aromatic oxidation
+        @species AROMP4(t)      =52.322  [unit = u"ppb"]   #Generic C4 product from aromatic oxidation
+        @species AROMP5(t)      =4.8975  [unit = u"ppb"]   #Generic C5 product from aromatic oxidation
+        @species ATO2(t)        =88.056  [unit = u"ppb"]   #CH3C(O)CH2O2; RO2 from acetone
+        @species ATOOH(t)       =95.672  [unit = u"ppb"]   #CH3C(O)CH2OOH; ATO2 peroxide
+        @species B3O2(t)        =44.692  [unit = u"ppb"]   #CH3CH(OO)CH3; Secondary RO2 from C3H8
+        @species BALD(t)        =35.859  [unit = u"ppb"]   #benzaldehyde and tolualdehyde
+        @species BENZ(t)        =18.166  [unit = u"ppb"]   #C6H6; Benzene
+        @species BENZO(t)       =92.094  [unit = u"ppb"]   #C6H5O radical
+        @species BENZO2(t)      =45.770  [unit = u"ppb"]   #C6H5O2 radical
+        @species BENZP(t)       =45.646  [unit = u"ppb"]   #hydroperoxide from BENZO2
+        @species Br(t)          =56.283  [unit = u"ppb"]   #Br; Atomic bromine
+        @species Br2(t)         =98.265  [unit = u"ppb"]   #Br2; Molecular bromine
+        @species BrCl(t)        =70.858  [unit = u"ppb"]   #BrCl; Bromine chloride
+        @species BrNO2(t)       =15.765  [unit = u"ppb"]   #BrNO2; Nitryl bromide
+        @species BrNO3(t)       =8.8808  [unit = u"ppb"]   #BrNO3; Bromine nitrate
+        @species BrO(t)         =90.871  [unit = u"ppb"]   #BrO; Bromine monoxide
+        @species BRO2(t)        =90.134  [unit = u"ppb"]   #C6H5O2 ; Peroxy radical from BENZ oxidation
+        @species BrSALA(t)      =5.6082  [unit = u"ppb"]   #Br; Fine sea salt bromine
+        @species BrSALC(t)      =23.602  [unit = u"ppb"]   #Br; Course sea salt bromine
+        @species BZCO3(t)       =34.301  [unit = u"ppb"]   #benzoylperoxy radical
+        @species BZCO3H(t)      =18.280  [unit = u"ppb"]   #perbenzoic acid
+        @species BZPAN(t)       =25.224  [unit = u"ppb"]   #peroxybenzoyl nitrate
+        @species C2H2(t)        =64.023  [unit = u"ppb"]   #C2H2; Ethyne
+        @species C2H4(t)        =48.832  [unit = u"ppb"]   #Ethylene
+        @species C2H6(t)        =95.500  [unit = u"ppb"]   #C2H6; Ethane
+        @species C3H8(t)        =93.457  [unit = u"ppb"]   #C3H8; Propane
+        @species C4HVP1(t)      =90.362  [unit = u"ppb"]   #C4 hydroxy-vinyl-peroxy radicals from HPALDs
+        @species C4HVP2(t)      =60.972  [unit = u"ppb"]   #C4 hydroxy-vinyl-peroxy radicals from HPALDs
+        @species CCl4(t)        =38.249  [unit = u"ppb"]   #CCl4; Carbon tetrachloride
+        @species CFC11(t)       =16.012  [unit = u"ppb"]   #CCl3F ; CFC-11, R-11, Freon 11
+        @species CFC12(t)       =60.683  [unit = u"ppb"]   #CCl2F2; CFC-12, R-12, Freon 12
+        @species CFC113(t)      =99.375  [unit = u"ppb"]   #C2Cl3F3; CFC-113, Freon 113
+        @species CFC114(t)      =82.883  [unit = u"ppb"]   #C2Cl2F4; CFC-114, Freon 114
+        @species CFC115(t)      =63.617  [unit = u"ppb"]   #C2ClF5; CFC-115, Freon 115
+        @species CH2Br2(t)      =53.658  [unit = u"ppb"]   #CH3Br2; Dibromomethane
+        @species CH2Cl2(t)      =6.5485  [unit = u"ppb"]   #CH2Cl2; Dichloromethane
+        @species CH2I2(t)       =62.463  [unit = u"ppb"]   #CH2I2; Diiodomethane
+        @species CH2IBr(t)      =98.965  [unit = u"ppb"]   #CH2IBr; Bromoiodomethane
+        @species CH2ICl(t)      =33.656  [unit = u"ppb"]   #CH2ICl; Chloroiodomethane
+        @species CH2O(t)        =34.136  [unit = u"ppb"]   #CH2O; Formaldehyde
+        @species CH2OO(t)       =72.666  [unit = u"ppb"]   #CH2OO; Criegee intermediate
+        @species CH3Br(t)       =76.768  [unit = u"ppb"]   #CH3Br; Methyl bromide
+        @species CH3CCl3(t)     =99.842  [unit = u"ppb"]   #CH3CCl3; Methyl chloroform
+        @species CH3CHOO(t)     =27.830  [unit = u"ppb"]   #CH3CHOO; Criegee intermediate
+        @species CH3Cl(t)       =14.055  [unit = u"ppb"]   #CH3Cl; Chloromethane
+        @species CH3I(t)        =19.671  [unit = u"ppb"]   #CH3I; Methyl iodide
+        @species CH4(t)         =6.9330  [unit = u"ppb"]   #CH4; Methane
+        @species CHBr3(t)       =84.204  [unit = u"ppb"]   #CHBr3; Tribromethane
+        @species CHCl3(t)       =79.435  [unit = u"ppb"]   #CHCl3; Chloroform
+        @species Cl(t)          =47.484  [unit = u"ppb"]   #Cl; Atomic chlorine
+        @species Cl2(t)         =71.292  [unit = u"ppb"]   #Cl2; Molecular chlorine
+        @species Cl2O2(t)       =96.248  [unit = u"ppb"]   #Cl2O2; Dichlorine dioxide
+        @species ClNO2(t)       =36.482  [unit = u"ppb"]   #ClNO2; Nitryl chloride
+        @species ClNO3(t)       =55.020  [unit = u"ppb"]   #ClONO2; Chlorine nitrate
+        @species ClO(t)         =0.9863  [unit = u"ppb"]   #ClO; Chlorine monoxide
+        @species ClOO(t)        =53.802  [unit = u"ppb"]   #ClOO; Chlorine dioxide
+        @species CO(t)          =32.978  [unit = u"ppb"]   #CO; Carbon monoxide
+        @species CO2(t)         =55.611  [unit = u"ppb"]   #CO2; Carbon dioxide
+        @species CSL(t)         =23.332  [unit = u"ppb"]   #cresols and xylols
+        @species DMS(t)         =5.8615  [unit = u"ppb"]   #(CH3)2S; Dimethylsulfide
+        @species EOH(t)         =18.988  [unit = u"ppb"]   #C2H5OH; Ethanol
+        @species ETHLN(t)       =69.851  [unit = u"ppb"]   #CHOCH2ONO2; Ethanal nitrate
+        @species ETHN(t)        =24.767  [unit = u"ppb"]   #stable hydroxy-nitrooxy-ethane
+        @species ETHP(t)        =59.843  [unit = u"ppb"]   #stable hydroxy-hydroperoxy-ethane
+        @species ETNO3(t)       =11.558  [unit = u"ppb"]   #C2H5ONO2; Ethyl nitrate
+        @species ETO(t)         =85.116  [unit = u"ppb"]   #hydroxy-alkoxy-ethane radical
+        @species ETOO(t)        =24.842  [unit = u"ppb"]   #hydroxy-peroxy-ethane radical, formed from ethene + OH
+        @species ETO2(t)        =29.300  [unit = u"ppb"]   #CH3CH2OO; Ethylperoxy radical
+        @species ETP(t)         =81.950  [unit = u"ppb"]   #CH3CH2OOH; Ethylhydroperoxide
+        @species GLYC(t)        =20.407  [unit = u"ppb"]   #HOCH2CHO; Glycoaldehyde
+        @species GLYX(t)        =81.571  [unit = u"ppb"]   #CHOCHO; Glyoxal
+        @species H(t)           =7.6410  [unit = u"ppb"]   #H; Atomic hydrogen
+        @species H1211(t)       =46.027  [unit = u"ppb"]   #CBrClF2; H-1211
+        @species H1301(t)       =36.584  [unit = u"ppb"]   #CBrF3; H-1301
+        @species H2402(t)       =52.639  [unit = u"ppb"]   #C2Br2F4; H-2402
+        @species H2O(t)         =56.623  [unit = u"ppb"]   #H2O; Water vapor
+        @species H2O2(t)        =44.325  [unit = u"ppb"]   #H2O2; Hydrogen peroxide
+        @species HAC(t)         =88.335  [unit = u"ppb"]   #HOCH2C(O)CH3; Hydroxyacetone
+        @species HBr(t)         =15.715  [unit = u"ppb"]   #HBr; Hypobromic acid
+        @species HC5A(t)        =44.638  [unit = u"ppb"]   #C5H8O2; Isoprene-4,1-hydroxyaldehyde
+        @species HCFC123(t)     =22.296  [unit = u"ppb"]   #C2HCl2F3; HCFC-123, R-123, Freon 123
+        @species HCFC141b(t)    =93.091  [unit = u"ppb"]   #C(CH3)Cl2F; HCFC-141b, R-141b, Freon 141b
+        @species HCFC142b(t)    =81.415  [unit = u"ppb"]   #C(CH3)ClF2; HCFC-142b, R-142b, Freon 142b
+        @species HCFC22(t)      =16.333  [unit = u"ppb"]   #CHClF2 ; HCFC-22, R-22, Freon 22
+        @species HCl(t)         =87.644  [unit = u"ppb"]   #HCl; Hydrochloric acid
+        @species HCOOH(t)       =99.489  [unit = u"ppb"]   #HCOOH; Formic acid
+        @species HI(t)          =68.377  [unit = u"ppb"]   #HI; Hydrogen iodide
+        @species HMHP(t)        =16.437  [unit = u"ppb"]   #HOCH2OOH; Hydroxymethyl hydroperoxide
+        @species HMML(t)        =33.654  [unit = u"ppb"]   #C4H6O3; Hydroxymethyl-methyl-a-lactone
+        @species HMS(t)         =54.099  [unit = u"ppb"]   #HOCH2SO3-; hydroxymethanesulfonate
+        @species HNO2(t)        =18.174  [unit = u"ppb"]   #HONO; Nitrous acid
+        @species HNO3(t)        =62.170  [unit = u"ppb"]   #HNO3; Nitric acid
+        @species HNO4(t)        =39.302  [unit = u"ppb"]   #HNO4; Pernitric acid
+        @species HO2(t)         =58.306  [unit = u"ppb"]   #HO2; Hydroperoxyl radical
+        @species HOBr(t)        =59.529  [unit = u"ppb"]   #HOBr; Hypobromous acid
+        @species HOCl(t)        =90.397  [unit = u"ppb"]   #HOCl; Hypochlorous acid
+        @species HOI(t)         =35.827  [unit = u"ppb"]   #HOI; Hypoiodous acid
+        @species HONIT(t)       =58.760  [unit = u"ppb"]   #2nd gen monoterpene organic nitrate
+        @species HPALD1(t)      =73.164  [unit = u"ppb"]   #O=CHC(CH3)=CHCH2OOH; d-4,1-C5-hydroperoxyaldehyde
+        @species HPALD1OO(t)    =34.759  [unit = u"ppb"]   #peroxy radicals from HPALD1
+        @species HPALD2(t)      =1.0291  [unit = u"ppb"]   #HOOCH2C(CH3)=CHCH=O; d-1,4-C5-hydroperoxyaldehyde
+        @species HPALD2OO(t)    =28.332  [unit = u"ppb"]   #peroxy radicals from HPALD2
+        @species HPALD3(t)      =91.404  [unit = u"ppb"]   #O=CHC(CH3)OOHCH=CH2; b-2,1-C5-hydroperoxyaldehyde
+        @species HPALD4(t)      =14.949  [unit = u"ppb"]   #CH2=C(CH3)CHOOHCH=O; b-3,4-C5-hydroperoxyaldehyde
+        @species HPETHNL(t)     =90.330  [unit = u"ppb"]   #CHOCH2OOH; hydroperoxyethanal
+        @species I(t)           =85.092  [unit = u"ppb"]   #I; Atmoic iodine
+        @species I2(t)          =49.639  [unit = u"ppb"]   #I2; Molecular iodine
+        @species I2O2(t)        =70.687  [unit = u"ppb"]   #I2O2; Diiodine dioxide
+        @species I2O3(t)        =85.950  [unit = u"ppb"]   #I2O3; Diiodine trioxide
+        @species I2O4(t)        =36.304  [unit = u"ppb"]   #I2O4; Diiodine tetraoxide
+        @species IBr(t)         =46.529  [unit = u"ppb"]   #IBr; Iodine monobromide
+        @species ICHE(t)        =17.739  [unit = u"ppb"]   #C5H8O3; Isoprene hydroxy-carbonyl-epoxides
+        @species ICHOO(t)       =75.448  [unit = u"ppb"]   #peroxy radical from IEPOXD
+        @species ICl(t)         =32.124  [unit = u"ppb"]   #ICl; Iodine monochloride
+        @species ICN(t)         =22.128  [unit = u"ppb"]   #C5H7NO4; Lumped isoprene carbonyl nitrates
+        @species ICNOO(t)       =12.649  [unit = u"ppb"]   #peroxy radicals from ICN
+        @species ICPDH(t)       =71.736  [unit = u"ppb"]   #C5H10O5; Isoprene dihydroxy hydroperoxycarbonyl
+        @species IDC(t)         =28.840  [unit = u"ppb"]   #C5H6O2; Lumped isoprene dicarbonyls
+        @species IDCHP(t)       =2.3035  [unit = u"ppb"]   #C5H8O5; Isoprene dicarbonyl hydroxy dihydroperoxide
+        @species IDHDP(t)       =21.649  [unit = u"ppb"]   #C5H12O6; Isoprene dihydroxy dihydroperoxide
+        @species IDHNBOO(t)     =25.086  [unit = u"ppb"]   #peroxy radicals from INPB
+        @species IDHNDOO1(t)    =15.276  [unit = u"ppb"]   #peroxy radicals from INPD
+        @species IDHNDOO2(t)    =61.961  [unit = u"ppb"]   #peroxy radicals from INPD
+        @species IDHPE(t)       =94.216  [unit = u"ppb"]   #C5H10O5; Isoprene dihydroxy hydroperoxy epoxide
+        @species IDN(t)         =13.328  [unit = u"ppb"]   #C5H8N2O6; Lumped isoprene dinitrates
+        @species IDNOO(t)       =44.188  [unit = u"ppb"]   #peroxy radicals from IDN
+        @species IEPOXA(t)      =60.554  [unit = u"ppb"]   #C5H10O3; trans-Beta isoprene epoxydiol
+        @species IEPOXAOO(t)    =27.948  [unit = u"ppb"]   #peroxy radical from trans-Beta isoprene epoxydiol
+        @species IEPOXB(t)      =38.609  [unit = u"ppb"]   #C5H10O3; cis-Beta isoprene epoxydiol
+        @species IEPOXBOO(t)    =87.094  [unit = u"ppb"]   #peroxy radical from cis-Beta isoprene epoxydiol
+        @species IEPOXD(t)      =8.0346  [unit = u"ppb"]   #C5H10O3; Delta isoprene epoxydiol
+        @species IHN1(t)        =11.028  [unit = u"ppb"]   #C5H9NO4; Isoprene-d-4-hydroxy-1-nitrate
+        @species IHN2(t)        =71.286  [unit = u"ppb"]   #C5H9NO4; Isoprene-b-1-hydroxy-2-nitrate
+        @species IHN3(t)        =82.443  [unit = u"ppb"]   #C5H9NO4; Isoprene-b-4-hydroxy-3-nitrate
+        @species IHN4(t)        =91.975  [unit = u"ppb"]   #C5H9NO4; Isoprene-d-1-hydroxy-4-nitrate
+        @species IHOO1(t)       =27.517  [unit = u"ppb"]   #peroxy radical from OH addition to isoprene at C1
+        @species IHOO4(t)       =51.624  [unit = u"ppb"]   #peroxy radical from OH addition to isoprene at C4
+        @species IHPNBOO(t)     =66.363  [unit = u"ppb"]   #peroxy radicals from INPB
+        @species IHPNDOO(t)     =63.447  [unit = u"ppb"]   #peroxy radicals from INPD
+        @species IHPOO1(t)      =79.476  [unit = u"ppb"]   #peroxy radical from ISOPOOH
+        @species IHPOO2(t)      =58.328  [unit = u"ppb"]   #peroxy radical from ISOPOOH
+        @species IHPOO3(t)      =5.9515  [unit = u"ppb"]   #peroxy radical from ISOPOOH
+        @species INA(t)         =26.490  [unit = u"ppb"]   #alkoxy radical from INO2D
+        @species INDIOL(t)      =52.424  [unit = u"ppb"]   #Generic aerosol phase organonitrate hydrolysis product
+        @species INO(t)         =73.106  [unit = u"ppb"]   #INO; Nitrosyl iodide
+        @species INO2B(t)       =25.723  [unit = u"ppb"]   #beta-peroxy radicals from isoprene + NO3
+        @species INO2D(t)       =30.524  [unit = u"ppb"]   #delta-peroxy radicals from isoprene + NO3
+        @species INPB(t)        =96.224  [unit = u"ppb"]   #C5H9NO5; Lumped isoprene beta-hydroperoxy nitrates
+        @species INPD(t)        =80.193  [unit = u"ppb"]   #C5H9NO5; Lumped isoprene delta-hydroperoxy nitrates
+        @species IO(t)          =26.615  [unit = u"ppb"]   #IO; Iodine monoxide
+        @species IONITA(t)      =25.539  [unit = u"ppb"]   #Aerosol-phase organic nitrate from isoprene precursors
+        @species IONO(t)        =56.756  [unit = u"ppb"]   #IONO; Nitryl iodide
+        @species IONO2(t)       =53.992  [unit = u"ppb"]   #IONO2; Iodine nitrate
+        @species IPRNO3(t)      =22.638  [unit = u"ppb"]   #C3H8ONO2; Isopropyl nitrate
+        @species ISALA(t)       =79.006  [unit = u"ppb"]   #I; Fine sea salt iodine
+        @species ISALC(t)       =13.184  [unit = u"ppb"]   #I; Coarse sea salt iodine
+        @species ISOP(t)        =83.240  [unit = u"ppb"]   #CH2=C(CH3)CH=CH2; Isoprene
+        @species ISOPNOO1(t)    =60.043  [unit = u"ppb"]   #peroxy radicals from IHN2
+        @species ISOPNOO2(t)    =71.160  [unit = u"ppb"]   #peroxy radicals from IHN3
+        @species ITCN(t)        =26.206  [unit = u"ppb"]   #C5H9NO7; Lumped tetrafunctional isoprene carbonyl-nitrates
+        @species ITHN(t)        =11.572  [unit = u"ppb"]   #C5H11NO7; Lumped tetrafunctional isoprene hydroxynitrates
+        @species KO2(t)         =84.868  [unit = u"ppb"]   #RO2 from >3 ketones
+        @species LBRO2H(t)      =61.633  [unit = u"ppb"]   #Dummy spc to track oxidation of BRO2 by HO2
+        @species LBRO2N(t)      =11.255  [unit = u"ppb"]   #Dummy spc to track oxidation of BRO2 by NO
+        @species LIMO(t)        =53.446  [unit = u"ppb"]   #C10H16; Limonene
+        @species LIMO2(t)       =92.794  [unit = u"ppb"]   #RO2 from LIMO
+        @species LISOPOH(t)     =92.199  [unit = u"ppb"]   #Dummy spc to track oxidation of ISOP by OH
+        @species LISOPNO3(t)    =29.918  [unit = u"ppb"]   #Dummy spc to track oxidation of ISOP by NO3
+        @species LNRO2H(t)      =29.939  [unit = u"ppb"]   #Dummy spc to track oxidation of NRO2 by HO2
+        @species LNRO2N(t)      =57.661  [unit = u"ppb"]   #Dummy spc to track oxidation of NRO2 by NO
+        @species LTRO2H(t)      =46.441  [unit = u"ppb"]   #Dummy spc to track oxidation of TRO2 by HO2
+        @species LTRO2N(t)      =28.826  [unit = u"ppb"]   #Dummy spc to track oxidation of TRO2 by NO
+        @species LVOC(t)        =47.079  [unit = u"ppb"]   #C5H14O5; Gas-phase low-volatility non-IEPOX product of ISOPOOH (RIP) oxidation
+        @species LVOCOA(t)      =97.788  [unit = u"ppb"]   #C5H14O5; Aerosol-phase low-volatility non-IEPOX product of ISOPOOH (RIP) oxidation
+        @species LXRO2H(t)      =62.462  [unit = u"ppb"]   #Dummy spc to track oxidation of XRO2 by HO2
+        @species LXRO2N(t)      =39.337  [unit = u"ppb"]   #Dummy spc to track oxidation of XRO2 by NO
+        @species MACR(t)        =17.935  [unit = u"ppb"]   #CH2=C(CH3)CHO; Methacrolein
+        @species MACR1OO(t)     =91.114  [unit = u"ppb"]   #peroxyacyl radical from MACR + OH
+        @species MACR1OOH(t)    =61.547  [unit = u"ppb"]   #CH2=C(CH3)C(O)OOH; Peracid from MACR
+        @species MACRNO2(t)     =97.585  [unit = u"ppb"]   #Product of MCRHN + OH
+        @species MAP(t)         =61.421  [unit = u"ppb"]   #CH3C(O)OOH; Peroxyacetic acid
+        @species MCO3(t)        =0.6220  [unit = u"ppb"]   #CH3C(O)OO; Peroxyacetyl radical
+        @species MCRDH(t)       =23.756  [unit = u"ppb"]   #C4H8O3; Dihydroxy-MACR
+        @species MCRENOL(t)     =43.151  [unit = u"ppb"]   #C4H6O2; Lumped enols from MVK/MACR
+        @species MCRHN(t)       =5.5067  [unit = u"ppb"]   #HOCH2C(ONO2)(CH3)CHO; Hydroxynitrate from MACR
+        @species MCRHNB(t)      =2.8277  [unit = u"ppb"]   #O2NOCH2C(OH)(CH3)CHO; Hydroxynitrate from MACR
+        @species MCRHP(t)       =0.2048  [unit = u"ppb"]   #HOCH2C(OOH)(CH3)CHO; Hydroxy-hydroperoxy-MACR
+        @species MCROHOO(t)     =49.422  [unit = u"ppb"]   #peroxy radical from MACR + OH
+        @species MCT(t)         =77.753  [unit = u"ppb"]   #methylcatechols
+        @species MEK(t)         =61.732  [unit = u"ppb"]   #RC(O)R; Methyl ethyl ketone
+        @species MENO3(t)       =89.773  [unit = u"ppb"]   #CH3ONO2; methyl nitrate
+        @species MGLY(t)        =93.209  [unit = u"ppb"]   #CH3COCHO; Methylglyoxal
+        @species MO2(t)         =73.881  [unit = u"ppb"]   #CH3O2; Methylperoxy radical
+        @species MOH(t)         =55.585  [unit = u"ppb"]   #CH3OH; Methanol
+        @species MONITA(t)      =61.052  [unit = u"ppb"]   #Aerosol-phase organic nitrate from monoterpene precursors
+        @species MONITS(t)      =71.179  [unit = u"ppb"]   #Saturated 1st gen monoterpene organic nitrate
+        @species MONITU(t)      =23.294  [unit = u"ppb"]   #Unsaturated 1st gen monoterpene organic nitrate
+        @species MP(t)          =25.386  [unit = u"ppb"]   #CH3OOH; Methylhydroperoxide
+        @species MPAN(t)        =89.575  [unit = u"ppb"]   #CH2=C(CH3)C(O)OONO2; Peroxymethacroyl nitrate (PMN)
+        @species MPN(t)         =59.399  [unit = u"ppb"]   #CH3O2NO2; Methyl peroxy nitrate
+        @species MSA(t)         =82.711  [unit = u"ppb"]   #CH4SO3; Methanesulfonic acid
+        @species MTPA(t)        =25.413  [unit = u"ppb"]   #Lumped monoterpenes: a-pinene, b-pinene, sabinene, carene
+        @species MTPO(t)        =8.9141  [unit = u"ppb"]   #Other monoterpenes: Terpinene, terpinolene, myrcene, ocimene, other monoterpenes
+        @species MVK(t)         =62.109  [unit = u"ppb"]   #CH2=CHC(=O)CH3; Methyl vinyl ketone
+        @species MVKDH(t)       =97.635  [unit = u"ppb"]   #HOCH2CH2OHC(O)CH3; Dihydroxy-MVK
+        @species MVKHC(t)       =98.159  [unit = u"ppb"]   #C4H6O3; MVK hydroxy-carbonyl
+        @species MVKHCB(t)      =50.621  [unit = u"ppb"]   #C4H6O3; MVK hydroxy-carbonyl
+        @species MVKHP(t)       =35.334  [unit = u"ppb"]   #C4H8O4; MVK hydroxy-hydroperoxide
+        @species MVKN(t)        =48.570  [unit = u"ppb"]   #HOCH2CH(ONO2)C(=O)CH3; Hydroxynitrate from MVK
+        @species MVKOHOO(t)     =41.490  [unit = u"ppb"]   #peroxy radical from MVK + OH
+        @species MVKPC(t)       =8.2590  [unit = u"ppb"]   #OCHCH(OOH)C(O)CH3; MVK hydroperoxy-carbonyl
+        @species N(t)           =56.891  [unit = u"ppb"]   #N; Atomic nitrogen
+        @species N2O(t)         =50.751  [unit = u"ppb"]   #N2O; Nitrous oxide
+        @species N2O5(t)        =19.118  [unit = u"ppb"]   #N2O5; Dinitrogen pentoxide
+        @species NAP(t)         =33.270  [unit = u"ppb"]   #C10H8; Naphthalene; IVOC surrogate
+        @species NIT(t)         =77.088  [unit = u"ppb"]   #NIT; Fine mode inorganic nitrate
+        @species NITs(t)        =56.341  [unit = u"ppb"]   #NITs; Coarse mode inorganic nitrate
+        @species NO(t)          =54.454  [unit = u"ppb"]   #NO; Nitric oxide
+        @species NO2(t)         =5.5605  [unit = u"ppb"]   #NO2; Nitrogen dioxide
+        @species NO3(t)         =31.739  [unit = u"ppb"]   #NO3; Nitrate radical
+        @species NPHEN(t)       =87.002  [unit = u"ppb"]   #nitrophenols
+        @species NPRNO3(t)      =58.488  [unit = u"ppb"]   #C3H8ONO2; n-propyl nitrate
+        @species NRO2(t)        =83.618  [unit = u"ppb"]   #Peroxy radical from NAP oxidation
+        @species O(t)           =14.164  [unit = u"ppb"]   #O(3P); Ground state atomic oxygen
+        @species O1D(t)         =17.648  [unit = u"ppb"]   #O(1D); Excited atomic oxygen
+        @species O3(t)          =2.1326  [unit = u"ppb"]   #O3; Ozone
+        @species O3A(t)         =28.223  [unit = u"ppb"]   #O3; Ozone in accum seasalt
+        @species O3C(t)         =49.728  [unit = u"ppb"]   #O3; Ozone in coarse seasalt
+        @species OClO(t)        =60.037  [unit = u"ppb"]   #OClO; Chlorine dioxide
+        @species OCS(t)         =20.867  [unit = u"ppb"]   #COS; Carbonyl sulfide
+        @species OH(t)          =19.293  [unit = u"ppb"]   #OH; Hydroxyl radical
+        @species OIO(t)         =51.406  [unit = u"ppb"]   #OIO; Iodine dioxide
+        @species OLND(t)        =63.247  [unit = u"ppb"]   #Monoterpene-derived NO3-alkene adduct
+        @species OLNN(t)        =95.667  [unit = u"ppb"]   #Monoterpene-derived NO3 adduct
+        @species OTHRO2(t)      =74.722  [unit = u"ppb"]   #Other C2 RO2 not from C2H6 oxidation
+        @species PAN(t)         =59.945  [unit = u"ppb"]   #CH3C(O)OONO2; Peroxyacetylnitrate
+        @species PHEN(t)        =59.463  [unit = u"ppb"]   #phenol
+        @species PIO2(t)        =94.953  [unit = u"ppb"]   #RO2 from MTPA
+        @species PIP(t)         =96.809  [unit = u"ppb"]   #Peroxides from MTPA
+        @species PO2(t)         =25.827  [unit = u"ppb"]   #HOCH2CH(OO)CH3; RO2 from propene
+        @species PP(t)          =61.804  [unit = u"ppb"]   #HOCH2CH(OOH)CH3; Peroxide from PO2
+        @species PPN(t)         =94.436  [unit = u"ppb"]   #CH3CH2C(O)OONO2; Peroxypropionylnitrate
+        @species PRN1(t)        =87.618  [unit = u"ppb"]   #O2NOCH2CH(OO)CH3; RO2 from propene + NO3
+        @species PROPNN(t)      =33.842  [unit = u"ppb"]   #CH3C(=O)CH2ONO2; Propanone nitrate
+        @species PRPE(t)        =63.131  [unit = u"ppb"]   #C3H6; >= C3 alkenes
+        @species PRPN(t)        =43.083  [unit = u"ppb"]   #O2NOCH2CH(OOH)CH3; Peroxide from PRN1
+        @species PYAC(t)        =79.104  [unit = u"ppb"]   #CH3COCOOH; Pyruvic acid
+        @species R4N1(t)        =37.438  [unit = u"ppb"]   #RO2 from R4N2
+        @species R4N2(t)        =46.153  [unit = u"ppb"]   #RO2NO; >= C4 alkylnitrates
+        @species R4O2(t)        =36.162  [unit = u"ppb"]   #RO2 from ALK4
+        @species R4P(t)         =40.804  [unit = u"ppb"]   #CH3CH2CH2CH2OOH; Peroxide from R4O2
+        @species RA3P(t)        =57.025  [unit = u"ppb"]   #CH3CH2CH2OOH; Peroxide from A3O2
+        @species RB3P(t)        =72.421  [unit = u"ppb"]   #CH3CH(OOH)CH3; Peroxide from B3O2
+        @species RCHO(t)        =37.680  [unit = u"ppb"]   #CH3CH2CHO; >= C3 aldehydes
+        @species RCO3(t)        =63.108  [unit = u"ppb"]   #CH3CH2C(O)OO; Peroxypropionyl radical
+        @species RIPA(t)        =42.881  [unit = u"ppb"]   #HOCH2C(OOH)(CH3)CH=CH2; 1,2-ISOPOOH
+        @species RIPB(t)        =24.737  [unit = u"ppb"]   #HOCH2C(OOH)(CH3)CH=CH2; 4,3-ISOPOOH
+        @species RIPC(t)        =57.374  [unit = u"ppb"]   #C5H10O3; d(1,4)-ISOPOOH
+        @species RIPD(t)        =5.9941  [unit = u"ppb"]   #C5H10O3; d(4,1)-ISOPOOH
+        @species ROH(t)         =67.750  [unit = u"ppb"]   #C3H7OH; > C2 alcohols
+        @species RP(t)          =38.598  [unit = u"ppb"]   #CH3CH2C(O)OOH; Peroxide from RCO3
+        @species SALAAL(t)      =37.928  [unit = u"ppb"]   #Accumulation mode seasalt aerosol alkalinity
+        @species SALCAL(t)      =13.651  [unit = u"ppb"]   #Coarse mode seasalt aerosol alkalinity
+        @species SALACL(t)      =41.613  [unit = u"ppb"]   #Cl; Fine chloride
+        @species SALCCL(t)      =41.813  [unit = u"ppb"]   #Cl; Coarse chloride
+        @species SALASO2(t)     =46.971  [unit = u"ppb"]   #SO2; Fine seasalt
+        @species SALCSO2(t)     =98.028  [unit = u"ppb"]   #SO2; Coarse seasalt
+        @species SALASO3(t)     =18.107  [unit = u"ppb"]   #SO3--; Fine seasalt
+        @species SALCSO3(t)     =51.008  [unit = u"ppb"]   #SO3--; Coarse chloride
+        @species SO2(t)         =6.2180  [unit = u"ppb"]   #SO2; Sulfur dioxide
+        @species SO4(t)         =97.494  [unit = u"ppb"]   #SO4; Sulfate
+        @species SO4s(t)        =74.244  [unit = u"ppb"]   #SO4 on sea-salt; Sulfate
+        @species SOAGX(t)       =82.469  [unit = u"ppb"]   #CHOCHO; Aerosol-phase glyoxal
+        @species SOAIE(t)       =81.289  [unit = u"ppb"]   #C5H10O3; Aerosol-phase IEPOX
+        @species TOLU(t)        =58.265  [unit = u"ppb"]   #C7H8; Toluene
+        @species TRO2(t)        =10.659  [unit = u"ppb"]   #Peroxy radical from TOLU oxidation
+        @species XYLE(t)        =24.563  [unit = u"ppb"]   #C8H10; Xylene
+        @species XRO2(t)        =25.058  [unit = u"ppb"]   #Peroxy radical from XYLE oxidation
+        @species H2(t)          =97.924  [unit = u"ppb"]   #H2; Molecular hydrogen
+        @species N2(t)          =36.998  [unit = u"ppb"]   #N2; Molecular nitrogen
+        @species O2(t)          =51.201  [unit = u"ppb"]   #O2; Molecular oxygen
+        @species RCOOH(t)       =12.892  [unit = u"ppb"]   #C2H5C(O)OH; > C2 organic acids 
         
         
 
@@ -381,22 +381,22 @@ struct FullChem <: EarthSciMLODESystem
 
             Reaction(GCARR_ac(3.00e-12, -1500.0e0), [O3, NO], [NO2, O2], [1, 1], [1, 1])  #  O3 + NO = NO2 + O2   
             Reaction(GCARR_ac(1.70e-12, -940.0e0), [O3, OH], [HO2, O2], [1, 1], [1, 1])  #  O3 + OH = HO2 + O2   
-            Reaction(GCARR_ac(1.00e-14, -490.0e0), [O3, HO2], [OH, O2, O2], [1, 1], [1, 1, 1])  #  O3 + HO2 = OH + O2 + O2   
+            Reaction(GCARR_ac(1.00e-14, -490.0e0), [O3, HO2], [OH, O2], [1, 1], [1, 2])  #  O3 + HO2 = OH + O2 + O2   
             Reaction(GCARR_ac(1.20e-13, -2450.0e0), [O3, NO2], [O2, NO3], [1, 1], [1, 1])  #  O3 + NO2 = O2 + NO3   
             Reaction(GCARR_ac(2.90e-16, -1000.0e0), [O3, MO2], [CH2O, HO2, O2], [1, 1], [1, 1, 1])   #2014/02/03; Eastham2014; SDE  #  O3 + MO2 = CH2O + HO2 + O2   
-            Reaction(1.80e-12, [OH, OH], [H2O, O], [1, 1], [1, 1])   #2014/02/03; Eastham2014; SDE  #  OH + OH = H2O + O   
-            Reaction(GCJPLPR_aba(6.90e-31, 1.0e+00, 2.6e-11, 0.6e0), [OH, OH], [H2O2], [1, 1], [1])  #  OH + OH = H2O2   
+            Reaction(1.80e-12, [OH], [H2O, O], [2], [1, 1])   #2014/02/03; Eastham2014; SDE  #  OH + OH = H2O + O   
+            Reaction(GCJPLPR_aba(6.90e-31, 1.0e+00, 2.6e-11, 0.6e0), [OH], [H2O2], [2], [1])  #  OH + OH = H2O2   
             Reaction(GCARR_ac(4.80e-11, 250.0e0), [OH, HO2], [H2O, O2], [1, 1], [1, 1])  #  OH + HO2 = H2O + O2   
             Reaction(1.80e-12, [OH, H2O2], [H2O, HO2], [1, 1], [1, 1])  #  OH + H2O2 = H2O + HO2   
             Reaction(GCARR_ac(3.30e-12, 270.0e0), [HO2, NO], [OH, NO2], [1, 1], [1, 1])   #2013/02/12; JPL 10-6; BHH,JMAO,EAM  #  HO2 + NO = OH + NO2   
-            Reaction(GC_HO2HO2_acac(3.00e-13, 460.0e0, 2.1e-33, 920.0e0), [HO2, HO2], [H2O2, O2], [1, 1], [1, 1])   #2014/02/03; Eastham2014; SDE  #  HO2 + HO2 = H2O2 + O2   
+            Reaction(GC_HO2HO2_acac(3.00e-13, 460.0e0, 2.1e-33, 920.0e0), [HO2], [H2O2, O2], [2], [1, 1])   #2014/02/03; Eastham2014; SDE  #  HO2 + HO2 = H2O2 + O2   
             Reaction(GC_OHCO_a(1.50e-13), [OH, CO], [HO2, CO2], [1, 1], [1, 1])   #2017/02/22; JPL 15-10; BHH,MJE  #  OH + CO = HO2 + CO2   
             Reaction(GCARR_ac(2.45e-12, -1775.0e0), [OH, CH4], [MO2, H2O], [1, 1], [1, 1])  #  OH + CH4 = MO2 + H2O   
             Reaction(GC_RO2NO_B1_ac(2.80e-12, 300.0e0), [MO2, NO], [CH2O, HO2, NO2], [1, 1], [1, 1, 1])   #2019/05/10; Fisher2018; JAF  #  MO2 + NO = CH2O + HO2 + NO2   
             Reaction(GC_RO2NO_A1_ac(2.80e-12, 300.0e0), [MO2, NO], [MENO3], [1, 1], [1])   #2019/05/10; Fisher2018; JAF  #  MO2 + NO = MENO3   
             Reaction(GCARR_abc(4.10e-13, 0.0e0, 750.0e0), [MO2, HO2], [MP, O2], [1, 1], [1, 1])  #  MO2 + HO2 = MP + O2   
-            Reaction(GC_TBRANCH_1_acac(9.50e-14, 390.0e0, 2.62e1, -1130.0e0), [MO2, MO2], [MOH, CH2O, O2], [1, 1], [1, 1, 1])  #  MO2 + MO2 = MOH + CH2O + O2   
-            Reaction(GC_TBRANCH_1_acac(9.50e-14, 390.0e0, 4.0e-2, 1130.0e0), [MO2, MO2], [CH2O, HO2], [1, 1], [2.000, 2.000])  #  MO2 + MO2 = 2.000CH2O + 2.000HO2   
+            Reaction(GC_TBRANCH_1_acac(9.50e-14, 390.0e0, 2.62e1, -1130.0e0), [MO2], [MOH, CH2O, O2], [2], [1, 1, 1])  #  MO2 + MO2 = MOH + CH2O + O2   
+            Reaction(GC_TBRANCH_1_acac(9.50e-14, 390.0e0, 4.0e-2, 1130.0e0), [MO2], [CH2O, HO2], [2], [2.000, 2.000])  #  MO2 + MO2 = 2.000CH2O + 2.000HO2   
             Reaction(1.60e-10 , [MO2, OH], [MOH, CH2O, HO2], [1, 1], [0.13, 0.87, 1.74])   #2021/09/22; Bates2021a; KHB,MSL  #  MO2 + OH = 0.13MOH + 0.87CH2O + 1.74HO2   
             Reaction(GCARR_ac(2.66e-12, 200.0e0), [MP, OH], [MO2, H2O], [1, 1], [1, 1])  #  MP + OH = MO2 + H2O   
             Reaction(GCARR_ac(1.14e-12, 200.0e0), [MP, OH], [CH2O, OH, H2O], [1, 1], [1, 1, 1])  #  MP + OH = CH2O + OH + H2O   
@@ -454,10 +454,10 @@ struct FullChem <: EarthSciMLODESystem
             Reaction(8.00e-16, [MEK, NO3], [HNO3, KO2], [1, 1], [1, 1])  #  MEK + NO3 = HNO3 + KO2   
             Reaction(3.35e-12, [EOH, OH], [HO2, ALD2], [1, 1], [1, 1])   #2013/02/12; JPL 10-6; BHH,JMAO,EAM  #  EOH + OH = HO2 + ALD2   
             Reaction(GCARR_ac(4.60e-12, 70.0e0), [ROH, OH], [HO2, RCHO], [1, 1], [1, 1])  #  ROH + OH = HO2 + RCHO   
-            Reaction(4.10e-14, [ETO2, ETO2], [ALD2, HO2], [1, 1], [2.000, 2.000])  #  ETO2 + ETO2 = 2.000ALD2 + 2.000HO2   
-            Reaction(4.10e-14, [OTHRO2, OTHRO2], [ALD2, HO2], [1, 1], [2.000, 2.000])   #2019/05/10; Fisher2018; JAF  #  OTHRO2 + OTHRO2 = 2.000ALD2 + 2.000HO2   
-            Reaction(2.70e-14, [ETO2, ETO2], [EOH, ALD2], [1, 1], [1, 1])  #  ETO2 + ETO2 = EOH + ALD2   
-            Reaction(2.70e-14, [OTHRO2, OTHRO2], [EOH, ALD2], [1, 1], [1, 1])   #2019/05/10; Fisher2018; JAF  #  OTHRO2 + OTHRO2 = EOH + ALD2   
+            Reaction(4.10e-14, [ETO2], [ALD2, HO2], [2], [2.000, 2.000])  #  ETO2 + ETO2 = 2.000ALD2 + 2.000HO2   
+            Reaction(4.10e-14, [OTHRO2], [ALD2, HO2], [2], [2.000, 2.000])   #2019/05/10; Fisher2018; JAF  #  OTHRO2 + OTHRO2 = 2.000ALD2 + 2.000HO2   
+            Reaction(2.70e-14, [ETO2], [EOH, ALD2], [2], [1, 1])  #  ETO2 + ETO2 = EOH + ALD2   
+            Reaction(2.70e-14, [OTHRO2], [EOH, ALD2], [2], [1, 1])   #2019/05/10; Fisher2018; JAF  #  OTHRO2 + OTHRO2 = EOH + ALD2   
             Reaction(GCARR_ac(7.40e-13, 700.0e0), [HO2, ETO2], [ETP], [1, 1], [1])  #  HO2 + ETO2 = ETP   
             Reaction(GCARR_ac(7.40e-13, 700.0e0), [HO2, OTHRO2], [ETP], [1, 1], [1])   #2019/05/10; Fisher2018; JAF  #  HO2 + OTHRO2 = ETP   
             Reaction(GC_RO2HO2_aca(2.91e-13, 1300.0e0, 3.0e0), [A3O2, HO2], [RA3P], [1, 1], [1])   #2013/03/22; Paulot2009; FP,EAM,JMAO,MJE  #  A3O2 + HO2 = RA3P   
@@ -481,7 +481,7 @@ struct FullChem <: EarthSciMLODESystem
             Reaction(GCARR_ac(4.82e-11, -400.0e0), [LVOC, OH], [OH], [1, 1], [1])   #2017/06/14; Marais2016; EAM  #  LVOC + OH = OH   
             Reaction(GCARR_ac(6.13e-13, 200.0e0), [OH, MAP], [MCO3], [1, 1], [1])   #2013/03/22; Paulot2009; FP,EAM,JMAO,MJE  #  OH + MAP = MCO3   
             Reaction(1.40e-18, [C2H6, NO3], [ETO2, HNO3], [1, 1], [1, 1])   #2013/03/22; Paulot2009; FP,EAM,JMAO,MJE  #  C2H6 + NO3 = ETO2 + HNO3   
-            Reaction(GCARR_ac(2.50e-12, 500.0e0), [MCO3, MCO3], [MO2], [1, 1], [2.000])  #  MCO3 + MCO3 = 2.000MO2   
+            Reaction(GCARR_ac(2.50e-12, 500.0e0), [MCO3], [MO2], [2], [2.000])  #  MCO3 + MCO3 = 2.000MO2   
             Reaction(GCARR_ac(1.80e-12, 500.0e0), [MCO3, MO2], [CH2O, MO2, HO2], [1, 1], [1, 1, 1])  #  MCO3 + MO2 = CH2O + MO2 + HO2   
             Reaction(GCARR_ac(2.00e-13, 500.0e0), [MCO3, MO2], [ACTA, CH2O], [1, 1], [1, 1])  #  MCO3 + MO2 = ACTA + CH2O   
             Reaction(GCARR_ac(1.68e-12, 500.0e0), [ATO2, MCO3], [MO2, MCO3, CH2O], [1, 1], [1, 1, 1])   #2013/03/22; Paulot2009; FP,EAM,JMAO,MJE  #  ATO2 + MCO3 = MO2 + MCO3 + CH2O   
@@ -498,7 +498,7 @@ struct FullChem <: EarthSciMLODESystem
             Reaction(GCARR_ac(1.68e-12, 500.0e0), [MCO3, OTHRO2], [MO2, ALD2, HO2], [1, 1], [1, 1, 1])   #2019/05/10; Fisher2018; JAF  #  MCO3 + OTHRO2 = MO2 + ALD2 + HO2   
             Reaction(GCARR_ac(1.87e-13, 500.0e0), [MCO3, ETO2], [ACTA, ALD2], [1, 1], [1, 1])  #  MCO3 + ETO2 = ACTA + ALD2   
             Reaction(GCARR_ac(1.87e-13, 500.0e0), [MCO3, OTHRO2], [ACTA, ALD2], [1, 1], [1, 1])   #2019/05/10; Fisher2018; JAF  #  MCO3 + OTHRO2 = ACTA + ALD2   
-            Reaction(GCARR_ac(8.50e-13, -2450.0e0), [NO3, NO3], [NO2, O2], [1, 1], [2.000, 1])  #  NO3 + NO3 = 2.000NO2 + O2   
+            Reaction(GCARR_ac(8.50e-13, -2450.0e0), [NO3], [NO2, O2], [2], [2.000, 1])  #  NO3 + NO3 = 2.000NO2 + O2   
             Reaction(GCJPLPR_abab(1.00e-30, 4.8e+00, 7.2e-12, 2.1e0, 0.6e0), [MO2, NO2], [MPN], [1, 1], [1])   #2012/02/12; Browne2011; ECB  #  MO2 + NO2 = MPN   
             Reaction(GCJPLPR_abcabc(1.05e-02, 4.8e+00, -11234.0e0, 7.58e16, 2.1e0, -11234.0e0, 0.6e0), [MPN], [MO2, NO2], [1], [1, 1])   #2012/02/12; Browne2011; ECB  #  MPN = MO2 + NO2   
             Reaction(GCARR_ac(1.20e-11, -280.0e0), [DMS, OH], [SO2, MO2, CH2O], [1, 1], [1, 1, 1])  #  DMS + OH = SO2 + MO2 + CH2O   
@@ -509,8 +509,8 @@ struct FullChem <: EarthSciMLODESystem
             Reaction(GCARR_ac(4.50e-12, 460.0e0), [BrO, HO2], [HOBr, O2], [1, 1], [1, 1])   #2012/06/07; Parrella2012; JPP  #  BrO + HO2 = HOBr + O2   
             Reaction(GCARR_ac(4.80e-12, -310.0e0), [Br, HO2], [HBr, O2], [1, 1], [1, 1])   #2012/06/07; Parrella2012; JPP  #  Br + HO2 = HBr + O2   
             Reaction(GCARR_ac(5.50e-12, 200.0e0), [HBr, OH], [Br, H2O], [1, 1], [1, 1])   #2012/06/07; Parrella2012; JPP  #  HBr + OH = Br + H2O   
-            Reaction(GCARR_ac(2.40e-12,  40.0e0), [BrO, BrO], [Br, O2], [1, 1], [2.000, 1])   #2012/06/07; Parrella2012; JPP  #  BrO + BrO = 2.000Br + O2   
-            Reaction(GCARR_ac(2.80e-14, 860.0e0), [BrO, BrO], [Br2, O2], [1, 1], [1, 1])   #2012/06/07; Parrella2012; JPP  #  BrO + BrO = Br2 + O2   
+            Reaction(GCARR_ac(2.40e-12,  40.0e0), [BrO], [Br, O2], [2], [2.000, 1])   #2012/06/07; Parrella2012; JPP  #  BrO + BrO = 2.000Br + O2   
+            Reaction(GCARR_ac(2.80e-14, 860.0e0), [BrO], [Br2, O2], [2], [1, 1])   #2012/06/07; Parrella2012; JPP  #  BrO + BrO = Br2 + O2   
             Reaction(GCARR_ac(8.80e-12, 260.0e0), [BrO, NO], [Br, NO2], [1, 1], [1, 1])   #2012/06/07; Parrella2012; JPP  #  BrO + NO = Br + NO2   
             Reaction(4.90e-11, [Br, BrNO3], [Br2, NO3], [1, 1], [1, 1])   #2012/06/07; Parrella2012; JPP  #  Br + BrNO3 = Br2 + NO3   
             Reaction(GCARR_ac(2.10e-11, 240.0e0), [Br2, OH], [HOBr, Br], [1, 1], [1, 1])   #2012/06/07; Parrella2012; JPP  #  Br2 + OH = HOBr + Br   
@@ -591,12 +591,12 @@ struct FullChem <: EarthSciMLODESystem
             Reaction(GCARR_ac(2.60e-12, 290.0e0), [ClO, HO2], [O2, HOCl], [1, 1], [1, 1])   #2014/02/03; Eastham2014; SDE  #  ClO + HO2 = O2 + HOCl   
             Reaction(GCARR_ac(6.40e-12, 290.0e0), [ClO, NO], [Cl, NO2], [1, 1], [1, 1])   #2014/02/03; Eastham2014; SDE  #  ClO + NO = Cl + NO2   
             Reaction(GCJPLPR_abab(1.80e-31, 3.4e+00, 1.50e-11, 1.9e0, 0.6e0), [ClO, NO2], [ClNO3], [1, 1], [1])   #2014/02/03; Eastham2014; SDE  #  ClO + NO2 = ClNO3   
-            Reaction(GCARR_ac(1.00e-12, -1590.0e0), [ClO, ClO], [Cl2, O2], [1, 1], [1, 1])   #2014/02/03; Eastham2014; SDE  #  ClO + ClO = Cl2 + O2   
-            Reaction(GCARR_ac(3.00e-11, -2450.0e0), [ClO, ClO], [Cl, ClOO], [1, 1], [1, 1])   #2014/02/03; Eastham2014; SDE  #  ClO + ClO = Cl + ClOO   
-            Reaction(GCARR_ac(3.50e-13, -1370.0e0), [ClO, ClO], [OClO, Cl], [1, 1], [1, 1])   #2014/02/03; Eastham2014; SDE  #  ClO + ClO = OClO + Cl   
+            Reaction(GCARR_ac(1.00e-12, -1590.0e0), [ClO], [Cl2, O2], [2], [1, 1])   #2014/02/03; Eastham2014; SDE  #  ClO + ClO = Cl2 + O2   
+            Reaction(GCARR_ac(3.00e-11, -2450.0e0), [ClO], [Cl, ClOO], [2], [1, 1])   #2014/02/03; Eastham2014; SDE  #  ClO + ClO = Cl + ClOO   
+            Reaction(GCARR_ac(3.50e-13, -1370.0e0), [ClO], [OClO, Cl], [2], [1, 1])   #2014/02/03; Eastham2014; SDE  #  ClO + ClO = OClO + Cl   
             Reaction(GCJPLPR_aba(2.20e-33, 3.1e+00, 1.8e-10, 0.6e0), [Cl, O2], [ClOO], [1, 1], [1])   #2014/02/03; Eastham2014; SDE  #  Cl + O2 = ClOO   
             Reaction(GCJPLEQ_acabab(6.60e-25, 2502.0e0, 2.20e-33, 3.1e+00, 1.8e-10, 0.0e0, 0.6e0), [ClOO], [Cl, O2], [1], [1, 1])   #JPL 15-10; XW  #  ClOO = Cl + O2   
-            Reaction(GCJPLPR_abab(1.90e-32, 3.6e+00, 3.7e-12, 1.6e0, 0.6e0), [ClO, ClO], [Cl2O2], [1, 1], [1])   #2017/02/22; JPL 15-10; BHH,MJE  #  ClO + ClO = Cl2O2   
+            Reaction(GCJPLPR_abab(1.90e-32, 3.6e+00, 3.7e-12, 1.6e0, 0.6e0), [ClO], [Cl2O2], [2], [1])   #2017/02/22; JPL 15-10; BHH,MJE  #  ClO + ClO = Cl2O2   
             Reaction(GCJPLEQ_acabab(2.16e-27, 8537.0e0, 1.90e-32, 3.6e+00, 3.7e-12, 1.6e0, 0.6e0), [Cl2O2], [ClO], [1], [2.000])   #JPL 15-10; XW  #  Cl2O2 = 2.000ClO   
             Reaction(2.30e-10, [ClOO, Cl], [Cl2, O2], [1, 1], [1, 1])   #2014/02/03; Eastham2014; SDE  #  ClOO + Cl = Cl2 + O2   
             Reaction(1.20e-11, [ClOO, Cl], [ClO], [1, 1], [2.000])   #2014/02/03; Eastham2014; SDE  #  ClOO + Cl = 2.000ClO   
@@ -625,10 +625,10 @@ struct FullChem <: EarthSciMLODESystem
             Reaction(GCJPLPR_aa(4.00e-28, 2.8e-10, 0.6e0), [Cl, PRPE], [HCl, PO2], [1, 1], [1, 1])   #2017/09/22; Sherwen2016b;TS,JAS,SDE  #  Cl + PRPE = HCl + PO2   
             Reaction(3.60e-12, [Br, PRPE], [HBr, PO2], [1, 1], [1, 1])   #2017/09/22; Sherwen2016b;TS,JAS,SDE  #  Br + PRPE = HBr + PO2   
             Reaction(GCJPLPR_aba(1.80e-32, 1.0e0, 1.77e-11, 0.6e0), [I, NO], [INO], [1, 1], [1])   #2017/09/22; Sherwen2016b;TS,JAS,SDE  #  I + NO = INO   
-            Reaction(GCARR_ac(8.40e-11, -2620.0e0), [INO, INO], [I2, NO], [1, 1], [1, 2.000])   #2017/09/22; Sherwen2016b;TS,JAS,SDE  #  INO + INO = I2 + 2.000NO   
+            Reaction(GCARR_ac(8.40e-11, -2620.0e0), [INO], [I2, NO], [2], [1, 2.000])   #2017/09/22; Sherwen2016b;TS,JAS,SDE  #  INO + INO = I2 + 2.000NO   
             Reaction(GCJPLPR_aba(3.00e-31, 1.0e0, 6.6e-11, 0.63e0), [I, NO2], [IONO], [1, 1], [1])   #2017/09/22; Sherwen2016b;TS,JAS,SDE  #  I + NO2 = IONO   
             Reaction(GCARR_ac(9.94e+17, -11859.0e0), [IONO], [I, NO2], [1], [1, 1])   #2017/09/22; Sherwen2016b;TS,JAS,SDE  #  IONO = I + NO2   
-            Reaction(GCARR_ac(2.90e-11, -2600.0e0), [IONO, IONO], [I2, NO2], [1, 1], [1, 2.000])   #2017/09/22; Sherwen2016b;TS,JAS,SDE  #  IONO + IONO = I2 + 2.000NO2   
+            Reaction(GCARR_ac(2.90e-11, -2600.0e0), [IONO], [I2, NO2], [2], [1, 2.000])   #2017/09/22; Sherwen2016b;TS,JAS,SDE  #  IONO + IONO = I2 + 2.000NO2   
             Reaction(1.50e-12, [I2, NO3], [I, IONO2], [1, 1], [1, 1])   #2017/09/22; Sherwen2016b;TS,JAS,SDE  #  I2 + NO3 = I + IONO2   
             Reaction(GCJPLPR_abab(7.50e-31, 3.5e0, 7.6e-12, 1.5e0, 0.6e0), [IO, NO2], [IONO2], [1, 1], [1])   #2017/09/22; Sherwen2016b;TS,JAS,SDE  #  IO + NO2 = IONO2   
             Reaction(GCARR_ac(2.10e+15, -13670.0e0), [IONO2], [IO, NO2], [1], [1, 1])   #2017/09/22; Sherwen2016b;TS,JAS,SDE  #  IONO2 = IO + NO2   
@@ -637,7 +637,7 @@ struct FullChem <: EarthSciMLODESystem
             Reaction(GCARR_ac(3.00e-12, 510.0e0), [IO, BrO], [Br, I, O2], [1, 1], [1, 1, 1])   #2017/09/22; Sherwen2016b;TS,JAS,SDE  #  IO + BrO = Br + I + O2   
             Reaction(GCARR_ac(1.20e-11, 510.0e0), [IO, BrO], [Br, OIO], [1, 1], [1, 1])   #2017/09/22; Sherwen2016b;TS,JAS,SDE  #  IO + BrO = Br + OIO   
             Reaction(1.00e-10, [IO, OIO], [I2O3], [1, 1], [1])   #2017/09/22; Sherwen2016b;TS,JAS,SDE  #  IO + OIO = I2O3   
-            Reaction(1.50e-10, [OIO, OIO], [I2O4], [1, 1], [1])   #2017/09/22; Sherwen2016b;TS,JAS,SDE  #  OIO + OIO = I2O4   
+            Reaction(1.50e-10, [OIO], [I2O4], [2], [1])   #2017/09/22; Sherwen2016b;TS,JAS,SDE  #  OIO + OIO = I2O4   
             Reaction(3.80e-02, [I2O4], [OIO], [1], [2.000])   #2017/09/22; Sherwen2016b;TS,JAS,SDE  #  I2O4 = 2.000OIO   
             Reaction(GCARR_ac(1.10e-12, 542.0e0), [OIO, NO], [IO, NO2], [1, 1], [1, 1])   #2017/09/22; Sherwen2016b;TS,JAS,SDE  #  OIO + NO = IO + NO2   
             Reaction(GCARR_ac(5.10e-12, 280.0e0), [IO, ClO], [I, OClO], [1, 1], [1, 1])   #2017/09/22; Sherwen2016b;TS,JAS,SDE  #  IO + ClO = I + OClO   
@@ -650,8 +650,8 @@ struct FullChem <: EarthSciMLODESystem
             Reaction(5.00e-12, [HOI, OH], [IO, H2O], [1, 1], [1, 1])   #2017/09/22; Sherwen2016b;TS,JAS,SDE  #  HOI + OH = IO + H2O   
             Reaction(GCARR_ac(1.30e-11, 570.0e0), [IO, HO2], [HOI, O2], [1, 1], [1, 1])   #2017/09/22; Sherwen2016b;TS,JAS,SDE  #  IO + HO2 = HOI + O2   
             Reaction(GCARR_ac(9.10e-12, 240.0e0), [IO, NO], [I, NO2], [1, 1], [1, 1])   #2017/09/22; Sherwen2016b;TS,JAS,SDE  #  IO + NO = I + NO2   
-            Reaction(GCARR_ac(6.00e-12, 500.0e0), [IO, IO], [I, OIO], [1, 1], [1, 1])   #2017/09/22; Sherwen2016b;TS,JAS,SDE  #  IO + IO = I + OIO   
-            Reaction(GCARR_ac(9.00e-12, 500.0e0), [IO, IO], [I2O2], [1, 1], [1])   #2017/09/22; Sherwen2016b;TS,JAS,SDE  #  IO + IO = I2O2   
+            Reaction(GCARR_ac(6.00e-12, 500.0e0), [IO], [I, OIO], [2], [1, 1])   #2017/09/22; Sherwen2016b;TS,JAS,SDE  #  IO + IO = I + OIO   
+            Reaction(GCARR_ac(9.00e-12, 500.0e0), [IO], [I2O2], [2], [1])   #2017/09/22; Sherwen2016b;TS,JAS,SDE  #  IO + IO = I2O2   
             Reaction(GCARR_ac(1.00e+12, -9770.0e0), [I2O2], [IO], [1], [2.000])   #2017/09/22; Sherwen2016b;TS,JAS,SDE  #  I2O2 = 2.000IO   
             Reaction(GCARR_ac(2.50e+14, -9770.0e0), [I2O2], [OIO, I], [1], [1, 1])   #2017/09/22; Sherwen2016b;TS,JAS,SDE  #  I2O2 = OIO + I   
             Reaction(GCARR_ac(2.90e-12, -1100.0e0), [CH3I, OH], [H2O, I, MO2], [1, 1], [1, 1, 1])   #2017/09/22; Sherwen2016b;TS,JAS,SDE  #  CH3I + OH = H2O + I + MO2   
@@ -698,8 +698,8 @@ struct FullChem <: EarthSciMLODESystem
             Reaction(ARRPLUS_abde(2.12e-13, -1300e0, -0.2038e0, 9.0435e-4), [IHOO4, HO2], [RIPD], [1, 1], [1])   #2019/11/06; Bates2019; KHB  #  IHOO4 + HO2 = RIPD   
             Reaction(ARRPLUS_abde(1.04e11, 9.746e3,  1.1644e0, -7.0485e-4), [IHOO1], [CH2O, OH, MVK], [1], [1, 1, 1])   #2019/11/06; Bates2019; KHB  #  IHOO1 = CH2O + OH + MVK   
             Reaction(ARRPLUS_abde(1.88e11, 9.752e3, 1.2038e0, -9.0435e-4), [IHOO4], [MACR, OH, CH2O], [1], [1, 1, 1])   #2019/11/06; Bates2019; KHB  #  IHOO4 = MACR + OH + CH2O   
-            Reaction(ARRPLUS_ade(6.92e-14, 1.1644e0, -7.0485e-4), [IHOO1, IHOO1], [MVK, HO2, CH2O], [1, 1], [2, 2, 2])   #2019/11/06; Bates2019; KHB  #  IHOO1 + IHOO1 = 2MVK + 2HO2 + 2CH2O   
-            Reaction(ARRPLUS_ade(5.74e-12, 1.2038e0, -9.0435e-4), [IHOO4, IHOO4], [MACR, HO2, CH2O], [1, 1], [2, 2, 2])   #2019/11/06; Bates2019; KHB  #  IHOO4 + IHOO4 = 2MACR + 2HO2 + 2CH2O   
+            Reaction(ARRPLUS_ade(6.92e-14, 1.1644e0, -7.0485e-4), [IHOO1], [MVK, HO2, CH2O], [2], [2, 2, 2])   #2019/11/06; Bates2019; KHB  #  IHOO1 + IHOO1 = 2MVK + 2HO2 + 2CH2O   
+            Reaction(ARRPLUS_ade(5.74e-12, 1.2038e0, -9.0435e-4), [IHOO4], [MACR, HO2, CH2O], [2], [2, 2, 2])   #2019/11/06; Bates2019; KHB  #  IHOO4 + IHOO4 = 2MACR + 2HO2 + 2CH2O   
             Reaction(ARRPLUS_ade(1.54e-12, 2.3682e0, -1.6092e-3), [IHOO1, IHOO4], [MACR, MVK, HO2, CH2O], [1, 1], [1, 1, 2, 2])   #2019/11/06; Bates2019; KHB  #  IHOO1 + IHOO4 = MACR + MVK + 2HO2 + 2CH2O   
             Reaction(ARRPLUS_ade(2.0e-12, 1.1644e0, -7.0485e-4), [IHOO1, MO2], [MVK, HO2, CH2O], [1, 1], [1, 2, 2])   #2019/11/06; Bates2019; KHB  #  IHOO1 + MO2 = MVK + 2HO2 + 2CH2O   
             Reaction(ARRPLUS_ade(2.0e-12, 1.2038e0, -9.0435e-4), [IHOO4, MO2], [MACR, HO2, CH2O], [1, 1], [1, 2, 2])   #2019/11/06; Bates2019; KHB  #  IHOO4 + MO2 = MACR + 2HO2 + 2CH2O   
@@ -730,9 +730,9 @@ struct FullChem <: EarthSciMLODESystem
             Reaction(GC_NIT(2.7e-12, 3.50e2, 13.098e0, 8.0e0, 1.0e0, 0.0e0), [ICHOO, NO], [ITCN], [1, 1], [1])   #2019/11/06; Bates2019; KHB  #  ICHOO + NO = ITCN   
             Reaction(GCARR_ac(1.875e+13, -10000.0e0), [ICHOO], [HO2, CO, HAC, OH], [1], [1, 2.000, 1, 1])   #2019/11/06; Bates2019; KHB  #  ICHOO = HO2 + 2.000CO + HAC + OH   
             Reaction(GCARR_ac(2.70e-12, 350.0e0), [HPALD1OO, NO], [NO2, OH, CO2, MVK], [1, 1], [1, 1, 1, 1])   #2019/11/06; Bates2019; KHB  #  HPALD1OO + NO = NO2 + OH + CO2 + MVK   
-            Reaction(GCARR_ac(2.38e-13, 1300.0e0), [HPALD1OO, HO2], [OH, OH, CO2, MVK], [1, 1], [1, 1, 1, 1])   #2019/11/06; Bates2019; KHB  #  HPALD1OO + HO2 = OH + OH + CO2 + MVK   
+            Reaction(GCARR_ac(2.38e-13, 1300.0e0), [HPALD1OO, HO2], [OH, CO2, MVK], [1, 1], [2, 1, 1])   #2019/11/06; Bates2019; KHB  #  HPALD1OO + HO2 = OH + OH + CO2 + MVK   
             Reaction(GCARR_ac(2.70e-12, 350.0e0), [HPALD2OO, NO], [NO2, OH, CO2, MACR], [1, 1], [1, 1, 1, 1])   #2019/11/06; Bates2019; KHB  #  HPALD2OO + NO = NO2 + OH + CO2 + MACR   
-            Reaction(GCARR_ac(2.38e-13, 1300.0e0), [HPALD2OO, HO2], [OH, OH, CO2, MACR], [1, 1], [1, 1, 1, 1])   #2019/11/06; Bates2019; KHB  #  HPALD2OO + HO2 = OH + OH + CO2 + MACR   
+            Reaction(GCARR_ac(2.38e-13, 1300.0e0), [HPALD2OO, HO2], [OH, CO2, MACR], [1, 1], [2, 1, 1])   #2019/11/06; Bates2019; KHB  #  HPALD2OO + HO2 = OH + OH + CO2 + MACR   
             Reaction(GCARR_ac(7.14e-12, 390.0e0), [IHN2, OH], [ISOPNOO1], [1, 1], [1])   #2019/11/06; Bates2019; KHB  #  IHN2 + OH = ISOPNOO1   
             Reaction(GC_EPO_a(6.30e-12, 390.0e0, 1.62e-19), [IHN2, OH], [IEPOXA, IEPOXB, NO2], [1, 1], [0.67, 0.33, 1])   #2019/11/06; Bates2019; KHB  #  IHN2 + OH = 0.67IEPOXA + 0.33IEPOXB + NO2   
             Reaction(GCARR_ac(1.02e-11, 390.0e0), [IHN3, OH], [ISOPNOO2], [1, 1], [1])   #2019/11/06; Bates2019; KHB  #  IHN3 + OH = ISOPNOO2   
@@ -811,7 +811,7 @@ struct FullChem <: EarthSciMLODESystem
             Reaction(2.91e-13 * exp( 1300.0/ 288.15) * 0.82, [AROMRO2, HO2], [OH, HO2], [1, 1], [1, 1])   #2021/09/29; Bates2021b; KHB,MSL  #  AROMRO2 + HO2 = OH + HO2   
             Reaction(GCARR_abc(2.60e-12, 0.0e+00, 365.0e0), [AROMRO2, NO], [NO2, HO2], [1, 1], [1, 1])   #2021/09/29; Bates2021b; KHB,MSL  #  AROMRO2 + NO = NO2 + HO2   
             Reaction(2.30e-12, [AROMRO2, NO3], [NO2, HO2], [1, 1], [1, 1])   #2021/09/29; Bates2021b; KHB,MSL  #  AROMRO2 + NO3 = NO2 + HO2   
-            Reaction(GCARR_abc(1.70e-14, 0.0e0, 220.0e0), [AROMRO2, MO2], [CH2O, HO2, HO2], [1, 1], [1, 1, 1])   #2021/09/29; Bates2021b; KHB,MSL  #  AROMRO2 + MO2 = CH2O + HO2 + HO2   
+            Reaction(GCARR_abc(1.70e-14, 0.0e0, 220.0e0), [AROMRO2, MO2], [CH2O, HO2], [1, 1], [1, 2])   #2021/09/29; Bates2021b; KHB,MSL  #  AROMRO2 + MO2 = CH2O + HO2 + HO2   
             Reaction(GCARR_abc(4.20e-14, 0.0e0, 220.0e0), [AROMRO2, MCO3], [MO2, HO2], [1, 1], [1, 1])   #2021/09/29; Bates2021b; KHB,MSL  #  AROMRO2 + MCO3 = MO2 + HO2   
             Reaction(9.2e-18, [MCT, O3], [GLYC, HO2, OH, AROMP4], [1, 1], [1, 1, 1, 1])   #2021/09/29; Bates2021b; KHB,MSL  #  MCT + O3 = GLYC + HO2 + OH + AROMP4   
             Reaction(GCARR_abc(5.90e-12, 0.0e0, 225.0e0), [BALD, OH], [BZCO3], [1, 1], [1])   #2021/09/29; Bates2021b; KHB,MSL  #  BALD + OH = BZCO3   

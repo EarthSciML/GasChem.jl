@@ -4,8 +4,6 @@ https://github.com/geoschem
 
 """
 
-include("RateLawUtilFuncs.jl")
-
 GCARR_ab(a0, b0) = a0 * K300_OVER_temp^b0
 
 GCARR_ab(a0, c0) = a0 * exp(c0 / TEMP)

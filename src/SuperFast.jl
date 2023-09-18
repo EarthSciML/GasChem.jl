@@ -8,7 +8,7 @@ end
 Unitful.register(MyUnits)
 
 """
-    superfast()
+    SuperFast(t)
 
 This atmospheric chemical system model is built based on the Super Fast Chemical Mechanism, which is one of the simplest representations of atmospheric chemistry. It can efficiently simulate background tropheric ozone chemistry and perform well for those species included in the mechanism. The chemical equations we used is included in the supporting table S2 of the paper:
 
@@ -20,7 +20,8 @@ The input of the function is Temperature, concentrations of all chemicals, and r
 # Example
 ```
 using GasChem, EarthSiMLBase, OrdinaryDiffEq, Plots
-rs = SuperFast()
+@variables t [unit = u"s"]
+rs = SuperFast(t)
 sol = solve(ODEProblem(get_mtk(rs), [], (0,360), [], combinatoric_ratelaws=false), Tsit5())
 plot(sol)
 ```
@@ -32,14 +33,15 @@ and [here](https://github.com/SciML/Catalyst.jl/issues/311).
 struct SuperFast <: EarthSciMLODESystem
     sys::ODESystem
     rxn_sys::ReactionSystem
+    SuperFast(sys::ModelingToolkit.ODESystem, rxn_sys::ReactionSystem) = new(sys, rxn_sys)
     function SuperFast(t)
-        @variables jO31D(t) = 4.0 * 10.0^-3 [unit = u"s^-1"]
+        @parameters jO31D = 4.0 * 10.0^-3 [unit = u"s^-1"]
         @parameters j2OH = 2.2 * 10.0^-10 [unit = u"(s*ppb)^-1"]
-        @variables jH2O2(t) = 1.0097 * 10.0^-5 [unit = u"s^-1"]
-        @variables jNO2(t) = 0.0149 [unit = u"s^-1"]
-        @variables jCH2Oa(t) = 0.00014 [unit = u"s^-1"]
+        @parameters jH2O2 = 1.0097 * 10.0^-5 [unit = u"s^-1"]
+        @parameters jNO2 = 0.0149 [unit = u"s^-1"]
+        @parameters jCH2Oa = 0.00014 [unit = u"s^-1"]
         # TODO(JL): What's difference between the two photolysis reactions of CH2O, do we really need both? (@variables jCH20b(t) = 0.00014 [unit = u"s^-1"])
-        @variables jCH3OOH(t) = 8.9573 * 10.0^-6 [unit = u"s^-1"]
+        @parameters jCH3OOH = 8.9573 * 10.0^-6 [unit = u"s^-1"]
 
         @parameters k1 = 1.7e-12 [unit = u"(s*ppb)^-1"] T1 = -940 [unit = u"K"]
         @parameters k2 = 1.0e-14 [unit = u"(s*ppb)^-1"] T2 = -490 [unit = u"K"]
@@ -62,24 +64,24 @@ struct SuperFast <: EarthSciMLODESystem
         @parameters t [unit = u"s"]
         @parameters T = 280.0 [unit = u"K"]
 
-        @variables O3(t) = 10.0 [unit = u"ppb"]
-        @variables O1d(t) = 0 [unit = u"ppb"]
-        @variables OH(t) = 10.0 [unit = u"ppb"]
-        @variables HO2(t) = 10.0 [unit = u"ppb"]
-        @variables O2(t) = 2.1 * (10.0^8) [unit = u"ppb"]
-        @variables H2O(t) = 450.0 [unit = u"ppb"]
-        @variables NO(t) = 0.0 [unit = u"ppb"]
-        @variables NO2(t) = 10.0 [unit = u"ppb"]
-        @variables CH4(t) = 1700.0 [unit = u"ppb"]
-        @variables CH3O2(t) = 0.01 [unit = u"ppb"]
-        @variables CH2O(t) = 0.15 [unit = u"ppb"]
-        @variables CO(t) = 275.0 [unit = u"ppb"]
-        @variables CH3OOH(t) = 1.6 [unit = u"ppb"]
-        @variables CH3O(t) = 0.0 [unit = u"ppb"]
-        @variables DMS(t) = 50 [unit = u"ppb"]
-        @variables SO2(t) = 2.0 [unit = u"ppb"]
-        @variables ISOP(t) = 0.15 [unit = u"ppb"]
-        @variables H2O2(t) = 2.34 [unit = u"ppb"]
+        @species O3(t) = 10.0 [unit = u"ppb"]
+        @species O1d(t) = 0 [unit = u"ppb"]
+        @species OH(t) = 10.0 [unit = u"ppb"]
+        @species HO2(t) = 10.0 [unit = u"ppb"]
+        @species O2(t) = 2.1 * (10.0^8) [unit = u"ppb"]
+        @species H2O(t) = 450.0 [unit = u"ppb"]
+        @species NO(t) = 0.0 [unit = u"ppb"]
+        @species NO2(t) = 10.0 [unit = u"ppb"]
+        @species CH4(t) = 1700.0 [unit = u"ppb"]
+        @species CH3O2(t) = 0.01 [unit = u"ppb"]
+        @species CH2O(t) = 0.15 [unit = u"ppb"]
+        @species CO(t) = 275.0 [unit = u"ppb"]
+        @species CH3OOH(t) = 1.6 [unit = u"ppb"]
+        @species CH3O(t) = 0.0 [unit = u"ppb"]
+        @species DMS(t) = 50 [unit = u"ppb"]
+        @species SO2(t) = 2.0 [unit = u"ppb"]
+        @species ISOP(t) = 0.15 [unit = u"ppb"]
+        @species H2O2(t) = 2.34 [unit = u"ppb"]
 
         c = 2.46e10 # TODO(JL): What is this constant?
         rate(k, Tc) = k * exp(Tc / T) * c
@@ -109,7 +111,7 @@ struct SuperFast <: EarthSciMLODESystem
             #CH3O2 + NO --> CH2O + HO2 + NO2    
             Reaction(rate(k11, T11), [CH3O2, NO], [CH2O, HO2, NO2], [1, 1], [1, 1, 1])
             #10CH3O2 + 10CH3O2 --> 20CH2O + 8HO2
-            Reaction(rate(k12, T12), [CH3O2, CH3O2], [CH2O, H2O], [10, 10], [20, 8])
+            Reaction(rate(k12, T12), [CH3O2], [CH2O, H2O], [20], [20, 8])
             #DMS + OH --> SO2
             Reaction(rate(k13, T13), [DMS, OH], [SO2], [1, 1], [1])
             #ISOP +OH --> 2CH3O2
