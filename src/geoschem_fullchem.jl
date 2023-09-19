@@ -58,6 +58,7 @@ gcfull = @reaction_network GEOSChemFull begin
     # Equations - Date modified; Reference; Developer initials
 
     @parameters T=298.15 # [unit=u"K", description="Temperature"]
+    @parameters num_density=2.7e19 # [unit=u"molecules/cm^-3", description="Number density of air"]
 
     # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     # %%%%% Reactions extracted from sulfate_mod.F90 (MSL, BMY)             %%%%%
@@ -116,69 +117,69 @@ gcfull = @reaction_network GEOSChemFull begin
     arrhenius(T, 1.20e-13, 0.0, -2450.0e0), O3 + NO2 --> O2 + NO3
     arrhenius(T, 2.90e-16, 0.0, -1000.0e0), O3 + MO2 --> CH2O + HO2 + O2 #==2014/02/03; Eastham2014; SDE==#
     1.80e-12, OH + OH --> H2O + O #==2014/02/03; Eastham2014; SDE==#
-    GCJPLPR_aba(6.90e-31, 1.0e+00, 2.6e-11, 0.6e0), OH + OH --> H2O2 #==+M==#
+    arr_3rdbody(T, num_density, 6.90e-31, 1.0e+00, 0.0, 2.6e-11, 0.0, 0.0, 0.6e0), OH + OH --> H2O2 #==+M==#
     arrhenius(T, 4.80e-11, 0.0, 250.0e0), OH + HO2 --> H2O + O2
     1.80e-12, OH + H2O2 --> H2O + HO2
     arrhenius(T, 3.30e-12, 0.0, 270.0e0), HO2 + NO --> OH + NO2 #==2013/02/12; JPL 10-6; BHH,JMAO,EAM==#
-    GC_HO2HO2_acac(3.00e-13, 460.0e0, 2.1e-33, 920.0e0), HO2 + HO2 --> H2O2 + O2 #==2014/02/03; Eastham2014; SDE==#
-    GC_OHCO_a(1.50e-13), OH + CO --> HO2 + CO2 #==2017/02/22; JPL 15-10; BHH,MJE==#
+    rate_HO2HO2(T, num_density, H2O, 3.00e-13, 460.0e0, 2.1e-33, 920.0e0), HO2 + HO2 --> H2O2 + O2 #==2014/02/03; Eastham2014; SDE==#
+    rate_OHCO(T, num_density), OH + CO --> HO2 + CO2 #==2017/02/22; JPL 15-10; BHH,MJE==#
     arrhenius(T, 2.45e-12, 0.0, -1775.0e0), OH + CH4 --> MO2 + H2O
-    GC_RO2NO_B1_ac(2.80e-12, 300.0e0), MO2 + NO --> CH2O + HO2 + NO2 #==2019/05/10; Fisher2018; JAF==#
-    GC_RO2NO_A1_ac(2.80e-12, 300.0e0), MO2 + NO --> MENO3 #==2019/05/10; Fisher2018; JAF==#
+    rate_RO2NO_b1(T, 2.80e-12, 300.0e0), MO2 + NO --> CH2O + HO2 + NO2 #==2019/05/10; Fisher2018; JAF==#
+    rate_RO2NO_a1(T, 2.80e-12, 300.0e0), MO2 + NO --> MENO3 #==2019/05/10; Fisher2018; JAF==#
     arrhenius(T, 4.10e-13, 0.0e0, 750.0e0), MO2 + HO2 --> MP + O2
-    GC_TBRANCH_1_acac(9.50e-14, 390.0e0, 2.62e1, -1130.0e0), MO2 + MO2 --> MOH + CH2O + O2
-    GC_TBRANCH_1_acac(9.50e-14, 390.0e0, 4.0e-2, 1130.0e0), MO2 + MO2 --> 2.000CH2O + 2.000HO2
+    tbranch(T, 9.50e-14, 0, 390.0e0, 2.62e1, 0, -1130.0e0), MO2 + MO2 --> MOH + CH2O + O2
+    tbranch(T, 9.50e-14, 0, 390.0e0, 4.0e-2, 0, 1130.0e0), MO2 + MO2 --> 2.000CH2O + 2.000HO2
     1.60e-10, MO2 + OH --> 0.13MOH + 0.87CH2O + 1.74HO2 #==2021/09/22; Bates2021a; KHB,MSL==#
     arrhenius(T, 2.66e-12, 0.0, 200.0e0), MP + OH --> MO2 + H2O
     arrhenius(T, 1.14e-12, 0.0, 200.0e0), MP + OH --> CH2O + OH + H2O
     arrhenius(T, 2.66e-12, 0.0, 200.0e0), ATOOH + OH --> ATO2 + H2O #==2013/03/22; Paulot2009; FP,EAM,JMAO,MJE==#
     arrhenius(T, 1.14e-12, 0.0, 200.0e0), ATOOH + OH --> MGLY + OH + H2O #==2013/03/22; Paulot2009; FP,EAM,JMAO,MJE==#
     arrhenius(T, 5.50e-12, 0.0, 125.0e0), CH2O + OH --> CO + HO2 + H2O
-    GCJPLPR_aba(1.80e-30, 3.0e+00, 2.8e-11, 0.6e0), NO2 + OH --> HNO3 #==+M==#
-    GC_OHHNO3_acacac(2.41e-14, 460.0e0, 2.69e-17, 2199.0e0, 6.51e-34, 1335.0e0), HNO3 + OH --> H2O + NO3
-    GCJPLPR_abab(7.00e-31, 2.6e+00, 3.60e-11, 0.1e0, 0.6e0), NO + OH --> HNO2 #==+M==#
+    arr_3rdbody(T, num_density, 1.80e-30, 3.0e+00, 0.0, 2.8e-11, 0.0, 0.0, 0.6e0), NO2 + OH --> HNO3 #==+M==#
+    rate_OHHNO3(T, num_density, 2.41e-14, 460.0e0, 2.69e-17, 2199.0e0, 6.51e-34, 1335.0e0), HNO3 + OH --> H2O + NO3
+    arr_3rdbody(T, num_density, 7.00e-31, 2.6e+00, 0.0, 3.60e-11, 0.1e0, 0.0, 0.6e0), NO + OH --> HNO2 #==+M==#
     arrhenius(T, 1.80e-11, 0.0, -390.0e0), HNO2 + OH --> H2O + NO2
-    GCJPLPR_abab(1.90e-31, 3.4e+00, 4.0e-12, 0.3e0, 0.6e0), HO2 + NO2 --> HNO4 #==2017/02/22; JPL 15-10; BHH,MJE==#
-    GCJPLPR_abcabc(9.05e-05, 3.4e0, -10900.0e0, 1.90e15, 0.3e0, -10900.0e0, 0.6e0), HNO4 --> HO2 + NO2 #==2017/02/22; JPL 15-10; BHH,MJE==#
+    arr_3rdbody(T, num_density, 1.90e-31, 3.4e+00, 0.0, 4.0e-12, 0.3e0, 0.0, 0.6e0), HO2 + NO2 --> HNO4 #==2017/02/22; JPL 15-10; BHH,MJE==#
+    arr_3rdbody(T, num_density, 9.05e-05, 3.4e0, -10900.0e0, 1.90e15, 0.3e0, -10900.0e0, 0.6e0), HNO4 --> HO2 + NO2 #==2017/02/22; JPL 15-10; BHH,MJE==#
     arrhenius(T, 1.30e-12, 0.0, 380.0e0), HNO4 + OH --> H2O + NO2 + O2
     3.50e-12, HO2 + NO3 --> OH + NO2 + O2
     arrhenius(T, 1.50e-11, 0.0, 170.0e0), NO + NO3 --> 2.000NO2
     2.20e-11, OH + NO3 --> HO2 + NO2
-    GCJPLPR_abab(2.40e-30, 3.0e+00, 1.6e-12, -0.1e0, 0.6e0), NO2 + NO3 --> N2O5 #==2017/02/22; JPL 15-10; BHH,MJE==#
-    GCJPLPR_abcabc(4.14e-04, 3.0e0, -10840.0e0, 2.76e14, -0.1e0, -10840.0e0, 0.6e0), N2O5 --> NO2 + NO3 #==2017/02/22; JPL 15-10; BHH,MJE==#
+    arr_3rdbody(T, num_density, 2.40e-30, 3.0e+00, 0.0, 1.6e-12, -0.1e0, 0.0, 0.6e0), NO2 + NO3 --> N2O5 #==2017/02/22; JPL 15-10; BHH,MJE==#
+    arr_3rdbody(T, num_density, 4.14e-04, 3.0e0, -10840.0e0, 2.76e14, -0.1e0, -10840.0e0, 0.6e0), N2O5 --> NO2 + NO3 #==2017/02/22; JPL 15-10; BHH,MJE==#
     4.00e-13, HCOOH + OH --> H2O + CO2 + HO2 #==2013/03/22; Paulot2009; FP,EAM,JMAO,MJE==#
     arrhenius(T, 2.90e-12, 0.0, -345.0e0), MOH + OH --> HO2 + CH2O
     arrhenius(T, 4.50e-14, 0.0, -1260.0e0), NO2 + NO3 --> NO + NO2 + O2
     5.80e-16, NO3 + CH2O --> HNO3 + HO2 + CO
     arrhenius(T, 4.63e-12, 0.0, 350.0e0), ALD2 + OH --> 0.950MCO3 + 0.050CH2O + 0.050CO + 0.050HO2 + H2O #==2014/02/03; Eastham2014; SDE==#
     arrhenius(T, 1.40e-12, 0.0, -1900.0e0), ALD2 + NO3 --> HNO3 + MCO3
-    GCJPLPR_abab(9.70e-29, 5.6e+00, 9.3e-12, 1.5e0, 0.6e0), MCO3 + NO2 --> PAN #==JPL Eval 17==#
-    GCJPLEQ_acabab(9.30e-29, 14000.0e0, 9.7e-29, 5.6e0, 9.3e-12, 1.5e0, 0.6e0), PAN --> MCO3 + NO2
+    arr_3rdbody(T, num_density, 9.70e-29, 5.6e+00, 0.0, 9.3e-12, 1.5e0, 0.0, 0.6e0), MCO3 + NO2 --> PAN #==JPL Eval 17==#
+    eq_const(T, num_density, 9.30e-29, 14000.0e0, 9.7e-29, 5.6e0, 9.3e-12, 1.5e0, 0.6e0), PAN --> MCO3 + NO2
     arrhenius(T, 8.10e-12, 0.0, 270.0e0), MCO3 + NO --> MO2 + NO2 + CO2
     arrhenius(T, 7.66e-12, 0.0, -1020.0e0), C2H6 + OH --> ETO2 + H2O #==2013/02/12; JPL 10-6; BHH,JMAO,EAM==#
-    GC_RO2NO_B2_aca(2.60e-12, 365.0e0, 2.0e0), ETO2 + NO --> ALD2 + NO2 + HO2 #==2019/05/10; Fisher2018; JAF==#
-    GC_RO2NO_A2_aca(2.60e-12, 365.0e0, 2.0e0), ETO2 + NO --> ETNO3 #==2019/05/10; Fisher2018; JAF==#
+    rate_RO2NO_b2(T, num_density, 2.60e-12, 365.0e0, 2.0e0), ETO2 + NO --> ALD2 + NO2 + HO2 #==2019/05/10; Fisher2018; JAF==#
+    rate_RO2NO_a2(T, num_density, 2.60e-12, 365.0e0, 2.0e0), ETO2 + NO --> ETNO3 #==2019/05/10; Fisher2018; JAF==#
     arrhenius(T, 2.60e-12, 0.0, 365.0e0), OTHRO2 + NO --> ALD2 + NO2 + HO2 #==2019/05/10; Fisher2018; JAF==#
-    GC_TBRANCH_2_acabc(7.60e-12, -585.0e0, 5.87e0, 0.64e0, -816.0e0), C3H8 + OH --> B3O2
-    GC_TBRANCH_2_acabc(7.60e-12, -585.0e0, 1.7e-1, -0.64e0, 816.0e0), C3H8 + OH --> A3O2
-    GC_RO2NO_B2_aca(2.90e-12, 350.0e0, 3.0e0), A3O2 + NO --> NO2 + HO2 + RCHO #==2019/05/10; Fisher2018; JAF==#
-    GC_RO2NO_A2_aca(2.90e-12, 350.0e0, 3.0e0), A3O2 + NO --> NPRNO3 #==2019/05/10; Fisher2018; JAF==#
+    tbranch(T, 7.60e-12, 0, -585.0e0, 5.87e0, 0.64e0, -816.0e0), C3H8 + OH --> B3O2
+    tbranch(T, 7.60e-12, 0, -585.0e0, 1.7e-1, -0.64e0, 816.0e0), C3H8 + OH --> A3O2
+    rate_RO2NO_b2(T, num_density, 2.90e-12, 350.0e0, 3.0e0), A3O2 + NO --> NO2 + HO2 + RCHO #==2019/05/10; Fisher2018; JAF==#
+    rate_RO2NO_a2(T, num_density, 2.90e-12, 350.0e0, 3.0e0), A3O2 + NO --> NPRNO3 #==2019/05/10; Fisher2018; JAF==#
     arrhenius(T, 2.70e-12, 0.0, 350.0e0), PO2 + NO --> NO2 + HO2 + CH2O + ALD2
     arrhenius(T, 9.10e-12, 0.0, -405.0e0), ALK4 + OH --> R4O2
-    GC_RO2NO_B2_aca(2.70e-12, 350.0e0, 4.5e0), R4O2 + NO --> NO2 + 0.320ACET + 0.190MEK + 0.190MO2 + 0.270HO2 + 0.320ALD2 + 0.140RCHO + 0.050A3O2 + 0.180B3O2 + 0.320OTHRO2 #==2017/02/23; ALK4 lumping fix; BHH==#
-    GC_RO2NO_A2_aca(2.70e-12, 350.0e0, 4.5e0), R4O2 + NO --> R4N2
+    rate_RO2NO_b2(T, num_density, 2.70e-12, 350.0e0, 4.5e0), R4O2 + NO --> NO2 + 0.320ACET + 0.190MEK + 0.190MO2 + 0.270HO2 + 0.320ALD2 + 0.140RCHO + 0.050A3O2 + 0.180B3O2 + 0.320OTHRO2 #==2017/02/23; ALK4 lumping fix; BHH==#
+    rate_RO2NO_a2(T, num_density, 2.70e-12, 350.0e0, 4.5e0), R4O2 + NO --> R4N2
     arrhenius(T, 2.70e-12, 0.0, 350.0e0), R4N1 + NO --> 2.000NO2 + 0.570RCHO + 0.860ALD2 + 0.570CH2O #==2017/07/27; Fix C creation; SAS,BHH,MJE==#
     arrhenius(T, 2.80e-12, 0.0, 300.0e0), ATO2 + NO --> NO2 + CH2O + MCO3 #==2017/07/27; Fix C creation; SAS,BHH,MJE==#
     arrhenius(T, 2.70e-12, 0.0, 350.0e0), KO2 + NO --> 0.930NO2 + 0.930ALD2 + 0.930MCO3 + 0.070R4N2
-    GC_RO2NO_B2_aca(2.70e-12, 360.0e0, 3.0e0), B3O2 + NO --> NO2 + HO2 + ACET #==2019/05/10; Fisher2018; JAF==#
-    GC_RO2NO_A2_aca(2.70e-12, 360.0e0, 3.0e0), B3O2 + NO --> IPRNO3 #==2019/05/10; Fisher2018; JAF==#
+    rate_RO2NO_a2(T, num_density, 2.70e-12, 360.0e0, 3.0e0), B3O2 + NO --> NO2 + HO2 + ACET #==2019/05/10; Fisher2018; JAF==#
+    rate_RO2NO_a2(T, num_density, 2.70e-12, 360.0e0, 3.0e0), B3O2 + NO --> IPRNO3 #==2019/05/10; Fisher2018; JAF==#
     arrhenius(T, 2.70e-12, 0.0, 350.0e0), PRN1 + NO --> 2.000NO2 + CH2O + ALD2
     arrhenius(T, 2.80e-12, 0.0, -3280.0e0), ALK4 + NO3 --> HNO3 + R4O2
     1.60e-12, R4N2 + OH --> R4N1 + H2O
     arrhenius(T, 3.15e-14, 0.0, 920.0e0), ACTA + OH --> MO2 + CO2 + H2O #==2013/02/12; JPL 10-6; BHH,JMAO,EAM==#
     arrhenius(T, 6.00e-12, 0.0, 410.0e0), OH + RCHO --> RCO3 + H2O
-    GCJPLPR_abab(9.00e-28, 8.9e0, 7.7e-12, 0.2e0, 0.6e0), RCO3 + NO2 --> PPN #==JPL Eval 17==#
-    GCJPLEQ_acabab(9.00e-29, 14000.0e0, 9.00e-28, 8.9e0, 7.7e-12, 0.2e0, 0.6e0), PPN --> RCO3 + NO2
+    arr_3rdbody(T, num_density, 9.00e-28, 8.9e0, 0.0, 7.7e-12, 0.2e0, 0.0, 0.6e0), RCO3 + NO2 --> PPN #==JPL Eval 17==#
+    eq_const(T, num_density, 9.00e-29, 14000.0e0, 9.00e-28, 8.9e0, 7.7e-12, 0.2e0, 0.6e0), PPN --> RCO3 + NO2
     arrhenius(T, 6.70e-12, 0.0, 340.0e0), RCO3 + NO --> NO2 + 0.500OTHRO2 + 0.070A3O2 + 0.270B3O2 #==2019/05/10; Fisher2018; JAF==#
     6.50e-15, RCHO + NO3 --> HNO3 + RCO3
     1.33e-13 + 3.82e-11 * exp(-2000.0e0 / TEMP), ACET + OH --> ATO2 + H2O #==JPL Eval 17, p1-62-D31; EVF==#
@@ -187,9 +188,9 @@ gcfull = @reaction_network GEOSChemFull begin
     arrhenius(T, 7.40e-13, 0.0, 700.0e0), R4O2 + HO2 --> R4P
     arrhenius(T, 7.40e-13, 0.0, 700.0e0), R4N1 + HO2 --> R4N2
     arrhenius(T, 8.60e-13, 0.0, 700.0e0), ATO2 + HO2 --> 0.150MCO3 + 0.150OH + 0.150CH2O + 0.850ATOOH #==2013/03/22; Paulot2009; FP,EAM,JMAO,MJE==#
-    GC_RO2HO2_aca(2.91e-13, 1300.0e0, 4.0e0), KO2 + HO2 --> 0.150OH + 0.150ALD2 + 0.150MCO3 + 0.850ATOOH #==2013/03/22; Paulot2009; FP,EAM,JMAO,MJE==#
-    GC_RO2HO2_aca(2.91e-13, 1300.0e0, 3.0e0), B3O2 + HO2 --> RB3P #==2013/03/22; Paulot2009; FP,EAM,JMAO,MJE==#
-    GC_RO2HO2_aca(2.91e-13, 1300.0e0, 3.0e0), PRN1 + HO2 --> PRPN #==2013/03/22; Paulot2009; FP,EAM,JMAO,MJE==#
+    rate_RO2HO2(T, 2.91e-13, 1300.0e0, 4.0e0), KO2 + HO2 --> 0.150OH + 0.150ALD2 + 0.150MCO3 + 0.850ATOOH #==2013/03/22; Paulot2009; FP,EAM,JMAO,MJE==#
+    rate_RO2HO2(T, 2.91e-13, 1300.0e0, 3.0e0), B3O2 + HO2 --> RB3P #==2013/03/22; Paulot2009; FP,EAM,JMAO,MJE==#
+    rate_RO2HO2(T, 2.91e-13, 1300.0e0, 3.0e0), PRN1 + HO2 --> PRPN #==2013/03/22; Paulot2009; FP,EAM,JMAO,MJE==#
     arrhenius(T, 1.30e-12, 0.0, -25.0e0), MEK + OH --> KO2 + H2O
     3.00e-13, MO2 + ETO2 --> 0.750CH2O + 0.750ALD2 + HO2 + 0.250MOH + 0.250EOH
     3.00e-13, MO2 + OTHRO2 --> 0.750CH2O + 0.750ALD2 + HO2 + 0.250MOH + 0.250EOH #==2019/05/10; Fisher2018; JAF==#
@@ -208,20 +209,20 @@ gcfull = @reaction_network GEOSChemFull begin
     2.70e-14, OTHRO2 + OTHRO2 --> EOH + ALD2 #==2019/05/10; Fisher2018; JAF==#
     arrhenius(T, 7.40e-13, 0.0, 700.0e0), HO2 + ETO2 --> ETP
     arrhenius(T, 7.40e-13, 0.0, 700.0e0), HO2 + OTHRO2 --> ETP #==2019/05/10; Fisher2018; JAF==#
-    GC_RO2HO2_aca(2.91e-13, 1300.0e0, 3.0e0), A3O2 + HO2 --> RA3P #==2013/03/22; Paulot2009; FP,EAM,JMAO,MJE==#
-    GC_RO2HO2_aca(2.91e-13, 1300.0e0, 3.0e0), PO2 + HO2 --> PP #==2013/03/22; Paulot2009; FP,EAM,JMAO,MJE==#
+    rate_RO2HO2(T, 2.91e-13, 1300.0e0, 3.0e0), A3O2 + HO2 --> RA3P #==2013/03/22; Paulot2009; FP,EAM,JMAO,MJE==#
+    rate_RO2HO2(T, 2.91e-13, 1300.0e0, 3.0e0), PO2 + HO2 --> PP #==2013/03/22; Paulot2009; FP,EAM,JMAO,MJE==#
     arrhenius(T, 4.30e-13, 0.0, 1040.0e0), RCO3 + HO2 --> 0.410RP + 0.150RCOOH + 0.150O3 + 0.440OH + 0.220OTHRO2 + 0.030A3O2 + 0.120B3O2 #==2019/05/10; Fisher2018; JAF==#
-    GCJPLPR_abab(4.60e-27, 4.0e0, 2.6e-11, 1.3e0, 0.5e0), PRPE + OH --> PO2 #==2017/02/22; JPL 15-10; BHH,MJE==#
+    arr_3rdbody(T, num_density, 4.60e-27, 4.0e0, 0.0, 2.6e-11, 1.3e0, 0.0, 0.5e0), PRPE + OH --> PO2 #==2017/02/22; JPL 15-10; BHH,MJE==#
     arrhenius(T, 5.50e-15, 0.0, -1880.0e0), PRPE + O3 --> 0.500ALD2 + 0.500CH2O + 0.120CH3CHOO + 0.100CH4 + 0.120CH2OO + 0.280MO2 + 0.560CO + 0.280HO2 + 0.360OH #==2015/09/25; Millet2015; DBM,EAM==#
-    GC_GLYCOH_A_a(8.00e-12), GLYC + OH --> 0.732CH2O + 0.361CO2 + 0.505CO + 0.227OH + 0.773HO2 + 0.134GLYX + 0.134HCOOH #==2013/03/22; Paulot2009; FP,EAM,JMAO,MJE==#
-    GC_GLYCOH_B_a(8.00e-12), GLYC + OH --> HCOOH + OH + CO #==2013/03/22; Paulot2009; FP,EAM,JMAO,MJE==#
+    rate_GLYCOH_a(T, 8.00e-12), GLYC + OH --> 0.732CH2O + 0.361CO2 + 0.505CO + 0.227OH + 0.773HO2 + 0.134GLYX + 0.134HCOOH #==2013/03/22; Paulot2009; FP,EAM,JMAO,MJE==#
+    rate_GLYCOH_b(T, 8.00e-12), GLYC + OH --> HCOOH + OH + CO #==2013/03/22; Paulot2009; FP,EAM,JMAO,MJE==#
     arrhenius(T, 4.59e-13, 0.0, -1156.0e0), PRPE + NO3 --> PRN1
     arrhenius(T, 3.10e-12, 0.0, 340.0e0), GLYX + OH --> HO2 + 2.000CO #==2013/03/22; Paulot2009; FP,EAM,JMAO,MJE==#
     1.50e-11, MGLY + OH --> MCO3 + CO
-    GC_GLYXNO3_ac(1.40e-12, -1860.0e0), GLYX + NO3 --> HNO3 + HO2 + 2.000CO
+    rate_GLYXNO3(T, num_density, 1.40e-12, -1860.0e0), GLYX + NO3 --> HNO3 + HO2 + 2.000CO
     arrhenius(T, 3.36e-12, 0.0, -1860.0e0), MGLY + NO3 --> HNO3 + CO + MCO3 #==2013/03/22; Paulot2009; FP,EAM,JMAO,MJE==#
-    GC_HACOH_A_ac(2.15e-12, 305.0e0), HAC + OH --> MGLY + HO2 #==2013/03/22; Paulot2009; FP,EAM,JMAO,MJE==#
-    GC_HACOH_B_ac(2.15e-12, 305.0e0), HAC + OH --> 0.500HCOOH + OH + 0.500ACTA + 0.500CO2 + 0.500CO + 0.500MO2 #==2013/03/22; Paulot2009; FP,EAM,JMAO,MJE==#
+    rate_HACOH_a(T, 2.15e-12, 305.0e0), HAC + OH --> MGLY + HO2 #==2013/03/22; Paulot2009; FP,EAM,JMAO,MJE==#
+    rate_HACOH_b(T, 2.15e-12, 305.0e0), HAC + OH --> 0.500HCOOH + OH + 0.500ACTA + 0.500CO2 + 0.500CO + 0.500MO2 #==2013/03/22; Paulot2009; FP,EAM,JMAO,MJE==#
     arrhenius(T, 1.68e-12, 0.0, 500.0e0), MCO3 + A3O2 --> MO2 + RCHO + HO2
     arrhenius(T, 1.68e-12, 0.0, 500.0e0), MCO3 + PO2 --> MO2 + ALD2 + CH2O + HO2
     arrhenius(T, 1.87e-13, 0.0, 500.0e0), MCO3 + A3O2 --> ACTA + RCHO
@@ -259,12 +260,12 @@ gcfull = @reaction_network GEOSChemFull begin
     arrhenius(T, 1.87e-13, 0.0, 500.0e0), MCO3 + OTHRO2 --> ACTA + ALD2 #==2019/05/10; Fisher2018; JAF==#
     arrhenius(T, 2.50e-12, 0.0, 500.0e0), RCO3 + MCO3 --> MO2 + 0.500OTHRO2 + 0.070A3O2 + 0.270B3O2 #==2019/05/10; Fisher2018; JAF==#
     arrhenius(T, 8.50e-13, 0.0, -2450.0e0), NO3 + NO3 --> 2.000NO2 + O2
-    GCJPLPR_abab(1.00e-30, 4.8e+00, 7.2e-12, 2.1e0, 0.6e0), MO2 + NO2 --> MPN #==2012/02/12; Browne2011; ECB==#
-    GCJPLPR_abcabc(1.05e-02, 4.8e+00, -11234.0e0, 7.58e16, 2.1e0, -11234.0e0, 0.6e0), MPN --> MO2 + NO2 #==2012/02/12; Browne2011; ECB==#
+    arr_3rdbody(T, num_density, 1.00e-30, 4.8e+00, 0.0, 7.2e-12, 2.1e0, 0.0, 0.6e0), MO2 + NO2 --> MPN #==2012/02/12; Browne2011; ECB==#
+    arr_3rdbody(T, num_density, 1.05e-02, 4.8e+00, -11234.0e0, 7.58e16, 2.1e0, -11234.0e0, 0.6e0), MPN --> MO2 + NO2 #==2012/02/12; Browne2011; ECB==#
     arrhenius(T, 1.20e-11, 0.0, -280.0e0), DMS + OH --> SO2 + MO2 + CH2O
-    GC_DMSOH_acac(8.20e-39, 5376.0e0, 1.05e-5, 3644.0e0), DMS + OH --> 0.750SO2 + 0.250MSA + MO2
+    rate_DMSOH(T, num_density, 8.20e-39, 5376.0e0, 1.05e-5, 3644.0e0), DMS + OH --> 0.750SO2 + 0.250MSA + MO2
     arrhenius(T, 1.90e-13, 0.0, 530.0e0), DMS + NO3 --> SO2 + HNO3 + MO2 + CH2O
-    GCJPLPR_aba(3.30e-31, 4.3e+00, 1.6e-12, 0.6e0), SO2 + OH --> SO4 + HO2 #==+M==#
+    arr_3rdbody(T, num_density, 3.30e-31, 4.3e+00, 0.0, 1.6e-12, 0.0, 0.0, 0.6e0), SO2 + OH --> SO4 + HO2 #==+M==#
     arrhenius(T, 1.60e-11, 0.0, -780.0e0), Br + O3 --> BrO + O2 #==2012/06/07; Parrella2012; JPP==#
     arrhenius(T, 4.50e-12, 0.0, 460.0e0), BrO + HO2 --> HOBr + O2 #==2012/06/07; Parrella2012; JPP==#
     arrhenius(T, 4.80e-12, 0.0, -310.0e0), Br + HO2 --> HBr + O2 #==2012/06/07; Parrella2012; JPP==#
@@ -283,8 +284,8 @@ gcfull = @reaction_network GEOSChemFull begin
     arrhenius(T, 1.66e-10, 0.0, -7000.0e0), Br + ACET --> HBr + ATO2 #==2017/07/27; Parrella2012,Fix C creation; SAS,BHH,MJE==#
     arrhenius(T, 2.36e-10, 0.0, -6411.0e0), Br + C2H6 --> HBr + ETO2 #==2017/07/27; Parrella2012,Fix C creation; SAS,BHH,MJE==#
     arrhenius(T, 8.77e-11, 0.0, -4330.0e0), Br + C3H8 --> HBr + A3O2 #==2017/07/27; Parrella2012,Fix C creation; SAS,BHH,MJE==#
-    GCJPLPR_aba(4.20e-31, 2.4e0, 2.7e-11, 0.6e0), Br + NO2 --> BrNO2 #==2012/06/07; Parrella2012; JPP==#
-    GCJPLPR_abab(5.40e-31, 3.1e0, 6.5e-12, 2.9e0, 0.6e0), BrO + NO2 --> BrNO3 #==2017/02/22; JPL 15-10; BHH,MJE==#
+    arr_3rdbody(T, num_density, 4.20e-31, 2.4e0, 0.0, 2.7e-11, 0.0, 0.0, 0.6e0), Br + NO2 --> BrNO2 #==2012/06/07; Parrella2012; JPP==#
+    arr_3rdbody(T, num_density, 5.40e-31, 3.1e0, 0.0, 6.5e-12, 2.9e0, 0.0, 0.6e0), BrO + NO2 --> BrNO3 #==2017/02/22; JPL 15-10; BHH,MJE==#
     arrhenius(T, 9.00e-13, 0.0, -360.0e0), CHBr3 + OH --> 3.000Br #==2017/02/22; JPL 15-10; BHH,MJE==#
     arrhenius(T, 2.00e-12, 0.0, -840.0e0), CH2Br2 + OH --> 2.000Br #==2012/06/07; Parrella2012; JPP==#
     arrhenius(T, 1.42e-12, 0.0, -1150.0e0), CH3Br + OH --> Br + H2O + HO2 #==2017/03/08; JPL 15-10; TS,BHH,MJE==#
@@ -297,7 +298,7 @@ gcfull = @reaction_network GEOSChemFull begin
     1.31e-10, O1D + CH4 --> MO2 + OH #==2014/02/03; Eastham2014; SDE==#
     0.09e-10, O1D + CH4 --> CH2O + H2 #==2014/02/03; Eastham2014; SDE==#
     0.35e-10, O1D + CH4 --> CH2O + H + HO2 #==2014/02/03; Eastham2014; SDE==#
-    arrhenius(T, 6.00e-34, 2.4e0, 0.0) * NUMDEN, O + O2 --> O3 #==2014/02/03; Eastham2014; SDE==#
+    arrhenius(T, 6.00e-34, 2.4e0, 0) * NUMDEN, O + O2 --> O3 #==2014/02/03; Eastham2014; SDE==#
     arrhenius(T, 8.00e-12, 0.0, -2060.0e0), O + O3 --> 2.000O2 #==2014/02/03; Eastham2014; SDE==#
     arrhenius(T, 2.80e-12, 0.0, -1800.0e0), OH + H2 --> H2O + H #==2014/02/03; Eastham2014; SDE==#
     arrhenius(T, 1.80e-11, 0.0, 180.0e0), O + OH --> O2 + H #==2014/02/03; Eastham2014; SDE==#
@@ -308,10 +309,10 @@ gcfull = @reaction_network GEOSChemFull begin
     arrhenius(T, 1.10e-13, 0.0, -1200.0e0), OCS + OH --> CO2 + SO2 #==2014/02/03; Eastham2014; SDE==#
     arrhenius(T, 5.10e-12, 0.0, 210.0e0), NO2 + O --> NO + O2 #==2014/02/03; Eastham2014; SDE==#
     1.00e-11, NO3 + O --> NO2 + O2 #==2014/02/03; Eastham2014; SDE==#
-    GCJPLPR_aba(9.00e-32, 1.5e+00, 3.0e-11, 0.6e0), NO + O --> NO2 #==2014/02/03; Eastham2014; SDE==#
-    GCJPLPR_abab(2.50e-31, 1.8e+00, 2.2e-11, 0.7e0, 0.6e0), NO2 + O --> NO3 #==2014/02/03; Eastham2014; SDE==#
+    arr_3rdbody(T, num_density, 9.00e-32, 1.5e+00, 0.0, 3.0e-11, 0.0, 0.0, 0.6e0), NO + O --> NO2 #==2014/02/03; Eastham2014; SDE==#
+    arr_3rdbody(T, num_density, 2.50e-31, 1.8e+00, 0.0, 2.2e-11, 0.7e0, 0.0, 0.6e0), NO2 + O --> NO3 #==2014/02/03; Eastham2014; SDE==#
     arrhenius(T, 1.40e-12, 0.0, -2000.0e0), H2O2 + O --> OH + HO2 #==2014/02/03; Eastham2014; SDE==#
-    GCJPLPR_abab(4.40e-32, 1.3e+00, 7.5e-11, -0.2e0, 0.6e0), H + O2 --> HO2 #==2014/02/03; Eastham2014; SDE==#
+    arr_3rdbody(T, num_density, 4.40e-32, 1.3e+00, 0.0, 7.5e-11, -0.2e0, 0.0, 0.6e0), H + O2 --> HO2 #==2014/02/03; Eastham2014; SDE==#
     arrhenius(T, 1.40e-10, 0.0, -470.0e0), H + O3 --> OH + O2 #==2014/02/03; Eastham2014; SDE==#
     7.20e-11, H + HO2 --> 2.000OH #==2014/02/03; Eastham2014; SDE==#
     1.60e-12, H + HO2 --> O + H2O #==2014/02/03; Eastham2014; SDE==#
@@ -368,14 +369,14 @@ gcfull = @reaction_network GEOSChemFull begin
     arrhenius(T, 2.80e-11, 0.0, 85.0e0), ClO + O --> Cl + O2 #==2014/02/03; Eastham2014; SDE==#
     arrhenius(T, 2.60e-12, 0.0, 290.0e0), ClO + HO2 --> O2 + HOCl #==2014/02/03; Eastham2014; SDE==#
     arrhenius(T, 6.40e-12, 0.0, 290.0e0), ClO + NO --> Cl + NO2 #==2014/02/03; Eastham2014; SDE==#
-    GCJPLPR_abab(1.80e-31, 3.4e+00, 1.50e-11, 1.9e0, 0.6e0), ClO + NO2 --> ClNO3 #==2014/02/03; Eastham2014; SDE==#
+    arr_3rdbody(T, num_density, 1.80e-31, 3.4e+00, 0.0, 1.50e-11, 1.9e0, 0.0, 0.6e0), ClO + NO2 --> ClNO3 #==2014/02/03; Eastham2014; SDE==#
     arrhenius(T, 1.00e-12, 0.0, -1590.0e0), ClO + ClO --> Cl2 + O2 #==2014/02/03; Eastham2014; SDE==#
     arrhenius(T, 3.00e-11, 0.0, -2450.0e0), ClO + ClO --> Cl + ClOO #==2014/02/03; Eastham2014; SDE==#
     arrhenius(T, 3.50e-13, 0.0, -1370.0e0), ClO + ClO --> OClO + Cl #==2014/02/03; Eastham2014; SDE==#
-    GCJPLPR_aba(2.20e-33, 3.1e+00, 1.8e-10, 0.6e0), Cl + O2 --> ClOO #==2014/02/03; Eastham2014; SDE==#
-    GCJPLEQ_acabab(6.60e-25, 2502.0e0, 2.20e-33, 3.1e+00, 1.8e-10, 0.0e0, 0.6e0), ClOO --> Cl + O2 #==JPL 15-10; XW==#
-    GCJPLPR_abab(1.90e-32, 3.6e+00, 3.7e-12, 1.6e0, 0.6e0), ClO + ClO --> Cl2O2 #==2017/02/22; JPL 15-10; BHH,MJE==#
-    GCJPLEQ_acabab(2.16e-27, 8537.0e0, 1.90e-32, 3.6e+00, 3.7e-12, 1.6e0, 0.6e0), Cl2O2 --> 2.000ClO #==JPL 15-10; XW==#
+    arr_3rdbody(T, num_density, 2.20e-33, 3.1e+00, 0.0, 1.8e-10, 0.0, 0.0, 0.6e0), Cl + O2 --> ClOO #==2014/02/03; Eastham2014; SDE==#
+    eq_const(T, num_density, 6.60e-25, 2502.0e0, 2.20e-33, 3.1e+00, 1.8e-10, 0.0e0, 0.6e0), ClOO --> Cl + O2 #==JPL 15-10; XW==#
+    arr_3rdbody(T, num_density, 1.90e-32, 3.6e+00, 0.0, 3.7e-12, 1.6e0, 0.0, 0.6e0), ClO + ClO --> Cl2O2 #==2017/02/22; JPL 15-10; BHH,MJE==#
+    eq_const(T, num_density, 2.16e-27, 8537.0e0, 1.90e-32, 3.6e+00, 3.7e-12, 1.6e0, 0.6e0), Cl2O2 --> 2.000ClO #==JPL 15-10; XW==#
     2.30e-10, ClOO + Cl --> Cl2 + O2 #==2014/02/03; Eastham2014; SDE==#
     1.20e-11, ClOO + Cl --> 2.000ClO #==2014/02/03; Eastham2014; SDE==#
     arrhenius(T, 9.50e-13, 0.0, 550.0e0), ClO + BrO --> Br + OClO #==2014/02/03; Eastham2014; SDE==#
@@ -400,15 +401,15 @@ gcfull = @reaction_network GEOSChemFull begin
     arrhenius(T, 7.70e-11, 0.0, -1000.0e0), Cl + ACET --> HCl + ATO2 #==2017/09/22; Sherwen2016b;TS,JAS,SDE==#
     arrhenius(T, 7.60e-11, 0.0, 500.0e0), Cl + ISOP --> HCl + 0.5IHOO1 + 0.5IHOO4 #==2019/11/06; Sherwen2016b;KHB,TS,JAS,SDE==#
     2.05e-10, Cl + ALK4 --> HCl + R4O2 #==2017/09/22; Sherwen2016b;TS,JAS,SDE==#
-    GCJPLPR_aa(4.00e-28, 2.8e-10, 0.6e0), Cl + PRPE --> HCl + PO2 #==2017/09/22; Sherwen2016b;TS,JAS,SDE==#
+    arr_3rdbody(T, num_density, 4.00e-28, 0.0, 0.0, 2.8e-10, 0.0, 0.0, 0.6e0), Cl + PRPE --> HCl + PO2 #==2017/09/22; Sherwen2016b;TS,JAS,SDE==#
     3.60e-12, Br + PRPE --> HBr + PO2 #==2017/09/22; Sherwen2016b;TS,JAS,SDE==#
-    GCJPLPR_aba(1.80e-32, 1.0e0, 1.77e-11, 0.6e0), I + NO --> INO #==2017/09/22; Sherwen2016b;TS,JAS,SDE==#
+    arr_3rdbody(T, num_density, 1.80e-32, 1.0e0, 0.0, 1.77e-11, 0.0, 0.0, 0.6e0), I + NO --> INO #==2017/09/22; Sherwen2016b;TS,JAS,SDE==#
     arrhenius(T, 8.40e-11, 0.0, -2620.0e0), INO + INO --> I2 + 2.000NO #==2017/09/22; Sherwen2016b;TS,JAS,SDE==#
-    GCJPLPR_aba(3.00e-31, 1.0e0, 6.6e-11, 0.63e0), I + NO2 --> IONO #==2017/09/22; Sherwen2016b;TS,JAS,SDE==#
+    arr_3rdbody(T, num_density, 3.00e-31, 1.0e0, 0.0, 6.6e-11, 0.0, 0.0, 0.63e0), I + NO2 --> IONO #==2017/09/22; Sherwen2016b;TS,JAS,SDE==#
     arrhenius(T, 9.94e+17, 0.0, -11859.0e0), IONO --> I + NO2 #==2017/09/22; Sherwen2016b;TS,JAS,SDE==#
     arrhenius(T, 2.90e-11, 0.0, -2600.0e0), IONO + IONO --> I2 + 2.000NO2 #==2017/09/22; Sherwen2016b;TS,JAS,SDE==#
     1.50e-12, I2 + NO3 --> I + IONO2 #==2017/09/22; Sherwen2016b;TS,JAS,SDE==#
-    GCJPLPR_abab(7.50e-31, 3.5e0, 7.6e-12, 1.5e0, 0.6e0), IO + NO2 --> IONO2 #==2017/09/22; Sherwen2016b;TS,JAS,SDE==#
+    arr_3rdbody(T, num_density, 7.50e-31, 3.5e0, 0.0, 7.6e-12, 1.5e0, 0.0, 0.6e0), IO + NO2 --> IONO2 #==2017/09/22; Sherwen2016b;TS,JAS,SDE==#
     arrhenius(T, 2.10e+15, 0.0, -13670.0e0), IONO2 --> IO + NO2 #==2017/09/22; Sherwen2016b;TS,JAS,SDE==#
     arrhenius(T, 9.10e-11, 0.0, -146.0e0), IONO2 + I --> I2 + NO3 #==2017/09/22; Sherwen2016b;TS,JAS,SDE==#
     1.20e-11, I + BrO --> IO + Br #==2017/09/22; Sherwen2016b;TS,JAS,SDE==#
@@ -488,42 +489,42 @@ gcfull = @reaction_network GEOSChemFull begin
     arrhenius(T, 3.15e-13, 0.0, -448.0e0), MONITS + NO3 --> HONIT #==2017/07/14; Fisher2016; KRT,JAF,CCM,EAM,KHB,RHS==#
     2.78e-04, IONITA --> INDIOL + HNO3 #==2017/07/14; Fisher2016; KRT,JAF,CCM,EAM,KHB,RHS==#
     2.78e-04, MONITA --> INDIOL + HNO3 #==2017/07/14; Fisher2016; KRT,JAF,CCM,EAM,KHB,RHS==#
-    GC_OHHNO3_acacac(2.41e-14, 460.0e0, 2.69e-17, 2199.0e0, 6.51e-34, 1335.0e0), HONIT + OH --> NO3 + HAC #==2017/07/14; Browne2014; KRT,JAF,CCM,EAM,KHB,RHS==#
+    rate_OHHNO3(T, num_density, 2.41e-14, 460.0e0, 2.69e-17, 2199.0e0, 6.51e-34, 1335.0e0), HONIT + OH --> NO3 + HAC #==2017/07/14; Browne2014; KRT,JAF,CCM,EAM,KHB,RHS==#
     arrhenius(T, 8.00e-13, 0.0, -1000.0e0), MENO3 + OH --> CH2O + NO2 #==2019/05/16; JPL 15-10,Fisher2018; JAF==#
     arrhenius(T, 1.00e-12, 0.0, -490.0e0), ETNO3 + OH --> ALD2 + NO2 #==2019/05/16; JPL 15-10,Fisher2018; JAF==#
     arrhenius(T, 1.20e-12, 0.0, -320.0e0), IPRNO3 + OH --> ACET + NO2 #==2019/05/16; JPL 15-10,Fisher2018; JAF==#
     7.10e-13, NPRNO3 + OH --> RCHO + NO2 #==2019/05/16; JPL 15-10,Fisher2018; JAF==#
     1.3e-17, ISOP + O3 --> 0.416MACR + 0.177MVK + 0.28OH + 0.407CO2 + 0.407CO + 0.407MO2 + 0.16HO2 + 0.58CH2OO + 0.827CH2O + 0.013H2O2 #==2019/11/06; Bates2019; KHB==#
-    GC_ISO1(1.7e-11, 3.90e2, 9.33e-2, 5.05e15, -1.22e4, 1.79e14, -8.830e3), ISOP + OH --> LISOPOH + IHOO1 #==2019/11/06; Bates2019; KHB==#
-    GC_ISO1(1.0e-11, 3.90e2, 2.26e-1, 2.22e9, -7.160e3, 1.75e14, -9.054e3), ISOP + OH --> LISOPOH + IHOO4 #==2019/11/06; Bates2019; KHB==#
-    GC_ISO2(1.7e-11, 3.90e2, 9.33e-2, 5.05e15, -1.22e4, 1.79e14, -8.830e3), ISOP + OH --> 0.3MCO3 + 0.3MGLY + 0.3CH2O + 0.15HPALD3 + 0.25HPALD1 + 0.4HO2 + 0.6CO + 1.5OH + 0.3HPETHNL + LISOPOH #==2019/11/06; Bates2019; KHB==#
-    GC_ISO2(1.0e-11, 3.90e2, 2.26e-1, 2.22e9, -7.160e3, 1.75e14, -9.054e3), ISOP + OH --> 0.3CH2O + 0.15HPALD4 + 0.25HPALD2 + 1.5OH + 0.9CO + 0.7HO2 + 0.3MGLY + 0.3ATOOH + LISOPOH #==2019/11/06; Bates2019; KHB==#
-    ARRPLUS_abde(2.12e-13, -1300e0, 1.1644e0, -7.0485e-4), IHOO1 + HO2 --> 0.063MVK + 0.063OH + 0.063HO2 + 0.063CH2O + 0.937RIPA #==2019/11/06; Bates2019; KHB==#
-    ARRPLUS_abde(2.12e-13, -1300e0, -0.1644e0, 7.0485e-4), IHOO1 + HO2 --> RIPC #==2019/11/06; Bates2019; KHB==#
-    ARRPLUS_abde(2.12e-13, -1300e0, 1.2038e0, -9.0435e-4), IHOO4 + HO2 --> 0.063MACR + 0.063OH + 0.063HO2 + 0.063CH2O + 0.937RIPB #==2019/11/06; Bates2019; KHB==#
-    ARRPLUS_abde(2.12e-13, -1300e0, -0.2038e0, 9.0435e-4), IHOO4 + HO2 --> RIPD #==2019/11/06; Bates2019; KHB==#
-    ARRPLUS_abde(1.04e11, 9.746e3, 1.1644e0, -7.0485e-4), IHOO1 --> CH2O + OH + MVK #==2019/11/06; Bates2019; KHB==#
-    TUNPLUS_abcde(5.05e15, -1.22e4, 1.0e8, -0.0128e0, 5.1242e-5), IHOO1 --> 0.15HPALD3 + 0.25HPALD1 + 0.4HO2 + 0.6CO + 1.5OH + 0.3CH2O + 0.3MGLY + 0.3HPETHNL + 0.3MCO3 #==2019/11/06; Bates2019; KHB==#
-    ARRPLUS_abde(1.88e11, 9.752e3, 1.2038e0, -9.0435e-4), IHOO4 --> MACR + OH + CH2O #==2019/11/06; Bates2019; KHB==#
-    TUNPLUS_abcde(2.22e9, -7.160e3, 1.0e8, -0.0306e0, 1.1346e-4), IHOO4 --> 0.15HPALD4 + 0.25HPALD2 + 1.5OH + 0.3CH2O + 0.9CO + 0.7HO2 + 0.3MGLY + 0.3ATOOH #==2019/11/06; Bates2019; KHB==#
-    ARRPLUS_ade(6.92e-14, 1.1644e0, -7.0485e-4), IHOO1 + IHOO1 --> 2MVK + 2HO2 + 2CH2O #==2019/11/06; Bates2019; KHB==#
-    ARRPLUS_ade(5.74e-12, 1.2038e0, -9.0435e-4), IHOO4 + IHOO4 --> 2MACR + 2HO2 + 2CH2O #==2019/11/06; Bates2019; KHB==#
-    ARRPLUS_ade(1.54e-12, 2.3682e0, -1.6092e-3), IHOO1 + IHOO4 --> MACR + MVK + 2HO2 + 2CH2O #==2019/11/06; Bates2019; KHB==#
-    ARRPLUS_ade(2.49e-12, -0.1644e0, 7.0485e-4), IHOO1 + IHOO1 --> HO2 + HC5A + CO + OH + MVKHP #==2019/11/06; Bates2019; KHB==#
-    ARRPLUS_ade(3.94e-12, -0.2038e0, 9.0435e-4), IHOO4 + IHOO4 --> HO2 + HC5A + CO + OH + MCRHP #==2019/11/06; Bates2019; KHB==#
-    ARRPLUS_ade(1.54e-12, -0.3682e0, 1.6092e-3), IHOO1 + IHOO4 --> HO2 + HC5A + CO + OH + 0.5MVKHP + 0.5MCRHP #==2019/11/06; Bates2019; KHB==#
-    ARRPLUS_ade(2.0e-12, 1.1644e0, -7.0485e-4), IHOO1 + MO2 --> MVK + 2HO2 + 2CH2O #==2019/11/06; Bates2019; KHB==#
-    ARRPLUS_ade(2.0e-12, -0.1644e0, 7.0485e-4), IHOO1 + MO2 --> CH2O + 0.5HC5A + 1.5HO2 + 0.5MVKHP + 0.5CO + 0.5OH #==2019/11/06; Bates2019; KHB==#
-    ARRPLUS_ade(2.0e-12, 1.2038e0, -9.0435e-4), IHOO4 + MO2 --> MACR + 2HO2 + 2CH2O #==2019/11/06; Bates2019; KHB==#
-    ARRPLUS_ade(2.0e-12, -0.2038e0, 9.0435e-4), IHOO4 + MO2 --> CH2O + 0.5HC5A + 1.5HO2 + 0.5MCRHP + 0.5CO + 0.5OH #==2019/11/06; Bates2019; KHB==#
-    GC_NIT(2.7e-12, 3.50e2, 1.19e0, 6.0e0, 1.1644e0, 7.05e-4), IHOO1 + NO --> IHN2 #==2019/11/06; Bates2019; KHB==#
-    GC_ALK(2.7e-12, 3.50e2, 1.19e0, 6.0e0, 1.1644e0, 7.05e-4), IHOO1 + NO --> NO2 + MVK + HO2 + CH2O #==2019/11/06; Bates2019; KHB==#
-    GC_NIT(2.7e-12, 3.50e2, 1.421e0, 6.0e0, -0.1644e0, -7.05e-4), IHOO1 + NO --> IHN4 #==2019/11/06; Bates2019; KHB==#
-    GC_ALK(2.7e-12, 3.50e2, 1.421e0, 6.0e0, -0.1644e0, -7.05e-4), IHOO1 + NO --> NO2 + 0.45HC5A + 0.45HO2 + 0.55MVKHP + 0.55CO + 0.55OH #==2019/11/06; Bates2019; KHB==#
-    GC_NIT(2.7e-12, 3.50e2, 1.297e0, 6.0e0, 1.2038e0, 9.04e-4), IHOO4 + NO --> IHN3 #==2019/11/06; Bates2019; KHB==#
-    GC_ALK(2.7e-12, 3.50e2, 1.297e0, 6.0e0, 1.2038e0, 9.04e-4), IHOO4 + NO --> NO2 + MACR + HO2 + CH2O #==2019/11/06; Bates2019; KHB==#
-    GC_NIT(2.7e-12, 3.50e2, 1.421e0, 6.0e0, -0.2038e0, -9.04e-4), IHOO4 + NO --> IHN1 #==2019/11/06; Bates2019; KHB==#
-    GC_ALK(2.7e-12, 3.50e2, 1.421e0, 6.0e0, -0.2038e0, -9.04e-4), IHOO4 + NO --> NO2 + 0.45HO2 + 0.45HC5A + 0.55MCRHP + 0.55CO + 0.55OH #==2019/11/06; Bates2019; KHB==#
+    rate_ISO1(T, 1.7e-11, 3.90e2, 9.33e-2, 5.05e15, -1.22e4, 1.79e14, -8.830e3), ISOP + OH --> LISOPOH + IHOO1 #==2019/11/06; Bates2019; KHB==#
+    rate_ISO1(T, 1.0e-11, 3.90e2, 2.26e-1, 2.22e9, -7.160e3, 1.75e14, -9.054e3), ISOP + OH --> LISOPOH + IHOO4 #==2019/11/06; Bates2019; KHB==#
+    rate_ISO2(T, 1.7e-11, 3.90e2, 9.33e-2, 5.05e15, -1.22e4, 1.79e14, -8.830e3), ISOP + OH --> 0.3MCO3 + 0.3MGLY + 0.3CH2O + 0.15HPALD3 + 0.25HPALD1 + 0.4HO2 + 0.6CO + 1.5OH + 0.3HPETHNL + LISOPOH #==2019/11/06; Bates2019; KHB==#
+    rate_ISO2(T, 1.0e-11, 3.90e2, 2.26e-1, 2.22e9, -7.160e3, 1.75e14, -9.054e3), ISOP + OH --> 0.3CH2O + 0.15HPALD4 + 0.25HPALD2 + 1.5OH + 0.9CO + 0.7HO2 + 0.3MGLY + 0.3ATOOH + LISOPOH #==2019/11/06; Bates2019; KHB==#
+    arrplus(T, 2.12e-13, -1300e0, 0, 1.1644e0, -7.0485e-4), IHOO1 + HO2 --> 0.063MVK + 0.063OH + 0.063HO2 + 0.063CH2O + 0.937RIPA #==2019/11/06; Bates2019; KHB==#
+    arrplus(T, 2.12e-13, -1300e0, 0, -0.1644e0, 7.0485e-4), IHOO1 + HO2 --> RIPC #==2019/11/06; Bates2019; KHB==#
+    arrplus(T, 2.12e-13, -1300e0, 0, 1.2038e0, -9.0435e-4), IHOO4 + HO2 --> 0.063MACR + 0.063OH + 0.063HO2 + 0.063CH2O + 0.937RIPB #==2019/11/06; Bates2019; KHB==#
+    arrplus(T, 2.12e-13, -1300e0, 0, -0.2038e0, 9.0435e-4), IHOO4 + HO2 --> RIPD #==2019/11/06; Bates2019; KHB==#
+    arrplus(T, 1.04e11, 9.746e3, 0, 1.1644e0, -7.0485e-4), IHOO1 --> CH2O + OH + MVK #==2019/11/06; Bates2019; KHB==#
+    tunplus(T, 5.05e15, -1.22e4, 1.0e8, -0.0128e0, 5.1242e-5), IHOO1 --> 0.15HPALD3 + 0.25HPALD1 + 0.4HO2 + 0.6CO + 1.5OH + 0.3CH2O + 0.3MGLY + 0.3HPETHNL + 0.3MCO3 #==2019/11/06; Bates2019; KHB==#
+    arrplus(T, 1.88e11, 9.752e3, 0, 1.2038e0, -9.0435e-4), IHOO4 --> MACR + OH + CH2O #==2019/11/06; Bates2019; KHB==#
+    tunplus(T, 2.22e9, -7.160e3, 1.0e8, -0.0306e0, 1.1346e-4), IHOO4 --> 0.15HPALD4 + 0.25HPALD2 + 1.5OH + 0.3CH2O + 0.9CO + 0.7HO2 + 0.3MGLY + 0.3ATOOH #==2019/11/06; Bates2019; KHB==#
+    arrplus(T, 6.92e-14, 0, 0, 1.1644e0, -7.0485e-4), IHOO1 + IHOO1 --> 2MVK + 2HO2 + 2CH2O #==2019/11/06; Bates2019; KHB==#
+    arrplus(T, 5.74e-12, 0, 0, 1.2038e0, -9.0435e-4), IHOO4 + IHOO4 --> 2MACR + 2HO2 + 2CH2O #==2019/11/06; Bates2019; KHB==#
+    arrplus(T, 1.54e-12, 0, 0, 2.3682e0, -1.6092e-3), IHOO1 + IHOO4 --> MACR + MVK + 2HO2 + 2CH2O #==2019/11/06; Bates2019; KHB==#
+    arrplus(T, 2.49e-12, 0, 0, -0.1644e0, 7.0485e-4), IHOO1 + IHOO1 --> HO2 + HC5A + CO + OH + MVKHP #==2019/11/06; Bates2019; KHB==#
+    arrplus(T, 3.94e-12, 0, 0, -0.2038e0, 9.0435e-4), IHOO4 + IHOO4 --> HO2 + HC5A + CO + OH + MCRHP #==2019/11/06; Bates2019; KHB==#
+    arrplus(T, 1.54e-12, 0, 0, -0.3682e0, 1.6092e-3), IHOO1 + IHOO4 --> HO2 + HC5A + CO + OH + 0.5MVKHP + 0.5MCRHP #==2019/11/06; Bates2019; KHB==#
+    arrplus(T, 2.0e-12, 0, 0, 1.1644e0, -7.0485e-4), IHOO1 + MO2 --> MVK + 2HO2 + 2CH2O #==2019/11/06; Bates2019; KHB==#
+    arrplus(T, 2.0e-12, 0, 0, -0.1644e0, 7.0485e-4), IHOO1 + MO2 --> CH2O + 0.5HC5A + 1.5HO2 + 0.5MVKHP + 0.5CO + 0.5OH #==2019/11/06; Bates2019; KHB==#
+    arrplus(T, 2.0e-12, 0, 0, 1.2038e0, -9.0435e-4), IHOO4 + MO2 --> MACR + 2HO2 + 2CH2O #==2019/11/06; Bates2019; KHB==#
+    arrplus(T, 2.0e-12, 0, 0, -0.2038e0, 9.0435e-4), IHOO4 + MO2 --> CH2O + 0.5HC5A + 1.5HO2 + 0.5MCRHP + 0.5CO + 0.5OH #==2019/11/06; Bates2019; KHB==#
+    rate_NIT(T, num_density, 2.7e-12, 3.50e2, 1.19e0, 6.0e0, 1.1644e0, 7.05e-4), IHOO1 + NO --> IHN2 #==2019/11/06; Bates2019; KHB==#
+    rate_ALK(T, num_density, 2.7e-12, 3.50e2, 1.19e0, 6.0e0, 1.1644e0, 7.05e-4), IHOO1 + NO --> NO2 + MVK + HO2 + CH2O #==2019/11/06; Bates2019; KHB==#
+    rate_NIT(T, num_density, 2.7e-12, 3.50e2, 1.421e0, 6.0e0, -0.1644e0, -7.05e-4), IHOO1 + NO --> IHN4 #==2019/11/06; Bates2019; KHB==#
+    rate_ALK(T, num_density, 2.7e-12, 3.50e2, 1.421e0, 6.0e0, -0.1644e0, -7.05e-4), IHOO1 + NO --> NO2 + 0.45HC5A + 0.45HO2 + 0.55MVKHP + 0.55CO + 0.55OH #==2019/11/06; Bates2019; KHB==#
+    rate_NIT(T, num_density, 2.7e-12, 3.50e2, 1.297e0, 6.0e0, 1.2038e0, 9.04e-4), IHOO4 + NO --> IHN3 #==2019/11/06; Bates2019; KHB==#
+    rate_ALK(T, num_density, 2.7e-12, 3.50e2, 1.297e0, 6.0e0, 1.2038e0, 9.04e-4), IHOO4 + NO --> NO2 + MACR + HO2 + CH2O #==2019/11/06; Bates2019; KHB==#
+    rate_NIT(T, num_density, 2.7e-12, 3.50e2, 1.421e0, 6.0e0, -0.2038e0, -9.04e-4), IHOO4 + NO --> IHN1 #==2019/11/06; Bates2019; KHB==#
+    rate_ALK(T, num_density, 2.7e-12, 3.50e2, 1.421e0, 6.0e0, -0.2038e0, -9.04e-4), IHOO4 + NO --> NO2 + 0.45HO2 + 0.45HC5A + 0.55MCRHP + 0.55CO + 0.55OH #==2019/11/06; Bates2019; KHB==#
     arrhenius(T, 1.17e-11, 0.0, 450.0e0), HPALD1 + OH --> 0.035MVK + 0.315HPALD1OO + 0.15IDC + 0.33MVKHP + 0.085HO2 + 0.085CH2O + 0.085MGLY + 0.085ICHE + 1.085OH + 0.45CO #==2019/11/06; Bates2019; KHB==#
     arrhenius(T, 1.17e-11, 0.0, 450.0e0), HPALD2 + OH --> 0.035MACR + 0.315HPALD2OO + 0.15IDC + 0.17MCRHP + 0.165HO2 + 0.165CH2O + 0.165MGLY + 0.165ICHE + 1.165OH + 0.37CO #==2019/11/06; Bates2019; KHB==#
     arrhenius(T, 2.20e-11, 0.0, 390.0e0), HPALD3 + OH --> OH + 0.230MVK + 0.420CO + 0.190MVKHP + 0.580ICHE #==2019/11/06; Bates2019; KHB==#
@@ -532,77 +533,77 @@ gcfull = @reaction_network GEOSChemFull begin
     arrhenius(T, 9.85e-12, 0.0, 410.0e0), ICHE + OH --> OH + 1.5CO + 0.5CH2O + 0.5MGLY + 0.5HAC #==2019/11/06; Bates2019; KHB==#
     arrhenius(T, 3.00e-12, 0.0, 650.0e0), IDC + OH --> CO + HO2 + MVKPC #==2019/11/06; Bates2019; KHB==#
     arrhenius(T, 2.47e-12, 0.0, 390.0e0), RIPA + OH --> 0.655IHPOO3 + 0.345IHPOO1 + 0.005LVOC #==2019/11/06; Bates2019; KHB==#
-    GC_EPO_a(1.62e-11, 3.90e2, 4.77e-21), RIPA + OH --> 0.67IEPOXA + 0.33IEPOXB + OH + 0.005LVOC #==2019/11/06; Bates2019; KHB==#
+    rate_EPO(T, num_density, 1.62e-11, 3.90e2, 4.77e-21), RIPA + OH --> 0.67IEPOXA + 0.33IEPOXB + OH + 0.005LVOC #==2019/11/06; Bates2019; KHB==#
     arrhenius(T, 4.35e-12, 0.0, 390.0e0), RIPB + OH --> 0.655IHPOO3 + 0.345IHPOO2 + 0.005LVOC #==2019/11/06; Bates2019; KHB==#
-    GC_EPO_a(2.85e-11, 390.0e0, 4.77e-21), RIPB + OH --> 0.68IEPOXA + 0.32IEPOXB + OH + 0.005LVOC #==2019/11/06; Bates2019; KHB==#
+    rate_EPO(T, num_density, 2.85e-11, 390.0e0, 4.77e-21), RIPB + OH --> 0.68IEPOXA + 0.32IEPOXB + OH + 0.005LVOC #==2019/11/06; Bates2019; KHB==#
     arrhenius(T, 6.10e-12, 0.0, 200.0e0), RIPA + OH --> 0.75IHOO1 + 0.125MVK + 0.25CO + 0.125MVKHP + 0.25HO2 + 0.005LVOC #==2019/11/06; Bates2019; KHB==#
     arrhenius(T, 4.10e-12, 0.0, 200.0e0), RIPB + OH --> 0.51IHOO4 + 0.16ICHOO + 0.33CO + 0.33HO2 + 0.165MACR + 0.165MCRHP + 0.005LVOC #==2019/11/06; Bates2019; KHB==#
     arrhenius(T, 3.53e-11, 0.0, 390.0e0), RIPC + OH --> 0.595IHPOO1 + 0.03IHOO1 + 0.06HC5A + 0.024HO2 + 0.009HPALD3 + 0.015HPALD1 + 0.405OH + 0.036CO + 0.018CH2O + 0.018MGLY + 0.018HPETHNL + 0.018MCO3 + 0.255IEPOXD + 0.005LVOC #==2019/11/06; Bates2019; KHB==#
     arrhenius(T, 3.53e-11, 0.0, 390.0e0), RIPD + OH --> 0.255IHPOO2 + 0.03IHOO4 + 0.745OH + 0.06HC5A + 0.009HPALD4 + 0.015HPALD2 + 0.042HO2 + 0.018CH2O + 0.054CO + 0.018MGLY + 0.018ATOOH + 0.595IEPOXD + 0.005LVOC #==2019/11/06; Bates2019; KHB==#
     arrhenius(T, 1.59e+13, 0.0, -10000.0e0), IHPOO1 --> 0.176ICPDH + 0.824IDHPE + OH #==2019/11/06; Bates2019; KHB==#
-    GC_ALK(2.7e-12, 3.50e2, 2.1e0, 9.0e0, 1.0e0, 0.0e0), IHPOO1 + NO --> 0.716MCRHP + 0.716CH2O + 0.284HPETHNL + 0.284HAC + NO2 + HO2 #==2019/11/06; Bates2019; KHB==#
-    GC_NIT(2.7e-12, 3.50e2, 2.1e0, 9.0e0, 1.0e0, 0.0e0), IHPOO1 + NO --> ITHN #==2019/11/06; Bates2019; KHB==#
+    rate_ALK(T, num_density, 2.7e-12, 3.50e2, 2.1e0, 9.0e0, 1.0e0, 0.0e0), IHPOO1 + NO --> 0.716MCRHP + 0.716CH2O + 0.284HPETHNL + 0.284HAC + NO2 + HO2 #==2019/11/06; Bates2019; KHB==#
+    rate_NIT(T, num_density, 2.7e-12, 3.50e2, 2.1e0, 9.0e0, 1.0e0, 0.0e0), IHPOO1 + NO --> ITHN #==2019/11/06; Bates2019; KHB==#
     arrhenius(T, 2.47e-13, 0.0, 1300.0e0), IHPOO1 + HO2 --> 0.725IDHDP + 0.14MCRHP + 0.14CH2O + 0.135HPETHNL + 0.135HAC + 0.275OH + 0.275HO2 #==2019/11/06; Bates2019; KHB==#
     arrhenius(T, 2.91e+13, 0.0, -10000.0e0), IHPOO2 --> 0.548ICPDH + 0.452IDHPE + OH #==2019/11/06; Bates2019; KHB==#
-    GC_ALK(2.7e-12, 3.50e2, 2.315e0, 9.0e0, 1.0e0, 0.0e0), IHPOO2 + NO --> 0.706MVKHP + 0.706CH2O + 0.294GLYC + 0.294ATOOH + NO2 + HO2 #==2019/11/06; Bates2019; KHB==#
-    GC_NIT(2.7e-12, 3.50e2, 2.315e0, 9.0e0, 1.0e0, 0.0e0), IHPOO2 + NO --> ITHN #==2019/11/06; Bates2019; KHB==#
+    rate_ALK(T, num_density, 2.7e-12, 3.50e2, 2.315e0, 9.0e0, 1.0e0, 0.0e0), IHPOO2 + NO --> 0.706MVKHP + 0.706CH2O + 0.294GLYC + 0.294ATOOH + NO2 + HO2 #==2019/11/06; Bates2019; KHB==#
+    rate_NIT(T, num_density, 2.7e-12, 3.50e2, 2.315e0, 9.0e0, 1.0e0, 0.0e0), IHPOO2 + NO --> ITHN #==2019/11/06; Bates2019; KHB==#
     arrhenius(T, 2.47e-13, 0.0, 1300.0e0), IHPOO2 + HO2 --> 0.725IDHDP + 0.14MVKHP + 0.14CH2O + 0.135GLYC + 0.135ATOOH + 0.275OH + 0.275HO2 #==2019/11/06; Bates2019; KHB==#
     arrhenius(T, 1.875e+13, 0.0, -10000.0e0), IHPOO3 --> IDHPE #==2019/11/06; Bates2019; KHB==#
-    GC_ALK(2.7e-12, 3.50e2, 3.079e0, 9.0e0, 1.0e0, 0.0e0), IHPOO3 + NO --> GLYC + HAC + NO2 + OH #==2019/11/06; Bates2019; KHB==#
-    GC_NIT(2.7e-12, 3.50e2, 3.079e0, 9.0e0, 1.0e0, 0.0e0), IHPOO3 + NO --> ITHN #==2019/11/06; Bates2019; KHB==#
+    rate_ALK(T, num_density, 2.7e-12, 3.50e2, 3.079e0, 9.0e0, 1.0e0, 0.0e0), IHPOO3 + NO --> GLYC + HAC + NO2 + OH #==2019/11/06; Bates2019; KHB==#
+    rate_NIT(T, num_density, 2.7e-12, 3.50e2, 3.079e0, 9.0e0, 1.0e0, 0.0e0), IHPOO3 + NO --> ITHN #==2019/11/06; Bates2019; KHB==#
     arrhenius(T, 2.47e-13, 0.0, 1300.0e0), IHPOO3 + HO2 --> 0.35IDHDP + 0.65GLYC + 0.65HAC + 1.3OH #==2019/11/06; Bates2019; KHB==#
     arrhenius(T, 3.22e-11, 0.0, -400.0e0), IEPOXD + OH --> 0.75ICHE + 0.75HO2 + 0.25ICHOO #==2019/11/06; Bates2019; KHB==#
     arrhenius(T, 1.05e-11, 0.0, -400.0e0), IEPOXA + OH --> ICHE + HO2 #==2019/11/06; Bates2019; KHB==#
-    GC_EPO_a(5.82e-11, -4.00e2, 1.14e-20), IEPOXA + OH --> 0.67IEPOXAOO + 0.33IEPOXBOO #==2019/11/06; Bates2019; KHB==#
+    rate_EPO(T, num_density, 5.82e-11, -4.00e2, 1.14e-20), IEPOXA + OH --> 0.67IEPOXAOO + 0.33IEPOXBOO #==2019/11/06; Bates2019; KHB==#
     arrhenius(T, 8.25e-12, 0.0, -400.0e0), IEPOXB + OH --> ICHE + HO2 #==2019/11/06; Bates2019; KHB==#
-    GC_EPO_a(3.75e-11, -4.00e2, 8.91e-21), IEPOXB + OH --> 0.81IEPOXAOO + 0.19IEPOXBOO #==2019/11/06; Bates2019; KHB==#
+    rate_EPO(T, num_density, 3.75e-11, -4.00e2, 8.91e-21), IEPOXB + OH --> 0.81IEPOXAOO + 0.19IEPOXBOO #==2019/11/06; Bates2019; KHB==#
     arrhenius(T, 1.875e+13, 0.0, -10000.0e0), IEPOXAOO --> IDCHP + HO2 #==2019/11/06; Bates2019; KHB==#
     arrhenius(T, 1.0e+7, 0.0, -5000.0e0), IEPOXAOO --> OH + CO + MVKDH #==2019/11/06; Bates2019; KHB==#
     arrhenius(T, 2.38e-13, 0.0, 1300.0e0), IEPOXAOO + HO2 --> 0.13CO + 0.65OH + 0.65HO2 + 0.13MVKDH + 0.52GLYC + 0.52MGLY + 0.35ICPDH #==2019/11/06; Bates2019; KHB==#
-    GC_ALK(2.7e-12, 3.50e2, 13.098e0, 8.0e0, 1.0e0, 0.0e0), IEPOXAOO + NO --> 0.2MVKDH + HO2 + NO2 + 0.2CO + 0.8GLYC + 0.8MGLY #==2019/11/06; Bates2019; KHB==#
-    GC_NIT(2.7e-12, 3.50e2, 13.098e0, 8.0e0, 1.0e0, 0.0e0), IEPOXAOO + NO --> ITCN #==2019/11/06; Bates2019; KHB==#
+    rate_ALK(T, num_density, 2.7e-12, 3.50e2, 13.098e0, 8.0e0, 1.0e0, 0.0e0), IEPOXAOO + NO --> 0.2MVKDH + HO2 + NO2 + 0.2CO + 0.8GLYC + 0.8MGLY #==2019/11/06; Bates2019; KHB==#
+    rate_NIT(T, num_density, 2.7e-12, 3.50e2, 13.098e0, 8.0e0, 1.0e0, 0.0e0), IEPOXAOO + NO --> ITCN #==2019/11/06; Bates2019; KHB==#
     arrhenius(T, 1.875e+13, 0.0, -10000.0e0), IEPOXBOO --> IDCHP + HO2 #==2019/11/06; Bates2019; KHB==#
     arrhenius(T, 1.0e+7, 0.0, -5000.0e0), IEPOXBOO --> CO + OH + MCRDH #==2019/11/06; Bates2019; KHB==#
-    GC_ALK(2.7e-12, 3.50e2, 16.463e0, 8.0e0, 1.0e0, 0.0e0), IEPOXBOO + NO --> NO2 + HO2 + 0.8GLYX + 0.8HAC + 0.2CO + 0.2MCRDH #==2019/11/06; Bates2019; KHB==#
-    GC_NIT(2.7e-12, 3.50e2, 16.463e0, 8.0e0, 1.0e0, 0.0e0), IEPOXBOO + NO --> ITCN #==2019/11/06; Bates2019; KHB==#
+    rate_ALK(T, num_density, 2.7e-12, 3.50e2, 16.463e0, 8.0e0, 1.0e0, 0.0e0), IEPOXBOO + NO --> NO2 + HO2 + 0.8GLYX + 0.8HAC + 0.2CO + 0.2MCRDH #==2019/11/06; Bates2019; KHB==#
+    rate_NIT(T, num_density, 2.7e-12, 3.50e2, 16.463e0, 8.0e0, 1.0e0, 0.0e0), IEPOXBOO + NO --> ITCN #==2019/11/06; Bates2019; KHB==#
     arrhenius(T, 2.38e-13, 0.0, 1300.0e0), IEPOXBOO + HO2 --> 0.13CO + 0.65OH + 0.65HO2 + 0.13MCRDH + 0.52HAC + 0.52GLYX + 0.35ICPDH #==2019/11/06; Bates2019; KHB==#
     arrhenius(T, 2.38e-13, 0.0, 1300.0e0), ICHOO + HO2 --> 0.35ICPDH + 0.65OH + 0.52CO + 0.13MVKHC + 0.65CH2O + 0.65HO2 + 0.52HAC #==2019/11/06; Bates2019; KHB==#
-    GC_NIT(2.7e-12, 3.50e2, 13.098e0, 8.0e0, 1.0e0, 0.0e0), ICHOO + NO --> ITCN #==2019/11/06; Bates2019; KHB==#
-    GC_ALK(2.7e-12, 3.50e2, 13.098e0, 8.0e0, 1.0e0, 0.0e0), ICHOO + NO --> NO2 + 0.8HAC + 0.8CO + CH2O + HO2 + 0.2MVKHC #==2019/11/06; Bates2019; KHB==#
+    rate_NIT(T, num_density, 2.7e-12, 3.50e2, 13.098e0, 8.0e0, 1.0e0, 0.0e0), ICHOO + NO --> ITCN #==2019/11/06; Bates2019; KHB==#
+    rate_ALK(T, num_density, 2.7e-12, 3.50e2, 13.098e0, 8.0e0, 1.0e0, 0.0e0), ICHOO + NO --> NO2 + 0.8HAC + 0.8CO + CH2O + HO2 + 0.2MVKHC #==2019/11/06; Bates2019; KHB==#
     arrhenius(T, 1.875e+13, 0.0, -10000.0e0), ICHOO --> HO2 + 2.000CO + HAC + OH #==2019/11/06; Bates2019; KHB==#
     arrhenius(T, 2.70e-12, 0.0, 350.0e0), HPALD1OO + NO --> NO2 + OH + CO2 + MVK #==2019/11/06; Bates2019; KHB==#
     arrhenius(T, 2.38e-13, 0.0, 1300.0e0), HPALD1OO + HO2 --> OH + OH + CO2 + MVK #==2019/11/06; Bates2019; KHB==#
     arrhenius(T, 2.70e-12, 0.0, 350.0e0), HPALD2OO + NO --> NO2 + OH + CO2 + MACR #==2019/11/06; Bates2019; KHB==#
     arrhenius(T, 2.38e-13, 0.0, 1300.0e0), HPALD2OO + HO2 --> OH + OH + CO2 + MACR #==2019/11/06; Bates2019; KHB==#
     arrhenius(T, 7.14e-12, 0.0, 390.0e0), IHN2 + OH --> ISOPNOO1 #==2019/11/06; Bates2019; KHB==#
-    GC_EPO_a(6.30e-12, 390.0e0, 1.62e-19), IHN2 + OH --> 0.67IEPOXA + 0.33IEPOXB + NO2 #==2019/11/06; Bates2019; KHB==#
+    rate_EPO(T, num_density, 6.30e-12, 390.0e0, 1.62e-19), IHN2 + OH --> 0.67IEPOXA + 0.33IEPOXB + NO2 #==2019/11/06; Bates2019; KHB==#
     arrhenius(T, 1.02e-11, 0.0, 390.0e0), IHN3 + OH --> ISOPNOO2 #==2019/11/06; Bates2019; KHB==#
-    GC_EPO_a(1.05e-11, 390.0e0, 2.49e-19), IHN3 + OH --> 0.67IEPOXA + 0.33IEPOXB + NO2 #==2019/11/06; Bates2019; KHB==#
-    GC_EPO_a(1.55e-11, 390.0e0, 2.715e-19), IHN1 + OH --> IEPOXD + NO2 #==2019/11/06; Bates2019; KHB==#
+    rate_EPO(T, num_density, 1.05e-11, 390.0e0, 2.49e-19), IHN3 + OH --> 0.67IEPOXA + 0.33IEPOXB + NO2 #==2019/11/06; Bates2019; KHB==#
+    rate_EPO(T, num_density, 1.55e-11, 390.0e0, 2.715e-19), IHN1 + OH --> IEPOXD + NO2 #==2019/11/06; Bates2019; KHB==#
     arrhenius(T, 2.04e-11, 0.0, 390.0e0), IHN1 + OH --> IDHNDOO1 #==2019/11/06; Bates2019; KHB==#
-    GC_EPO_a(9.52e-12, 390.0e0, 2.715e-19), IHN4 + OH --> IEPOXD + NO2 #==2019/11/06; Bates2019; KHB==#
+    rate_EPO(T, num_density, 9.52e-12, 390.0e0, 2.715e-19), IHN4 + OH --> IEPOXD + NO2 #==2019/11/06; Bates2019; KHB==#
     arrhenius(T, 2.95e-11, 0.0, 390.0e0), IHN4 + OH --> IDHNDOO2 #==2019/11/06; Bates2019; KHB==#
     arrhenius(T, 7.5e-12, 0.0, 20.0e0), IHN1 + OH --> 0.6OH + 0.6CO + 0.6MCRHNB + 0.4HO2 + 0.4ICN #==2019/11/06; Bates2019; KHB==#
     arrhenius(T, 7.5e-12, 0.0, 20.0e0), IHN4 + OH --> 0.6OH + 0.6CO + 0.6MVKN + 0.4HO2 + 0.4ICN #==2019/11/06; Bates2019; KHB==#
     arrhenius(T, 1.875e+13, 0.0, -10000.0e0), ISOPNOO1 --> ITCN + HO2 #==2019/11/06; Bates2019; KHB==#
     arrhenius(T, 2.60e-13, 0.0, 1300.0e0), ISOPNOO1 + HO2 --> 0.482ITHN + 0.059MCRHN + 0.059CH2O + 0.459GLYC + 0.459HAC + 0.059HO2 + 0.459NO2 + 0.518OH #==2019/11/06; Bates2019; KHB==#
-    GC_ALK(2.7e-12, 350.0e0, 6.32e0, 11.0e0, 1.0e0, 0.0e0), ISOPNOO1 + NO --> 0.272MCRHN + 0.272CH2O + 0.728GLYC + 0.728HAC + 0.272HO2 + 1.728NO2 #==2019/11/06; Bates2019; KHB==#
-    GC_NIT(2.7e-12, 350.0e0, 6.32e0, 11.0e0, 1.0e0, 0.0e0), ISOPNOO1 + NO --> IDN #==2019/11/06; Bates2019; KHB==#
+    rate_ALK(T, num_density, 2.7e-12, 350.0e0, 6.32e0, 11.0e0, 1.0e0, 0.0e0), ISOPNOO1 + NO --> 0.272MCRHN + 0.272CH2O + 0.728GLYC + 0.728HAC + 0.272HO2 + 1.728NO2 #==2019/11/06; Bates2019; KHB==#
+    rate_NIT(T, num_density, 2.7e-12, 350.0e0, 6.32e0, 11.0e0, 1.0e0, 0.0e0), ISOPNOO1 + NO --> IDN #==2019/11/06; Bates2019; KHB==#
     arrhenius(T, 1.875e+13, 0.0, -10000.0e0), ISOPNOO2 --> ITCN + HO2 #==2019/11/06; Bates2019; KHB==#
     arrhenius(T, 2.60e-13, 0.0, 1300.0e0), ISOPNOO2 + HO2 --> 0.401ITHN + 0.599MVKN + 0.599CH2O + 0.599HO2 + 0.599OH #==2019/11/06; Bates2019; KHB==#
-    GC_ALK(2.7e-12, 350.0e0, 7.941e0, 11.0e0, 1.0e0, 0.0e0), ISOPNOO2 + NO --> MVKN + CH2O + HO2 + NO2 #==2019/11/06; Bates2019; KHB==#
-    GC_NIT(2.7e-12, 350.0e0, 7.941e0, 11.0e0, 1.0e0, 0.0e0), ISOPNOO2 + NO --> IDN #==2019/11/06; Bates2019; KHB==#
+    rate_ALK(T, num_density, 2.7e-12, 350.0e0, 7.941e0, 11.0e0, 1.0e0, 0.0e0), ISOPNOO2 + NO --> MVKN + CH2O + HO2 + NO2 #==2019/11/06; Bates2019; KHB==#
+    rate_NIT(T, num_density, 2.7e-12, 350.0e0, 7.941e0, 11.0e0, 1.0e0, 0.0e0), ISOPNOO2 + NO --> IDN #==2019/11/06; Bates2019; KHB==#
     arrhenius(T, 1.256e+13, 0.0, -10000.0e0), IDHNDOO1 --> ITCN + HO2 #==2019/11/06; Bates2019; KHB==#
     arrhenius(T, 5.092e+12, 0.0, -10000.0e0), IDHNDOO2 --> ITCN + HO2 #==2019/11/06; Bates2019; KHB==#
     arrhenius(T, 2.60e-13, 0.0, 1300.0e0), IDHNDOO1 + HO2 --> 0.418ITHN + 0.551PROPNN + 0.551GLYC + 0.031MCRHNB + 0.031CH2O + 0.582HO2 + 0.582OH #==2019/11/06; Bates2019; KHB==#
-    GC_ALK(2.7e-12, 350.0e0, 4.712e0, 11.0e0, 1.0e0, 0.0e0), IDHNDOO1 + NO --> 0.935PROPNN + 0.935GLYC + 0.065MCRHNB + 0.065CH2O + HO2 + NO2 #==2019/11/06; Bates2019; KHB==#
-    GC_NIT(2.7e-12, 350.0e0, 4.712e0, 11.0e0, 1.0e0, 0.0e0), IDHNDOO1 + NO --> IDN #==2019/11/06; Bates2019; KHB==#
+    rate_ALK(T, num_density, 2.7e-12, 350.0e0, 4.712e0, 11.0e0, 1.0e0, 0.0e0), IDHNDOO1 + NO --> 0.935PROPNN + 0.935GLYC + 0.065MCRHNB + 0.065CH2O + HO2 + NO2 #==2019/11/06; Bates2019; KHB==#
+    rate_NIT(T, num_density, 2.7e-12, 350.0e0, 4.712e0, 11.0e0, 1.0e0, 0.0e0), IDHNDOO1 + NO --> IDN #==2019/11/06; Bates2019; KHB==#
     arrhenius(T, 2.60e-13, 0.0, 1300.0e0), IDHNDOO2 + HO2 --> 0.494ITHN + 0.441HAC + 0.441ETHLN + 0.065MVKN + 0.065CH2O + 0.506OH + 0.506HO2 #==2019/11/06; Bates2019; KHB==#
-    GC_ALK(2.7e-12, 350.0e0, 2.258e0, 11.0e0, 1.0e0, 0.0e0), IDHNDOO2 + NO --> 0.858HAC + 0.858ETHLN + 0.142MVKN + 0.142CH2O + HO2 + NO2 #==2019/11/06; Bates2019; KHB==#
-    GC_NIT(2.7e-12, 350.0e0, 2.258e0, 11.0e0, 1.0e0, 0.0e0), IDHNDOO2 + NO --> IDN #==2019/11/06; Bates2019; KHB==#
+    rate_ALK(T, num_density, 2.7e-12, 350.0e0, 2.258e0, 11.0e0, 1.0e0, 0.0e0), IDHNDOO2 + NO --> 0.858HAC + 0.858ETHLN + 0.142MVKN + 0.142CH2O + HO2 + NO2 #==2019/11/06; Bates2019; KHB==#
+    rate_NIT(T, num_density, 2.7e-12, 350.0e0, 2.258e0, 11.0e0, 1.0e0, 0.0e0), IDHNDOO2 + NO --> IDN #==2019/11/06; Bates2019; KHB==#
     arrhenius(T, 2.60e-13, 0.0, 1300.0e0), IDHNBOO + HO2 --> 0.379HO2 + 0.379OH + 0.621ITHN + 0.094MCRHNB + 0.242GLYC + 0.242PROPNN + 0.010MVKN + 0.033HAC + 0.033ETHLN + 0.104CH2O #==2019/11/06; Bates2019; KHB==#
-    GC_ALK(2.7e-12, 350.0e0, 1.851e0, 11.0e0, 1.0e0, 0.0e0), IDHNBOO + NO --> 0.355MCRHNB + 0.546PROPNN + 0.546GLYC + 0.028MVKN + 0.071ETHLN + 0.071HAC + HO2 + NO2 + 0.383CH2O #==2019/11/06; Bates2019; KHB==#
-    GC_NIT(2.7e-12, 350.0e0, 1.851e0, 11.0e0, 1.0e0, 0.0e0), IDHNBOO + NO --> IDN #==2019/11/06; Bates2019; KHB==#
+    rate_ALK(T, num_density, 2.7e-12, 350.0e0, 1.851e0, 11.0e0, 1.0e0, 0.0e0), IDHNBOO + NO --> 0.355MCRHNB + 0.546PROPNN + 0.546GLYC + 0.028MVKN + 0.071ETHLN + 0.071HAC + HO2 + NO2 + 0.383CH2O #==2019/11/06; Bates2019; KHB==#
+    rate_NIT(T, num_density, 2.7e-12, 350.0e0, 1.851e0, 11.0e0, 1.0e0, 0.0e0), IDHNBOO + NO --> IDN #==2019/11/06; Bates2019; KHB==#
     arrhenius(T, 2.95e-12, 0.0, 450.0e0), ISOP + NO3 --> 0.465INO2B + 0.535INO2D + LISOPNO3 #==2019/11/06; Bates2019; KHB==#
     arrhenius(T, 2.47e-13, 0.0, 1300.0e0), INO2B + HO2 --> 0.473INPB + 0.048MACR + 0.479MVK + 0.527OH + 0.527CH2O + 0.527NO2 #==2019/11/06; Bates2019; KHB==#
     arrhenius(T, 2.47e-13, 0.0, 1300.0e0), INO2D + HO2 --> INPD #==2019/11/06; Bates2019; KHB==#
@@ -615,17 +616,17 @@ gcfull = @reaction_network GEOSChemFull begin
     7.71e-12, INO2D + MCO3 --> MO2 + 0.841INA + 0.159HO2 + 0.159ICN #==2019/11/06; Bates2019; KHB==#
     2.3e-12, INO2B + NO3 --> CH2O + 2NO2 + 0.903MVK + 0.097MACR #==2019/11/06; Bates2019; KHB==#
     2.3e-12, INO2D + NO3 --> NO2 + 0.841INA + 0.159HO2 + 0.159ICN #==2019/11/06; Bates2019; KHB==#
-    GC_ALK(2.7e-12, 350.0e0, 12.915e0, 9.0e0, 1.0e0, 0.0e0), INO2B + NO --> 2NO2 + CH2O + 0.096MACR + 0.904MVK #==2019/11/06; Bates2019; KHB==#
-    GC_NIT(2.7e-12, 350.0e0, 12.915e0, 9.0e0, 1.0e0, 0.0e0), INO2B + NO --> IDN #==2019/11/06; Bates2019; KHB==#
-    GC_ALK(2.7e-12, 350.0e0, 1.412e0, 9.0e0, 1.0e0, 0.0e0), INO2D + NO --> NO2 + 0.159HO2 + 0.159ICN + 0.841INA #==2019/11/06; Bates2019; KHB==#
-    GC_NIT(2.7e-12, 350.0e0, 1.412e0, 9.0e0, 1.0e0, 0.0e0), INO2D + NO --> IDN #==2019/11/06; Bates2019; KHB==#
+    rate_ALK(T, num_density, 2.7e-12, 350.0e0, 12.915e0, 9.0e0, 1.0e0, 0.0e0), INO2B + NO --> 2NO2 + CH2O + 0.096MACR + 0.904MVK #==2019/11/06; Bates2019; KHB==#
+    rate_NIT(T, num_density, 2.7e-12, 350.0e0, 12.915e0, 9.0e0, 1.0e0, 0.0e0), INO2B + NO --> IDN #==2019/11/06; Bates2019; KHB==#
+    rate_ALK(T, num_density, 2.7e-12, 350.0e0, 1.412e0, 9.0e0, 1.0e0, 0.0e0), INO2D + NO --> NO2 + 0.159HO2 + 0.159ICN + 0.841INA #==2019/11/06; Bates2019; KHB==#
+    rate_NIT(T, num_density, 2.7e-12, 350.0e0, 1.412e0, 9.0e0, 1.0e0, 0.0e0), INO2D + NO --> IDN #==2019/11/06; Bates2019; KHB==#
     arrhenius(T, 2.50e-14, 0.0, -300.0e0), INA + O2 --> ICN + HO2 #==2019/11/06; Bates2019; KHB==#
     arrhenius(T, 1.00e+20, 0.0, -10000.0e0), INA --> IDHNBOO #==2019/11/06; Bates2019; KHB==#
     arrhenius(T, 5.88e-12, 0.0, 390.0e0), INPB + OH --> 0.670IHPNBOO + 0.33IDHNBOO #==2019/11/06; Bates2019; KHB==#
     arrhenius(T, 1.61e-11, 0.0, 390.0e0), INPD + OH --> IHPNDOO #==2019/11/06; Bates2019; KHB==#
-    GC_EPO_a(4.471e-12, 390.0e0, 2.28e-20), INPB + OH --> OH + ITHN #==2019/11/06; Bates2019; KHB==#
-    GC_EPO_a(8.77e-12, 390.0e0, 2.185e-20), INPD + OH --> OH + ITHN #==2019/11/06; Bates2019; KHB==#
-    GC_EPO_a(1.493e-11, 390.0e0, 2.715e-19), INPD + OH --> NO2 + ICHE #==2019/11/06; Bates2019; KHB==#
+    rate_EPO(T, num_density, 4.471e-12, 390.0e0, 2.28e-20), INPB + OH --> OH + ITHN #==2019/11/06; Bates2019; KHB==#
+    rate_EPO(T, num_density, 8.77e-12, 390.0e0, 2.185e-20), INPD + OH --> OH + ITHN #==2019/11/06; Bates2019; KHB==#
+    rate_EPO(T, num_density, 1.493e-11, 390.0e0, 2.715e-19), INPD + OH --> NO2 + ICHE #==2019/11/06; Bates2019; KHB==#
     arrhenius(T, 2.278e-12, 0.0, 200.0e0), INPB + OH --> INO2B #==2019/11/06; Bates2019; KHB==#
     arrhenius(T, 3.40e-12, 0.0, 200.0e0), INPD + OH --> INO2D #==2019/11/06; Bates2019; KHB==#
     arrhenius(T, 7.50e-12, 0.0, 20.0e0), INPD + OH --> ICN + OH #==2019/11/06; Bates2019; KHB==#
@@ -633,11 +634,11 @@ gcfull = @reaction_network GEOSChemFull begin
     arrhenius(T, 8.72e+12, 0.0, -10000.0e0), IHPNBOO --> OH + 0.5ITCN + 0.5ITHN #==2019/11/06; Bates2019; KHB==#
     arrhenius(T, 2.64e-13, 0.0, 1300.0e0), IHPNBOO + HO2 --> 0.234ITHN + 0.060MCRHNB + 0.340GLYC + 0.249HPETHNL + 0.004MCRHP + 0.008MVKN + 0.009ATOOH + 0.054MVKHP + 0.042HAC + 1.147OH + 0.326HO2 + 0.058NO2 + 0.126CH2O + 0.589PROPNN + 0.051ETHLN #==2019/11/06; Bates2019; KHB==#
     arrhenius(T, 2.64e-13, 0.0, 1300.0e0), IHPNDOO + HO2 --> 0.387ITHN + 0.073MCRHNB + 0.471HPETHNL + 0.015MVKN + 0.054ATOOH + 0.646OH + 0.580HO2 + 0.088CH2O + 0.471PROPNN + 0.054ETHLN #==2019/11/06; Bates2019; KHB==#
-    GC_ALK(2.7e-12, 350.0e0, 6.092e0, 12.0e0, 1.0e0, 0.0e0), IHPNBOO + NO --> 0.384GLYC + 0.170MCRHNB + 0.303HPETHNL + 0.014MVKN + 0.051HAC + 0.013ATOOH + 0.059MVKHP + 0.006MCRHP + 0.687PROPNN + 0.064ETHLN + 0.249CH2O + 1.065NO2 + 0.500HO2 + 0.435OH #==2019/11/06; Bates2019; KHB==#
-    GC_NIT(2.7e-12, 350.0e0, 6.092e0, 12.0e0, 1.0e0, 0.0e0), IHPNBOO + NO --> IDN #==2019/11/06; Bates2019; KHB==#
-    GC_ALK(2.7e-12, 350.0e0, 4.383e0, 12.0e0, 1.0e0, 0.0e0), IHPNDOO + NO --> 0.291MCRHNB + 0.590HPETHNL + 0.070ATOOH + 0.049MVKN + 0.590PROPNN + 0.070ETHLN + 0.340CH2O + 1.000NO2 + 0.904HO2 + 0.096OH #==2019/11/06; Bates2019; KHB==#
-    GC_NIT(2.7e-12, 350.0e0, 4.383e0, 12.0e0, 1.0e0, 0.0e0), IHPNDOO + NO --> IDN #==2019/11/06; Bates2019; KHB==#
-    GC_EPO_a(2.97e-12, 390.0e0, 2.715e-19), ICN + OH --> NO2 + ICHE #==2019/11/06; Bates2019; KHB==#
+    rate_ALK(T, num_density, 2.7e-12, 350.0e0, 6.092e0, 12.0e0, 1.0e0, 0.0e0), IHPNBOO + NO --> 0.384GLYC + 0.170MCRHNB + 0.303HPETHNL + 0.014MVKN + 0.051HAC + 0.013ATOOH + 0.059MVKHP + 0.006MCRHP + 0.687PROPNN + 0.064ETHLN + 0.249CH2O + 1.065NO2 + 0.500HO2 + 0.435OH #==2019/11/06; Bates2019; KHB==#
+    rate_NIT(T, num_density, 2.7e-12, 350.0e0, 6.092e0, 12.0e0, 1.0e0, 0.0e0), IHPNBOO + NO --> IDN #==2019/11/06; Bates2019; KHB==#
+    rate_ALK(T, num_density, 2.7e-12, 350.0e0, 4.383e0, 12.0e0, 1.0e0, 0.0e0), IHPNDOO + NO --> 0.291MCRHNB + 0.590HPETHNL + 0.070ATOOH + 0.049MVKN + 0.590PROPNN + 0.070ETHLN + 0.340CH2O + 1.000NO2 + 0.904HO2 + 0.096OH #==2019/11/06; Bates2019; KHB==#
+    rate_NIT(T, num_density, 2.7e-12, 350.0e0, 4.383e0, 12.0e0, 1.0e0, 0.0e0), IHPNDOO + NO --> IDN #==2019/11/06; Bates2019; KHB==#
+    rate_EPO(T, num_density, 2.97e-12, 390.0e0, 2.715e-19), ICN + OH --> NO2 + ICHE #==2019/11/06; Bates2019; KHB==#
     arrhenius(T, 9.35e-12, 0.0, 390.0e0), ICN + OH --> 0.244OH + 0.539CO + 0.295HO2 + 0.378MCRHNB + 0.461ICNOO + 0.161MVKN #==2019/11/06; Bates2019; KHB==#
     arrhenius(T, 2.70e-12, 0.0, 350.0e0), ICNOO + NO --> 0.67ICNOO + 0.33CO2 + 0.33CO + 0.33HO2 + 0.231PROPNN + NO2 + 0.099ETHLN #==2019/11/06; Bates2019; KHB==#
     arrhenius(T, 2.54e-13, 0.0, 1300.0e0), ICNOO + HO2 --> 0.67ICNOO + 0.33CO2 + 0.33CO + 0.33HO2 + 0.231PROPNN + OH + 0.099ETHLN #==2019/11/06; Bates2019; KHB==#
@@ -668,19 +669,19 @@ gcfull = @reaction_network GEOSChemFull begin
     arrhenius(T, 2.00e-12, 0.0, 70.0e0), MVKHC + OH --> 2CO + HO2 + MCO3 #==2019/11/06; Bates2019; KHB==#
     arrhenius(T, 2.4e-11, 0.0, 70.0e0), MCRDH + OH --> 0.16MVKHCB + HO2 + 0.84HAC + 0.84CO #==2019/11/06; Bates2019; KHB==#
     arrhenius(T, 2.12e-13, 0.0, 1300.0e0), MVKOHOO + HO2 --> 0.360MCO3 + 0.360GLYC + 0.665OH + 0.305HO2 + 0.255MVKHC + 0.335MVKHP + 0.050MGLY + 0.050CH2O #==2019/11/06; Bates2019; KHB==#
-    GC_ALK(2.7e-12, 350.0e0, 4.573e0, 6.0e0, 1.0e0, 0.0e0), MVKOHOO + NO --> 0.758MCO3 + 0.758GLYC + 0.242MGLY + 0.242CH2O + 0.242HO2 + NO2 #==2019/11/06; Bates2019; KHB==#
-    GC_NIT(2.7e-12, 350.0e0, 4.573e0, 6.0e0, 1.0e0, 0.0e0), MVKOHOO + NO --> 0.438MVKN #==2019/11/06; Bates2019; KHB==#
+    rate_ALK(T, num_density, 2.7e-12, 350.0e0, 4.573e0, 6.0e0, 1.0e0, 0.0e0), MVKOHOO + NO --> 0.758MCO3 + 0.758GLYC + 0.242MGLY + 0.242CH2O + 0.242HO2 + NO2 #==2019/11/06; Bates2019; KHB==#
+    rate_NIT(T, num_density, 2.7e-12, 350.0e0, 4.573e0, 6.0e0, 1.0e0, 0.0e0), MVKOHOO + NO --> 0.438MVKN #==2019/11/06; Bates2019; KHB==#
     arrhenius(T, 2.12e-13, 0.0, 1300.0e0), MCROHOO + HO2 --> 0.41MCRHP + 0.507HAC + 0.507CO + 0.507HO2 + 0.59OH + 0.59O2 + 0.083MGLY + 0.083CH2O #==2019/11/06; Bates2019; KHB==#
     arrhenius(T, 3.14e-12, 0.0, 580.0e0), MACR1OO + HO2 --> 0.5MACR1OOH + 0.5CH2O + 0.325CO + 0.325MO2 + 0.175MCO3 + 0.5CO2 + 0.5OH + 0.13O3 #==2019/11/06; Bates2019; KHB==#
     1.66e-11, MACR1OOH + OH --> 0.165MACR1OO + 0.585OH + 0.488HAC + 0.488CO + 0.098HMML + 0.415CO2 + 0.25CH2O + 0.087MCO3 + 0.162MO2 #==2019/11/06; Bates2019; KHB==#
     arrhenius(T, 2.90e+7, 0.0, -5297.0e0), MCROHOO --> HAC + CO + OH #==2019/11/06; Bates2019; KHB==#
-    GC_ALK(2.7e-12, 350.0e0, 2.985e0, 6.0e0, 1.0e0, 0.0e0), MCROHOO + NO --> 0.86HAC + 0.86CO + 0.86HO2 + NO2 + 0.14MGLY + 0.14CH2O #==2019/11/06; Bates2019; KHB==#
-    GC_NIT(2.7e-12, 350.0e0, 2.985e0, 6.0e0, 1.0e0, 0.0e0), MCROHOO + NO --> MCRHN #==2019/11/06; Bates2019; KHB==#
+    rate_ALK(T, num_density, 2.7e-12, 350.0e0, 2.985e0, 6.0e0, 1.0e0, 0.0e0), MCROHOO + NO --> 0.86HAC + 0.86CO + 0.86HO2 + NO2 + 0.14MGLY + 0.14CH2O #==2019/11/06; Bates2019; KHB==#
+    rate_NIT(T, num_density, 2.7e-12, 350.0e0, 2.985e0, 6.0e0, 1.0e0, 0.0e0), MCROHOO + NO --> MCRHN #==2019/11/06; Bates2019; KHB==#
     arrhenius(T, 8.7e-12, 0.0, 290.0e0), MACR1OO + NO --> 0.35MCO3 + 0.65MO2 + 0.65CO + CH2O + CO2 + NO2 #==2019/11/06; Bates2019; KHB==#
-    GC_PAN_acac(2.591e-28, -6.87e0, 1.125e-11, -1.105e0, 0.3e0), MACR1OO + NO2 --> MPAN #==2019/11/06; Bates2019; KHB==#
+    rate_PAN_acac(T, num_density, 2.591e-28, -6.87e0, 1.125e-11, -1.105e0, 0.3e0), MACR1OO + NO2 --> MPAN #==2019/11/06; Bates2019; KHB==#
     arrhenius(T, 3.14e-12, 0.0, 580.0e0), MACRNO2 + HO2 --> 0.5HAC + 0.5OH + 0.5CO2 + 0.5NO2 + 0.13O3 + 0.37MCRHN + 0.13MCRHNB #==2019/11/06; Bates2019; KHB==#
     arrhenius(T, 7.50e-12, 0.0, 290.0e0), MACRNO2 + NO --> HAC + 2NO2 + CO2 #==2019/11/06; Bates2019; KHB==#
-    GC_PAN_acac(2.591e-28, -6.87e0, 1.125e-11, -1.105e0, 0.3e0), MACRNO2 + NO2 --> MPAN + NO2 #==2019/11/06; Bates2019; KHB==#
+    rate_PAN_acac(T, num_density, 2.591e-28, -6.87e0, 1.125e-11, -1.105e0, 0.3e0), MACRNO2 + NO2 --> MPAN + NO2 #==2019/11/06; Bates2019; KHB==#
     4.00e-12, MACRNO2 + NO3 --> HAC + 2NO2 + CO2 #==2019/11/06; Bates2019; KHB==#
     arrhenius(T, 2.9e-12, 0.0, 500.0e0), MACRNO2 + MO2 --> 0.7HAC + 0.7CO2 + 0.7NO2 + 0.7HO2 + CH2O + 0.3MCRHNB #==2019/11/06; Bates2019; KHB==#
     arrhenius(T, 1.58e+16, 0.0, -13500.0e0), MPAN --> MACR1OO + NO2 #==2019/11/06; Bates2019; KHB==#
@@ -704,8 +705,8 @@ gcfull = @reaction_network GEOSChemFull begin
 
     # --- C2H2 & C2H4 chemistry (per KHB)
     arrhenius(T, 9.10e-15, 0.0e0, -2580.0e0), C2H4 + O3 --> CH2O + CH2OO #==2021/09/22; Kwon2020; KHB,MSL==#
-    GCJPLPR_abab(1.10e-28, 3.5e+00, 8.4e-12, 1.75e0, 0.5e0), C2H4 + OH --> ETOO #==2021/09/22; Kwon2020; KHB,MSL==#
-    GCJPLPR_abab(5.50e-30, 0.0e0, 8.3e-13, -2.0e0, 0.5e0), C2H2 + OH --> 0.636GLYX + 0.636OH + 0.364CO + 0.364HO2 + 0.364HCOOH #==2021/09/22; Kwon2020; KHB,MSL==#
+    arr_3rdbody(T, num_density, 1.10e-28, 3.5e+00, 0.0, 8.4e-12, 1.75e0, 0.0, 0.5e0), C2H4 + OH --> ETOO #==2021/09/22; Kwon2020; KHB,MSL==#
+    arr_3rdbody(T, num_density, 5.50e-30, 0.0e0, 0.0, 8.3e-13, -2.0e0, 0.0, 0.5e0), C2H2 + OH --> 0.636GLYX + 0.636OH + 0.364CO + 0.364HO2 + 0.364HCOOH #==2021/09/22; Kwon2020; KHB,MSL==#
     arrhenius(T, 1.53e-13, 0.0e0, 1300.0e0), ETOO + HO2 --> ETHP #==2021/09/22; Kwon2020; KHB,MSL==#
     arrhenius(T, 2.7e-12, 0.0e+00, 360.0e0), ETOO + NO --> 0.995ETO + 0.995NO2 + 0.005ETHN #==2021/09/22; Kwon2020; KHB,MSL==#
     2.3e-12, ETOO + NO3 --> ETO + NO2 #==2021/09/22; Kwon2020; KHB,MSL==#
@@ -736,9 +737,9 @@ gcfull = @reaction_network GEOSChemFull begin
     2.4e-15, BALD + NO3 --> BZCO3 + HNO3 #==2021/09/29; Bates2021b; KHB,MSL==#
     arrhenius(T, 1.10e-11, 0.0e0, 340.0e0), BZCO3 + HO2 --> 0.35CO2 + 0.2BENZO2 + 0.15O3 + 0.2OH + 0.15BENZP + 0.65BZCO3H #==2021/09/29; Bates2021b; KHB,MSL==#
     arrhenius(T, 7.50e-12, 0.0e0, 290.0e0), BZCO3 + NO --> NO2 + CO2 + BENZO2 #==2021/09/29; Bates2021b; KHB,MSL==#
-    GC_PAN_acac(3.28e-28, -6.87e0, 1.125e-11, -1.105e0, 0.3e0), BZCO3 + NO2 --> BZPAN #==2021/09/29; Bates2021b; KHB,MSL==#
+    rate_PAN_acac(T, num_density, 3.28e-28, -6.87e0, 1.125e-11, -1.105e0, 0.3e0), BZCO3 + NO2 --> BZPAN #==2021/09/29; Bates2021b; KHB,MSL==#
     4.66e-12, BZCO3H + OH --> BZCO3 #==2021/09/29; Bates2021b; KHB,MSL==#
-    GC_PAN_abab(1.10e-5, -10100.0e0, 1.90e+17, -14100.0e0, 0.3e0) * 0.67e0, BZPAN --> BZCO3 + NO2 #==2021/09/29; Bates2021b; KHB,MSL==#
+    rate_PAN_abab(T, num_density, 1.10e-5, -10100.0e0, 1.90e+17, -14100.0e0, 0.3e0) * 0.67e0, BZPAN --> BZCO3 + NO2 #==2021/09/29; Bates2021b; KHB,MSL==#
     1.06e-12, BZPAN + OH --> BENZP + CO2 + NO2 #==2021/09/29; Bates2021b; KHB,MSL==#
     7.00e-12, BENZO2 + NO2 --> BENZO + NO3 #==2021/09/29; Bates2021b; KHB,MSL==#
     arrhenius(T, 2.670e-12, 0.0e0, 365.0e0), BENZO2 + NO --> BENZO + NO2 #==2021/09/29; Bates2021b; KHB,MSL==#
