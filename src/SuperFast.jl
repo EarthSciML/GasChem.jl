@@ -142,7 +142,7 @@ struct SuperFast <: EarthSciMLODESystem
             #OH + CO = HO2
             Reaction(k19 * c, [OH, CO], [HO2], [1, 1], [1])
         ]
-        rxn_sys = ReactionSystem(rxs, t; name=:superfast)
-        new(convert(ODESystem, rxn_sys; combinatoric_ratelaws=false), rxn_sys)
+        rxn_sys = ReactionSystem(rxs, t; combinatoric_ratelaws=false, name=:superfast)
+        new(convert(ODESystem, rxn_sys), rxn_sys)
     end
 end
