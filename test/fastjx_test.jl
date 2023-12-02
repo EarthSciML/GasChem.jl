@@ -79,6 +79,13 @@ end
     checkf(3600 * 12.0f0, 30.0f0, 0.0f0, 150.0f0)
     checkf(3600 * 12.0, 30.0, 0.0, 150.0)
 
+    @check_allocs checkf2(interp,ϕ, a, b, c, d) = GasChem.j_mean(interp, ϕ, a, b, c, d)
+    for (interp, ϕ) ∈ [(GasChem.σ_H2O2_interp, GasChem.ϕ_H2O2_jx), (GasChem.σ_CH2Oa_interp, GasChem.ϕ_CH2Oa_jx), 
+        (GasChem.σ_CH3OOH_interp, GasChem.ϕ_CH3OOH_jx), (GasChem.σ_NO2_interp, GasChem.ϕ_NO2_jx), (GasChem.σ_o31D_interp, GasChem.ϕ_o31D_jx)]
+        checkf2(interp, ϕ, 3600 * 12.0f0, 30.0f0, 0.0f0, 150.0f0)
+        checkf2(interp, ϕ, 3600 * 12.0, 30.0, 0.0, 150.0)
+    end
+
     @check_allocs checkcos(lat, t, long) = GasChem.cos_solar_zenith_angle(lat, t, long)
     checkcos(0.0, 0.0, 0.0)
     checkcos(0.0f0, 0.0f0, 0.0f0)
