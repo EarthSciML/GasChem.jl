@@ -1,0 +1,11 @@
+url_path,views_total,views_unique
+/EarthSciML/GasChem.jl/tree/main/src,21,1
+/EarthSciML/GasChem.jl/blob/main/src/Geoschem.jl,14,1
+/EarthSciML/GasChem.jl/blob/main/src/Lawfunctions.jl,8,1
+/EarthSciML/GasChem.jl/blob/main/src/Fast-JX.jl,6,1
+/EarthSciML/GasChem.jl/blob/main/src/RateLawUtilFuncs.jl,6,1
+/EarthSciML/GasChem.jl/blob/main/src/Ratesfunctions.jl,6,1
+/EarthSciML/GasChem.jl/tree/main,5,1
+/EarthSciML/GasChem.jl/blob/main/src/SuperFast.jl,4,1
+/EarthSciML/GasChem.jl/tree/geoschem/src,4,1
+/EarthSciML/GasChem.jl/blob/geoschem/src/geoschem_fullchem.jl,3,1
