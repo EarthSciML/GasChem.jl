@@ -13,7 +13,10 @@ makedocs(;
         canonical = "https://EarthSciML.github.io/GasChem.jl",
         assets = String[],
     ),
-    pages = ["Home" => "index.md"],
+    pages = [
+        "Home" => "index.md",
+        "Composing models" => "composing_models.md",
+    ],
 )
 
 deploydocs(; repo = "github.com/EarthSciML/GasChem.jl")
