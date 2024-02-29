@@ -1,3 +1,7 @@
+# GEOS-Chem rate laws
+# Adapted from https://github.com/geoschem/geos-chem/tree/4722f288e90291ba904222f4bbe4fc216d17c34a/KPP/fullchem
+# The GEOS-Chem license applies: https://github.com/geoschem/geos-chem/blob/main/LICENSE.txt
+
 """ 
 Arrhenius equation:
 ``` math
@@ -5,7 +9,7 @@ Arrhenius equation:
 ```
 """
 function arrhenius(T, a0, b0, c0)
-     K_300 = 300 # [unit=u"K"]
+    K_300 = 300 # [unit=u"K"]
     k = a0 * exp(c0 / T) * (K_300 / T)^b0
 end
 
@@ -267,7 +271,7 @@ end
 Modified Arrhenius law.
 """
 function arrplus(T, a0, b0, c0, d0, e0)
-     K_300 = 300 # [unit=u"K"]
+    K_300 = 300 # [unit=u"K"]
     k = a0 * (d0 + (T * e0)) * exp(-b0 / T) * (T / K_300)^c0
     k = max(k, 0.0)
 end
@@ -342,7 +346,7 @@ function rate_PAN_abab(T, num_density, a0, b0, a1, b1, cf)
 end
 
 function rate_PAN_acac(T, num_density, a0, c0, a1, c1, cf)
-     K_300 = 300 # [unit=u"K"]
+    K_300 = 300 # [unit=u"K"]
     k0 = a0 * (T / K_300)^c0
     k1 = a1 * (T / K_300)^c1
     k0 = k0 * num_density
