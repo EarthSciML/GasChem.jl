@@ -1,3 +1,7 @@
+```@autodocs
+Modules = [GasChem]
+```
+
 ```@meta
 CurrentModule = GasChem
 ```
