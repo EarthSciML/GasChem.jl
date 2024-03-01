@@ -11,7 +11,7 @@ MOZART-4 vs. Reduced Hydrocarbon vs. Super-Fast chemistry" (2018), Benjamin Brow
 
 ## Illustrative Example
 Here is a simple example of generating and solving the superfast model. 
-```julia @example 1
+```@example 1
 using GasChem, EarthSciMLBase, ModelingToolkit, Unitful, DifferentialEquations
 
 @parameters t [unit = u"s", description = "Time"]
@@ -20,7 +20,7 @@ model = SuperFast(t)
 
 Before running any simulations with the model, we need to convert it into a system of differential equations. We can solve it using the default values for variables and parameters. However, by using the ```@unpack``` command, we can assign new values to specific variables and parameters, allowing for simulations under varied conditions.
 
-```julia @example 1
+```@example 1
 sys = structural_simplify(get_mtk(model))
 @unpack O3 = sys
 tspan = (0.0, 3600*24)
@@ -46,7 +46,7 @@ plot(sol, ylim = (0,50), xlabel = "Time", ylabel = "Concentration (ppb)", legend
 ```
 
 ## Variables and parameters
-The species included in the superfast model are: O<sub>3</sub>, OH, HO<sub>2</sub>, O<sub>2</sub>, NO, NO<sub>2</sub>, CH<sub>4</sub>, CH<sub>3</sub>O2, H<sub>2</sub>O, CH<sub>2</sub>O, CO, CH<sub>3</sub>OOH, CH<sub>3</sub>O, DMS, SO<sub>2</sub>, ISOP, O<sub>1</sub>d, H<sub>2</sub>O<sub>2</sub>.
+The species included in the superfast model are: O₃, OH, HO₂, O₂, NO, NO₂, CH₄, CH₃O₂, H₂O, CH₂O, CO, CH₃OOH, CH₃O, DMS, SO₂, ISOP, O₁d, H₂O₂.
 
 The parameters in the model that are not constant are the photolysis reaction rates ```jO31D```, ```j2OH```, ```jH2O2```, ```jNO2```, ```jCH2Oa```, ```jCH3OOH``` and temperature ```T```
 ```@example 1
@@ -55,7 +55,7 @@ parameters(sys) # Give you the parameters in the system
 ```
 
 Let's run some simulation with different values for parameter ```T```.
-```julia @example 1
+```@example 1
 p1 = [T => 273]
 p2 = [T => 298]
 sol1 = solve(ODEProblem(sys, [], tspan, p1),AutoTsit5(Rosenbrock23()), saveat=10.0)
