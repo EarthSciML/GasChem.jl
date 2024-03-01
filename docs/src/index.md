@@ -32,13 +32,13 @@ The reaction equations in the system are:
 ![Chemical Network Graph](chemicalreactions.png)
 
 We can visualize the mathematical relationships within the system as follows:
-```julia @example 1
+```@example 1
 using Latexify
 render(latexify(equations(sys)))
 ```
 We can finally solve the system and plot the result as
 
-```julia @example 1
+```@example 1
 sol = solve(prob,AutoTsit5(Rosenbrock23()), saveat=10.0)
 
 using Plots
@@ -49,7 +49,7 @@ plot(sol, ylim = (0,50), xlabel = "Time", ylabel = "Concentration (ppb)", legend
 The species included in the superfast model are: O<sub>3</sub>, OH, HO<sub>2</sub>, O<sub>2</sub>, NO, NO<sub>2</sub>, CH<sub>4</sub>, CH<sub>3</sub>O2, H<sub>2</sub>O, CH<sub>2</sub>O, CO, CH<sub>3</sub>OOH, CH<sub>3</sub>O, DMS, SO<sub>2</sub>, ISOP, O<sub>1</sub>d, H<sub>2</sub>O<sub>2</sub>.
 
 The parameters in the model that are not constant are the photolysis reaction rates ```jO31D```, ```j2OH```, ```jH2O2```, ```jNO2```, ```jCH2Oa```, ```jCH3OOH``` and temperature ```T```
-```julia @example 1
+```@example 1
 states(sys) # Give you the variables in the system
 parameters(sys) # Give you the parameters in the system
 ```
