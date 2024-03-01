@@ -22,7 +22,7 @@ Before running any simulations with the model, we need to convert it into a syst
 
 ```@example 1
 sys = structural_simplify(get_mtk(model))
-@unpack O3 = sys
+@unpack O3, T = sys
 tspan = (0.0, 3600*24)
 u0 = [O3 => 15] # Change the initial concentration of O₃ to 15 ppb
 p0 = [T => 293] # temperature = 293K
