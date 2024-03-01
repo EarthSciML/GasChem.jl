@@ -106,7 +106,7 @@ end
         "GEOSChemGasPhase₊j_7(t) ~ uconv*fastjx₊j_CH2Oa(t)",
         "GEOSChemGasPhase₊j_10(t) ~ uconv*fastjx₊j_CH3OOH(t)",
         "GEOSChemGasPhase₊j_11(t) ~ uconv*fastjx₊j_NO2(t)",
-        "GEOSChemGasPhase₊j_3(t) ~ uconv*fastjx₊j_o31D(t)"]
+        "GEOSChemGasPhase₊j_3(t) ~ c_fixme1*fastjx₊j_o31D(t)"]
 
     for eq in wanteqs
         @test contains(string(eqs), wanteqs[1])
