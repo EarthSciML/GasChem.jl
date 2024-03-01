@@ -20,7 +20,7 @@ sys = structural_simplify(get_mtk(composed_ode)) # Define the coupled system
 sol = solve(ODEProblem(sys, [], tspan, []),AutoTsit5(Rosenbrock23()), saveat=10.0) # Solve the coupled system
 ```
 
-In the composed system, the variable name for O<sub>3</sub> is not ```O3``` but ```superfast₊O3(t)```. So we need some preparation for the result before visualizing. 
+In the composed system, the variable name for O<sub>3</sub> is not ```O3``` but ```superfast₊O3(t)```. So we need some preparation of the result before visualizing. 
 
 ```julia @example 1 
 vars = states(sys)  # Get the variables in the composed system
