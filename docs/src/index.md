@@ -15,7 +15,7 @@ MOZART-4 vs. Reduced Hydrocarbon vs. Super-Fast chemistry" (2018), Benjamin Brow
 
 ## Illustrative Example
 Here is a simple example of generating and solving the superfast model. 
-```@example 1
+```julia
 using GasChem, EarthSciMLBase, ModelingToolkit, Unitful, DifferentialEquations
 
 @parameters t [unit = u"s", description = "Time"]
@@ -24,7 +24,7 @@ model = SuperFast(t)
 
 Before running any simulations with the model, we need to convert it into a system of differential equations. We can solve it using the default values for variables and parameters. However, by using the ```@unpack``` command, we can assign new values to specific variables and parameters, allowing for simulations under varied conditions.
 
-```@example 1
+```julia
 sys = structural_simplify(get_mtk(model))
 @unpack O3, T = sys
 tspan = (0.0, 3600*24)
@@ -36,7 +36,21 @@ The reaction equations in the system are:
 ![Chemical Network Graph](chemicalreactions.png)
 
 We can visualize the mathematical relationships within the system as follows:
-```julia
+```@setup 1
+using GasChem, EarthSciMLBase, ModelingToolkit, Unitful, DifferentialEquations
+
+@parameters t [unit = u"s", description = "Time"]
+model = SuperFast(t)
+
+sys = structural_simplify(get_mtk(model))
+@unpack O3, T = sys
+tspan = (0.0, 3600*24)
+u0 = [O3 => 15] # Change the initial concentration of O₃ to 15 ppb
+p0 = [T => 293] # temperature = 293K
+prob = ODEProblem(sys, u0, tspan, p0)
+```
+
+```@example 1
 using Latexify
 render(latexify(equations(sys)))
 ```
@@ -53,7 +67,7 @@ plot(sol, ylim = (0,50), xlabel = "Time", ylabel = "Concentration (ppb)", legend
 The species included in the superfast model are: O₃, OH, HO₂, O₂, NO, NO₂, CH₄, CH₃O₂, H₂O, CH₂O, CO, CH₃OOH, CH₃O, DMS, SO₂, ISOP, O₁d, H₂O₂.
 
 The parameters in the model that are not constant are the photolysis reaction rates ```jO31D```, ```j2OH```, ```jH2O2```, ```jNO2```, ```jCH2Oa```, ```jCH3OOH``` and temperature ```T```
-```@example 1
+```@julia
 states(sys) # Give you the variables in the system
 parameters(sys) # Give you the parameters in the system
 ```

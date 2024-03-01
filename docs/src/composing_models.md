@@ -8,7 +8,7 @@ CurrentModule = GasChem
 Here is the complete example of composing, visualizing and solving the SuperFast
 model and the Fast-JX model, with explanation to follow:
 
-```@example 1
+```julia 
 using EarthSciMLBase, GasChem, ModelingToolkit, OrdinaryDiffEq, Dates, Unitful, DifferentialEquations
 
 
@@ -23,7 +23,7 @@ sol = solve(ODEProblem(sys, [], tspan, []),AutoTsit5(Rosenbrock23()), saveat=10.
 
 In the composed system, the variable name for O<sub>3</sub> is not ```O3``` but ```superfast₊O3(t)```. So we need some preparation of the result before visualizing. 
 
-```@example 1 
+```julia
 vars = states(sys)  # Get the variables in the composed system
 var_dict = Dict(string(var) => var for var in vars)
 pols = ["O3", "OH", "NO", "NO2", "CH4", "CH3O2", "CO","CH3OOH", "CH3O", "DMS", "SO2", "ISOP"]
@@ -32,6 +32,26 @@ var_names_p = ["superfast₊$(v)(t)" for v in pols]
 x_t = unix2datetime.(sol[t]) # Convert from unixtime to date time for visualizing 
 ```
 Then, we could plot the results as:
+```@setup 1
+using EarthSciMLBase, GasChem, ModelingToolkit, OrdinaryDiffEq, Dates, Unitful, DifferentialEquations
+
+
+@parameters t
+composed_ode = SuperFast(t) + FastJX(t) # Compose two models simply use the "+" operator
+
+start = Dates.datetime2unix(Dates.DateTime(2024, 2, 29))
+tspan = (start, start+3600*24*3)
+sys = structural_simplify(get_mtk(composed_ode)) # Define the coupled system  
+sol = solve(ODEProblem(sys, [], tspan, []),AutoTsit5(Rosenbrock23()), saveat=10.0) # Solve the coupled system
+
+vars = states(sys)  # Get the variables in the composed system
+var_dict = Dict(string(var) => var for var in vars)
+pols = ["O3", "OH", "NO", "NO2", "CH4", "CH3O2", "CO","CH3OOH", "CH3O", "DMS", "SO2", "ISOP"]
+var_names_p = ["superfast₊$(v)(t)" for v in pols]
+
+x_t = unix2datetime.(sol[t]) # Convert from unixtime to date time for visualizing 
+```
+
 ```@example 1
 using Plots
 pp = []
