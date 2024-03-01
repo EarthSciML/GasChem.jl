@@ -34,7 +34,7 @@ The reaction equations in the system are:
 We can visualize the mathematical relationships within the system as follows:
 ```@example 1
 using Latexify
-render(latexify(equations(sys)))
+latexify(equations(sys))
 ```
 We can finally solve the system and plot the result as
 
