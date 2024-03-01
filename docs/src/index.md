@@ -32,9 +32,9 @@ The reaction equations in the system are:
 ![Chemical Network Graph](chemicalreactions.png)
 
 We can visualize the mathematical relationships within the system as follows:
-```@example 1
+```julia
 using Latexify
-latexify(equations(sys))
+render(latexify(equations(sys)))
 ```
 We can finally solve the system and plot the result as
 
