@@ -14,5 +14,6 @@ include("compose_fastjx_superfast.jl")
 
 include("geoschem_ratelaws.jl")
 include("geoschem_fullchem.jl")
+include("compose_fastjx_geoschem.jl")
 
 end

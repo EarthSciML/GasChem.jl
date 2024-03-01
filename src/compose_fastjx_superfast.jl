@@ -1,27 +1,4 @@
 """
-Converting the ReactionSystem to an ODESystem adds extra terms for the derivatives of the photolysis rate constants. We need to remove these terms before adding the fast-jx equations.
-"""
-function remove_D!(superfast)
-    @parameters t
-    @unpack jO31D, jH2O2, jNO2, jCH2Oa, jCH3OOH = superfast
-
-    D = Differential(t)
-    terms_to_remove = [D(jH2O2), D(jCH2Oa), D(jO31D), D(jCH3OOH), D(jNO2)]
-    i_remove = []
-    for (i, eq) in enumerate(equations(superfast))
-        should_remove = false
-        for term in terms_to_remove
-            if isequal(term, eq.lhs)
-                should_remove = true
-            end
-        end
-        should_remove ? push!(i_remove, i) : continue
-    end
-    deleteat!(equations(superfast), i_remove)
-    superfast
-end
-
-"""
 Compose superfast and fast-jx models together.
 
 # Example

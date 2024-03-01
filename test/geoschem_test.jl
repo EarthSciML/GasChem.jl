@@ -5,6 +5,7 @@ using DifferentialEquations, ModelingToolkit
 tspan = (0.0, 360.0)
 @variables t
 sys = GEOSChemGasPhase(t).sys
+structural_simplify(sys)
 
 # Unit Test 0: Base case
 @testset "Base case" begin
@@ -89,4 +90,25 @@ end
     test4 = o1[O3][end] - o2[O3][end]
 
     @test test4 ≈ u_4 rtol = 0.001
+end
+
+@testset "Compose GEOSChem FastJX" begin
+    gc = GEOSChemGasPhase(t)
+    fjx = FastJX(t)
+    gf = gc + fjx
+    gf = get_mtk(gf)
+
+    structural_simplify(gf)
+
+    eqs = string(equations(gf))
+
+    wanteqs = ["GEOSChemGasPhase₊j_9(t) ~ uconv*fastjx₊j_h2o2(t)",
+        "GEOSChemGasPhase₊j_7(t) ~ uconv*fastjx₊j_CH2Oa(t)",
+        "GEOSChemGasPhase₊j_10(t) ~ uconv*fastjx₊j_CH3OOH(t)",
+        "GEOSChemGasPhase₊j_11(t) ~ uconv*fastjx₊j_NO2(t)",
+        "GEOSChemGasPhase₊j_3(t) ~ uconv*fastjx₊j_o31D(t)"]
+
+    for eq in wanteqs
+        @test contains(string(eqs), wanteqs[1])
+    end
 end
