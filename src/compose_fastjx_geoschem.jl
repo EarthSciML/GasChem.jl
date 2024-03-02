@@ -3,7 +3,7 @@ Compose GEOSChemGasPhase and FastJX models together.
 
 # Example
 ```
-using GasChem, EarthSciMLBase
+using GasChem, EarthSciMLBase, DifferentialEquations
 
 @parameters t 
 gf = GEOSChemGasPhase(t) + FastJX(t)
