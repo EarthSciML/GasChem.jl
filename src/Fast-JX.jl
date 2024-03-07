@@ -130,15 +130,15 @@ function j_mean(σ_interp, ϕ::Float32, time::T2, lat::T, long::T, Temperature::
 end
 
 j_mean_H2O2(t, lat, long, T) = j_mean(σ_H2O2_interp, ϕ_H2O2_jx, t, lat, long, T)
-@register j_mean_H2O2(t, lat, long, T)
+@register_symbolic j_mean_H2O2(t, lat, long, T)
 j_mean_CH2Oa(t, lat, long, T) = j_mean(σ_CH2Oa_interp, ϕ_CH2Oa_jx, t, lat, long, T)
-@register j_mean_CH2Oa(t, lat, long, T)
+@register_symbolic j_mean_CH2Oa(t, lat, long, T)
 j_mean_CH3OOH(t, lat, long, T) = j_mean(σ_CH3OOH_interp, ϕ_CH3OOH_jx, t, lat, long, T)
-@register j_mean_CH3OOH(t, lat, long, T)
+@register_symbolic j_mean_CH3OOH(t, lat, long, T)
 j_mean_NO2(t, lat, long, T) = j_mean(σ_NO2_interp, ϕ_NO2_jx, t, lat, long, T)
-@register j_mean_NO2(t, lat, long, T)
+@register_symbolic j_mean_NO2(t, lat, long, T)
 j_mean_o31D(t, lat, long, T) = j_mean(σ_o31D_interp, ϕ_o31D_jx, t, lat, long, T)
-@register j_mean_o31D(t, lat, long, T)
+@register_symbolic j_mean_o31D(t, lat, long, T)
 
 """
 Description: This is a box model used to calculate the photolysis reaction rate constant using the Fast-JX scheme 
