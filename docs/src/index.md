@@ -52,7 +52,7 @@ prob = ODEProblem(sys, u0, tspan, p0)
 
 ```@example 1
 using Latexify
-latexify(equations(sys))
+render(latexify(equations(sys)))
 ```
 We can finally solve the system and plot the result as
 
