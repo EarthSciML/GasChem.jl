@@ -51,8 +51,7 @@ prob = ODEProblem(sys, u0, tspan, p0)
 ```
 
 ```@example 1
-using Latexify
-render(latexify(equations(sys)))
+equations(sys)
 ```
 We can finally solve the system and plot the result as
 
