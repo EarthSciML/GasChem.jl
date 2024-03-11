@@ -1,11 +1,12 @@
 using GasChem
+using EarthSciMLBase
 using Test
 using DifferentialEquations, ModelingToolkit
 
 tspan = (0.0, 360.0)
 @variables t
 sys = GEOSChemGasPhase(t).sys
-structural_simplify(sys)
+sys = structural_simplify(sys)
 
 # Unit Test 0: Base case
 @testset "Base case" begin
@@ -19,8 +20,11 @@ structural_simplify(sys)
         56.63543840034316
     ]
 
-    defaults = ModelingToolkit.get_defaults(sys)
-    prob = ODEProblem(sys, defaults, tspan, defaults)
+    vals = ModelingToolkit.get_defaults(sys)
+    for k in setdiff(states(sys),keys(vals))
+        vals[k] = 0 # Set variables with no default to zero.
+    end
+    prob = ODEProblem(sys, vals, tspan, vals)
     sol = solve(prob, AutoTsit5(Rosenbrock23()))
     test0 = [sol[v][end] for v in [sys.O3, sys.NO2, sys.ISOP, sys.O1D, sys.OH, sys.DMS, sys.H2O]]
 
@@ -33,6 +37,9 @@ end
     u_1 = 1.7279825730298626e-5
 
     vals = ModelingToolkit.get_defaults(sys)
+    for k in setdiff(states(sys),keys(vals))
+        vals[k] = 0 # Set variables with no default to zero.
+    end
     @unpack O3, O1D = sys
     vals[O3] = 20
     vals[O1D] = 0
@@ -49,6 +56,9 @@ end
     u_2 = 5.209463225241961e-7
 
     vals = ModelingToolkit.get_defaults(sys)
+    for k in setdiff(states(sys),keys(vals))
+        vals[k] = 0 # Set variables with no default to zero.
+    end
     @unpack O3, OH = sys
     vals[O3] = 20
     vals[OH] = 0
@@ -65,6 +75,9 @@ end
     u_3 = 1.8946337831948767e-9
 
     vals = ModelingToolkit.get_defaults(sys)
+    for k in setdiff(states(sys),keys(vals))
+        vals[k] = 0 # Set variables with no default to zero.
+    end
     @unpack O3, NO2 = sys
     vals[O3] = 20
     vals[NO2] = 20
@@ -81,6 +94,9 @@ end
     u_4 = -6.469934550779044e-6
 
     vals = ModelingToolkit.get_defaults(sys)
+    for k in setdiff(states(sys),keys(vals))
+        vals[k] = 0 # Set variables with no default to zero.
+    end
     @unpack O3, HO2 = sys
     vals[O3] = 20
     vals[HO2] = 0
