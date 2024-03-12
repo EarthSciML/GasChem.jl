@@ -32,5 +32,5 @@ using DifferentialEquations, ModelingToolkit
         Tsit5(),
         saveat = 10.0,
     )
-    sol[4320] ≈ sol_middle
+    sol[:, 4320] ≈ sol_middle
 end
