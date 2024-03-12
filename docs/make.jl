@@ -19,4 +19,4 @@ makedocs(;
     ],
 )
 
-deploydocs(; repo = "github.com/EarthSciML/GasChem.jl")
+deploydocs(; format = HTML(repolink = "github.com/EarthSciML/GasChem.jl"))
