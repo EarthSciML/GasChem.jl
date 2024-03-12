@@ -124,7 +124,7 @@ struct SuperFast <: EarthSciMLODESystem
             #O3 -> O2 + O(1D)
             Reaction(jO31D * 10^(-21), [O3], [O1d, O2], [1], [1, 1]) # TODO(JL): Is 10^(-20) a reasonable value?
             #O(1D) + H2O -> 2OH
-            Reaction(j2OH * 10^2, [O1d, H2O], [OH], [1, 1], [2])
+            Reaction(j2OH * 10^2, [O1d, H2O], [OH], [1, 1], [2]) # TODO(CT): Why is the rate multiplied by 10^2?
             #H2O2 --> 2OH
             Reaction(jH2O2, [H2O2], [OH], [1], [2])
             #NO2 --> NO + O3
@@ -142,7 +142,7 @@ struct SuperFast <: EarthSciMLODESystem
             #OH + CO = HO2
             Reaction(k19 * c, [OH, CO], [HO2], [1, 1], [1])
         ]
-        rxn_sys = ReactionSystem(rxs, t; name=:superfast)
-        new(convert(ODESystem, rxn_sys; combinatoric_ratelaws=false), rxn_sys)
+        rxn_sys = ReactionSystem(rxs, t; combinatoric_ratelaws=false, name=:superfast)
+        new(convert(ODESystem, rxn_sys), rxn_sys)
     end
 end
