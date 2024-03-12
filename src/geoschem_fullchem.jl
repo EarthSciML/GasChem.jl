@@ -577,7 +577,7 @@ struct GEOSChemGasPhase <: EarthSciMLODESystem
 
             @parameters(
                 T = 298.15, [unit = u"K", description = "Temperature"],
-                num_density = 2.7e19, [description = "Number density of air (The units should be molecules/cm^3 but the equationsn here treat it as unitless)."], k_mt1 = 0, [unit = u"mol/nmol", description = "Seasalt rate constant"],
+                num_density = 2.7e19, [description = "Number density of air (The units should be molecules/cm^3 but the equations here treat it as unitless)."], k_mt1 = 0, [unit = u"mol/nmol", description = "Seasalt rate constant"],
                 k_mt2 = 0, [unit = u"mol/nmol", description = "Seasalt rate constant"],
                 k_mt3 = 0, [unit = u"mol/nmol", description = "Seasalt rate constant"],
                 k_mt4 = 0, [unit = u"mol/nmol", description = "Seasalt rate constant"],
