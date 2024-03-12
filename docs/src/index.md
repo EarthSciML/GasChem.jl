@@ -14,45 +14,40 @@ MOZART-4 vs. Reduced Hydrocarbon vs. Super-Fast chemistry" (2018), Benjamin Brow
 
 
 ## Illustrative Example
-Here is a simple example of generating and solving the superfast model. 
-```julia
+Here is a simple example of initializing the SuperFast model and running a simulation.
+First, we can look at the reaction equations:
+
+```@example 1
 using GasChem, EarthSciMLBase, ModelingToolkit, Unitful, DifferentialEquations
+using Catalyst
 
 @parameters t [unit = u"s", description = "Time"]
 model = SuperFast(t)
+
+model.rxn_sys
 ```
+
+We can also look at them as a graph:
+
+```@example 1
+Graph(model.rxn_sys)
+```
+
 
 Before running any simulations with the model, we need to convert it into a system of differential equations. We can solve it using the default values for variables and parameters. However, by using the ```@unpack``` command, we can assign new values to specific variables and parameters, allowing for simulations under varied conditions.
 
-```julia
-sys = structural_simplify(get_mtk(model))
-@unpack O3, T = sys
-tspan = (0.0, 3600*24)
-u0 = [O3 => 15] # Change the initial concentration of O₃ to 15 ppb
-p0 = [T => 293] # temperature = 293K
-prob = ODEProblem(sys, u0, tspan, p0)
-```
-The reaction equations in the system are: 
-![Chemical Network Graph](chemicalreactions.png)
-
-We can visualize the mathematical relationships within the system as follows:
-```@setup 1
-using GasChem, EarthSciMLBase, ModelingToolkit, Unitful, DifferentialEquations
-
-@parameters t [unit = u"s", description = "Time"]
-model = SuperFast(t)
-
-sys = structural_simplify(get_mtk(model))
-@unpack O3, T = sys
-tspan = (0.0, 3600*24)
-u0 = [O3 => 15] # Change the initial concentration of O₃ to 15 ppb
-p0 = [T => 293] # temperature = 293K
-prob = ODEProblem(sys, u0, tspan, p0)
-```
-
+We can visualize the differential equation version of the system as follows:
 ```@example 1
+sys = structural_simplify(get_mtk(model))
+@unpack O3, T = sys
+tspan = (0.0, 3600*24)
+u0 = [O3 => 15] # Change the initial concentration of O₃ to 15 ppb
+p0 = [T => 293] # temperature = 293K
+prob = ODEProblem(sys, u0, tspan, p0)
+
 equations(sys)
 ```
+
 We can finally solve the system and plot the result as
 
 ```@example 1

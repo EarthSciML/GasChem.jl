@@ -15,6 +15,7 @@ makedocs(;
     ),
     pages = [
         "Home" => "index.md",
+        "SuperFast" => "superfast.md",
         "GEOS-Chem" => [
             "Overview" => "geoschem/overview.md",
             "State Variables" => "geoschem/states.md",
@@ -24,4 +25,4 @@ makedocs(;
     ],
 )
 
-deploydocs(; format = HTML(repolink = "github.com/EarthSciML/GasChem.jl"))
+deploydocs(; repo = "github.com/EarthSciML/GasChem.jl.git")
