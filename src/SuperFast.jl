@@ -1,12 +1,5 @@
 export SuperFast
 
-# Add unit "ppb" to Unitful 
-module MyUnits
-using Unitful
-@unit ppb "ppb" Number 1 / 1000000000 false
-end
-Unitful.register(MyUnits)
-
 """
     SuperFast(t)
 
@@ -36,52 +29,52 @@ struct SuperFast <: EarthSciMLODESystem
     SuperFast(sys::ModelingToolkit.ODESystem, rxn_sys::ReactionSystem) = new(sys, rxn_sys)
     function SuperFast(t)
         @parameters jO31D = 4.0 * 10.0^-3 [unit = u"s^-1"]
-        @parameters j2OH = 2.2 * 10.0^-10 [unit = u"(s*ppb)^-1"]
+        @parameters j2OH = 2.2 * 10.0^-10 [unit = u"(s*nmol/mol)^-1"]
         @parameters jH2O2 = 1.0097 * 10.0^-5 [unit = u"s^-1"]
         @parameters jNO2 = 0.0149 [unit = u"s^-1"]
         @parameters jCH2Oa = 0.00014 [unit = u"s^-1"]
         # TODO(JL): What's difference between the two photolysis reactions of CH2O, do we really need both? (@variables jCH20b(t) = 0.00014 [unit = u"s^-1"])
         @parameters jCH3OOH = 8.9573 * 10.0^-6 [unit = u"s^-1"]
 
-        @parameters k1 = 1.7e-12 [unit = u"(s*ppb)^-1"] T1 = -940 [unit = u"K"]
-        @parameters k2 = 1.0e-14 [unit = u"(s*ppb)^-1"] T2 = -490 [unit = u"K"]
-        @parameters k3 = 4.8e-11 [unit = u"(s*ppb)^-1"] T3 = 250 [unit = u"K"]
-        @parameters k4 = 3.0e-12 [unit = u"(s*ppb)^-1"] T4 = -1500 [unit = u"K"]
-        @parameters k5 = 3.5e-12 [unit = u"(s*ppb)^-1"] T5 = 250 [unit = u"K"]
-        @parameters k6 = 2.45e-12 [unit = u"(s*ppb)^-1"] T6 = -1775 [unit = u"K"]
-        @parameters k7 = 5.5e-12 [unit = u"(s*ppb)^-1"] T7 = 125 [unit = u"K"]
-        @parameters k8 = 4.1e-13 [unit = u"(s*ppb)^-1"] T8 = 750 [unit = u"K"]
-        @parameters k9 = 2.7e-12 [unit = u"(s*ppb)^-1"] T9 = 200 [unit = u"K"]
-        @parameters k10 = 1.1e-12 [unit = u"(s*ppb)^-1"] T10 = 200 [unit = u"K"]
-        @parameters k11 = 2.8e-12 [unit = u"(s*ppb)^-1"] T11 = 300 [unit = u"K"]
-        @parameters k12 = 9.5e-14 / 10 [unit = u"s^-1*ppb^-19"] T12 = 390 [unit = u"K"]
-        @parameters k13 = 1.1e-11 [unit = u"(s*ppb)^-1"] T13 = -240 [unit = u"K"]
-        @parameters k14 = 2.7e-11 [unit = u"(s*ppb)^-1"] T14 = 390 [unit = u"K"]
-        @parameters k15 = 2.7e-11 / 2 [unit = u"s^-1*ppb^-3"] T15 = 390 [unit = u"K"]
-        @parameters k16 = 5.59e-15 [unit = u"(s*ppb)^-1"] T16 = -1814 [unit = u"K"]
-        @parameters k17 = 3.0e-13 [unit = u"(s*ppb)^-1"] T17 = 460 [unit = u"K"]
-        @parameters k18 = 1.8e-12 [unit = u"(s*ppb)^-1"] k19 = 1.5e-13 [unit = u"(s*ppb)^-1"]
+        @parameters k1 = 1.7e-12 [unit = u"(s*nmol/mol)^-1"] T1 = -940 [unit = u"K"]
+        @parameters k2 = 1.0e-14 [unit = u"(s*nmol/mol)^-1"] T2 = -490 [unit = u"K"]
+        @parameters k3 = 4.8e-11 [unit = u"(s*nmol/mol)^-1"] T3 = 250 [unit = u"K"]
+        @parameters k4 = 3.0e-12 [unit = u"(s*nmol/mol)^-1"] T4 = -1500 [unit = u"K"]
+        @parameters k5 = 3.5e-12 [unit = u"(s*nmol/mol)^-1"] T5 = 250 [unit = u"K"]
+        @parameters k6 = 2.45e-12 [unit = u"(s*nmol/mol)^-1"] T6 = -1775 [unit = u"K"]
+        @parameters k7 = 5.5e-12 [unit = u"(s*nmol/mol)^-1"] T7 = 125 [unit = u"K"]
+        @parameters k8 = 4.1e-13 [unit = u"(s*nmol/mol)^-1"] T8 = 750 [unit = u"K"]
+        @parameters k9 = 2.7e-12 [unit = u"(s*nmol/mol)^-1"] T9 = 200 [unit = u"K"]
+        @parameters k10 = 1.1e-12 [unit = u"(s*nmol/mol)^-1"] T10 = 200 [unit = u"K"]
+        @parameters k11 = 2.8e-12 [unit = u"(s*nmol/mol)^-1"] T11 = 300 [unit = u"K"]
+        @parameters k12 = 9.5e-14 / 10 [unit = u"s^-1*(nmol/mol)^-19"] T12 = 390 [unit = u"K"]
+        @parameters k13 = 1.1e-11 [unit = u"(s*nmol/mol)^-1"] T13 = -240 [unit = u"K"]
+        @parameters k14 = 2.7e-11 [unit = u"(s*nmol/mol)^-1"] T14 = 390 [unit = u"K"]
+        @parameters k15 = 2.7e-11 / 2 [unit = u"s^-1*(nmol/mol)^-3"] T15 = 390 [unit = u"K"]
+        @parameters k16 = 5.59e-15 [unit = u"(s*nmol/mol)^-1"] T16 = -1814 [unit = u"K"]
+        @parameters k17 = 3.0e-13 [unit = u"(s*nmol/mol)^-1"] T17 = 460 [unit = u"K"]
+        @parameters k18 = 1.8e-12 [unit = u"(s*nmol/mol)^-1"] k19 = 1.5e-13 [unit = u"(s*nmol/mol)^-1"]
         @parameters t [unit = u"s"]
         @parameters T = 280.0 [unit = u"K"]
 
-        @species O3(t) = 10.0 [unit = u"ppb"]
-        @species O1d(t) = 0 [unit = u"ppb"]
-        @species OH(t) = 10.0 [unit = u"ppb"]
-        @species HO2(t) = 10.0 [unit = u"ppb"]
-        @species O2(t) = 2.1 * (10.0^8) [unit = u"ppb"]
-        @species H2O(t) = 450.0 [unit = u"ppb"]
-        @species NO(t) = 0.0 [unit = u"ppb"]
-        @species NO2(t) = 10.0 [unit = u"ppb"]
-        @species CH4(t) = 1700.0 [unit = u"ppb"]
-        @species CH3O2(t) = 0.01 [unit = u"ppb"]
-        @species CH2O(t) = 0.15 [unit = u"ppb"]
-        @species CO(t) = 275.0 [unit = u"ppb"]
-        @species CH3OOH(t) = 1.6 [unit = u"ppb"]
-        @species CH3O(t) = 0.0 [unit = u"ppb"]
-        @species DMS(t) = 50 [unit = u"ppb"]
-        @species SO2(t) = 2.0 [unit = u"ppb"]
-        @species ISOP(t) = 0.15 [unit = u"ppb"]
-        @species H2O2(t) = 2.34 [unit = u"ppb"]
+        @species O3(t) = 10.0 [unit = u"nmol/mol"]
+        @species O1d(t) = 0 [unit = u"nmol/mol"]
+        @species OH(t) = 10.0 [unit = u"nmol/mol"]
+        @species HO2(t) = 10.0 [unit = u"nmol/mol"]
+        @species O2(t) = 2.1 * (10.0^8) [unit = u"nmol/mol"]
+        @species H2O(t) = 450.0 [unit = u"nmol/mol"]
+        @species NO(t) = 0.0 [unit = u"nmol/mol"]
+        @species NO2(t) = 10.0 [unit = u"nmol/mol"]
+        @species CH4(t) = 1700.0 [unit = u"nmol/mol"]
+        @species CH3O2(t) = 0.01 [unit = u"nmol/mol"]
+        @species CH2O(t) = 0.15 [unit = u"nmol/mol"]
+        @species CO(t) = 275.0 [unit = u"nmol/mol"]
+        @species CH3OOH(t) = 1.6 [unit = u"nmol/mol"]
+        @species CH3O(t) = 0.0 [unit = u"nmol/mol"]
+        @species DMS(t) = 50 [unit = u"nmol/mol"]
+        @species SO2(t) = 2.0 [unit = u"nmol/mol"]
+        @species ISOP(t) = 0.15 [unit = u"nmol/mol"]
+        @species H2O2(t) = 2.34 [unit = u"nmol/mol"]
 
         c = 2.46e10 # TODO(JL): What is this constant?
         rate(k, Tc) = k * exp(Tc / T) * c
