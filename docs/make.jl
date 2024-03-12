@@ -22,6 +22,7 @@ makedocs(;
             "Parameters" => "geoschem/params.md",
         ],
         "Composing models" => "composing_models.md",
+        "API" => "api.md",
     ],
 )
 
