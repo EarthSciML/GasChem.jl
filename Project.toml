@@ -1,7 +1,7 @@
 name = "GasChem"
 uuid = "58070593-4751-4c87-a5d1-63807d11d76c"
 authors = ["EarthSciML authors and contributors"]
-version = "0.4.0"
+version = "0.5.0"
 
 [deps]
 AllocCheck = "9b6a8646-10ed-4001-bbdc-1d2f46dfbb1a"
