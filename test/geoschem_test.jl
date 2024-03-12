@@ -1,86 +1,130 @@
 using GasChem
+using EarthSciMLBase
 using Test
 using DifferentialEquations, ModelingToolkit
 
 tspan = (0.0, 360.0)
+@variables t
+sys = GEOSChemGasPhase(t).sys
+sys = structural_simplify(sys)
 
 # Unit Test 0: Base case
-@test begin
+@testset "Base case" begin
     u_0 = [
-        2.13259581865184
-        64.68382191959199
-        83.23806225301401
-        17.647692925315166
-        514.905508264975
-        5.861495732807544
-        56.62922153677387
+        2.1327512182118245
+        211.8938586170381
+        83.2370879010155
+        17.646210820369
+        606.1557601209427
+        5.8614918579823065
+        56.63543840034316
     ]
 
-    rs = FullChem().sys
-    @unpack O3, NO2, ISOP, O1D, OH, DMS, H2O, H2O2, N2O5 = rs
-    rs_solved = solve(ODEProblem(rs, [], tspan, [], combinatoric_ratelaws=false), AutoTsit5(Rosenbrock23()))
-    test0 = [rs_solved[O3][end], rs_solved[NO2][end], rs_solved[ISOP][end], rs_solved[O1D][end], rs_solved[OH][end], rs_solved[DMS][end], rs_solved[H2O][end]]
+    vals = ModelingToolkit.get_defaults(sys)
+    for k in setdiff(states(sys),keys(vals))
+        vals[k] = 0 # Set variables with no default to zero.
+    end
+    prob = ODEProblem(sys, vals, tspan, vals)
+    sol = solve(prob, AutoTsit5(Rosenbrock23()))
+    test0 = [sol[v][end] for v in [sys.O3, sys.NO2, sys.ISOP, sys.O1D, sys.OH, sys.DMS, sys.H2O]]
 
     test0 ≈ u_0
 end
 
 
 # Unit Test 1: O1D sensitivity to O3
-@test begin
+@testset "O1D sensitivity to O3" begin
     u_1 = 1.7279825730298626e-5
 
-    rs1 = FullChem().sys
-    @unpack O3, O1D = rs1
-    o1 = solve(ODEProblem(rs1, [O3 => 20, O1D => 0], tspan, [], combinatoric_ratelaws=false), AutoTsit5(Rosenbrock23()))
-    rs2 = FullChem().sys
-    @unpack O3, O1D = rs2
-    o2 = solve(ODEProblem(rs2, [O3 => 20, O1D => 10], tspan, [], combinatoric_ratelaws=false), AutoTsit5(Rosenbrock23()))
+    vals = ModelingToolkit.get_defaults(sys)
+    for k in setdiff(states(sys),keys(vals))
+        vals[k] = 0 # Set variables with no default to zero.
+    end
+    @unpack O3, O1D = sys
+    vals[O3] = 20
+    vals[O1D] = 0
+    o1 = solve(ODEProblem(sys, vals, tspan, vals), AutoTsit5(Rosenbrock23()))
+    vals[O1D] = 10
+    o2 = solve(ODEProblem(sys, vals, tspan, vals), AutoTsit5(Rosenbrock23()))
     test1 = o1[O3][end] - o2[O3][end]
 
-    isapprox(test1, u_1, atol=0.001)
+    @test test1 ≈ u_1 rtol = 0.001
 end
 
 # Unit Test 2: OH sensitivity to O3
-@test begin
-    u_2 = 4.688821775289398e-9
+@testset "OH sensitivity to O3" begin
+    u_2 = 5.209463225241961e-7
 
-    rs1 = FullChem().sys
-    @unpack O3, OH = rs1
-    o1 = solve(ODEProblem(rs1, [O3 => 20, OH => 0], tspan, [], combinatoric_ratelaws=false), AutoTsit5(Rosenbrock23()))
-    rs2 = FullChem().sys
-    @unpack O3, OH = rs2
-    o2 = solve(ODEProblem(rs2, [O3 => 20, OH => 10], tspan, [], combinatoric_ratelaws=false), AutoTsit5(Rosenbrock23()))
+    vals = ModelingToolkit.get_defaults(sys)
+    for k in setdiff(states(sys),keys(vals))
+        vals[k] = 0 # Set variables with no default to zero.
+    end
+    @unpack O3, OH = sys
+    vals[O3] = 20
+    vals[OH] = 0
+    o1 = solve(ODEProblem(sys, vals, tspan, vals), AutoTsit5(Rosenbrock23()))
+    vals[OH] = 1000
+    o2 = solve(ODEProblem(sys, vals, tspan, vals), AutoTsit5(Rosenbrock23()))
     test2 = o1[O3][end] - o2[O3][end]
 
-    isapprox(test2, u_2, atol=0.001)
+    @test test2 ≈ u_2 rtol = 0.001
 end
 
 # Unit Test 3: NO2 sensitivity to O3
-@test begin
-    u_3 = 3.61666252501891e-12
+@testset "NO2 sensitivity to O3" begin
+    u_3 = 1.8946337831948767e-9
 
-    rs1 = FullChem().sys
-    @unpack O3, NO2 = rs1
-    o1 = solve(ODEProblem(rs1, [O3 => 20, NO2 => 20], tspan, [], combinatoric_ratelaws=false), AutoTsit5(Rosenbrock23()))
-    rs2 = FullChem().sys
-    @unpack O3, NO2 = rs2
-    o2 = solve(ODEProblem(rs2, [O3 => 20, NO2 => 40], tspan, [], combinatoric_ratelaws=false), AutoTsit5(Rosenbrock23()))
+    vals = ModelingToolkit.get_defaults(sys)
+    for k in setdiff(states(sys),keys(vals))
+        vals[k] = 0 # Set variables with no default to zero.
+    end
+    @unpack O3, NO2 = sys
+    vals[O3] = 20
+    vals[NO2] = 20
+    o1 = solve(ODEProblem(sys, vals, tspan, vals), AutoTsit5(Rosenbrock23()))
+    vals[NO2] = 4000
+    o2 = solve(ODEProblem(sys, vals, tspan, vals), AutoTsit5(Rosenbrock23()))
     test3 = o1[O3][end] - o2[O3][end]
 
-    isapprox(test3, u_3, atol=0.001)
+    @test test3 ≈ u_3 rtol = 0.01
 end
 
 # Unit Test 4: HO2 sensitivity to O3
-@test begin
-    u_4 = 2.617817074224149e-10
+@testset "HO2 sensitivity to O3" begin
+    u_4 = -6.469934550779044e-6
 
-    rs1 = FullChem().sys
-    @unpack O3, HO2 = rs1
-    o1 = solve(ODEProblem(rs1, [O3 => 20, HO2 => 0], tspan, [], combinatoric_ratelaws=false), AutoTsit5(Rosenbrock23()))
-    rs2 = FullChem().sys
-    @unpack O3, HO2 = rs2
-    o2 = solve(ODEProblem(rs2, [O3 => 20, HO2 => 20], tspan, [], combinatoric_ratelaws=false), AutoTsit5(Rosenbrock23()))
+    vals = ModelingToolkit.get_defaults(sys)
+    for k in setdiff(states(sys),keys(vals))
+        vals[k] = 0 # Set variables with no default to zero.
+    end
+    @unpack O3, HO2 = sys
+    vals[O3] = 20
+    vals[HO2] = 0
+    o1 = solve(ODEProblem(sys, vals, tspan, vals), AutoTsit5(Rosenbrock23()))
+    vals[HO2] = 20
+    o2 = solve(ODEProblem(sys, vals, tspan, vals), AutoTsit5(Rosenbrock23()))
     test4 = o1[O3][end] - o2[O3][end]
 
-    isapprox(test4, u_4, atol=0.001)
+    @test test4 ≈ u_4 rtol = 0.001
+end
+
+@testset "Compose GEOSChem FastJX" begin
+    gc = GEOSChemGasPhase(t)
+    fjx = FastJX(t)
+    gf = gc + fjx
+    gf = get_mtk(gf)
+
+    structural_simplify(gf)
+
+    eqs = string(equations(gf))
+
+    wanteqs = ["GEOSChemGasPhase₊j_9(t) ~ uconv*fastjx₊j_h2o2(t)",
+        "GEOSChemGasPhase₊j_7(t) ~ uconv*fastjx₊j_CH2Oa(t)",
+        "GEOSChemGasPhase₊j_10(t) ~ uconv*fastjx₊j_CH3OOH(t)",
+        "GEOSChemGasPhase₊j_11(t) ~ uconv*fastjx₊j_NO2(t)",
+        "GEOSChemGasPhase₊j_3(t) ~ c_fixme1*fastjx₊j_o31D(t)"]
+
+    for eq in wanteqs
+        @test contains(string(eqs), wanteqs[1])
+    end
 end

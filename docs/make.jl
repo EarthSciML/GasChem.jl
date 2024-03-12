@@ -15,6 +15,11 @@ makedocs(;
     ),
     pages = [
         "Home" => "index.md",
+        "GEOS-Chem" => [
+            "Overview" => "geoschem/overview.md",
+            "State Variables" => "geoschem/states.md",
+            "Parameters" => "geoschem/params.md",
+        ],
         "Composing models" => "composing_models.md",
     ],
 )
