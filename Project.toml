@@ -17,12 +17,10 @@ StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 
 [weakdeps]
-Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
 EarthSciData = "a293c155-435f-439d-9c11-a083b6b47337"
-ModelingToolkit = "961ee093-0014-501f-94e3-6117800e7a78"
 
 [extensions]
-EmissionExt = ["EarthSciData", "ModelingToolkit", "Dates"]
+EmissionExt = "EarthSciData"
 
 [compat]
 AllocCheck = "0.1"
