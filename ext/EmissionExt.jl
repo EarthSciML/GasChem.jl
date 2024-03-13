@@ -1,13 +1,6 @@
 module EmissionExt
 
-using GasChem, EarthSciData, EarthSciMLBase, ModelingToolkit, Dates
-
-# Add unit "ppb" to Unitful 
-module MyUnits
-using Unitful
-@unit ppb "ppb" Number 1 / 1000000000 false
-end
-Unitful.register(MyUnits)
+using GasChem, EarthSciData, EarthSciMLBase, ModelingToolkit, Dates, Unitful
 
 struct Emission <: EarthSciMLODESystem
     sys::ODESystem

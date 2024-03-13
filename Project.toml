@@ -16,6 +16,15 @@ SafeTestsets = "1bc83da4-3b8d-516f-aca4-4fe02f6d838f"
 StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 
+[weakdeps]
+Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
+EarthSciData = "a293c155-435f-439d-9c11-a083b6b47337"
+EarthSciMLBase = "e53f1632-a13c-4728-9402-0c66d48804b0"
+ModelingToolkit = "961ee093-0014-501f-94e3-6117800e7a78"
+
+[extensions]
+EmissionExt = ["EarthSciData", "EarthSciMLBase", "ModelingToolkit", "Dates"]
+
 [compat]
 AllocCheck = "0.1"
 BenchmarkTools = "1"
@@ -36,12 +45,3 @@ Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
 test = ["Test", "SafeTestsets", "DifferentialEquations"]
-
-[weakdeps]
-EarthSciData = "a293c155-435f-439d-9c11-a083b6b47337"
-EarthSciMLBase = "e53f1632-a13c-4728-9402-0c66d48804b0"
-ModelingToolkit = "961ee093-0014-501f-94e3-6117800e7a78"
-Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
-
-[extensions]
-EmissionExt = ["EarthSciData", "EarthSciMLBase", "ModelingToolkit", "Dates"]
