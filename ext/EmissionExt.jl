@@ -1,6 +1,6 @@
 module EmissionExt
 
-using GasChem, EarthSciData, EarthSciMLBase, ModelingToolkit, Dates, Unitful
+using GasChem, EarthSciData, ModelingToolkit, Dates, EarthSciMLBase, Unitful
 
 struct Emission <: EarthSciMLODESystem
     sys::ODESystem
