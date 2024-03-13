@@ -54,8 +54,6 @@ struct Emission <: EarthSciMLODESystem
     end
 end 
 
-ModelingToolkit.check_units(eqs...) = nothing
-
 Base.:(+)(e::Emission, b::SuperFast) = operator_compose(b, e)
 Base.:(+)(b::SuperFast, e::Emission) = e + b
 
