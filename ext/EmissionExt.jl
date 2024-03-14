@@ -1,10 +1,9 @@
 module EmissionExt
-
 using GasChem, EarthSciData, ModelingToolkit, Dates, EarthSciMLBase, Unitful
 
 struct Emission <: EarthSciMLODESystem
     sys::ODESystem
-    function Emission(t)
+    function GasChem.Emission(t)
         P = 101325 # Pa
         Tep = 298.15 # K
         R = 8.314 # Pa*m3/(mol*K)
@@ -56,5 +55,4 @@ end
 
 Base.:(+)(e::Emission, b::SuperFast) = operator_compose(b, e)
 Base.:(+)(b::SuperFast, e::Emission) = e + b
-
 end

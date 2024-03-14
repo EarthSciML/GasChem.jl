@@ -36,10 +36,10 @@ julia = "1"
 
 [extras]
 DifferentialEquations = "0c46a032-eb83-5123-abaf-570d42b7fbaa"
+EarthSciData = "a293c155-435f-439d-9c11-a083b6b47337"
 OrdinaryDiffEq = "1dea7af3-3e70-54e6-95c3-0bf5283fa5ed"
 SafeTestsets = "1bc83da4-3b8d-516f-aca4-4fe02f6d838f"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
-EarthSciData = "a293c155-435f-439d-9c11-a083b6b47337"
 
 [targets]
 test = ["Test", "SafeTestsets", "DifferentialEquations", "OrdinaryDiffEq", "EarthSciData"]
