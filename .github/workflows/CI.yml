@@ -20,6 +20,9 @@ jobs:
           - x64
     steps:
       - uses: actions/checkout@v3
+      - name: Download Resource Ignoring SSL
+        run: |
+          curl -k -o filename.ncf https://gaftp.epa.gov/Air/emismod/2016/v1/gridded/monthly_netCDF/2016fh_16j_mrggrid_withbeis_withrwc_12US1_month_05.ncf
       - uses: julia-actions/setup-julia@v1
         with:
           version: ${{ matrix.version }}
