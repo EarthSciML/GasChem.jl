@@ -11,6 +11,7 @@ using Interpolations
 include("SuperFast.jl")
 include("Fast-JX.jl")
 include("compose_fastjx_superfast.jl")
+include("emission.jl")
 
 include("geoschem_ratelaws.jl")
 include("geoschem_fullchem.jl")
