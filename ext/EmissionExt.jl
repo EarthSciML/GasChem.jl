@@ -15,7 +15,6 @@ struct Emission <: EarthSciMLODESystem
         lev = 1.0
         @parameters Δz = 60 [unit = u"m"]
         @parameters uu = 1 [unit = u"nmol/mol/s"]
-        @parameters t [unit = u"s"]
         Δz2 = 60.0
         emis = NEI2016MonthlyEmis{Float64}("mrggrid_withbeis_withrwc", t, lon, lat, lev, Δz)
         fs = emis.fileset
