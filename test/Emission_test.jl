@@ -1,5 +1,5 @@
 using GasChem, EarthSciData
-using Test, Dates, ModelingToolkit, OrdinaryDiffEq, DifferentialEquations, EarthSciMLBase, Unitful
+using Test, Dates, ModelingToolkit, DifferentialEquations, EarthSciMLBase, Unitful
 
 @testset "Nei2016extension" begin
     @parameters t

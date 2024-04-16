@@ -2,7 +2,7 @@
 CurrentModule = GasChem
 ```
 
-# Composing models
+# Composing Models
 
 ## Illustrative Example
 Here is the complete example of composing, visualizing and solving the SuperFast
@@ -62,50 +62,48 @@ end
 Plots.plot(pp..., layout=(3, 4))
 ```
 
-## Add Emission model
+## Adding Emission Data
 GasChem.jl incorporates an emissions model that utilizes data from the [US National Emissions Inventory for the year 2016](https://gaftp.epa.gov/Air/emismod/2016/v1/gridded/monthly_netCDF/). This model is activated as an extension when the ```EarthSciData``` package is used.
 Here's a simple example:
-```julia 
+
+```@example 2 
 using GasChem, EarthSciData # This will trigger the emission extension
 using Dates, ModelingToolkit, OrdinaryDiffEq, DifferentialEquations, EarthSciMLBase
+using Plots
 
 ModelingToolkit.check_units(eqs...) = nothing 
 @parameters t
-composed_ode = SuperFast(t)+FastJX(t)+Emission(t) # Compose SuperFast, FastJX and the NEI2016 emission model
+model_noemis = SuperFast(t)+FastJX(t) # A model with chemistry and photolysis, but no emissions.
+model_withemis = SuperFast(t)+FastJX(t)+ 
+    NEI2016MonthlyEmis{Float64}("mrggrid_withbeis_withrwc", t, -100.0, 30.0, 1.0, Δz) # The same model with emissions.
+
 sys = structural_simplify(get_mtk(composed_ode))
 
 start = Dates.datetime2unix(Dates.DateTime(2016, 5, 1))
 tspan = (start, start+3*24*3600)
-sol = solve(ODEProblem(sys, [], tspan, []),AutoTsit5(Rosenbrock23()), saveat=10.0)
-```
-We could visualize the results with the following codes:
-```@setup 2 
-using GasChem, EarthSciData # This will trigger the emission extension
-using Dates, ModelingToolkit, OrdinaryDiffEq, DifferentialEquations, EarthSciMLBase
+sol_noemis = solve(ODEProblem(structural_simplify(get_mtk(model_noemis)), [], tspan, []),
+    AutoTsit5(Rosenbrock23()))
+sol_withemis = solve(ODEProblem(structural_simplify(get_mtk(model_withemis)), [], tspan, []),
+    AutoTsit5(Rosenbrock23()))
 
-ModelingToolkit.check_units(eqs...) = nothing 
-@parameters t
-composed_ode = SuperFast(t)+FastJX(t)+Emission(t) # Compose SuperFast, FastJX and the NEI2016 emission model
-sys = structural_simplify(get_mtk(composed_ode))
-
-start = Dates.datetime2unix(Dates.DateTime(2016, 5, 1))
-tspan = (start, start+3*24*3600)
-sol = solve(ODEProblem(sys, [], tspan, []),AutoTsit5(Rosenbrock23()), saveat=10.0)
+plot(
+    plot(sol_noemis, title="Model without emissions"),
+    plot!(sol_withemis, title="Model with emissions"),
+)
 ```
 
+Here is a plot that makes it easier to see what's going on for each species:
 ```@example 2
 vars = states(sys)  # Get the variables names
 var_dict = Dict(string(var) => var for var in vars)
 
-using Plots 
 x_t = unix2datetime.(sol[t])
 
-pols = ["O3", "OH", "NO", "NO2", "CH4", "CH3O2", "CO","CH3OOH", "CH3O", "DMS", "SO2", "ISOP"]
-var_names_p = ["superfast₊$(v)(t)" for v in pols]
 pp = []
 for (i, v) in enumerate(var_names_p)
-    name = pols[i]
-    p = Plots.plot(x_t,sol[var_dict[v]],label = "$name", size = (1000, 600), xrotation=45)
+    p = plot(x_t,sol_noemis[var_dict[v]], label="No Emissions", title = v, 
+        size = (1000, 600), xrotation=45)
+    plot!(x_t,sol_withemis[var_dict[v]], label="With Emissions", )
     push!(pp, p)
 end
 Plots.plot(pp..., layout=(3, 4))
