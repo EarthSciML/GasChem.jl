@@ -2,14 +2,14 @@
 CurrentModule = GasChem
 ```
 
-# Composing models
+# Composing Models
 
 ## Illustrative Example
 Here is the complete example of composing, visualizing and solving the SuperFast
 model and the Fast-JX model, with explanation to follow:
 
 ```julia 
-using EarthSciMLBase, GasChem, ModelingToolkit, OrdinaryDiffEq, Dates, Unitful, DifferentialEquations
+using EarthSciMLBase, GasChem, ModelingToolkit, Dates, Unitful, DifferentialEquations
 
 
 @parameters t
@@ -33,7 +33,7 @@ x_t = unix2datetime.(sol[t]) # Convert from unixtime to date time for visualizin
 ```
 Then, we could plot the results as:
 ```@setup 1
-using EarthSciMLBase, GasChem, ModelingToolkit, OrdinaryDiffEq, Dates, Unitful, DifferentialEquations
+using EarthSciMLBase, GasChem, ModelingToolkit, Dates, Unitful, DifferentialEquations
 
 
 @parameters t
@@ -58,6 +58,48 @@ pp = []
 for (i, v) in enumerate(var_names_p)
     name = pols[i]
     push!(pp, Plots.plot(x_t,sol[var_dict[v]],label = "$name", size = (1000, 600), xrotation=45))
+end
+Plots.plot(pp..., layout=(3, 4))
+```
+
+## Adding Emission Data
+GasChem.jl incorporates an emissions model that utilizes data from the [US National Emissions Inventory for the year 2016](https://gaftp.epa.gov/Air/emismod/2016/v1/gridded/monthly_netCDF/). This model is activated as an extension when the ```EarthSciData``` package is used.
+Here's a simple example:
+
+```@example 2 
+using GasChem, EarthSciData # This will trigger the emission extension
+using Dates, ModelingToolkit, DifferentialEquations, EarthSciMLBase
+using Plots, Unitful
+
+ModelingToolkit.check_units(eqs...) = nothing 
+@parameters t
+@constants Δz = 60.0 [unit=u"m"]
+model_noemis = SuperFast(t)+FastJX(t) # A model with chemistry and photolysis, but no emissions.
+model_withemis = SuperFast(t)+FastJX(t)+ 
+    NEI2016MonthlyEmis{Float64}("mrggrid_withbeis_withrwc", t, -100.0, 30.0, 1.0, Δz) # The same model with emissions.
+
+sys_noemis = structural_simplify(get_mtk(model_noemis))
+sys_withemis = structural_simplify(get_mtk(model_withemis))
+
+start = Dates.datetime2unix(Dates.DateTime(2016, 5, 1))
+tspan = (start, start+3*24*3600)
+sol_noemis = solve(ODEProblem(sys_noemis, [], tspan, []), AutoTsit5(Rosenbrock23()))
+sol_withemis = solve(ODEProblem(sys_withemis, [], tspan, []), AutoTsit5(Rosenbrock23()))
+
+plot(
+    plot(sol_noemis, title="Model without emissions"),
+    plot!(sol_withemis, title="Model with emissions"),
+)
+```
+
+Here is a plot that makes it easier to see what's going on for each species:
+```@example 2
+pp = []
+for (i, v) in enumerate(states(sys_noemis))
+    p = plot(unix2datetime.(sol_noemis[t]),sol_noemis[var_dict[v]], label="No Emissions", title = v, 
+        size = (1000, 600), xrotation=45)
+    plot!(unix2datetime.(sol_withemis[t]),sol_withemis[var_dict[v]], label="With Emissions", )
+    push!(pp, p)
 end
 Plots.plot(pp..., layout=(3, 4))
 ```

@@ -12,7 +12,7 @@ The input of the function is Temperature, concentrations of all chemicals, and r
 
 # Example
 ```
-using GasChem, EarthSciMLBase, OrdinaryDiffEq, Plots
+using GasChem, EarthSciMLBase, DifferentialEquations, Plots
 @variables t [unit = u"s"]
 rs = SuperFast(t)
 sol = solve(ODEProblem(get_mtk(rs), [], (0,360), [], combinatoric_ratelaws=false), Tsit5())
