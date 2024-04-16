@@ -9,7 +9,7 @@ Here is the complete example of composing, visualizing and solving the SuperFast
 model and the Fast-JX model, with explanation to follow:
 
 ```julia 
-using EarthSciMLBase, GasChem, ModelingToolkit, OrdinaryDiffEq, Dates, Unitful, DifferentialEquations
+using EarthSciMLBase, GasChem, ModelingToolkit, Dates, Unitful, DifferentialEquations
 
 
 @parameters t
@@ -33,7 +33,7 @@ x_t = unix2datetime.(sol[t]) # Convert from unixtime to date time for visualizin
 ```
 Then, we could plot the results as:
 ```@setup 1
-using EarthSciMLBase, GasChem, ModelingToolkit, OrdinaryDiffEq, Dates, Unitful, DifferentialEquations
+using EarthSciMLBase, GasChem, ModelingToolkit, Dates, Unitful, DifferentialEquations
 
 
 @parameters t
@@ -68,23 +68,23 @@ Here's a simple example:
 
 ```@example 2 
 using GasChem, EarthSciData # This will trigger the emission extension
-using Dates, ModelingToolkit, OrdinaryDiffEq, DifferentialEquations, EarthSciMLBase
-using Plots
+using Dates, ModelingToolkit, DifferentialEquations, EarthSciMLBase
+using Plots, Unitful
 
 ModelingToolkit.check_units(eqs...) = nothing 
 @parameters t
+@constants Δz = 60.0 [unit=u"m"]
 model_noemis = SuperFast(t)+FastJX(t) # A model with chemistry and photolysis, but no emissions.
 model_withemis = SuperFast(t)+FastJX(t)+ 
     NEI2016MonthlyEmis{Float64}("mrggrid_withbeis_withrwc", t, -100.0, 30.0, 1.0, Δz) # The same model with emissions.
 
-sys = structural_simplify(get_mtk(composed_ode))
+sys_noemis = structural_simplify(get_mtk(model_noemis))
+sys_withemis = structural_simplify(get_mtk(model_withemis))
 
 start = Dates.datetime2unix(Dates.DateTime(2016, 5, 1))
 tspan = (start, start+3*24*3600)
-sol_noemis = solve(ODEProblem(structural_simplify(get_mtk(model_noemis)), [], tspan, []),
-    AutoTsit5(Rosenbrock23()))
-sol_withemis = solve(ODEProblem(structural_simplify(get_mtk(model_withemis)), [], tspan, []),
-    AutoTsit5(Rosenbrock23()))
+sol_noemis = solve(ODEProblem(sys_noemis, [], tspan, []), AutoTsit5(Rosenbrock23()))
+sol_withemis = solve(ODEProblem(sys_withemis, [], tspan, []), AutoTsit5(Rosenbrock23()))
 
 plot(
     plot(sol_noemis, title="Model without emissions"),
@@ -94,16 +94,11 @@ plot(
 
 Here is a plot that makes it easier to see what's going on for each species:
 ```@example 2
-vars = states(sys)  # Get the variables names
-var_dict = Dict(string(var) => var for var in vars)
-
-x_t = unix2datetime.(sol[t])
-
 pp = []
-for (i, v) in enumerate(var_names_p)
-    p = plot(x_t,sol_noemis[var_dict[v]], label="No Emissions", title = v, 
+for (i, v) in enumerate(states(sys_noemis))
+    p = plot(unix2datetime.(sol_noemis[t]),sol_noemis[var_dict[v]], label="No Emissions", title = v, 
         size = (1000, 600), xrotation=45)
-    plot!(x_t,sol_withemis[var_dict[v]], label="With Emissions", )
+    plot!(unix2datetime.(sol_withemis[t]),sol_withemis[var_dict[v]], label="With Emissions", )
     push!(pp, p)
 end
 Plots.plot(pp..., layout=(3, 4))
