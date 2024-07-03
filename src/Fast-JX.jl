@@ -168,11 +168,11 @@ struct FastJX <: EarthSciMLODESystem
         # (@variables j_CH2Ob(t) = 0.00014 [unit = u"s^-1"]) (j_CH2Ob ~ mean_J_CH2Ob(t,lat,T)*j_unit)
 
         eqs = [
-            j_h2o2 ~ j_mean_H2O2(t, lat, long, T) * j_unit
-            j_CH2Oa ~ j_mean_CH2Oa(t, lat, long, T) * j_unit
-            j_o31D ~ j_mean_o31D(t, lat, long, T) * j_unit
-            j_CH3OOH ~ j_mean_CH3OOH(t, lat, long, T) * j_unit
-            j_NO2 ~ j_mean_NO2(t, lat, long, T) * j_unit
+            j_h2o2 ~ j_mean_H2O2(t * j_unit, lat, long, T) * j_unit
+            j_CH2Oa ~ j_mean_CH2Oa(t * j_unit, lat, long, T) * j_unit
+            j_o31D ~ j_mean_o31D(t * j_unit, lat, long, T) * j_unit
+            j_CH3OOH ~ j_mean_CH3OOH(t * j_unit, lat, long, T) * j_unit
+            j_NO2 ~ j_mean_NO2(t * j_unit, lat, long, T) * j_unit
         ]
 
         new(ODESystem(eqs, t, [j_h2o2, j_CH2Oa, j_o31D, j_CH3OOH, j_NO2], [lat, long, j_unit, T]; name=:fastjx))
