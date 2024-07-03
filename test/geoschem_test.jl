@@ -1,11 +1,11 @@
 using GasChem
 using EarthSciMLBase
 using Test
-using DifferentialEquations, ModelingToolkit
+using DifferentialEquations, ModelingToolkit, Unitful
 
 tspan = (0.0, 360.0)
-@variables t
-sys = GEOSChemGasPhase(t).sys
+@parameters t [unit = u"s"]
+sys = GEOSChemGasPhase(t)
 sys = structural_simplify(sys)
 
 # Unit Test 0: Base case
@@ -111,7 +111,7 @@ end
 @testset "Compose GEOSChem FastJX" begin
     gc = GEOSChemGasPhase(t)
     fjx = FastJX(t)
-    gf = gc + fjx
+    gf = couple(gc, fjx)
     gf = get_mtk(gf)
 
     structural_simplify(gf)
@@ -123,7 +123,6 @@ end
         "GEOSChemGasPhase₊j_10(t) ~ uconv*fastjx₊j_CH3OOH(t)",
         "GEOSChemGasPhase₊j_11(t) ~ uconv*fastjx₊j_NO2(t)",
         "GEOSChemGasPhase₊j_3(t) ~ c_fixme1*fastjx₊j_o31D(t)"]
-
     for eq in wanteqs
         @test contains(string(eqs), wanteqs[1])
     end

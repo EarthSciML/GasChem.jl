@@ -51,10 +51,10 @@ Moch et al, JGR, https, * Moch2020 # //doi.org/10.1029/2020JD032706, 2020.
 * Wolfe2012:    Wolfe et al., Phys. Chem. Chem. Phys., doi: 10.1039/C2CP40388A, 2012.
 * Xie2013:      Xie et al., Atmos. Chem. Phys., doi:10.5194/acp-13-8439-2013, 2013.
 """
-struct GEOSChemGasPhase <: EarthSciMLODESystem
-    sys::ODESystem
-    rxn_sys::ReactionSystem
-    GEOSChemGasPhase(sys::ModelingToolkit.ODESystem, rxn_sys::ReactionSystem) = new(sys, rxn_sys)
+# struct GEOSChemGasPhase <: EarthSciMLODESystem
+#     sys::ODESystem
+#     rxn_sys::ReactionSystem
+#     GEOSChemGasPhase(sys::ModelingToolkit.ODESystem, rxn_sys::ReactionSystem) = new(sys, rxn_sys)
     function GEOSChemGasPhase(t)
 
         # Create reaction rate constant system constructors
@@ -1713,7 +1713,7 @@ struct GEOSChemGasPhase <: EarthSciMLODESystem
             j_166, NPHEN --> HNO2 + CO + CO2 + AROMP4 + HO2 #==2021/09/29; Bates2021b; KHB,MSL==#
         end
         rxn_sys = compose(rxn_sys, rate_systems)
-        sys = convert(ODESystem, rxn_sys, combinatoric_ratelaws=false)
-        new(sys, rxn_sys)
+        sys = convert(ODESystem, rxn_sys, combinatoric_ratelaws=false, name=:GEOSChemGasPhase)
+        #new(sys, rxn_sys)
     end
-end
+#end

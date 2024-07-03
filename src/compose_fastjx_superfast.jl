@@ -5,26 +5,24 @@ Compose superfast and fast-jx models together.
 ```
 using GasChem, EarthSciMLBase
 
-@parameters t 
-sf = SuperFast(t) + FastJX(t)
+@parameters t [unit = u"s"]
+sf = couple(FastJX(t), SuperFast(t))
 tspan = (0.0, 3600*24*2)
 sol = solve(ODEProblem(structural_simplify(get_mtk(sf)), [], tspan, []),Tsit5(), saveat=10.0)
 using Plots
 plot(sol,ylims=(0,20),xlabel="Time (second)", ylabel="concentration (ppb)",legend=:outertopright)
 ```
 """
-function Base.:(+)(s::SuperFast, f::FastJX)::ComposedEarthSciMLSystem
-    sys = param_to_var(s.sys, :jO31D, :jH2O2, :jNO2, :jCH2Oa, :jCH3OOH)
-    s = SuperFast(sys, s.rxn_sys)
-    ComposedEarthSciMLSystem(
-        ConnectorSystem([
-            s.sys.jH2O2 ~ f.sys.j_h2o2
-            s.sys.jCH2Oa ~ f.sys.j_CH2Oa
-            s.sys.jCH3OOH ~ f.sys.j_CH3OOH
-            s.sys.jNO2 ~ f.sys.j_NO2
-            s.sys.jO31D ~ f.sys.j_o31D
-        ], s, f),
-        s, f,
-    )
+
+@parameters t [unit = u"s"]
+
+register_coupling(SuperFast(t), FastJX(t)) do c, p
+    c = param_to_var(convert(ODESystem, c), :jO31D, :jH2O2, :jNO2, :jCH2Oa, :jCH3OOH)
+    ConnectorSystem([
+        c.jH2O2 ~ p.j_h2o2
+        c.jCH2Oa ~ p.j_CH2Oa
+        c.jCH3OOH ~ p.j_CH3OOH
+        c.jNO2 ~ p.j_NO2
+        c.jO31D ~ p.j_o31D
+    ], c, p)
 end
-Base.:(+)(f::FastJX, s::SuperFast)::ComposedEarthSciMLSystem = s + f
