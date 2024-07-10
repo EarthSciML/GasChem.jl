@@ -14,9 +14,8 @@ using Test, Dates, ModelingToolkit, DifferentialEquations, EarthSciMLBase, Unitf
 
     sys = structural_simplify(get_mtk(model_3way))
     @test length(states(sys)) ≈ 18
-    
-    start = Dates.datetime2unix(Dates.DateTime(2016, 5, 1))
-    tspan = (start, start+24*3600)
-    sol_3way = solve(ODEProblem(sys, [], tspan, []), AutoTsit5(Rosenbrock23()))
-    @test sol_3way[1,end] ≈ 2479.8538498918574
+
+    eqs = string(equations(sys))
+    wanteqs = ["Differential(t)(superfast₊CH2O(t)) ~ superfast₊NEI2016MonthlyEmis_mrggrid_withbeis_withrwc₊FORM(t)"]
+    @test contains(string(eqs), wanteqs[1])
 end

@@ -1710,5 +1710,5 @@ function GEOSChemGasPhase(t)
         j_166, NPHEN --> HNO2 + CO + CO2 + AROMP4 + HO2 #==2021/09/29; Bates2021b; KHB,MSL==#
     end
     rxn_sys = compose(rxn_sys, rate_systems)
-    sys = convert(ODESystem, rxn_sys, combinatoric_ratelaws=false, name=:GasChem₊GEOSChemGasPhase)
+    sys = convert(ODESystem, rxn_sys, combinatoric_ratelaws=false, name=:GEOSChemGasPhase)
 end
