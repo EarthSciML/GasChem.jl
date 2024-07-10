@@ -130,5 +130,5 @@ function SuperFast(t)
         #OH + CO = HO2
         Reaction(k19 * c, [OH, CO], [HO2], [1, 1], [1])
     ]
-    rxn_sys = ReactionSystem(rxs, t; combinatoric_ratelaws=false, name=:superfast)
+    rxn_sys = ReactionSystem(rxs, t; combinatoric_ratelaws=false, name=:GasChem₊superfast)
 end

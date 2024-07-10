@@ -118,11 +118,11 @@ end
 
     eqs = string(equations(gf))
 
-    wanteqs = ["GEOSChemGasPhase₊j_9(t) ~ uconv*fastjx₊j_h2o2(t)",
-        "GEOSChemGasPhase₊j_7(t) ~ uconv*fastjx₊j_CH2Oa(t)",
-        "GEOSChemGasPhase₊j_10(t) ~ uconv*fastjx₊j_CH3OOH(t)",
-        "GEOSChemGasPhase₊j_11(t) ~ uconv*fastjx₊j_NO2(t)",
-        "GEOSChemGasPhase₊j_3(t) ~ c_fixme1*fastjx₊j_o31D(t)"]
+    wanteqs = ["GasChem₊GEOSChemGasPhase₊j_9(t) ~ uconv*GasChem₊fastjx₊j_h2o2(t)",
+        "GasChem₊GEOSChemGasPhase₊j_7(t) ~ uconv*GasChem₊fastjx₊j_CH2Oa(t)",
+        "GasChem₊GEOSChemGasPhase₊j_10(t) ~ uconv*GasChem₊fastjx₊j_CH3OOH(t)",
+        "GasChem₊GEOSChemGasPhase₊j_11(t) ~ uconv*GasChem₊astjx₊j_NO2(t)",
+        "GasChem₊GEOSChemGasPhase₊j_3(t) ~ c_fixme1*GasChem₊fastjx₊j_o31D(t)"]
     for eq in wanteqs
         @test contains(string(eqs), wanteqs[1])
     end

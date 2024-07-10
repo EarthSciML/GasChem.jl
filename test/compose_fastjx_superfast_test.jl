@@ -3,7 +3,7 @@ using EarthSciMLBase
 using DifferentialEquations, ModelingToolkit, Unitful
 
 #   Unit Test
-@test begin
+@testset "2wayCoupling" begin
     sol_middle = [
         9.948004797464273,
         -1.120813966829142e-6,
@@ -25,12 +25,13 @@ using DifferentialEquations, ModelingToolkit, Unitful
         7.312607510153822,
     ]
     @parameters t [unit = u"s"]
-    sf = couple(FastJX(t), SuperFast(t))
+
+    sf = couple(SuperFast(t), FastJX(t))
     tspan = (0.0, 3600 * 24)
     sol = solve(
         ODEProblem(structural_simplify(get_mtk(sf)), [], tspan, []),
         Tsit5(),
         saveat = 10.0,
     )
-    sol[:, 4320] ≈ sol_middle
+    @test sol[:, 4320] ≈ sol_middle
 end

@@ -173,5 +173,5 @@ function FastJX(t)
         j_NO2 ~ j_mean_NO2(t*j_unit, lat, long, T) * j_unit
     ]
 
-    ODESystem(eqs, t, [j_h2o2, j_CH2Oa, j_o31D, j_CH3OOH, j_NO2], [lat, long, j_unit, T]; name=:fastjx)
+    ODESystem(eqs, t, [j_h2o2, j_CH2Oa, j_o31D, j_CH3OOH, j_NO2], [lat, long, j_unit, T]; name=:GasChem₊fastjx)
 end
