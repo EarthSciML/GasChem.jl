@@ -11,7 +11,7 @@ This mechanism is the result of many journal articles which are cited in API doc
 
 ## System overview
 
-First, let's initialize the model:
+First, let's initialize the model and we can also look at the first few ODE equations of the reaction network:
 
 ```@example 1
 using GasChem, EarthSciMLBase
@@ -21,11 +21,6 @@ using Unitful, Plots
 tspan = (0.0, 360.0)
 @variables t [unit = u"s", description = "Time"]
 gc = GEOSChemGasPhase(t)
-```
-
-We can also look at the first few equations after converting the reaction network to a system of ODEs:
-
-```@example 1
 equations(gc)[1:5]
 ```
 
