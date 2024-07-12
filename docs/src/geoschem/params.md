@@ -12,10 +12,9 @@ using Unitful, Plots
 
 tspan = (0.0, 60.0*60*24*4) # 4 day simulation
 @variables t #[unit = u"s", description = "Time"]
-sys = get_mtk(GEOSChemGasPhase(t))
 
 # Run a simulation with constant temperature and pressure.
-sys = structural_simplify(sys)
+sys = structural_simplify(GEOSChemGasPhase(t))
 vals = ModelingToolkit.get_defaults(sys)
 for k in setdiff(states(sys),keys(vals))
     vals[k] = 0 # Set variables with no default to zero.
@@ -24,7 +23,7 @@ prob = ODEProblem(sys, vals, tspan, vals)
 sol1 = solve(prob, AutoTsit5(Rosenbrock23()))
 
 # Now, convert parameters to variables so we can change them over time.
-sys2 = param_to_var(get_mtk(GEOSChemGasPhase(t)), :T, :num_density)
+sys2 = param_to_var(GEOSChemGasPhase(t), :T, :num_density)
 
 # Vary temperature and pressure over time.
 @unpack T, num_density = sys2
@@ -63,7 +62,7 @@ Here is a list of all of the model parameters:
 ```@example 1
 using GasChem, DataFrames, EarthSciMLBase, ModelingToolkit, Unitful
 @variables t [unit = u"s", description = "Time"]
-gc = structural_simplify(get_mtk(GEOSChemGasPhase(t)))
+gc = structural_simplify(GEOSChemGasPhase(t))
 vars = parameters(gc)
 DataFrame(
         :Name => [string(Symbolics.tosymbol(v, escape=false)) for v ∈ vars],

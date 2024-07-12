@@ -5,7 +5,7 @@ Here is a list of the chemical species in the mechanism:
 ```@example 1
 using GasChem, DataFrames, EarthSciMLBase, ModelingToolkit, Unitful
 @variables t [unit = u"s", description = "Time"]
-gc = structural_simplify(get_mtk(GEOSChemGasPhase(t)))
+gc = structural_simplify(GEOSChemGasPhase(t))
 vars = states(gc)
 DataFrame(
         :Name => [string(Symbolics.tosymbol(v, escape=false)) for v ∈ vars],

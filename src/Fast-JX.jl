@@ -151,30 +151,27 @@ Build Fast-JX model
     fj = FastJX(t)
 ```
 """
-struct FastJX <: EarthSciMLODESystem
-    sys::ODESystem
-    function FastJX(t)
-        @parameters T = 298
-        @parameters lat = 30
-        @parameters long = 0
-        @parameters j_unit = 1 [unit = u"s^-1"]
+function FastJX(t)
+    @parameters T = 298.0
+    @parameters lat = 40.0
+    @parameters long = -97.0
+    @parameters j_unit = 1 [unit = u"s^-1"]
 
-        @variables j_h2o2(t) = 1.0097 * 10.0^-5 [unit = u"s^-1"]
-        @variables j_CH2Oa(t) = 0.00014 [unit = u"s^-1"]
-        @variables j_o31D(t) = 4.0 * 10.0^-3 [unit = u"s^-1"]
-        @variables j_CH3OOH(t) = 8.9573 * 10.0^-6 [unit = u"s^-1"]
-        @variables j_NO2(t) = 0.0149 [unit = u"s^-1"]
-        # TODO(JL): What's difference between the two photolysis reactions of CH2O, do we really need both? 
-        # (@variables j_CH2Ob(t) = 0.00014 [unit = u"s^-1"]) (j_CH2Ob ~ mean_J_CH2Ob(t,lat,T)*j_unit)
+    @variables j_h2o2(t) = 1.0097 * 10.0^-5 [unit = u"s^-1"]
+    @variables j_CH2Oa(t) = 0.00014 [unit = u"s^-1"]
+    @variables j_o31D(t) = 4.0 * 10.0^-3 [unit = u"s^-1"]
+    @variables j_CH3OOH(t) = 8.9573 * 10.0^-6 [unit = u"s^-1"]
+    @variables j_NO2(t) = 0.0149 [unit = u"s^-1"]
+    # TODO(JL): What's difference between the two photolysis reactions of CH2O, do we really need both? 
+    # (@variables j_CH2Ob(t) = 0.00014 [unit = u"s^-1"]) (j_CH2Ob ~ mean_J_CH2Ob(t,lat,T)*j_unit)
 
-        eqs = [
-            j_h2o2 ~ j_mean_H2O2(t, lat, long, T) * j_unit
-            j_CH2Oa ~ j_mean_CH2Oa(t, lat, long, T) * j_unit
-            j_o31D ~ j_mean_o31D(t, lat, long, T) * j_unit
-            j_CH3OOH ~ j_mean_CH3OOH(t, lat, long, T) * j_unit
-            j_NO2 ~ j_mean_NO2(t, lat, long, T) * j_unit
-        ]
+    eqs = [
+        j_h2o2 ~ j_mean_H2O2(t*j_unit, lat, long, T) * j_unit
+        j_CH2Oa ~ j_mean_CH2Oa(t*j_unit, lat, long, T) * j_unit
+        j_o31D ~ j_mean_o31D(t*j_unit, lat, long, T) * j_unit
+        j_CH3OOH ~ j_mean_CH3OOH(t*j_unit, lat, long, T) * j_unit
+        j_NO2 ~ j_mean_NO2(t*j_unit, lat, long, T) * j_unit
+    ]
 
-        new(ODESystem(eqs, t, [j_h2o2, j_CH2Oa, j_o31D, j_CH3OOH, j_NO2], [lat, long, j_unit, T]; name=:fastjx))
-    end
+    ODESystem(eqs, t, [j_h2o2, j_CH2Oa, j_o31D, j_CH3OOH, j_NO2], [lat, long, j_unit, T]; name=:fastjx)
 end
