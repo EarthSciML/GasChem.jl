@@ -20,11 +20,6 @@ jobs:
           - ubuntu-latest
         arch:
           - x64
-        include:
-          - version: 'nightly'
-            os: ubuntu-latest
-            arch: x64
-            experimental: true
     steps:
       - uses: actions/checkout@v3
       - uses: julia-actions/setup-julia@v1
@@ -50,6 +45,8 @@ jobs:
   docs:
     name: Documentation
     runs-on: ubuntu-latest
+    env:
+      JULIA_NO_VERIFY_HOSTS: 'gaftp.epa.gov'
     steps:
       - uses: actions/checkout@v3
       - name: Setup Graphviz
