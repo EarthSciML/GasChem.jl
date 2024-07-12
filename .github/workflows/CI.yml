@@ -21,7 +21,7 @@ jobs:
         arch:
           - x64
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: julia-actions/setup-julia@v1
         with:
           version: ${{ matrix.version }}
@@ -48,7 +48,7 @@ jobs:
     env:
       JULIA_NO_VERIFY_HOSTS: 'gaftp.epa.gov'
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Setup Graphviz
         uses: ts-graphviz/setup-graphviz@v1
       - uses: julia-actions/setup-julia@v1
