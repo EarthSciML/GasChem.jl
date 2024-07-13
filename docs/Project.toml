@@ -13,7 +13,9 @@ Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 
 [compat]
 
+DataFrames = "1"
 Plots = "1"
 
 DifferentialEquations = "7"
+
 
