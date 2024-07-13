@@ -40,12 +40,12 @@ function register_couplings_ext()
         c = param_to_var(convert(ODESystem, c), :r_NO2, :r_NO, :r_FORM, :r_CH4, :r_CO, :r_SO2, :r_ISOP)
         ConnectorSystem([
             c.r_NO2 ~ e.mrggrid_withbeis_withrwc₊NO2 
-            c.r_NO ~ e.mrggrid_withbeis_withrwc₊NO2 
-            c.r_FORM ~ e.mrggrid_withbeis_withrwc₊NO2 
-            c.r_CH4 ~ e.mrggrid_withbeis_withrwc₊NO2 
-            c.r_CO ~ e.mrggrid_withbeis_withrwc₊NO2 
-            c.r_SO2 ~ e.mrggrid_withbeis_withrwc₊NO2 
-            c.r_ISOP ~ e.mrggrid_withbeis_withrwc₊NO2 
+            c.r_NO ~ e.mrggrid_withbeis_withrwc₊NO 
+            c.r_FORM ~ e.mrggrid_withbeis_withrwc₊FORM 
+            c.r_CH4 ~ e.mrggrid_withbeis_withrwc₊CH4 
+            c.r_CO ~ e.mrggrid_withbeis_withrwc₊CO 
+            c.r_SO2 ~ e.mrggrid_withbeis_withrwc₊SO2 
+            c.r_ISOP ~ e.mrggrid_withbeis_withrwc₊ISOP 
         ], c, e)
     end
     
