@@ -20,7 +20,7 @@ EmissionExt = "EarthSciData"
 
 [compat]
 AllocCheck = "0.1"
-Catalyst = "10, 11, 12, 13"
+Catalyst = "10, 11, 12, 13, 14"
 DifferentialEquations = "7"
 EarthSciMLBase = "0.10"
 Interpolations = "0.14, 0.15"
