@@ -13,3 +13,10 @@ Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 
 [compat]
 GasChem = "0.6"
+DifferentialEquations = "7"
+EarthSciMLBase = "0.11"
+DataFrames = "1"
+Catalyst = "13"
+Unitful = "1"
+Plots = "1"
+
