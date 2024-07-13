@@ -12,6 +12,7 @@ include("SuperFast.jl")
 include("Fast-JX.jl")
 include("geoschem_ratelaws.jl")
 include("geoschem_fullchem.jl")
+include("NeiEmission.jl")
 
 export register_couplings
 

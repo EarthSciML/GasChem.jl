@@ -79,7 +79,7 @@ emis = NEI2016MonthlyEmis("mrggrid_withbeis_withrwc", t, lon, lat, lev, Δz; dty
 
 
 model_noemis = couple(SuperFast(t),FastJX(t)) # A model with chemistry and photolysis, but no emissions.
-model_withemis = couple(SuperFast(t), FastJX(t), emis) # The same model with emissions.
+model_withemis = couple(SuperFast(t), FastJX(t), emis, NeiEmissions(t)) # The same model with emissions.
 
 sys_noemis = structural_simplify(get_mtk(model_noemis))
 sys_withemis = structural_simplify(get_mtk(model_withemis))
