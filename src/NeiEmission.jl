@@ -50,13 +50,13 @@ function NeiEmissions(t)
     @parameters r_ISOP [unit = u"kg/m^3/s"]
 
     eqs = [
-        Differential(t)(NO2) ~ r_NO2 * u_conv * 2000 / 2240 * 1e12 * RR * Tep / (emis_vars["NO2"] * P),
-        Differential(t)(NO) ~ r_NO * u_conv * 2000 / 2240 * 1e12 * RR * Tep / (emis_vars["NO"] * P),
-        Differential(t)(FORM) ~ r_FORM * u_conv * 2000 / 2240 * 1e12 * RR * Tep / (emis_vars["FORM"] * P),
-        Differential(t)(CH4) ~ r_CH4 * u_conv * 2000 / 2240 * 1e12 * RR * Tep / (emis_vars["CH4"] * P),
-        Differential(t)(CO) ~ r_CO * u_conv * 2000 / 2240 * 1e12 * RR * Tep / (emis_vars["CO"] * P),
-        Differential(t)(SO2) ~ r_SO2 * u_conv * 2000 / 2240 * 1e12 * RR * Tep / (emis_vars["SO2"] * P),
-        Differential(t)(ISOP) ~ r_ISOP * u_conv * 2000 / 2240 * 1e12 * RR * Tep / (emis_vars["ISOP"] * P)
+        Differential(t)(NO2) ~ r_NO2 * u_conv  * 1e12 * RR * Tep / (emis_vars["NO2"] * P),
+        Differential(t)(NO) ~ r_NO * u_conv  * 1e12 * RR * Tep / (emis_vars["NO"] * P),
+        Differential(t)(FORM) ~ r_FORM * u_conv  * 1e12 * RR * Tep / (emis_vars["FORM"] * P),
+        Differential(t)(CH4) ~ r_CH4 * u_conv  * 1e12 * RR * Tep / (emis_vars["CH4"] * P),
+        Differential(t)(CO) ~ r_CO * u_conv  * 1e12 * RR * Tep / (emis_vars["CO"] * P),
+        Differential(t)(SO2) ~ r_SO2 * u_conv  * 1e12 * RR * Tep / (emis_vars["SO2"] * P),
+        Differential(t)(ISOP) ~ r_ISOP * u_conv  * 1e12 * RR * Tep / (emis_vars["ISOP"] * P)
     ]
 
     ODESystem(eqs, t, [NO2, NO, FORM, CH4, CO, SO2, ISOP], [r_NO2, r_NO, r_FORM, r_CH4, r_CO, r_SO2, r_ISOP, P, Tep, RR, Δz2, u_conv]; name=:new_emis)
