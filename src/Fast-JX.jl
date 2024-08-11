@@ -76,7 +76,7 @@ The input variables: lat=latitude(°), long=longitude(°), t=unixtime(s)
                  DEC = the solar declination angle,
                  AHR = the hour angle, all in radians.  All in radians
 """
-function cos_solar_zenith_angle(lat::T, t::T2, long::T)::T where {T, T2}
+function cos_solar_zenith_angle(lat::T, t::T2, long::T)::T where {T,T2}
     DOY = dayofyear(Dates.unix2datetime(t))
     hours =
         Dates.hour(Dates.unix2datetime(t)) +
@@ -110,14 +110,14 @@ end
 calculate actinic flux at the given cosine of the solar zenith angle `csa`
 maximium actinic flux `max_actinic_flux`
 """
-function calc_flux(csa::T, max_actinic_flux::T)::T where T
+function calc_flux(csa::T, max_actinic_flux::T)::T where {T}
     max(zero(max_actinic_flux), max_actinic_flux * csa)
 end
 
 """   
 Get mean photolysis rates at different times
 """
-function j_mean(σ_interp, ϕ::Float32, time::T2, lat::T, long::T, Temperature::T)::T where {T, T2}
+function j_mean(σ_interp, ϕ::Float32, time::T2, lat::T, long::T, Temperature::T)::T where {T,T2}
     csa = cos_solar_zenith_angle(lat, time, long)
     j = zero(Temperature)
     @inbounds for i in 1:18
@@ -125,7 +125,7 @@ function j_mean(σ_interp, ϕ::Float32, time::T2, lat::T, long::T, Temperature::
     end
     j
 end
-function j_mean(σ_interp, ϕ::Float32, time::T2, lat::T, long::T, Temperature::T)::T where {T<:Integer, T2} # Dummy function for symbolic tracing.
+function j_mean(σ_interp, ϕ::Float32, time::T2, lat::T, long::T, Temperature::T)::T where {T<:Integer,T2} # Dummy function for symbolic tracing.
     round(j_mean(σ_interp, ϕ, Float32(time), Float32(lat), Float32(long), Float32(Temperature)))
 end
 
@@ -140,6 +140,10 @@ j_mean_NO2(t, lat, long, T) = j_mean(σ_NO2_interp, ϕ_NO2_jx, t, lat, long, T)
 j_mean_o31D(t, lat, long, T) = j_mean(σ_o31D_interp, ϕ_o31D_jx, t, lat, long, T)
 @register_symbolic j_mean_o31D(t, lat, long, T)
 
+struct FastJXCoupler
+    sys
+end
+
 """
 Description: This is a box model used to calculate the photolysis reaction rate constant using the Fast-JX scheme 
 (Neu, J. L., Prather, M. J., and Penner, J. E. (2007), Global atmospheric chemistry: Integrating over fractional cloud cover, J. Geophys. Res., 112, D11306, doi:10.1029/2006JD008007.)
@@ -151,7 +155,7 @@ Build Fast-JX model
     fj = FastJX(t)
 ```
 """
-function FastJX(t)
+function FastJX(t; name=:FastJX)
     @parameters T = 298.0
     @parameters lat = 40.0
     @parameters long = -97.0
@@ -166,12 +170,13 @@ function FastJX(t)
     # (@variables j_CH2Ob(t) = 0.00014 [unit = u"s^-1"]) (j_CH2Ob ~ mean_J_CH2Ob(t,lat,T)*j_unit)
 
     eqs = [
-        j_h2o2 ~ j_mean_H2O2(t*j_unit, lat, long, T) * j_unit
-        j_CH2Oa ~ j_mean_CH2Oa(t*j_unit, lat, long, T) * j_unit
-        j_o31D ~ j_mean_o31D(t*j_unit, lat, long, T) * j_unit
-        j_CH3OOH ~ j_mean_CH3OOH(t*j_unit, lat, long, T) * j_unit
-        j_NO2 ~ j_mean_NO2(t*j_unit, lat, long, T) * j_unit
+        j_h2o2 ~ j_mean_H2O2(t * j_unit, lat, long, T) * j_unit
+        j_CH2Oa ~ j_mean_CH2Oa(t * j_unit, lat, long, T) * j_unit
+        j_o31D ~ j_mean_o31D(t * j_unit, lat, long, T) * j_unit
+        j_CH3OOH ~ j_mean_CH3OOH(t * j_unit, lat, long, T) * j_unit
+        j_NO2 ~ j_mean_NO2(t * j_unit, lat, long, T) * j_unit
     ]
 
-    ODESystem(eqs, t, [j_h2o2, j_CH2Oa, j_o31D, j_CH3OOH, j_NO2], [lat, long, j_unit, T]; name=:fastjx)
+    ODESystem(eqs, t, [j_h2o2, j_CH2Oa, j_o31D, j_CH3OOH, j_NO2], [lat, long, j_unit, T]; name=name,
+        metadata=Dict(:coupletype=>FastJXCoupler))
 end

@@ -1,5 +1,9 @@
 export SuperFast
 
+struct SuperFastCoupler
+    sys
+end
+
 """
     SuperFast(t)
 
@@ -9,6 +13,8 @@ This atmospheric chemical system model is built based on the Super Fast Chemical
 MOZART-4 vs. Reduced Hydrocarbon vs. Super-Fast chemistry" (2018), Benjamin Brown-Steiner, Noelle E. Selin, Ronald G. Prinn, Simone Tilmes, Louisa Emmons, Jean-François Lamarque, and Philip Cameron-Smith.
 
 The input of the function is Temperature, concentrations of all chemicals, and reaction rates of photolysis reactions 
+
+If the keyword argument `rxn_sys` is set to `true`, the function will return a reaction system instead of an ODE system.
 
 # Example
 ```
@@ -23,7 +29,7 @@ We set `combinatoric_ratelaws=false` because we are modeling macroscopic rather 
 See [here](https://docs.juliahub.com/ModelingToolkit/Qmdqu/3.14.0/systems/ReactionSystem/#ModelingToolkit.oderatelaw) 
 and [here](https://github.com/SciML/Catalyst.jl/issues/311).
 """
-function SuperFast(t)
+function SuperFast(t; name=:SuperFast, rxn_sys=false)
     @parameters jO31D = 4.0 * 10.0^-3 [unit = u"s^-1"]
     @parameters j2OH = 2.2 * 10.0^-10 [unit = u"(s*nmol/mol)^-1"]
     @parameters jH2O2 = 1.0097 * 10.0^-5 [unit = u"s^-1"]
@@ -130,5 +136,9 @@ function SuperFast(t)
         #OH + CO = HO2
         Reaction(k19 * c, [OH, CO], [HO2], [1, 1], [1])
     ]
-    rxn_sys = ReactionSystem(rxs, t; combinatoric_ratelaws=false, name=:superfast)
+    rxns = ReactionSystem(rxs, t; combinatoric_ratelaws=false, name=name)
+    if rxn_sys
+        return rxns
+    end
+    convert(ODESystem, rxns; metadata=Dict(:coupletype => SuperFastCoupler))
 end

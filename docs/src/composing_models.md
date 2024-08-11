@@ -46,7 +46,7 @@ sol = solve(ODEProblem(sys, [], tspan, []),AutoTsit5(Rosenbrock23()), saveat=10.
 vars = states(sys)  # Get the variables in the composed system
 var_dict = Dict(string(var) => var for var in vars)
 pols = ["O3", "OH", "NO", "NO2", "CH4", "CH3O2", "CO","CH3OOH", "CH3O", "DMS", "SO2", "ISOP"]
-var_names_p = ["superfast₊$(v)(t)" for v in pols]
+var_names_p = ["SuperFast₊$(v)(t)" for v in pols]
 
 x_t = unix2datetime.(sol[t]) # Convert from unixtime to date time for visualizing 
 ```
@@ -92,7 +92,7 @@ sol_withemis = solve(ODEProblem(sys_withemis, [], tspan, []), AutoTsit5(Rosenbro
 vars = states(sys_noemis)  # Get the variables in the composed system
 var_dict = Dict(string(var) => var for var in vars)
 pols = ["O3", "OH", "NO", "NO2", "CH4", "CH3O2", "CO","CH3OOH", "CH3O", "DMS", "SO2", "ISOP"]
-var_names_p = ["superfast₊$(v)(t)" for v in pols]
+var_names_p = ["SuperFast₊$(v)(t)" for v in pols]
 
 pp = []
 for (i, v) in enumerate(var_names_p)

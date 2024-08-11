@@ -1,4 +1,4 @@
-using GasChem
+using Main.GasChem
 using EarthSciMLBase
 using Test
 using DifferentialEquations, ModelingToolkit, Unitful
@@ -116,14 +116,16 @@ end
 
     structural_simplify(gf)
 
-    eqs = string(equations(gf))
+    eqs = string.(equations(gf))
 
-    wanteqs = ["GEOSChemGasPhase₊j_9(t) ~ uconv*fastjx₊j_h2o2(t)",
-        "GEOSChemGasPhase₊j_7(t) ~ uconv*fastjx₊j_CH2Oa(t)",
-        "GEOSChemGasPhase₊j_10(t) ~ uconv*fastjx₊j_CH3OOH(t)",
-        "GEOSChemGasPhase₊j_11(t) ~ uconv*fastjx₊j_NO2(t)",
-        "GEOSChemGasPhase₊j_3(t) ~ c_fixme1*fastjx₊j_o31D(t)"]
+    j_eqs = filter(eq -> contains(eq, r"^GEOSChemGasPhase₊j_"), eqs)
+    
+    wanteqs = ["GEOSChemGasPhase₊j_9(t) ~ uconv*FastJX₊j_h2o2(t)",
+        "GEOSChemGasPhase₊j_7(t) ~ uconv*FastJX₊j_CH2Oa(t)",
+        "GEOSChemGasPhase₊j_10(t) ~ uconv*FastJX₊j_CH3OOH(t)",
+        "GEOSChemGasPhase₊j_11(t) ~ uconv*FastJX₊j_NO2(t)",
+        "GEOSChemGasPhase₊j_3(t) ~ c_fixme1*FastJX₊j_o31D(t)"]
     for eq in wanteqs
-        @test contains(string(eqs), wanteqs[1])
+        @test contains(string(j_eqs), eq)
     end
 end

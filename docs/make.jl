@@ -10,8 +10,9 @@ makedocs(;
     sitename = "GasChem.jl",
     format = Documenter.HTML(;
         prettyurls = get(ENV, "CI", "false") == "true",
-        canonical = "https://EarthSciML.github.io/GasChem.jl",
+        canonical = "https://gaschem.earthsci.dev",
         assets = String[],
+        repolink="https://github.com/EarthSciML/GasChem.jl",
     ),
     pages = [
         "Home" => "index.md",
