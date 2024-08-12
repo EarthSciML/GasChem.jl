@@ -7,8 +7,7 @@ using Test, Dates, ModelingToolkit, DifferentialEquations, EarthSciMLBase, Unitf
     @parameters lat = 40
     @parameters lon = -97
     @parameters lev = 1
-    @parameters Δz = 60 [unit = u"m"]
-    emis = NEI2016MonthlyEmis("mrggrid_withbeis_withrwc", t, lon, lat, lev, Δz; dtype=Float64)
+    emis = NEI2016MonthlyEmis("mrggrid_withbeis_withrwc", t, lon, lat, lev; dtype=Float64)
 
     model_3way = couple(FastJX(t), SuperFast(t), emis)
 
@@ -16,6 +15,6 @@ using Test, Dates, ModelingToolkit, DifferentialEquations, EarthSciMLBase, Unitf
     @test length(states(sys)) ≈ 18
 
     eqs = string(equations(sys))
-    wanteq = "Differential(t)(SuperFast₊CH2O(t)) ~ SuperFast₊NEI2016MonthlyEmis_mrggrid_withbeis_withrwc₊FORM(t)"
+    wanteq = "Differential(t)(SuperFast₊CH2O(t)) ~ SuperFast₊NEI2016MonthlyEmis_FORM(t)"
     @test contains(string(eqs), wanteq)
 end

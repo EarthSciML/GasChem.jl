@@ -1,262 +1,151 @@
 using GasChem
-using DifferentialEquations, ModelingToolkit
+using DifferentialEquations, ModelingToolkit, Unitful
 
 tspan = (0.0, 360.0)
 
-# Unit Test 0: Base case
-@test begin
-    u_0 = [
-        18.86183158341872,
-        4.2703017083622305e-5,
-        0.00011583779715697954,
-        2.1000002643778878e8,
-        6.931895809649448,
-        3.0681041903505473,
-        1699.9160195725997,
-        2.0291023439240294e-5,
-        450.32824009985256,
-        0.23464366198429554,
-        274.55619790526,
-        1.7535835570470253,
-        0.042305366149692464,
-        47.40417458095512,
-        4.595825419044846,
-        0.04328265843279768,
-        2.546043110462823e-19,
-        6.50621487186388,
-    ]
+@testset "Base case" begin
+    answer = 18.861830827565885
 
-    @parameters t
-    rs = SuperFast(t)
-    test0 = solve(
+    @parameters t [unit = u"s"]
+    rs = structural_simplify(SuperFast(t))
+    sol = solve(
         ODEProblem(rs, [], tspan, []),
         Tsit5(),
-        saveat = 10.0,
-    )[:, 37]
+        saveat=10.0,
+        abstol=1e-12,
+        reltol=1e-12,
+    )
 
-    test0 ≈ u_0
+    @test sol[rs.O3][end] ≈ answer
 end
 
-# Unit Test 1: DMS sensitivity
-@test begin
-    u_dms = [
-        -0.1046858501730874,
-        -1.9807122061648487e-5,
-        -3.1727909652319645e-5,
-        -0.8721528947353363,
-        0.014189257766163976,
-        -0.01418925776617952,
-        0.01575996272640623,
-        -7.991805556476097e-6,
-        -0.06828251942368979,
-        -0.02611920740062834,
-        0.08376957284087894,
-        0.001355592268675876,
-        -0.008276678705923274,
-        29.115790709520503,
-        0.8842092904795944,
-        0.010901015050459976,
-        -1.1417920841140374e-21,
-        0.005944387165240705,
-    ]
+@testset "DMS sensitivity" begin
+    u_dms = 0.8842096169345286
 
-    @parameters t
-    rs1 = SuperFast(t)
-    @unpack DMS = rs1
+    @parameters t [unit = u"s"]
+    rs1 = structural_simplify(SuperFast(t))
     o1 = solve(
-        ODEProblem(rs1, [DMS => 76], tspan, []),
+        ODEProblem(rs1, [rs1.DMS => 76], tspan, []),
         Tsit5(),
-        saveat = 10.0,
-    )[:, 37]
-    rs2 = SuperFast(t)
-    @unpack DMS = rs2
+        saveat=10.0,
+        abstol=1e-12,
+        reltol=1e-12,
+    )
+    rs2 = structural_simplify(SuperFast(t))
     o2 = solve(
-        ODEProblem(rs2, [DMS => 46], tspan, []),
+        ODEProblem(rs2, [rs2.DMS => 46], tspan, []),
         Tsit5(),
-        saveat = 10.0,
-    )[:, 37]
-    test1 = (o1-o2)[1:18]
+        saveat=10.0,
+        abstol=1e-12,
+        reltol=1e-12,
+    )
+    test1 = o1[rs1.SO2][end] - o2[rs2.SO2][end]
 
-    isapprox(test1, u_dms, atol = 0.001)
+    @test test1 ≈ u_dms
 end
 
-# Unit Test 2: ISOP sensitivity
-@test begin
-    u_isop = [
-        0.1938694842738684,
-        1.118426789076167e-5,
-        7.297766610801546e-5,
-        -0.17319664359092712,
-        -0.028103556998495094,
-        0.028103556998510637,
-        0.002062669243059645,
-        3.3527857847824344e-5,
-        0.009861447993898764,
-        0.13707144364696552,
-        0.019742953753620895,
-        0.42323438434387284,
-        0.0035247918766164593,
-        0.062111863953681734,
-        -0.06211186395370838,
-        0.1230086530380752,
-        2.0356787887724163e-21,
-        -0.18169817774252905,
-    ]
+@testset "ISOP sensitivity" begin
+    u_isop = 0.19386790460198
 
-    @parameters t
-    rs1 = SuperFast(t)
-    @unpack ISOP = rs1
+    @parameters t [unit = u"s"]
+    rs1 = structural_simplify(SuperFast(t))
     o1 = solve(
-        ODEProblem(rs1, [ISOP => 0.54], tspan, []),
+        ODEProblem(rs1, [rs1.ISOP => 0.54], tspan, []),
         Tsit5(),
-        saveat = 10.0,
-    )[:, 37]
-    rs2 = SuperFast(t)
-    @unpack DMS = rs2
+        saveat=10.0,
+        abstol=1e-12,
+        reltol=1e-12,
+    )
+    rs2 = structural_simplify(SuperFast(t))
     o2 = solve(
-        ODEProblem(rs2, [ISOP => 0.13], tspan, []),
+        ODEProblem(rs2, [rs2.ISOP => 0.13], tspan, []),
         Tsit5(),
-        saveat = 10.0,
-    )[:, 37]
-    test2 = (o1-o2)[1:18]
+        saveat=10.0,
+        abstol=1e-12,
+        reltol=1e-12,
+    )
+    test2 = o1[rs1.O3][end] - o2[rs2.O3][end]
 
-    isapprox(test2, u_isop, atol = 0.001)
+    @test test2 ≈ u_isop
 end
 
-#  Unit Test 3: NO2 sensitivity
-@test begin
-    u_no2 = [
-        45.85362232850652,
-        0.013443620451214309,
-        -0.008251829362739181,
-        273.2852625846863,
-        31.238653656377366,
-        58.761346343622655,
-        -1.1626679626895111,
-        -0.001647534014074231,
-        4.278662562353361,
-        0.10819944788865754,
-        -4.841045205104081,
-        -0.6656298071604302,
-        0.17730281649833546,
-        -0.03273608513133203,
-        0.03273608513132453,
-        -2.828906838233996e-6,
-        5.907578300467002e-19,
-        -2.1250201139384832,
-    ]
+@testset "NO2 sensitivity" begin
+    u_no2 = 45.85359224356945
 
-    @parameters t
-    rs1 = SuperFast(t)
-    @unpack NO2, DMS = rs1
+    @parameters t [unit = u"s"]
+    rs1 = structural_simplify(SuperFast(t))
     o1 = solve(
         ODEProblem(
             rs1,
-            [NO2 => 100.0, DMS => 0.1],
+            [rs1.NO2 => 100.0, rs1.DMS => 0.1],
             tspan,
             [],
-            combinatoric_ratelaws = false,
+            combinatoric_ratelaws=false,
         ),
         Tsit5(),
-        saveat = 10.0,
-    )[:, 37]
-    rs2 = SuperFast(t)
-    @unpack DMS = rs2
+        saveat=10.0,
+        abstol=1e-12,
+        reltol=1e-12,
+    )
+    rs2 = structural_simplify(SuperFast(t))
     o2 = solve(
-        ODEProblem(rs2, [DMS => 0.1], tspan, []),
+        ODEProblem(rs2, [rs2.DMS => 0.1], tspan, []),
         Tsit5(),
-        saveat = 10.0,
-    )[:, 37]
-    test3 = (o1-o2)[1:18]
+        saveat=10.0,
+        abstol=1e-12,
+        reltol=1e-12,
+    )
+    test3 = o1[rs1.O3][end] - o2[rs2.O3][end]
 
-    isapprox(test3, u_no2, atol = 0.001)
+    @test test3 ≈ u_no2
 end
 
-# Unit Test 4: CO sensitivity
-@test begin
+@testset "CO sensitivity" begin
+    u_co = -0.1938631791778107
 
-    u_co = [
-        -0.19386314144522743,
-        -5.377970599299107e-7,
-        -5.068308230428001e-5,
-        0.0732552707195282,
-        0.024938716038154674,
-        -0.024938716038149344,
-        -0.004746265539097294,
-        -9.492630095183464e-7,
-        0.016005078203818357,
-        0.0027396748633061463,
-        -449.25447756976206,
-        0.0047022617615517515,
-        0.0023874161918253714,
-        -0.14282534835207628,
-        0.14282534835213667,
-        -0.0030328269313813147,
-        -2.1776848880948197e-21,
-        -0.2643181260957359,
-    ]
-
-    @parameters t
-    rs1 = SuperFast(t)
-    @unpack CO = rs1
+    @parameters t [unit = u"s"]
+    rs1 = structural_simplify(SuperFast(t))
     o1 = solve(
-        ODEProblem(rs1, [CO => 50.0], tspan, []),
+        ODEProblem(rs1, [rs1.CO => 50.0], tspan, []),
         Tsit5(),
-        saveat = 10.0,
-    )[:, 37]
-    rs2 = SuperFast(t)
-    @unpack CO = rs2
+        saveat=10.0,
+        abstol=1e-12,
+        reltol=1e-12,
+    )
+    rs2 = structural_simplify(SuperFast(t))
     o2 = solve(
-        ODEProblem(rs2, [CO => 500.0], tspan, []),
+        ODEProblem(rs2, [rs2.CO => 500.0], tspan, []),
         Tsit5(),
-        saveat = 10.0,
-    )[:, 37]
-    test4 = (o1-o2)[1:18]
+        saveat=10.0,
+        abstol=1e-12,
+        reltol=1e-12,
+    )
+    test4 = o1[rs1.O3][end] - o2[rs2.O3][end]
 
-    isapprox(test4, u_co, atol = 0.001)
+    @test test4 ≈ u_co
 end
 
+@testset "CH4 sensitivity" begin
+    u_ch4 = 0.006664852234028018
 
-
-# Unit Test 5: CH4 sensitivity
-@test begin
-    u_ch4 = [
-        0.006664853560593542,
-        3.730835115360904e-7,
-        2.303193302226881e-6,
-        -0.0018870234489440918,
-        -0.0009582041938998032,
-        0.000958204193904244,
-        299.9852733692228,
-        1.1478698813863283e-6,
-        0.014830814901642952,
-        0.004579581197668298,
-        0.0007497166716916581,
-        0.00972420095777693,
-        5.339295050454246e-5,
-        0.0026560916389044564,
-        -0.0026560916390483413,
-        5.647267142151746e-5,
-        7.053477993188078e-23,
-        -0.0038984064496272453,
-    ]
-
-    @parameters t
-    rs1 = SuperFast(t)
-    @unpack CH4 = rs1
+    @parameters t [unit = u"s"]
+    rs1 = structural_simplify(SuperFast(t))
     o1 = solve(
-        ODEProblem(rs1, [CH4 => 1900.0], tspan, []),
+        ODEProblem(rs1, [rs1.CH4 => 1900.0], tspan, []),
         Tsit5(),
-        saveat = 10.0,
-    )[:, 37]
-    rs2 = SuperFast(t)
-    @unpack CH4 = rs2
+        saveat=10.0,
+        abstol=1e-12,
+        reltol=1e-12,
+    )
+    rs2 = structural_simplify(SuperFast(t))
     o2 = solve(
-        ODEProblem(rs2, [CH4 => 1600.0], tspan, []),
+        ODEProblem(rs2, [rs2.CH4 => 1600.0], tspan, []),
         Tsit5(),
-        saveat = 10.0,
-    )[:, 37]
-    test5 = (o1-o2)[1:18]
+        saveat=10.0,
+        abstol=1e-12,
+        reltol=1e-12,
+    )
+    test5 = o1[rs1.O3][end] - o2[rs1.O3][end]
 
-    isapprox(test5, u_ch4, atol = 0.001)
+    @test test5 ≈ u_ch4
 end

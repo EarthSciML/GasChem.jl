@@ -74,8 +74,7 @@ using Plots, Unitful
 @parameters lat = 40 
 @parameters lon = -97 
 @parameters lev = 1
-@parameters Δz = 60 [unit = u"m"]
-emis = NEI2016MonthlyEmis("mrggrid_withbeis_withrwc", t, lon, lat, lev, Δz; dtype=Float64) 
+emis = NEI2016MonthlyEmis("mrggrid_withbeis_withrwc", t, lon, lat, lev; dtype=Float64) 
 
 
 model_noemis = couple(SuperFast(t),FastJX(t)) # A model with chemistry and photolysis, but no emissions.
