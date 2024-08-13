@@ -1,7 +1,7 @@
 name = "GasChem"
 uuid = "58070593-4751-4c87-a5d1-63807d11d76c"
 authors = ["EarthSciML authors and contributors"]
-version = "0.6.2"
+version = "0.6.3"
 
 [deps]
 Catalyst = "479239e8-5488-4da2-87a7-35f2df7eef83"
@@ -16,7 +16,7 @@ Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 EarthSciData = "a293c155-435f-439d-9c11-a083b6b47337"
 
 [extensions]
-EmissionExt = "EarthSciData"
+EarthSciDataExt = "EarthSciData"
 
 [compat]
 AllocCheck = "0.1"

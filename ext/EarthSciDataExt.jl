@@ -1,4 +1,4 @@
-module EmissionExt
+module EarthSciDataExt
 using GasChem, EarthSciData, ModelingToolkit, EarthSciMLBase, Unitful
 
 function EarthSciMLBase.couple2(c::GasChem.SuperFastCoupler, e::EarthSciData.NEI2016MonthlyEmisCoupler)
@@ -35,6 +35,28 @@ function EarthSciMLBase.couple2(c::GasChem.SuperFastCoupler, e::EarthSciData.NEI
         c.SO2 => e.SO2 => uconv / MW_SO2,
         c.ISOP => e.ISOP => uconv / MW_ISOP,
     ))
+end
+
+function EarthSciMLBase.couple2(c::GasChem.SuperFastCoupler, g::EarthSciData.GEOSFPCoupler)
+    c, g = c.sys, g.sys
+
+    @constants PaPerhPa = 100 [unit = u"Pa/hPa", description="Conversion factor from hPa to Pa"]
+    c = param_to_var(c, :T, :P)
+    ConnectorSystem([
+            c.T ~ g.I3₊T,
+            c.P ~ g.P * PaPerhPa,
+        ], c, g)
+end
+
+function EarthSciMLBase.couple2(f::GasChem.FastJXCoupler, g::EarthSciData.GEOSFPCoupler)
+    f, g = f.sys, g.sys
+    
+    f = param_to_var(f, :T, :lat, :long)
+    ConnectorSystem([
+            f.T ~ g.I3₊T,
+            f.lat ~ deg2rad(g.lat),
+            f.long ~ deg2rad(g.lon),
+        ], f, g)
 end
 
 end

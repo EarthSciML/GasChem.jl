@@ -14,7 +14,7 @@ using Test, SafeTestsets
     @safetestset "geoschem_test" begin
          include("geoschem_test.jl")
     end
-    @safetestset "Emission_test.jl" begin
-         include("Emission_test.jl")
+    @safetestset "EarthSciData coupling" begin
+         include("EarthSciData_test.jl")
     end
 end
