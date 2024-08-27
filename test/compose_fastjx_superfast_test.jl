@@ -1,14 +1,15 @@
 using GasChem
 using EarthSciMLBase
-using DifferentialEquations, ModelingToolkit, Unitful
+using DifferentialEquations, ModelingToolkit, DynamicQuantities
+using ModelingToolkit:t
 
 #   Unit Test
 @testset "2wayCoupling" begin
     sol_middle = 9.948004877573444
-    @parameters t [unit = u"s"]
 
-    sf = couple(SuperFast(t), FastJX(t))
-    sys = structural_simplify(get_mtk(sf))
+    sf = couple(SuperFast(), FastJX())
+    combined_mtk = convert(ODESystem, sf)
+    sys = structural_simplify(combined_mtk)
     tspan = (0.0, 3600 * 24)
     sol = solve(
         ODEProblem(sys, [], tspan, []),

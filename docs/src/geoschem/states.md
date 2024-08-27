@@ -3,10 +3,10 @@
 Here is a list of the chemical species in the mechanism:
 
 ```@example 1
-using GasChem, DataFrames, EarthSciMLBase, ModelingToolkit, Unitful
-@variables t [unit = u"s", description = "Time"]
-gc = structural_simplify(GEOSChemGasPhase(t))
-vars = states(gc)
+using GasChem, DataFrames, EarthSciMLBase, ModelingToolkit, DynamicQuantities
+using ModelingToolkit:t
+gc = structural_simplify(GEOSChemGasPhase())
+vars = unknowns(gc)
 DataFrame(
         :Name => [string(Symbolics.tosymbol(v, escape=false)) for v ∈ vars],
         :Units => [ModelingToolkit.get_unit(v) for v ∈ vars],

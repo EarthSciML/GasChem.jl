@@ -1,18 +1,17 @@
 using Main.GasChem, EarthSciData
-using Test, Dates, ModelingToolkit, DifferentialEquations, EarthSciMLBase, Unitful
+using Test, Dates, ModelingToolkit, DifferentialEquations, EarthSciMLBase, DynamicQuantities
 
 @testset "NEI2016Extension3way" begin
-    @parameters t [unit = u"s"]
 
     @parameters lat = 40
     @parameters lon = -97
     @parameters lev = 1
-    emis = NEI2016MonthlyEmis("mrggrid_withbeis_withrwc", t, lon, lat, lev; dtype=Float64)
+    emis = NEI2016MonthlyEmis("mrggrid_withbeis_withrwc", lon, lat, lev; dtype=Float64)
 
-    model_3way = couple(FastJX(t), SuperFast(t), emis)
+    model_3way = couple(FastJX(), SuperFast(), emis)
 
-    sys = structural_simplify(get_mtk(model_3way))
-    @test length(states(sys)) ≈ 18
+    sys = structural_simplify(convert(ODESystem, model_3way))
+    @test length(unknowns(sys)) ≈ 18
 
     eqs = string(equations(sys))
     wanteq = "Differential(t)(SuperFast₊CH2O(t)) ~ SuperFast₊NEI2016MonthlyEmis_FORM(t)"
@@ -21,19 +20,18 @@ end
 
 
 @testset "GEOS-FP" begin
-    @parameters t [unit = u"s"]
 
     @parameters lat = 40
     @parameters lon = -97
     @parameters lev = 1
-    geosfp = GEOSFP("4x5", t)
+    geosfp = GEOSFP("4x5")
 
-    model_3way = couple(FastJX(t), SuperFast(t), geosfp)
+    model_3way = couple(FastJX(), SuperFast(), geosfp)
 
-    sys = structural_simplify(get_mtk(model_3way))
-    @test length(states(sys)) ≈ 18
+    sys = structural_simplify(convert(ODESystem, model_3way))
+    @test length(unknowns(sys)) ≈ 18
 
-    eqs = string(equations(get_mtk(model_3way)))
+    eqs = string(equations(convert(ODESystem, model_3way)))
     wanteq = "SuperFast₊T(t) ~ GEOSFP₊I3₊T(t)"
     @test contains(eqs, wanteq)
     wanteq = "FastJX₊T(t) ~ GEOSFP₊I3₊T(t)"

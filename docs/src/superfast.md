@@ -11,25 +11,25 @@ First, we can look at the reaction equations:
 
 ```@example 1
 using GasChem, EarthSciMLBase, ModelingToolkit
-using Unitful, DifferentialEquations
+using DynamicQuantities, DifferentialEquations
 using Catalyst
 using Plots
+using ModelingToolkit:t
 
-@parameters t [unit = u"s", description = "Time"]
-model = SuperFast(t)
+model = SuperFast()
 ```
 
 We can also look at them as a graph:
 
 ```@example 1
-Graph(SuperFast(t, rxn_sys=true))
+Graph(SuperFast(;name=:SuperFast, rxn_sys=true))
 ```
 
 ## Variables and parameters
 The chemical species included in the superfast model are:
 
 ```@example 1
-vars = states(model)
+vars = unknowns(model)
 using DataFrames
 DataFrame(
         :Name => [string(Symbolics.tosymbol(v, escape=false)) for v ∈ vars],
