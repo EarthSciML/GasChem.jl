@@ -70,8 +70,8 @@ using Dates, ModelingToolkit, DifferentialEquations, EarthSciMLBase
 using Plots, DynamicQuantities
 using ModelingToolkit:t
 
-@parameters lat = deg2rad(-97.0f0) [unit=u"rad"]
-@parameters lon = deg2rad(40.0f0) [unit=u"rad"]
+@parameters lat = deg2rad(40.0f0) [unit=u"rad"]
+@parameters lon = deg2rad(-97.0f0) [unit=u"rad"]
 @parameters lev = 1
 emis, emis_updater = NEI2016MonthlyEmis("mrggrid_withbeis_withrwc", lon, lat, lev)
 
