@@ -3,10 +3,10 @@ using Test, Dates, ModelingToolkit, DifferentialEquations, EarthSciMLBase, Dynam
 
 @testset "NEI2016Extension3way" begin
 
-    @parameters lat = 40
-    @parameters lon = -97
+    @parameters lat = deg2rad(40.0f0) [unit=u"rad"]
+    @parameters lon = deg2rad(-97.0f0) [unit=u"rad"]
     @parameters lev = 1
-    emis = NEI2016MonthlyEmis("mrggrid_withbeis_withrwc", lon, lat, lev; dtype=Float64)
+    emis, emis_updater = NEI2016MonthlyEmis("mrggrid_withbeis_withrwc", lon, lat, lev)
 
     model_3way = couple(FastJX(), SuperFast(), emis)
 
@@ -21,8 +21,8 @@ end
 
 @testset "GEOS-FP" begin
 
-    @parameters lat = 40
-    @parameters lon = -97
+    @parameters lat = deg2rad(40.0f0) [unit=u"rad"]
+    @parameters lon = deg2rad(-97.0f0) [unit=u"rad"]
     @parameters lev = 1
     geosfp = GEOSFP("4x5")
 

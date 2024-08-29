@@ -73,7 +73,7 @@ using ModelingToolkit:t
 @parameters lat = deg2rad(40.0f0) [unit=u"rad"]
 @parameters lon = deg2rad(-97.0f0) [unit=u"rad"]
 @parameters lev = 1
-emis, emis_updater = NEI2016MonthlyEmis("mrggrid_withbeis_withrwc", lon, lat, lev)
+emis, emis_updater = NEI2016MonthlyEmis("mrggrid_withbeis_withrwc", lon, lat, lev; dtype=Float64)
 
 model_noemis = couple(SuperFast(),FastJX()) # A model with chemistry and photolysis, but no emissions.
 model_withemis = couple(SuperFast(), FastJX(), emis) # The same model with emissions.
