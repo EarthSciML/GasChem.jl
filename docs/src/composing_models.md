@@ -9,22 +9,21 @@ Here is the complete example of composing, visualizing and solving the SuperFast
 model and the Fast-JX model, with explanation to follow:
 
 ```julia 
-using EarthSciMLBase, GasChem, ModelingToolkit, Dates, Unitful, DifferentialEquations
+using EarthSciMLBase, GasChem, ModelingToolkit, Dates, DynamicQuantities, DifferentialEquations
+using ModelingToolkit:t
 
-
-@parameters t [unit = u"s", description = "Time"]
-composed_ode = couple(SuperFast(t), FastJX(t)) # Compose two models use the "couple" function
+composed_ode = couple(SuperFast(), FastJX()) # Compose two models use the "couple" function
 
 start = Dates.datetime2unix(Dates.DateTime(2024, 2, 29))
 tspan = (start, start+3600*24*3)
-sys = structural_simplify(get_mtk(composed_ode)) # Define the coupled system  
+sys = structural_simplify(convert(ODESystem, composed_ode)) # Define the coupled system  
 sol = solve(ODEProblem(sys, [], tspan, []),AutoTsit5(Rosenbrock23()), saveat=10.0) # Solve the coupled system
 ```
 
 In the composed system, the variable name for O₃ is not ```O3``` but ```superfast₊O3(t)```. So we need some preparation of the result before visualizing. 
 
 ```julia
-vars = states(sys)  # Get the variables in the composed system
+vars = unknowns(sys)  # Get the variables in the composed system
 var_dict = Dict(string(var) => var for var in vars)
 pols = ["O3", "OH", "NO", "NO2", "CH4", "CH3O2", "CO","CH3OOH", "CH3O", "DMS", "SO2", "ISOP"]
 var_names_p = ["superfast₊$(v)(t)" for v in pols]
@@ -33,17 +32,17 @@ x_t = unix2datetime.(sol[t]) # Convert from unixtime to date time for visualizin
 ```
 Then, we could plot the results as:
 ```@setup 1
-using EarthSciMLBase, GasChem, ModelingToolkit, Dates, Unitful, DifferentialEquations
+using EarthSciMLBase, GasChem, ModelingToolkit, Dates, DynamicQuantities, DifferentialEquations
+using ModelingToolkit:t
 
-@parameters t [unit = u"s"]
-composed_ode = couple(SuperFast(t), FastJX(t)) # Compose two models use the "couple" function
+composed_ode = couple(SuperFast(), FastJX()) # Compose two models use the "couple" function
 
 start = Dates.datetime2unix(Dates.DateTime(2024, 2, 29))
 tspan = (start, start+3600*24*3)
-sys = structural_simplify(get_mtk(composed_ode)) # Define the coupled system  
+sys = structural_simplify(convert(ODESystem, composed_ode)) # Define the coupled system  
 sol = solve(ODEProblem(sys, [], tspan, []),AutoTsit5(Rosenbrock23()), saveat=10.0) # Solve the coupled system
 
-vars = states(sys)  # Get the variables in the composed system
+vars = unknowns(sys)  # Get the variables in the composed system
 var_dict = Dict(string(var) => var for var in vars)
 pols = ["O3", "OH", "NO", "NO2", "CH4", "CH3O2", "CO","CH3OOH", "CH3O", "DMS", "SO2", "ISOP"]
 var_names_p = ["SuperFast₊$(v)(t)" for v in pols]
@@ -68,27 +67,26 @@ Here's a simple example:
 ```@example 2 
 using GasChem, EarthSciData # This will trigger the emission extension
 using Dates, ModelingToolkit, DifferentialEquations, EarthSciMLBase
-using Plots, Unitful
+using Plots, DynamicQuantities
+using ModelingToolkit:t
 
-@parameters t [unit = u"s", description = "Time"]
-@parameters lat = 40 
-@parameters lon = -97 
+@parameters lat = deg2rad(40.0f0) [unit=u"rad"]
+@parameters lon = deg2rad(-97.0f0) [unit=u"rad"]
 @parameters lev = 1
-emis = NEI2016MonthlyEmis("mrggrid_withbeis_withrwc", t, lon, lat, lev; dtype=Float64) 
+emis, emis_updater = NEI2016MonthlyEmis("mrggrid_withbeis_withrwc", lon, lat, lev; dtype=Float64)
 
+model_noemis = couple(SuperFast(),FastJX()) # A model with chemistry and photolysis, but no emissions.
+model_withemis = couple(SuperFast(), FastJX(), emis) # The same model with emissions.
 
-model_noemis = couple(SuperFast(t),FastJX(t)) # A model with chemistry and photolysis, but no emissions.
-model_withemis = couple(SuperFast(t), FastJX(t), emis) # The same model with emissions.
-
-sys_noemis = structural_simplify(get_mtk(model_noemis))
-sys_withemis = structural_simplify(get_mtk(model_withemis))
+sys_noemis = structural_simplify(convert(ODESystem, model_noemis))
+sys_withemis = structural_simplify(convert(ODESystem, model_withemis))
 
 start = Dates.datetime2unix(Dates.DateTime(2016, 5, 1))
 tspan = (start, start+3*24*3600)
 sol_noemis = solve(ODEProblem(sys_noemis, [], tspan, []), AutoTsit5(Rosenbrock23()))
 sol_withemis = solve(ODEProblem(sys_withemis, [], tspan, []), AutoTsit5(Rosenbrock23()))
 
-vars = states(sys_noemis)  # Get the variables in the composed system
+vars = unknowns(sys_noemis)  # Get the variables in the composed system
 var_dict = Dict(string(var) => var for var in vars)
 pols = ["O3", "OH", "NO", "NO2", "CH4", "CH3O2", "CO","CH3OOH", "CH3O", "DMS", "SO2", "ISOP"]
 var_names_p = ["SuperFast₊$(v)(t)" for v in pols]

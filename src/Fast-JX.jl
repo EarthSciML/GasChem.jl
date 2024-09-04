@@ -127,13 +127,13 @@ function j_mean(σ_interp, ϕ::Float32, time::T2, lat::T, long::T, Temperature::
 end
 
 # Dummy functions for unit validation. Basically ModelingToolkit 
-# will call the function with a Unitful.Quantity or an integer to 
+# will call the function with a DynamicQuantities.Quantity or an integer to 
 # get information about the type and units of the output.
-j_mean_H2O2(t, lat, long, T::Unitful.Quantity) = 0.0u"s^-1"
-j_mean_CH2Oa(t, lat, long, T::Unitful.Quantity) = 0.0u"s^-1"
-j_mean_CH3OOH(t, lat, long, T::Unitful.Quantity) = 0.0u"s^-1"
-j_mean_NO2(t, lat, long, T::Unitful.Quantity) = 0.0u"s^-1"
-j_mean_o31D(t, lat, long, T::Unitful.Quantity) = 0.0u"s^-1"
+j_mean_H2O2(t, lat, long, T::DynamicQuantities.Quantity) = 0.0u"s^-1"
+j_mean_CH2Oa(t, lat, long, T::DynamicQuantities.Quantity) = 0.0u"s^-1"
+j_mean_CH3OOH(t, lat, long, T::DynamicQuantities.Quantity) = 0.0u"s^-1"
+j_mean_NO2(t, lat, long, T::DynamicQuantities.Quantity) = 0.0u"s^-1"
+j_mean_o31D(t, lat, long, T::DynamicQuantities.Quantity) = 0.0u"s^-1"
 
 j_mean_H2O2(t, lat, long, T) = j_mean(σ_H2O2_interp, ϕ_H2O2_jx, t, lat, long, T)
 @register_symbolic j_mean_H2O2(t, lat, long, T)
@@ -157,11 +157,10 @@ Description: This is a box model used to calculate the photolysis reaction rate 
 Build Fast-JX model
 # Example
 ``` julia
-    @parameters t [unit = u"s"]
-    fj = FastJX(t)
+    fj = FastJX()
 ```
 """
-function FastJX(t; name=:FastJX)
+function FastJX(;name=:FastJX)
     @parameters T = 298.0 [unit = u"K", description = "Temperature"]
     @parameters lat = 40.0 [description = "Latitude (Degrees)"]
     @parameters long = -97.0 [description = "Longitude (Degrees)"]

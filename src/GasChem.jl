@@ -4,9 +4,12 @@ using EarthSciMLBase
 using ModelingToolkit
 using Catalyst
 using Dates
-using Unitful
+using DynamicQuantities
 using StaticArrays
 using Interpolations
+using ModelingToolkit:t
+
+@register_unit ppb 1
 
 include("SuperFast.jl")
 include("geoschem_ratelaws.jl")

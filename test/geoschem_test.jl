@@ -1,11 +1,10 @@
 using Main.GasChem
 using EarthSciMLBase
 using Test
-using DifferentialEquations, ModelingToolkit, Unitful
+using DifferentialEquations, ModelingToolkit, DynamicQuantities
 
 tspan = (0.0, 360.0)
-@parameters t [unit = u"s"]
-sys = GEOSChemGasPhase(t)
+sys = GEOSChemGasPhase()
 sys = structural_simplify(sys)
 
 # Unit Test 0: Base case
@@ -21,7 +20,7 @@ sys = structural_simplify(sys)
     ]
 
     vals = ModelingToolkit.get_defaults(sys)
-    for k in setdiff(states(sys),keys(vals))
+    for k in setdiff(unknowns(sys),keys(vals))
         vals[k] = 0 # Set variables with no default to zero.
     end
     prob = ODEProblem(sys, vals, tspan, vals)
@@ -37,7 +36,7 @@ end
     u_1 = 1.7279825730298626e-5
 
     vals = ModelingToolkit.get_defaults(sys)
-    for k in setdiff(states(sys),keys(vals))
+    for k in setdiff(unknowns(sys),keys(vals))
         vals[k] = 0 # Set variables with no default to zero.
     end
     @unpack O3, O1D = sys
@@ -56,7 +55,7 @@ end
     u_2 = 5.209463225241961e-7
 
     vals = ModelingToolkit.get_defaults(sys)
-    for k in setdiff(states(sys),keys(vals))
+    for k in setdiff(unknowns(sys),keys(vals))
         vals[k] = 0 # Set variables with no default to zero.
     end
     @unpack O3, OH = sys
@@ -75,7 +74,7 @@ end
     u_3 = 1.8946337831948767e-9
 
     vals = ModelingToolkit.get_defaults(sys)
-    for k in setdiff(states(sys),keys(vals))
+    for k in setdiff(unknowns(sys),keys(vals))
         vals[k] = 0 # Set variables with no default to zero.
     end
     @unpack O3, NO2 = sys
@@ -94,7 +93,7 @@ end
     u_4 = -6.469934550779044e-6
 
     vals = ModelingToolkit.get_defaults(sys)
-    for k in setdiff(states(sys),keys(vals))
+    for k in setdiff(unknowns(sys),keys(vals))
         vals[k] = 0 # Set variables with no default to zero.
     end
     @unpack O3, HO2 = sys
@@ -109,10 +108,10 @@ end
 end
 
 @testset "Compose GEOSChem FastJX" begin
-    gc = GEOSChemGasPhase(t)
-    fjx = FastJX(t)
+    gc = GEOSChemGasPhase()
+    fjx = FastJX()
     gf = couple(gc, fjx)
-    gf = get_mtk(gf)
+    gf = convert(ODESystem, gf)
 
     structural_simplify(gf)
 

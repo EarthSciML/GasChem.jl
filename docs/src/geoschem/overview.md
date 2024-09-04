@@ -16,11 +16,11 @@ First, let's initialize the model and we can also look at the first few ODE equa
 ```@example 1
 using GasChem, EarthSciMLBase
 using DifferentialEquations, ModelingToolkit
-using Unitful, Plots
+using DynamicQuantities, Plots
+using ModelingToolkit:t
 
 tspan = (0.0, 360.0)
-@variables t [unit = u"s", description = "Time"]
-gc = GEOSChemGasPhase(t)
+gc = GEOSChemGasPhase()
 equations(gc)[1:5]
 ```
 
@@ -37,11 +37,11 @@ Now, let's run a simulation and plot the results:
 ```@example 1
 sys = structural_simplify(gc)
 vals = ModelingToolkit.get_defaults(sys)
-for k in setdiff(states(sys),keys(vals))
+for k in setdiff(unknowns(sys),keys(vals))
     vals[k] = 0 # Set variables with no default to zero.
 end
 prob = ODEProblem(sys, vals, tspan, vals)
 sol = solve(prob, AutoTsit5(Rosenbrock23()))
 plot(sol, legend = :outertopright, xlabel = "Time (s)", 
-        ylabel = "Concentration (nmol/mol)")
+        ylabel = "Concentration (ppb)")
 ```

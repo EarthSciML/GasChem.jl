@@ -1,13 +1,12 @@
 using GasChem
-using DifferentialEquations, ModelingToolkit, Unitful
+using DifferentialEquations, ModelingToolkit, DynamicQuantities
 
 tspan = (0.0, 360.0)
 
 @testset "Base case" begin
     answer = 18.861830827565885
 
-    @parameters t [unit = u"s"]
-    rs = structural_simplify(SuperFast(t))
+    rs = structural_simplify(SuperFast())
     sol = solve(
         ODEProblem(rs, [], tspan, []),
         Tsit5(),
@@ -22,8 +21,7 @@ end
 @testset "DMS sensitivity" begin
     u_dms = 0.8842096169345286
 
-    @parameters t [unit = u"s"]
-    rs1 = structural_simplify(SuperFast(t))
+    rs1 = structural_simplify(SuperFast())
     o1 = solve(
         ODEProblem(rs1, [rs1.DMS => 76], tspan, []),
         Tsit5(),
@@ -31,7 +29,7 @@ end
         abstol=1e-12,
         reltol=1e-12,
     )
-    rs2 = structural_simplify(SuperFast(t))
+    rs2 = structural_simplify(SuperFast())
     o2 = solve(
         ODEProblem(rs2, [rs2.DMS => 46], tspan, []),
         Tsit5(),
@@ -47,8 +45,7 @@ end
 @testset "ISOP sensitivity" begin
     u_isop = 0.19386790460198
 
-    @parameters t [unit = u"s"]
-    rs1 = structural_simplify(SuperFast(t))
+    rs1 = structural_simplify(SuperFast())
     o1 = solve(
         ODEProblem(rs1, [rs1.ISOP => 0.54], tspan, []),
         Tsit5(),
@@ -56,7 +53,7 @@ end
         abstol=1e-12,
         reltol=1e-12,
     )
-    rs2 = structural_simplify(SuperFast(t))
+    rs2 = structural_simplify(SuperFast())
     o2 = solve(
         ODEProblem(rs2, [rs2.ISOP => 0.13], tspan, []),
         Tsit5(),
@@ -72,8 +69,7 @@ end
 @testset "NO2 sensitivity" begin
     u_no2 = 45.85359224356945
 
-    @parameters t [unit = u"s"]
-    rs1 = structural_simplify(SuperFast(t))
+    rs1 = structural_simplify(SuperFast())
     o1 = solve(
         ODEProblem(
             rs1,
@@ -87,7 +83,7 @@ end
         abstol=1e-12,
         reltol=1e-12,
     )
-    rs2 = structural_simplify(SuperFast(t))
+    rs2 = structural_simplify(SuperFast())
     o2 = solve(
         ODEProblem(rs2, [rs2.DMS => 0.1], tspan, []),
         Tsit5(),
@@ -103,8 +99,7 @@ end
 @testset "CO sensitivity" begin
     u_co = -0.1938631791778107
 
-    @parameters t [unit = u"s"]
-    rs1 = structural_simplify(SuperFast(t))
+    rs1 = structural_simplify(SuperFast())
     o1 = solve(
         ODEProblem(rs1, [rs1.CO => 50.0], tspan, []),
         Tsit5(),
@@ -112,7 +107,7 @@ end
         abstol=1e-12,
         reltol=1e-12,
     )
-    rs2 = structural_simplify(SuperFast(t))
+    rs2 = structural_simplify(SuperFast())
     o2 = solve(
         ODEProblem(rs2, [rs2.CO => 500.0], tspan, []),
         Tsit5(),
@@ -128,8 +123,7 @@ end
 @testset "CH4 sensitivity" begin
     u_ch4 = 0.006664852234028018
 
-    @parameters t [unit = u"s"]
-    rs1 = structural_simplify(SuperFast(t))
+    rs1 = structural_simplify(SuperFast())
     o1 = solve(
         ODEProblem(rs1, [rs1.CH4 => 1900.0], tspan, []),
         Tsit5(),
@@ -137,7 +131,7 @@ end
         abstol=1e-12,
         reltol=1e-12,
     )
-    rs2 = structural_simplify(SuperFast(t))
+    rs2 = structural_simplify(SuperFast())
     o2 = solve(
         ODEProblem(rs2, [rs2.CH4 => 1600.0], tspan, []),
         Tsit5(),
