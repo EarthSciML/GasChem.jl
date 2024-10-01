@@ -1,9 +1,8 @@
-using GasChem
+using Main.GasChem
 using EarthSciMLBase
 using DifferentialEquations, ModelingToolkit, DynamicQuantities
 using ModelingToolkit:t
 
-#   Unit Test
 @testset "2wayCoupling" begin
     sol_middle = 9.948004877573444
 
