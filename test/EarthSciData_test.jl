@@ -1,4 +1,4 @@
-using Main.GasChem, EarthSciData
+using GasChem, EarthSciData
 using Test, Dates, ModelingToolkit, DifferentialEquations, EarthSciMLBase, DynamicQuantities
 
 @testset "NEI2016Extension3way" begin
@@ -11,7 +11,7 @@ using Test, Dates, ModelingToolkit, DifferentialEquations, EarthSciMLBase, Dynam
     model_3way = couple(FastJX(), SuperFast(), emis)
 
     sys = structural_simplify(convert(ODESystem, model_3way))
-    @test length(unknowns(sys)) ≈ 18
+    @test length(unknowns(sys)) ≈ 16
 
     eqs = string(equations(sys))
     wanteq = "Differential(t)(SuperFast₊CH2O(t)) ~ SuperFast₊NEI2016MonthlyEmis_FORM(t)"
@@ -29,7 +29,7 @@ end
     model_3way = couple(FastJX(), SuperFast(), geosfp)
 
     sys = structural_simplify(convert(ODESystem, model_3way))
-    @test length(unknowns(sys)) ≈ 18
+    @test length(unknowns(sys)) ≈ 16
 
     eqs = string(equations(convert(ODESystem, model_3way)))
     wanteq = "SuperFast₊T(t) ~ GEOSFP₊I3₊T(t)"

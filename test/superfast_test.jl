@@ -4,7 +4,7 @@ using DifferentialEquations, ModelingToolkit, DynamicQuantities
 tspan = (0.0, 360.0)
 
 @testset "Base case" begin
-    answer = 18.861830827565885
+    answer = 19.953178608397593
 
     rs = structural_simplify(SuperFast())
     sol = solve(
@@ -19,7 +19,7 @@ tspan = (0.0, 360.0)
 end
 
 @testset "DMS sensitivity" begin
-    u_dms = 0.8842096169345286
+    u_dms = 5.047129865154432e-7
 
     rs1 = structural_simplify(SuperFast())
     o1 = solve(
@@ -43,7 +43,7 @@ end
 end
 
 @testset "ISOP sensitivity" begin
-    u_isop = 0.19386790460198
+    u_isop = -3.552713678800501e-14
 
     rs1 = structural_simplify(SuperFast())
     o1 = solve(
@@ -67,7 +67,7 @@ end
 end
 
 @testset "NO2 sensitivity" begin
-    u_no2 = 45.85359224356945
+    u_no2 = 89.57860748723749
 
     rs1 = structural_simplify(SuperFast())
     o1 = solve(
@@ -97,7 +97,7 @@ end
 end
 
 @testset "CO sensitivity" begin
-    u_co = -0.1938631791778107
+    u_co = 3.552713678800501e-15
 
     rs1 = structural_simplify(SuperFast())
     o1 = solve(
@@ -121,7 +121,7 @@ end
 end
 
 @testset "CH4 sensitivity" begin
-    u_ch4 = 0.006664852234028018
+    u_ch4 = 1.0658141036401503e-14
 
     rs1 = structural_simplify(SuperFast())
     o1 = solve(

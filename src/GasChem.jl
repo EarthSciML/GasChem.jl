@@ -11,9 +11,9 @@ using ModelingToolkit:t
 
 @register_unit ppb 1
 
-include("SuperFast.jl")
 include("geoschem_ratelaws.jl")
 include("geoschem_fullchem.jl")
+include("SuperFast.jl")
 include("Fast-JX.jl")
 include("fastjx_couplings.jl")
 
