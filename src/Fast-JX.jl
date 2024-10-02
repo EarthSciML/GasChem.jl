@@ -175,13 +175,15 @@ function FastJX(;name=:FastJX)
     @variables j_NO2(t) = 0.0149 [unit = u"s^-1"]
     @variables j_CH2Ob(t) = 0.00014 [unit = u"s^-1"]
 
+    rate1(k) = k / 2.6875e10 #Convert the first reaction rate value, which corresponds to species with units of molec/cm³, to ppb.  1 ppb of a gas is roughly 2.6875e10 molec/cm3. (2.6875e10 = A/air_volume*1e-9)
+
     eqs = [
-        j_h2o2 ~ j_mean_H2O2(t, lat, long, T)
-        j_CH2Oa ~ j_mean_CH2Oa(t, lat, long, T)
-        j_CH2Ob ~ j_mean_CH2Ob(t, lat, long, T)
-        j_o31D ~ j_mean_o31D(t, lat, long, T)
-        j_CH3OOH ~ j_mean_CH3OOH(t, lat, long, T)
-        j_NO2 ~ j_mean_NO2(t, lat, long, T)
+        j_h2o2 ~ rate1(j_mean_H2O2(t, lat, long, T))
+        j_CH2Oa ~ rate1(j_mean_CH2Oa(t, lat, long, T))
+        j_CH2Ob ~ rate1(j_mean_CH2Ob(t, lat, long, T))
+        j_o31D ~ rate1(j_mean_o31D(t, lat, long, T))
+        j_CH3OOH ~ rate1(j_mean_CH3OOH(t, lat, long, T))
+        j_NO2 ~ rate1(j_mean_NO2(t, lat, long, T))
     ]
 
     ODESystem(eqs, t, [j_h2o2, j_CH2Oa, j_CH2Ob, j_o31D, j_CH3OOH, j_NO2], [lat, long, T]; name=name,
