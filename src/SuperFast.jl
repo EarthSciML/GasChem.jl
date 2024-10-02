@@ -84,7 +84,6 @@ function SuperFast(;name=:SuperFast, rxn_sys=false)
 
     @constants P_hack = 1.0e20, [unit = us"Pa*ppb*s", description = "Constant for hack to avoid dropping pressure from the model"]
     rate2(k, Tc) = k * exp(Tc / T) * A / air_volume * ppb_unit #Convert the second reaction rate value, which corresponds to species with units of molec/cm³, to ppb.
-    rate1(k) = k / 2.6875e10 #Convert the first reaction rate value, which corresponds to species with units of molec/cm³, to ppb.  1 ppb of a gas is roughly 2.6875e10 molec/cm3. (2.6875e10 = A/air_volume*1e-9)
 
     function arr3(T, num_density, a1, b1, c1, a2, b2, c2, fv)
         arr(T,a0,b0,c0) = a0 * exp(c0 / T) * (K_300 / T)^b0
@@ -134,19 +133,19 @@ function SuperFast(;name=:SuperFast, rxn_sys=false)
         #ISOP + O3 --> 0.87CH2O + 1.86CH3O2 + 0.06HO2 + 0.05CO
         Reaction(rate2(k16, T16), [ISOP, O3], [CH2O, CH3O2, HO2, CO], [1, 1.0], [0.87, 1.86, 0.06, 0.05])
         #O3 -> O2 + O(1D)
-        Reaction(rate1(jO31D * 10^(-21)), [O3], [O1d, O2], [1], [1, 1]) # TODO(JL): Is 10^(-20) a reasonable value?
+        Reaction(jO31D * 10^(-21), [O3], [O1d, O2], [1], [1, 1]) # TODO(JL): Is 10^(-20) a reasonable value?
         #O(1D) + H2O -> 2OH
         Reaction(1.45*10^-10*exp(T18/T)*k_unit*A/air_volume*ppb_unit, [O1d, H2O], [OH], [1, 1], [2]) # TODO(CT): Why is the rate multiplied by 10^2?
         #H2O2 --> 2OH
-        Reaction(rate1(jH2O2), [H2O2], [OH], [1], [2])
+        Reaction(jH2O2, [H2O2], [OH], [1], [2])
         #NO2 --> NO + O3
-        Reaction(rate1(jNO2), [NO2], [NO, O3], [1], [1, 1])
+        Reaction(jNO2, [NO2], [NO, O3], [1], [1, 1])
         #CH2O --> CO + 2HO2
-        Reaction(rate1(jCH2Oa), [CH2O], [CO, HO2], [1], [1, 2])
+        Reaction(jCH2Oa, [CH2O], [CO, HO2], [1], [1, 2])
         #CH2O --> CO
-        Reaction(rate1(jCH2Ob), [CH2O], [CO], [1], [1])
+        Reaction(jCH2Ob, [CH2O], [CO], [1], [1])
         #CH3OOH --> CH2O + HO2 + OH
-        Reaction(rate1(jCH3OOH), [CH3OOH], [CH2O, HO2, OH], [1], [1, 1, 1])
+        Reaction(jCH3OOH, [CH3OOH], [CH2O, HO2, OH], [1], [1, 1, 1])
         #HO2 + HO2 = H2O2 + O2
         Reaction(rate2(k17, T17), [HO2], [H2O2, O2], [2], [1, 1])
         #OH + H2O2 = H2O + HO2
