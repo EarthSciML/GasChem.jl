@@ -14,7 +14,8 @@ using Test, Dates, ModelingToolkit, DifferentialEquations, EarthSciMLBase, Dynam
     @test length(unknowns(sys)) ≈ 16
 
     eqs = string(equations(sys))
-    wanteq = "Differential(t)(SuperFast₊CH2O(t)) ~ SuperFast₊NEI2016MonthlyEmis_FORM(t)"
+    wanteq = "Differential(t)(SuperFast₊CO(t)) ~ SuperFast₊NEI2016MonthlyEmis_CO(t)"
+    #wanteq = "Differential(t)(SuperFast₊SO2(t)) ~ SuperFast₊NEI2016MonthlyEmis_SO2(t) + SuperFast₊NEI2016MonthlyEmis_SULF(t)"
     @test contains(string(eqs), wanteq)
 end
 

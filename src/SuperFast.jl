@@ -57,32 +57,32 @@ function SuperFast(;name=:SuperFast, rxn_sys=false)
         T = 280.0, [unit = u"K", description = "Temperature"],
         P = 101325, [unit = u"Pa", description = "Pressure (not directly used)"],
         num_density = 2.7e19, [description = "Number density of air (The units should be molecules/cm^3 but the equations here treat it as unitless)."],
-        O2 = 2.1 * (10.0^8), [isconstantspecies=true,unit = us"ppb"],
-        CH4 = 1700.0, [isconstantspecies=true, unit = us"ppb"],
-        air_volume = 22400, [unit = u"cm^3/mol_air"],
-        ppb_unit = 1e-9, [unit = us"ppb", description = "Convert from mol/mol_air to ppb"],
+        O2 = 2.1 * (10.0^8), [isconstantspecies=true,unit = u"ppb"],
+        CH4 = 1700.0, [isconstantspecies=true, unit = u"ppb"],
+        ppb_unit = 1e-9, [unit = u"ppb", description = "Convert from mol/mol_air to ppb"],
     )
 
     species = @species(
-        O3(t) = 10.0, [unit = us"ppb"],
-        O1d(t) = 0.00001, [unit = us"ppb"],
-        OH(t) = 10.0, [unit = us"ppb"],
-        HO2(t) = 10.0, [unit = us"ppb"],
-        H2O(t) = 450.0, [unit = us"ppb"],
-        NO(t) = 0.0, [unit = us"ppb"],
-        NO2(t) = 10.0, [unit = us"ppb"],
-        CH3O2(t) = 0.01, [unit = us"ppb"],
-        CH2O(t) = 0.15, [unit = us"ppb"],
-        CO(t) = 275.0, [unit = us"ppb"],
-        CH3OOH(t) = 1.6, [unit = us"ppb"],
-        DMS(t) = 50, [unit = us"ppb"],
-        SO2(t) = 2.0, [unit = us"ppb"],
-        ISOP(t) = 0.15, [unit = us"ppb"],
-        H2O2(t) = 2.34, [unit = us"ppb"],
-        HNO3(t) = 10, [unit = us"ppb"],
+        O3(t) = 10.0, [unit = u"ppb"],
+        O1d(t) = 0.00001, [unit = u"ppb"],
+        OH(t) = 10.0, [unit = u"ppb"],
+        HO2(t) = 10.0, [unit = u"ppb"],
+        H2O(t) = 450.0, [unit = u"ppb"],
+        NO(t) = 0.0, [unit = u"ppb"],
+        NO2(t) = 10.0, [unit = u"ppb"],
+        CH3O2(t) = 0.01, [unit = u"ppb"],
+        CH2O(t) = 0.15, [unit = u"ppb"],
+        CO(t) = 275.0, [unit = u"ppb"],
+        CH3OOH(t) = 1.6, [unit = u"ppb"],
+        DMS(t) = 50, [unit = u"ppb"],
+        SO2(t) = 2.0, [unit = u"ppb"],
+        ISOP(t) = 0.15, [unit = u"ppb"],
+        H2O2(t) = 2.34, [unit = u"ppb"],
+        HNO3(t) = 10, [unit = u"ppb"],
     )
 
-    @constants P_hack = 1.0e20, [unit = us"Pa*ppb*s", description = "Constant for hack to avoid dropping pressure from the model"]
+    @constants R = 8.314e6 [unit = u"(Pa*cm^3)/(K*mol)", description = "universal gas constant"]
+    air_volume = R*T/P
     rate2(k, Tc) = k * exp(Tc / T) * A / air_volume * ppb_unit #Convert the second reaction rate value, which corresponds to species with units of molec/cm³, to ppb.
 
     function arr3(T, num_density, a1, b1, c1, a2, b2, c2, fv)
@@ -151,7 +151,7 @@ function SuperFast(;name=:SuperFast, rxn_sys=false)
         #OH + H2O2 = H2O + HO2
         Reaction(k18* A / air_volume * ppb_unit, [OH, H2O2], [H2O, HO2], [1, 1], [1, 1])
         #OH + CO = HO2
-        Reaction(k19* A / air_volume * ppb_unit + P/P_hack, [OH, CO], [HO2], [1, 1], [1])
+        Reaction(k19* A / air_volume * ppb_unit, [OH, CO], [HO2], [1, 1], [1])
         # FIXME(CT): Currently adding P*1e-20 to avoid pressure getting dropped from the model, so we can use it during coupling (for example, during emissions unit conversion).
     ]
     # We set `combinatoric_ratelaws=false` because we are modeling macroscopic rather than microscopic behavior. 
@@ -163,4 +163,3 @@ function SuperFast(;name=:SuperFast, rxn_sys=false)
     end
     convert(ODESystem, complete(rxns); metadata=Dict(:coupletype => SuperFastCoupler))
 end
-

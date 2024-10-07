@@ -30,8 +30,8 @@ function EarthSciMLBase.couple2(c::GasChem.SuperFastCoupler, e::EarthSciData.NEI
         c.NO2 => e.NO2 => uconv / MW_NO2,
         c.NO => e.NO => uconv / MW_NO,
         c.CH2O => e.FORM => uconv / MW_FORM,
-        #c.CH4 => e.CH4 => uconv / MW_CH4,
         c.CO => e.CO => uconv / MW_CO,
+        #c.SO2 => e.SULF => uconv / MW_SO2, #TODO Need to find a way to make c.SO2 => e.SULF + e.SO2 => uconv / MW_SO2
         c.SO2 => e.SO2 => uconv / MW_SO2,
         c.ISOP => e.ISOP => uconv / MW_ISOP,
     ))
