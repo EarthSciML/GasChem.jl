@@ -27,12 +27,12 @@ plot(sol)
 function SuperFast(;name=:SuperFast, rxn_sys=false)
     @constants A = 6.02e23 [unit = u"molec/mol", description = "Avogadro's number"]
     params = @parameters(
-        jO31D = 4.0 * 10.0^-3, [unit = u"s^-1"],
-        jH2O2 = 1.0097 * 10.0^-5, [unit = u"s^-1"],
+        jO31D = 4.0e-3, [unit = u"s^-1"],
+        jH2O2 = 1.0097e-5, [unit = u"s^-1"],
         jNO2 = 0.0149, [unit = u"s^-1"],
         jCH2Oa = 0.00014, [unit = u"s^-1"],
         jCH2Ob = 0.00014, [unit = u"s^-1"],
-        jCH3OOH = 8.9573 * 10.0^-6, [unit = u"s^-1"],
+        jCH3OOH = 8.9573e-6, [unit = u"s^-1"],
         k1 = 1.7e-12, [unit = u"cm^3/molec/s"], T1 = -940, [unit = u"K"],
         k2 = 1.0e-14, [unit = u"cm^3/molec/s"], T2 = -490, [unit = u"K"],
         k3 = 4.8e-11, [unit = u"cm^3/molec/s"], T3 = 250, [unit = u"K"],
@@ -43,21 +43,21 @@ function SuperFast(;name=:SuperFast, rxn_sys=false)
         k8 = 4.1e-13, [unit = u"cm^3/molec/s"], T8 = 750, [unit = u"K"],
         k9 = 2.7e-12, [unit = u"cm^3/molec/s"], T9 = 200, [unit = u"K"],
         k11 = 2.8e-12, [unit = u"cm^3/molec/s"], T11 = 300, [unit = u"K"],
-        k12 = 9.5e-14 / 10, [unit = u"s^-1*(molec/cm^3)^-19"], T12 = 390, [unit = u"K"],
+        k12 = 9.5e-14, [unit = u"cm^3/molec/s"], T12 = 390, [unit = u"K"],
         k13 = 1.1e-11, [unit = u"cm^3/molec/s"], T13 = -240, [unit = u"K"],
         k14 = 2.7e-11, [unit = u"cm^3/molec/s"], T14 = 390, [unit = u"K"],
-        k15 = 2.7e-11 / 2, [unit = u"s^-1*(molec/cm^3)^-3"], T15 = 390, [unit = u"K"],
+        k15 = 2.7e-11, [unit = u"cm^3/molec/s"], T15 = 390, [unit = u"K"],
         k16 = 5.59e-15, [unit = u"cm^3/molec/s"], T16 = -1814, [unit = u"K"],
         k17 = 3.0e-13, [unit = u"cm^3/molec/s"], T17 = 460, [unit = u"K"],
         k18 = 1.8e-12, [unit = u"cm^3/molec/s"],
         k19 = 1.5e-13, [unit = u"cm^3/molec/s"],
-        T18 = 89, [unit = u"K"],
+        ko1d = 1.545e-10, [unit = u"cm^3/molec/s"], To1d = 89, [unit = u"K"],
         K_300 = 300, [unit = u"K"],
         k_unit = 1, [unit = u"cm^3/molec/s"],
         T = 280.0, [unit = u"K", description = "Temperature"],
         P = 101325, [unit = u"Pa", description = "Pressure (not directly used)"],
         num_density = 2.7e19, [description = "Number density of air (The units should be molecules/cm^3 but the equations here treat it as unitless)."],
-        O2 = 2.1 * (10.0^8), [isconstantspecies=true,unit = u"ppb"],
+        O2 = 2.1e8, [isconstantspecies=true,unit = u"ppb"],
         CH4 = 1700.0, [isconstantspecies=true, unit = u"ppb"],
         ppb_unit = 1e-9, [unit = u"ppb", description = "Convert from mol/mol_air to ppb"],
     )
@@ -122,20 +122,20 @@ function SuperFast(;name=:SuperFast, rxn_sys=false)
         Reaction(rate2(k9, T9), [CH3OOH, OH], [CH3O2, H2O], [1, 1], [1, 1])
         #CH3O2 + NO --> CH2O + HO2 + NO2    
         Reaction(rate2(k11, T11), [CH3O2, NO], [CH2O, HO2, NO2], [1, 1], [1, 1, 1])
-        #10CH3O2 + 10CH3O2 --> 20CH2O + 8HO2
-        Reaction(rate2(k12, T12)*(A / air_volume * ppb_unit)^18, [CH3O2], [CH2O, H2O], [20], [20, 8])
+        #CH3O2 + CH3O2 --> 2CH2O + 0.8HO2
+        Reaction(rate2(k12, T12), [CH3O2], [CH2O, H2O], [2], [2, 0.8])
         #DMS + OH --> SO2
         Reaction(rate2(k13, T13), [DMS, OH], [SO2], [1, 1], [1])
         #ISOP +OH --> 2CH3O2
         Reaction(rate2(k14, T14), [ISOP, OH], [CH3O2], [1, 1], [2])
-        #2ISOP + 2OH --> 2ISOP + OH
-        Reaction(rate2(k15, T15)*(A / air_volume * ppb_unit)^2, [ISOP, OH], [ISOP, OH], [2, 2], [2, 1])
+        #ISOP + OH --> ISOP + 0.5OH
+        Reaction(rate2(k15, T15), [ISOP, OH], [ISOP, OH], [1, 1], [1, 0.5])
         #ISOP + O3 --> 0.87CH2O + 1.86CH3O2 + 0.06HO2 + 0.05CO
         Reaction(rate2(k16, T16), [ISOP, O3], [CH2O, CH3O2, HO2, CO], [1, 1.0], [0.87, 1.86, 0.06, 0.05])
         #O3 -> O2 + O(1D)
         Reaction(jO31D * 10^(-21), [O3], [O1d, O2], [1], [1, 1]) # TODO(JL): Is 10^(-20) a reasonable value?
         #O(1D) + H2O -> 2OH
-        Reaction(1.45*10^-10*exp(T18/T)*k_unit*A/air_volume*ppb_unit, [O1d, H2O], [OH], [1, 1], [2]) # TODO(CT): Why is the rate multiplied by 10^2?
+        Reaction(rate2(ko1d, To1d), [O1d, H2O], [OH], [1, 1], [2]) 
         #H2O2 --> 2OH
         Reaction(jH2O2, [H2O2], [OH], [1], [2])
         #NO2 --> NO + O3
