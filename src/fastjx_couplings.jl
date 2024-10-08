@@ -7,7 +7,7 @@ function EarthSciMLBase.couple2(c::GEOSChemGasPhaseCoupler, p::FastJXCoupler)
     ConnectorSystem([
             c.j_9 ~ uconv * p.j_h2o2
             c.j_7 ~ uconv * p.j_CH2Oa
-            c.j_8 ~ uconv * p.j_CH2Oa
+            c.j_8 ~ uconv * p.j_CH2Ob
             c.j_10 ~ uconv * p.j_CH3OOH
             c.j_11 ~ uconv * p.j_NO2
             c.j_3 ~ c_fixme1 * p.j_o31D

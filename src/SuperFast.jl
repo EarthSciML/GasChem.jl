@@ -51,7 +51,7 @@ function SuperFast(;name=:SuperFast, rxn_sys=false)
         k17 = 3.0e-13, [unit = u"cm^3/molec/s"], T17 = 460, [unit = u"K"],
         k18 = 1.8e-12, [unit = u"cm^3/molec/s"],
         k19 = 1.5e-13, [unit = u"cm^3/molec/s"],
-        ko1d = 1.545e-10, [unit = u"cm^3/molec/s"], To1d = 89, [unit = u"K"],
+        ko1d = 1.45e-10, [unit = u"cm^3/molec/s"], To1d = 89, [unit = u"K"],
         K_300 = 300, [unit = u"K"],
         k_unit = 1, [unit = u"cm^3/molec/s"],
         T = 280.0, [unit = u"K", description = "Temperature"],

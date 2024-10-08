@@ -5,7 +5,7 @@ using ModelingToolkit:t
 
 #   Unit Test
 @testset "2wayCoupling" begin
-    sol_middle = 9.943583315402849
+    sol_middle = 9.9476146376358
 
     sf = couple(SuperFast(), FastJX())
     combined_mtk = convert(ODESystem, sf)

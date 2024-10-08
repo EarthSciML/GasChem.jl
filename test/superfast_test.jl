@@ -4,7 +4,7 @@ using DifferentialEquations, ModelingToolkit, DynamicQuantities
 tspan = (0.0, 360.0)
 
 @testset "Base case" begin
-    answer = 18.408115665093476
+    answer = 17.204446308176035
     rs = structural_simplify(SuperFast())
     sol = solve(ODEProblem(rs, [], tspan, []),AutoTsit5(Rosenbrock23()), saveat=10.0)
 
@@ -12,7 +12,7 @@ tspan = (0.0, 360.0)
 end
 
 @testset "DMS sensitivity" begin
-    u_dms = 8.542138107969777e-9
+    u_dms = 0.8231258833472341
 
     rs1 = structural_simplify(SuperFast())
     o1 = solve(ODEProblem(rs1, [rs1.DMS => 76], tspan, []),AutoTsit5(Rosenbrock23()), saveat=10.0)
@@ -24,7 +24,7 @@ end
 end
 
 @testset "ISOP sensitivity" begin
-    u_isop = -0.0005144837357491383
+    u_isop = 0.15008086216045768
 
     rs1 = structural_simplify(SuperFast())
     o1 = solve(ODEProblem(rs1, [rs1.ISOP => 0.54], tspan, []),AutoTsit5(Rosenbrock23()), saveat=10.0)
@@ -36,7 +36,7 @@ end
 end
 
 @testset "NO2 sensitivity" begin
-    u_no2 = 37.383664709630956
+    u_no2 = 35.75701073785234
 
     rs1 = structural_simplify(SuperFast())
     o1 = solve(ODEProblem(rs1, [rs1.NO2 => 100.0, rs1.DMS => 0.1], tspan, []),AutoTsit5(Rosenbrock23()), saveat=10.0)
@@ -48,7 +48,7 @@ end
 end
 
 @testset "CO sensitivity" begin
-    u_co = -2.7440734129413613e-9
+    u_co = -0.1680113594146384
 
     rs1 = structural_simplify(SuperFast())
     o1 = solve(ODEProblem(rs1, [rs1.CO => 50.0], tspan, []),AutoTsit5(Rosenbrock23()), saveat=10.0)
@@ -60,7 +60,7 @@ end
 end
 
 @testset "CH4 sensitivity" begin
-    u_ch4 = 4.362732397567015e-12
+    u_ch4 = 0.00463593346606217
 
     rs1 = structural_simplify(SuperFast())
     o1 = solve(ODEProblem(rs1, [rs1.CH4 => 1900.0], tspan, []),AutoTsit5(Rosenbrock23()), saveat=10.0)
