@@ -17,5 +17,5 @@ using ModelingToolkit:t
         abstol = 1e-8,
         reltol = 1e-8,
     )
-    @test sol[sys.SuperFast.O3][4320] ≈ sol_middle
+    @test sol[sys.SuperFast₊O3][4320] ≈ sol_middle
 end

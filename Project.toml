@@ -1,7 +1,7 @@
 name = "GasChem"
 uuid = "58070593-4751-4c87-a5d1-63807d11d76c"
 authors = ["EarthSciML authors and contributors"]
-version = "0.7.1"
+version = "0.7.2"
 
 [deps]
 Catalyst = "479239e8-5488-4da2-87a7-35f2df7eef83"
@@ -24,9 +24,9 @@ Catalyst = "14"
 DifferentialEquations = "7"
 DynamicQuantities = "0.13"
 EarthSciData = "0.9"
-EarthSciMLBase = "0.16"
+EarthSciMLBase = "0.16.2"
 Interpolations = "0.14, 0.15"
-ModelingToolkit = "9 - 9.38"
+ModelingToolkit = "9"
 SafeTestsets = "0.0.1, 0.1"
 StaticArrays = "1"
 julia = "1"
