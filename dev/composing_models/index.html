@@ -6,36 +6,102 @@ composed_ode = couple(SuperFast(), FastJX()) # Compose two models use the &quot;
 
 start = Dates.datetime2unix(Dates.DateTime(2024, 2, 29))
 tspan = (start, start+3600*24*3)
-sys = structural_simplify(convert(ODESystem, composed_ode)) # Define the coupled system  
-sol = solve(ODEProblem(sys, [], tspan, []),AutoTsit5(Rosenbrock23()), saveat=10.0) # Solve the coupled system</code></pre><p>In the composed system, the variable name for O₃ is not <code>O3</code> but <code>superfast₊O3(t)</code>. So we need some preparation of the result before visualizing. </p><pre><code class="language-julia hljs">vars = unknowns(sys)  # Get the variables in the composed system
+sys = structural_simplify(convert(ODESystem, composed_ode)) # Define the coupled system
+sol = solve(ODEProblem(sys, [], tspan, []),AutoTsit5(Rosenbrock23()), saveat=10.0) # Solve the coupled system</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">retcode: Success
+Interpolation: 1st order linear
+t: 25921-element Vector{Float64}:
+ 1.7091648e9
+ 1.70916481e9
+ 1.70916482e9
+ 1.70916483e9
+ 1.70916484e9
+ 1.70916485e9
+ 1.70916486e9
+ 1.70916487e9
+ 1.70916488e9
+ 1.70916489e9
+ ⋮
+ 1.70942392e9
+ 1.70942393e9
+ 1.70942394e9
+ 1.70942395e9
+ 1.70942396e9
+ 1.70942397e9
+ 1.70942398e9
+ 1.70942399e9
+ 1.709424e9
+u: 25921-element Vector{Vector{Float64}}:
+ [10.0, 1.0e-5, 10.0, 10.0, 2.1e8, 450.0, 0.0, 10.0, 1700.0, 0.01, 0.15, 275.0, 1.6, 0.0, 50.0, 2.0, 0.15, 2.34]
+ [10.029296000351113, 3.494608937950966e-5, 0.0003542483334320426, 1.1312934688885619, 2.1000001266748172e8, 450.17288175572156, 0.013717120630526273, 9.986282879369478, 1699.9495792309274, 0.005556590436723383, 0.141713868164261, 274.7258913073556, 1.7880609750069711, 0.024138268834901357, 48.42494438739825, 3.575055612601754, 0.07118067530265586, 6.749177332740534]
+ [10.070173350250787, 5.971083152928954e-5, 0.00037916490915174025, 0.5857944168402082, 2.1000001294366908e8, 450.1760558689914, 0.025724220025512622, 9.974275779974494, 1699.9489103975377, 0.003469822581024675, 0.14180365239083423, 274.7222600806286, 1.7916488219872417, 0.024504175276502553, 48.40438785198962, 3.595612148010374, 0.07047881576687114, 7.0027876408297365]
+ [10.111491853910302, 8.430334927263076e-5, 0.000380417150262638, 0.382978115748455, 2.1000001304294416e8, 450.17935202545135, 0.03780120468469763, 9.962198795315306, 1699.9482213742683, 0.0038088804780051235, 0.14196216637005532, 274.71851913648516, 1.7927752871125937, 0.024881536542133622, 48.3832199001373, 3.6167800998626998, 0.06976304461452253, 7.087593282897551]
+ [10.152459773785198, 0.00010871896030836845, 0.00037140388274080566, 0.2745327019685624, 2.1000001309332848e8, 450.1826202893888, 0.050136363143258394, 9.949863636856747, 1699.9475403648064, 0.004477056406624303, 0.14225864638577473, 274.71482194227326, 1.7934011802456271, 0.025254682312928607, 48.36230723545413, 3.637692764545857, 0.06906271946206075, 7.126525560892361]
+ [10.19279800179901, 0.0001329537282138406, 0.00035575374051634046, 0.2057739333113747, 2.1000001312341338e8, 450.18578403725735, 0.06290693355415815, 9.937093066445847, 1699.9468822207295, 0.005134988597839264, 0.14273921449332938, 274.71124937828, 1.7937860590159145, 0.025615399432623552, 48.34210530988624, 3.657894690113752, 0.06839253390316155, 7.146793686270969]
+ [10.232366975966604, 0.0001570067323807787, 0.00033531843879238256, 0.1577981758848625, 2.1000001314327788e8, 450.18879403794875, 0.07626541535243506, 9.92373458464757, 1699.946256674177, 0.005671791407614907, 0.1434347438218237, 274.7078544850285, 1.7939890591781837, 0.025958306353876262, 48.32291179409755, 3.6770882059024497, 0.06776149672907877, 7.157864459994091]
+ [10.271065053421646, 0.00018087066727226353, 0.00031151996986922964, 0.12229129107544243, 2.10000013157478e8, 450.19161276000057, 0.0903474897388222, 9.909652510261184, 1699.9456712589445, 0.0060333842881151924, 0.14436046853437776, 274.7046783243357, 1.7940337844388803, 0.026279236459540115, 48.30495651686846, 3.69504348313154, 0.0671761202239623, 7.163940162747124]
+ [10.308808176037433, 0.000204537046690963, 0.0002850400661724, 0.0950602081976909, 2.1000001316838825e8, 450.19421316763413, 0.1052504702209589, 9.894749529779048, 1699.9451314418548, 0.006192139956810551, 0.14551456300444385, 274.70175067493483, 1.7939394988819208, 0.026575165014146362, 48.288405685941726, 3.711594314058274, 0.06664070190235338, 7.167147275156129]
+ [10.345559431253996, 0.00022801815320411958, 0.00025714220305481, 0.07376060647951772, 2.1000001317738378e8, 450.1965759981849, 0.12108230118695312, 9.878917698813053, 1699.9446411334427, 0.006138767911239311, 0.1468767189846996, 274.69909280140905, 1.793729266438984, 0.026843929948994996, 48.27337771080176, 3.726622289198239, 0.0661579555153197, 7.168664110438241]
+ ⋮
+ [20.740471981784843, 2.677892901521345, 2.142383623626024e-5, 0.0001744139422565017, 2.1000297654965517e8, 450.37923757961806, 0.795560316950983, 9.20443968304903, 1698.7646442395105, 2.5173087143526727e-5, 0.1941616800734378, 270.9289255175711, 0.058353949714897546, 0.2402904133679572, 22.81747079911952, 29.182529200880467, 6.329526961264938e-10, 0.04012104216869192]
+ [20.734535253383406, 2.677690098467833, 2.1399837352577396e-5, 0.00017531893723613814, 2.1000297660653153e8, 450.3790222907131, 0.7893655728072053, 9.210634427192808, 1698.7646057094175, 2.5337040089942723e-5, 0.19418475649476527, 270.92873133275623, 0.05834964626775853, 0.24029110087403543, 22.816912303461905, 29.18308769653808, 6.325643040072676e-10, 0.04011824642554935]
+ [20.727980441195886, 2.6774859324455718, 2.1363723547863383e-5, 0.00017614075025924026, 2.1000297666295195e8, 450.3788069720741, 0.7825520902619606, 9.217447909738052, 1698.7645672184267, 2.5504246320672147e-5, 0.19420797430303455, 270.9285371363265, 0.05834538784775997, 0.2402917876308507, 22.81635438845501, 29.183645611544975, 6.321765274084046e-10, 0.040115504380026666]
+ [20.72080754522228, 2.67728040345456, 2.13154948221182e-5, 0.0001768793813258081, 2.100029767189164e8, 450.37859162370086, 0.7751198693152489, 9.224880130684763, 1698.7645287665387, 2.5674705835714995e-5, 0.1942313334982456, 270.928342928282, 0.05834117445490186, 0.240292473638403, 22.815797054098837, 29.18420294590115, 6.317893663299047e-10, 0.040112816032123876]
+ [20.713016565462585, 2.6770735114947986, 2.1255151175341853e-5, 0.00017753483043584162, 2.1000297677442488e8, 450.3783762455935, 0.7670689099670701, 9.232931090032942, 1698.7644903537528, 2.5848418635071274e-5, 0.1942548340803984, 270.9281487086227, 0.05833700608918422, 0.2402931588966923, 22.815240300393384, 29.1847596996066, 6.31402820771768e-10, 0.04011018138184096]
+ [20.70740336813904, 2.6768687751863736, 2.1259499756197377e-5, 0.0001790000949154605, 2.1000297682952663e8, 450.3781608940468, 0.7611979658121, 9.238802034187913, 1698.7644519366463, 2.605476598548774e-5, 0.1942780210446448, 270.9279548168148, 0.0583327713919557, 0.24029384418398195, 22.814683496972002, 29.185316503027984, 6.310164679192249e-10, 0.04010746362221479]
+ [20.702607165883524, 2.676664529131306, 2.1278313438717582e-5, 0.00018060520179121993, 2.100029768842238e8, 450.37794556705336, 0.756144465519231, 9.243855534480781, 1698.764413516991, 2.626532563368907e-5, 0.19430114044527547, 270.9277609916106, 0.05832852203974907, 0.24029452946869329, 22.814126669752824, 29.185873330247162, 6.306303274442572e-10, 0.04010472750018854]
+ [20.697174124188212, 2.676458953384755, 2.126900725037372e-5, 0.00018183732094498168, 2.100029769384962e8, 450.3777302405732, 0.7504529951722021, 9.24954700482781, 1698.7643751133785, 2.6461910549756013e-5, 0.19432443394859883, 270.92756703671216, 0.05832431541872105, 0.24029521441764654, 22.813570088670268, 29.186429911329718, 6.302445808751769e-10, 0.040102043775846745]
+ [20.6911042430531, 2.67625204794672, 2.123158119116578e-5, 0.0001826964523767458, 2.100029769923438e8, 450.3775149146064, 0.7441235547710134, 9.255876445229, 1698.7643367258088, 2.6644520733688562e-5, 0.19434790155461493, 270.9273729521195, 0.05832015152887164, 0.24029589903084167, 22.813013753724338, 29.186986246275648, 6.298592282119837e-10, 0.040099412449189374]</code></pre><p>In the composed system, the variable name for O₃ is not <code>O3</code> but <code>superfast₊O3(t)</code>. So we need some preparation of the result before visualizing. </p><pre><code class="language-julia hljs">vars = unknowns(sys)  # Get the variables in the composed system
 var_dict = Dict(string(var) =&gt; var for var in vars)
 pols = [&quot;O3&quot;, &quot;OH&quot;, &quot;NO&quot;, &quot;NO2&quot;, &quot;CH4&quot;, &quot;CH3O2&quot;, &quot;CO&quot;,&quot;CH3OOH&quot;, &quot;CH3O&quot;, &quot;DMS&quot;, &quot;SO2&quot;, &quot;ISOP&quot;]
-var_names_p = [&quot;superfast₊$(v)(t)&quot; for v in pols]
+var_names_p = [&quot;SuperFast₊$(v)(t)&quot; for v in pols]
 
-x_t = unix2datetime.(sol[t]) # Convert from unixtime to date time for visualizing </code></pre><p>Then, we could plot the results as:</p><pre><code class="language-julia hljs">using Plots
+x_t = unix2datetime.(sol[t]) # Convert from unixtime to date time for visualizing</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">25921-element Vector{Dates.DateTime}:
+ 2024-02-29T00:00:00
+ 2024-02-29T00:00:10
+ 2024-02-29T00:00:20
+ 2024-02-29T00:00:30
+ 2024-02-29T00:00:40
+ 2024-02-29T00:00:50
+ 2024-02-29T00:01:00
+ 2024-02-29T00:01:10
+ 2024-02-29T00:01:20
+ 2024-02-29T00:01:30
+ ⋮
+ 2024-03-02T23:58:40
+ 2024-03-02T23:58:50
+ 2024-03-02T23:59:00
+ 2024-03-02T23:59:10
+ 2024-03-02T23:59:20
+ 2024-03-02T23:59:30
+ 2024-03-02T23:59:40
+ 2024-03-02T23:59:50
+ 2024-03-03T00:00:00</code></pre><p>Then, we could plot the results as:</p><pre><code class="language-julia hljs">using Plots
 pp = []
 for (i, v) in enumerate(var_names_p)
     name = pols[i]
     push!(pp, Plots.plot(x_t,sol[var_dict[v]],label = &quot;$name&quot;, size = (1000, 600), xrotation=45))
 end
-Plots.plot(pp..., layout=(3, 4))</code></pre><img src="acaad626.svg" alt="Example block output"/><h2 id="Adding-Emission-Data"><a class="docs-heading-anchor" href="#Adding-Emission-Data">Adding Emission Data</a><a id="Adding-Emission-Data-1"></a><a class="docs-heading-anchor-permalink" href="#Adding-Emission-Data" title="Permalink"></a></h2><p>GasChem.jl incorporates an emissions model that utilizes data from the <a href="https://gaftp.epa.gov/Air/emismod/2016/v1/gridded/monthly_netCDF/">US National Emissions Inventory for the year 2016</a>. This model is activated as an extension when the <code>EarthSciData</code> package is used. Here&#39;s a simple example:</p><pre><code class="language-julia hljs">using GasChem, EarthSciData # This will trigger the emission extension
+Plots.plot(pp..., layout=(3, 4))</code></pre><img src="4e6b948c.svg" alt="Example block output"/><h2 id="Adding-Emission-Data"><a class="docs-heading-anchor" href="#Adding-Emission-Data">Adding Emission Data</a><a id="Adding-Emission-Data-1"></a><a class="docs-heading-anchor-permalink" href="#Adding-Emission-Data" title="Permalink"></a></h2><p>GasChem.jl incorporates an emissions model that utilizes data from the <a href="https://gaftp.epa.gov/Air/emismod/2016/v1/gridded/monthly_netCDF/">US National Emissions Inventory for the year 2016</a>. This model is activated as an extension when the <code>EarthSciData</code> package is used. Here&#39;s a simple example:</p><pre><code class="language-julia hljs">using GasChem, EarthSciData # This will trigger the emission extension
 using Dates, ModelingToolkit, DifferentialEquations, EarthSciMLBase
 using Plots, DynamicQuantities
 using ModelingToolkit:t
 
-@parameters lat = deg2rad(40.0f0) [unit=u&quot;rad&quot;]
-@parameters lon = deg2rad(-97.0f0) [unit=u&quot;rad&quot;]
-@parameters lev = 1
-emis, emis_updater = NEI2016MonthlyEmis(&quot;mrggrid_withbeis_withrwc&quot;, lon, lat, lev; dtype=Float64)
+domain = DomainInfo(
+    Dates.DateTime(2016, 5, 1), Dates.DateTime(2016, 5, 4);
+    lonrange = deg2rad(-129):deg2rad(1):deg2rad(-61),
+    latrange = deg2rad(11):deg2rad(1):deg2rad(59),
+    levrange = 1:1:3,
+    dtype = Float64)
+
+emis = NEI2016MonthlyEmis(&quot;mrggrid_withbeis_withrwc&quot;, domain)
 
 model_noemis = couple(SuperFast(),FastJX()) # A model with chemistry and photolysis, but no emissions.
 model_withemis = couple(SuperFast(), FastJX(), emis) # The same model with emissions.
 
-sys_noemis = structural_simplify(convert(ODESystem, model_noemis))
-sys_withemis = structural_simplify(convert(ODESystem, model_withemis))
+sys_noemis, _ = convert(ODESystem, model_noemis, simplify=true)
+sys_withemis, _ = convert(ODESystem, model_withemis, simplify=true)
 
-start = Dates.datetime2unix(Dates.DateTime(2016, 5, 1))
-tspan = (start, start+3*24*3600)
+tspan = EarthSciMLBase.tspan(domain)
 sol_noemis = solve(ODEProblem(sys_noemis, [], tspan, []), AutoTsit5(Rosenbrock23()))
 sol_withemis = solve(ODEProblem(sys_withemis, [], tspan, []), AutoTsit5(Rosenbrock23()))
 
@@ -51,4 +117,4 @@ for (i, v) in enumerate(var_names_p)
     plot!(unix2datetime.(sol_withemis[t]),sol_withemis[var_dict[v]], label=&quot;With Emissions&quot;, )
     push!(pp, p)
 end
-Plots.plot(pp..., layout=(3, 4))</code></pre><img src="b18dc0da.svg" alt="Example block output"/></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../geoschem/params/">« Parameters</a><a class="docs-footer-nextpage" href="../api/">API »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.7.0 on <span class="colophon-date" title="Friday 11 October 2024 19:18">Friday 11 October 2024</span>. Using Julia version 1.11.0.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+Plots.plot(pp..., layout=(3, 4))</code></pre><img src="70d02f83.svg" alt="Example block output"/></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../geoschem/params/">« Parameters</a><a class="docs-footer-nextpage" href="../api/">API »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.7.0 on <span class="colophon-date" title="Wednesday 30 October 2024 15:13">Wednesday 30 October 2024</span>. Using Julia version 1.11.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
