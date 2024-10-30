@@ -1,12 +1,13 @@
-using Main.GasChem, EarthSciData
+using GasChem, EarthSciData
 using Test, Dates, ModelingToolkit, DifferentialEquations, EarthSciMLBase, DynamicQuantities
 
 @testset "NEI2016Extension3way" begin
+    domain = DomainInfo(DateTime(2016, 5, 1), DateTime(2016, 5, 2);
+        latrange=deg2rad(-85.0f0):deg2rad(2):deg2rad(85.0f0),
+        lonrange=deg2rad(-180.0f0):deg2rad(2.5):deg2rad(175.0f0),
+        levrange=1:10, dtype=Float64)
 
-    @parameters lat = deg2rad(40.0f0) [unit=u"rad"]
-    @parameters lon = deg2rad(-97.0f0) [unit=u"rad"]
-    @parameters lev = 1
-    emis, emis_updater = NEI2016MonthlyEmis("mrggrid_withbeis_withrwc", lon, lat, lev)
+    emis = NEI2016MonthlyEmis("mrggrid_withbeis_withrwc", domain)
 
     model_3way = couple(FastJX(), SuperFast(), emis)
 
@@ -21,10 +22,12 @@ end
 
 @testset "GEOS-FP" begin
 
-    @parameters lat = deg2rad(40.0f0) [unit=u"rad"]
-    @parameters lon = deg2rad(-97.0f0) [unit=u"rad"]
-    @parameters lev = 1
-    geosfp = GEOSFP("4x5")
+    domain = DomainInfo(DateTime(2022, 1, 1), DateTime(2022, 1, 1, 6);
+        latrange=deg2rad(-85.0f0):deg2rad(2):deg2rad(85.0f0),
+        lonrange=deg2rad(-180.0f0):deg2rad(2.5):deg2rad(175.0f0),
+        levrange=1:10, dtype=Float64)
+
+    geosfp = GEOSFP("4x5", domain)
 
     model_3way = couple(FastJX(), SuperFast(), geosfp)
 

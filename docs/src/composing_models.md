@@ -70,16 +70,20 @@ using Dates, ModelingToolkit, DifferentialEquations, EarthSciMLBase
 using Plots, DynamicQuantities
 using ModelingToolkit:t
 
-@parameters lat = deg2rad(40.0f0) [unit=u"rad"]
-@parameters lon = deg2rad(-97.0f0) [unit=u"rad"]
-@parameters lev = 1
-emis, emis_updater = NEI2016MonthlyEmis("mrggrid_withbeis_withrwc", lon, lat, lev; dtype=Float64)
+domain = DomainInfo(
+    starttime_date, endtime;
+    lonrange = deg2rad(-129):deg2rad(lonres):deg2rad(-61),
+    latrange = deg2rad(11):deg2rad(latres):deg2rad(59),
+    levrange = 1:1:3,
+    dtype = Float64)
+
+emis = NEI2016MonthlyEmis("mrggrid_withbeis_withrwc", domain)
 
 model_noemis = couple(SuperFast(),FastJX()) # A model with chemistry and photolysis, but no emissions.
 model_withemis = couple(SuperFast(), FastJX(), emis) # The same model with emissions.
 
-sys_noemis = structural_simplify(convert(ODESystem, model_noemis))
-sys_withemis = structural_simplify(convert(ODESystem, model_withemis))
+sys_noemis, _ = convert(ODESystem, model_noemis, simplify=true)
+sys_withemis, _ = convert(ODESystem, model_withemis, simplify=true)
 
 start = Dates.datetime2unix(Dates.DateTime(2016, 5, 1))
 tspan = (start, start+3*24*3600)
