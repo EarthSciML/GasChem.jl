@@ -19,7 +19,7 @@ EarthSciData = "a293c155-435f-439d-9c11-a083b6b47337"
 EarthSciDataExt = "EarthSciData"
 
 [compat]
-AllocCheck = "0.1"
+AllocCheck = "0.2"
 Catalyst = "14"
 DifferentialEquations = "7"
 DynamicQuantities = "0.13"
