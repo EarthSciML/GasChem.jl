@@ -3,16 +3,50 @@ export FastJX
 # Effective wavelength in 18 bins covering 177–850 nm
 const WL = SA_F32[187, 191, 193, 196, 202, 208, 211, 214, 261, 267, 277, 295, 303, 310, 316, 333, 380, 574]
 
+function interp2_func(x1, x2, T1, T2)
+    if x1 ≈ x2
+        return (T) -> x1
+    end
+    function interp2(T)
+        T = clamp(T, T1, T2)
+        x1 + (T - T1) * (x2 - x1) / (T2 - T1)
+    end
+end
+
+function interp3_func(x1, x2, x3, T1, T2, T3)
+    if x1 ≈ x2 && x2 ≈ x3
+        return (T) -> x1
+    end
+    function interp3(T)
+        T = clamp(T, T1, T3)
+        ifelse(T < T2,
+            x1 + (T - T1) * (x2 - x1) / (T2 - T1),
+            x2 + (T - T2) * (x3 - x2) / (T3 - T2),
+        )
+    end
+end
+
+function interp_func(temperatures, cross_sections)
+    if length(temperatures) == 2
+        return interp2_func(cross_sections[1], cross_sections[2], temperatures[1], temperatures[2])
+    elseif length(temperatures) == 3
+        return interp3_func(cross_sections[1], cross_sections[2], cross_sections[3],
+            temperatures[1], temperatures[2], temperatures[3])
+    end
+    LinearInterpolation(temperatures, cross_sections, extrapolation_bc=Flat())
+end
+
 """
 Create a vector of interpolators to interpolate the cross sections σ (TODO: What are the units?) for different wavelengths (in nm) and temperatures (in K).
 
 We use use linear interpolation with flat extrapolation.
 """
 function create_fjx_interp(temperatures::Vector{Float32}, cross_sections::Vector{SVector{18,Float32}})
-    [linear_interpolation(temperatures, [x[i] for x ∈ cross_sections], extrapolation_bc=Flat()) for i ∈ 1:length(WL)]
+    [interp_func(temperatures, [x[i] for x ∈ cross_sections]) for i ∈ 1:length(WL)]
+    #[linear_interpolation(temperatures, [x[i] for x ∈ cross_sections], extrapolation_bc=Flat()) for i ∈ 1:length(WL)]
 end
 
-#   Cross sections and quantum yield from GEOS-CHEM "FJX_spec.dat" for photo-reactive species mentioned in Superfast:
+#   Cross sections and quantum yield from GEOS-CHEM "FJX_spec.dat" for photo-reactive species included in SuperFast:
 
 # Cross sections σ for O3(1D) for different wavelengths(18 bins), temperatures
 # O3 -> O2 + O(1D) (superfast: O3 -> 2OH  including O(1D) + H2O -> 2OH)
@@ -81,17 +115,17 @@ function cos_solar_zenith_angle(t, lat, long)
     DOY = dayofyear(ut)
     hours = Dates.hour(ut) + Dates.minute(ut) / 60 + Dates.second(ut) / 3600
     y = Dates.year(ut)
-    if mod(y, 4) == 0
-        γ = 2 * pi / 366 * (DOY - 1 + (hours - 12) / 24) # the fraction year in radians
-    else
-        γ = 2 * pi / 365 * (DOY - 1 + (hours - 12) / 24) # the fraction year in radians
-    end
+    yearday_temp = 2 * pi * (DOY - 1 + (hours - 12) / 24)
+    γ = ifelse(mod(y, 4) == 0, # the fraction year in radians
+        yearday_temp / 366,
+        yearday_temp / 365,
+    )
     Eot = 229.18 * (0.000075 + 0.001868 * cos(γ) - 0.032077 * sin(γ) - 0.014615 * cos(γ * 2) - 0.040849 * sin(γ * 2))
 
     timezone = floor(long / 15)
-    time_offset = Eot + 4 * (long - 15 * timezone) # in minute
-    dt = floor(long / 15) # in hour
-    t_local = t + dt * 3600 # in second
+    time_offset = Eot + 4 * (long - 15 * timezone) # in minutes
+    dt = floor(long / 15) # in hours
+    t_local = t + dt * 3600 # in seconds
     ut_local = Dates.unix2datetime(t_local)
     tst = Dates.hour(ut_local) + Dates.minute(ut_local) / 60 +
           Dates.second(ut_local) / 3600 + time_offset / 60
@@ -104,49 +138,55 @@ function cos_solar_zenith_angle(t, lat, long)
 end
 
 @register_symbolic cos_solar_zenith_angle(t, lat, long)
+
+# Dummy function for unit validation. Basically ModelingToolkit
+# will call the function with a DynamicQuantities.Quantity or an integer to
+# get information about the type and units of the output.
 cos_solar_zenith_angle(t::DynamicQuantities.Quantity, lat, long) = 1.0
 
-"""
-calculate actinic flux at the given cosine of the solar zenith angle `csa`
-maximium actinic flux `max_actinic_flux`
-"""
+
+# calculate actinic flux at the given cosine of the solar zenith angle `csa` and
+# maximium actinic flux `max_actinic_flux`
 function calc_flux(csa, max_actinic_flux)
     max(zero(max_actinic_flux), max_actinic_flux * csa)
 end
 
+# calculate all actinic fluxes
+function calc_fluxes(csa)
+    [calc_flux(csa, actinic_flux[i]) for i in 1:18]
+end
+
+# Symbolic equations for actinic flux
+function flux_eqs(csa)
+    flux_vals = calc_fluxes(csa)
+    flux_vars = []
+    @constants c_flux = 1.0 [unit = u"s^-1", description = "Constant actinic flux (for unit conversion)"]
+    for i in 1:18
+        wl = WL[i]
+        n = Symbol("F_", wl)
+        v = @variables $n(t) [unit = u"s^-1", description = "Actinic flux at $wl nm"]
+        push!(flux_vars, only(v))
+    end
+    flux_vars, (flux_vars .~ flux_vals .* c_flux)
+end
+
+
 """
 Get mean photolysis rates at different times
 """
-function j_mean(σ_interp, ϕ, Temperature, cos_sza)
+function j_mean(σ_interp, ϕ, Temperature, fluxes)
     j = zero(Temperature)
-    @inbounds for i in 1:18
-        j += calc_flux(cos_sza, actinic_flux[i]) * σ_interp[i](Temperature) * ϕ
+    for i in 1:18
+        j += fluxes[i] * σ_interp[i](Temperature) * ϕ
     end
     j
 end
-function j_mean(σ_interp, ϕ, Temperature::T, cos_sza)::T where {T<:Integer} # Dummy function for symbolic tracing.
-    round(j_mean(σ_interp, ϕ, Float32(Temperature), cos_sza))
-end
 
-# Dummy functions for unit validation. Basically ModelingToolkit
-# will call the function with a DynamicQuantities.Quantity or an integer to
-# get information about the type and units of the output.
-j_mean_H2O2(T::DynamicQuantities.Quantity, cos_sza) = 0.0u"s^-1"
-j_mean_CH2Oa(T::DynamicQuantities.Quantity, cos_sza) = 0.0u"s^-1"
-j_mean_CH3OOH(T::DynamicQuantities.Quantity, cos_sza) = 0.0u"s^-1"
-j_mean_NO2(T::DynamicQuantities.Quantity, cos_sza) = 0.0u"s^-1"
-j_mean_o31D(T::DynamicQuantities.Quantity, cos_sza) = 0.0u"s^-1"
-
-j_mean_H2O2(T, cos_sza) = j_mean(σ_H2O2_interp, ϕ_H2O2_jx, T, cos_sza)
-@register_symbolic j_mean_H2O2(t, cos_sza)
-j_mean_CH2Oa(T, cos_sza) = j_mean(σ_CH2Oa_interp, ϕ_CH2Oa_jx, T, cos_sza)
-@register_symbolic j_mean_CH2Oa(t, cos_sza)
-j_mean_CH3OOH(T, cos_sza) = j_mean(σ_CH3OOH_interp, ϕ_CH3OOH_jx, T, cos_sza)
-@register_symbolic j_mean_CH3OOH(t, cos_sza)
-j_mean_NO2(T, cos_sza) = j_mean(σ_NO2_interp, ϕ_NO2_jx, T, cos_sza)
-@register_symbolic j_mean_NO2(t, cos_sza)
-j_mean_o31D(T, cos_sza) = j_mean(σ_o31D_interp, ϕ_o31D_jx, T, cos_sza)
-@register_symbolic j_mean_o31D(t, cos_sza)
+j_mean_H2O2(T, fluxes) = j_mean(σ_H2O2_interp, ϕ_H2O2_jx, T, fluxes)
+j_mean_CH2Oa(T, fluxes) = j_mean(σ_CH2Oa_interp, ϕ_CH2Oa_jx, T, fluxes)
+j_mean_CH3OOH(T, fluxes) = j_mean(σ_CH3OOH_interp, ϕ_CH3OOH_jx, T, fluxes)
+j_mean_NO2(T, fluxes) = j_mean(σ_NO2_interp, ϕ_NO2_jx, T, fluxes)
+j_mean_o31D(T, fluxes) = j_mean(σ_o31D_interp, ϕ_o31D_jx, T, fluxes)
 
 struct FastJXCoupler
     sys
@@ -156,13 +196,14 @@ end
 Description: This is a box model used to calculate the photolysis reaction rate constant using the Fast-JX scheme
 (Neu, J. L., Prather, M. J., and Penner, J. E. (2007), Global atmospheric chemistry: Integrating over fractional cloud cover, J. Geophys. Res., 112, D11306, doi:10.1029/2006JD008007.)
 
-Build Fast-JX model
 # Example
+Build Fast-JX model:
 ``` julia
     fj = FastJX()
 ```
 """
 function FastJX(; name=:FastJX)
+    @constants T_unit = 1.0 [unit = u"K", description = "Unit temperature (for unit conversion)"]
     @parameters T = 298.0 [unit = u"K", description = "Temperature"]
     @parameters lat = 40.0 [description = "Latitude (Degrees)"]
     @parameters long = -97.0 [description = "Longitude (Degrees)"]
@@ -176,15 +217,17 @@ function FastJX(; name=:FastJX)
     # TODO(JL): What's difference between the two photolysis reactions of CH2O, do we really need both?
     # (@variables j_CH2Ob(t) = 0.00014 [unit = u"s^-1"]) (j_CH2Ob ~ mean_J_CH2Ob(t,lat,T)*j_unit)
 
+    flux_vars, fluxeqs = flux_eqs(cosSZA)
     eqs = [
-        cosSZA ~ cos_solar_zenith_angle(t, lat, long)
-        j_h2o2 ~ j_mean_H2O2(T, cosSZA)
-        j_CH2Oa ~ j_mean_CH2Oa(T, cosSZA)
-        j_o31D ~ j_mean_o31D(T, cosSZA)
-        j_CH3OOH ~ j_mean_CH3OOH(T, cosSZA)
-        j_NO2 ~ j_mean_NO2(T, cosSZA)
+        cosSZA ~ cos_solar_zenith_angle(t, lat, long);
+        fluxeqs;
+        j_h2o2 ~ j_mean_H2O2(T/T_unit, flux_vars);
+        j_CH2Oa ~ j_mean_CH2Oa(T/T_unit, flux_vars);
+        j_o31D ~ j_mean_o31D(T/T_unit, flux_vars);
+        j_CH3OOH ~ j_mean_CH3OOH(T/T_unit, flux_vars);
+        j_NO2 ~ j_mean_NO2(T/T_unit, flux_vars)
     ]
 
-    ODESystem(eqs, t, [j_h2o2, j_CH2Oa, j_o31D, j_CH3OOH, j_NO2, cosSZA], [lat, long, T]; name=name,
-        metadata=Dict(:coupletype => FastJXCoupler))
+    ODESystem(eqs, t, [j_h2o2, j_CH2Oa, j_o31D, j_CH3OOH, j_NO2, cosSZA, flux_vars...],
+        [lat, long, T]; name=name, metadata=Dict(:coupletype => FastJXCoupler))
 end

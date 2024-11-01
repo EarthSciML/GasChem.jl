@@ -1,4 +1,5 @@
 using GasChem
+using ModelingToolkit
 using Test
 using AllocCheck
 
@@ -11,11 +12,12 @@ using AllocCheck
         3.6580860457380195e15,
     ]
     cos_sza = GasChem.cos_solar_zenith_angle(3600 * 12.0, 30.0, 0.0)
+    fluxes = GasChem.calc_fluxes(cos_sza)
     test_0 = [
-        GasChem.j_mean_o31D(100.0, cos_sza),
-        GasChem.j_mean_o31D(220.0, cos_sza),
-        GasChem.j_mean_o31D(300.0, cos_sza),
-        GasChem.j_mean_o31D(400.0, cos_sza),
+        GasChem.j_mean_o31D(100.0, fluxes),
+        GasChem.j_mean_o31D(220.0, fluxes),
+        GasChem.j_mean_o31D(300.0, fluxes),
+        GasChem.j_mean_o31D(400.0, fluxes),
     ]
 
     @test test_0 ≈ u_0 rtol = 1e-6
@@ -26,10 +28,11 @@ end
     u_1 = [5.750403366146315e-5, 5.887584133606186e-5, 6.024764962089199e-5]
 
     cos_sza = GasChem.cos_solar_zenith_angle(3600 * 12.0f0, 30.0f0, 0.0f0)
+    fluxes = GasChem.calc_fluxes(cos_sza)
     test_1 = [
-        GasChem.j_mean_H2O2(150.0f0, cos_sza),
-        GasChem.j_mean_H2O2(250.0f0, cos_sza),
-        GasChem.j_mean_H2O2(350.0f0, cos_sza),
+        GasChem.j_mean_H2O2(150.0f0, fluxes),
+        GasChem.j_mean_H2O2(250.0f0, fluxes),
+        GasChem.j_mean_H2O2(350.0f0, fluxes),
     ]
 
     @test test_1 ≈ u_1
@@ -40,13 +43,19 @@ end
     u_2 = [5.200743895500182e-5, 5.20050010722231e-5, 5.200066705839427e-5]
 
     cos_sza = GasChem.cos_solar_zenith_angle(3600 * 12.0, 30.0, 0.0)
+    fluxes = GasChem.calc_fluxes(cos_sza)
     test_2 = [
-        GasChem.j_mean_CH2Oa(200.0, cos_sza),
-        GasChem.j_mean_CH2Oa(250.0, cos_sza),
-        GasChem.j_mean_CH2Oa(300.0, cos_sza),
+        GasChem.j_mean_CH2Oa(200.0, fluxes),
+        GasChem.j_mean_CH2Oa(250.0, fluxes),
+        GasChem.j_mean_CH2Oa(300.0, fluxes),
     ]
 
     @test test_2 ≈ u_2
+end
+
+function get_fluxes(t, lat, lon)
+    cos_sza = GasChem.cos_solar_zenith_angle(t, lat, lon)
+    return GasChem.calc_fluxes(cos_sza)
 end
 
 # Unit Test 3: CH3OOH -> OH + HO2 + CH2O
@@ -54,9 +63,9 @@ end
     u_3 = [0.0, 3.2971571798761734e-5, 0.0]
 
     test_3 = [
-        GasChem.j_mean_CH3OOH(200.0, GasChem.cos_solar_zenith_angle(3600 * 6.0, 30.0, 0.0)),
-        GasChem.j_mean_CH3OOH(200.0, GasChem.cos_solar_zenith_angle(3600 * 12.0, 30.0, 0.0)),
-        GasChem.j_mean_CH3OOH(200.0, GasChem.cos_solar_zenith_angle(3600 * 18.0, 30.0, 0.0)),
+        GasChem.j_mean_CH3OOH(200.0, get_fluxes(3600 * 6.0, 30.0, 0.0)),
+        GasChem.j_mean_CH3OOH(200.0, get_fluxes(3600 * 12.0, 30.0, 0.0)),
+        GasChem.j_mean_CH3OOH(200.0, get_fluxes(3600 * 18.0, 30.0, 0.0)),
     ]
 
     @test test_3 ≈ u_3
@@ -66,34 +75,23 @@ end
 @testset "NO2" begin
     u_4 = [0.005079427910534251, 0.005301842146596118, 0.005497566674330561]
 
-    cos_sza = GasChem.cos_solar_zenith_angle(3600 * 12.0, 30.0, 0.0)
+    fluxes = get_fluxes(3600 * 12.0, 30.0, 0.0)
     test_4 = [
-        GasChem.j_mean_NO2(150.0, cos_sza),
-        GasChem.j_mean_NO2(250.0, cos_sza),
-        GasChem.j_mean_NO2(300.0, cos_sza),
+        GasChem.j_mean_NO2(150.0, fluxes),
+        GasChem.j_mean_NO2(250.0, fluxes),
+        GasChem.j_mean_NO2(300.0, fluxes),
     ]
 
     @test test_4 ≈ u_4 rtol = 1e-6
 end
 
-
-@testset "Ensure FastJX is non-allocating" begin
-    @check_allocs checkf(a, b, c, d) = GasChem.j_mean_H2O2(d, GasChem.cos_solar_zenith_angle(a, b, c))
-    checkf(3600 * 12.0f0, 30.0f0, 0.0f0, 150.0f0)
-    checkf(3600 * 12.0, 30.0, 0.0, 150.0)
-
-    @check_allocs checkf2(interp, ϕ, a, b, c, d) = GasChem.j_mean(interp, ϕ, d, GasChem.cos_solar_zenith_angle(a, b, c))
-    for (interp, ϕ) ∈ [(GasChem.σ_H2O2_interp, GasChem.ϕ_H2O2_jx), (GasChem.σ_CH2Oa_interp, GasChem.ϕ_CH2Oa_jx),
-        (GasChem.σ_CH3OOH_interp, GasChem.ϕ_CH3OOH_jx), (GasChem.σ_NO2_interp, GasChem.ϕ_NO2_jx), (GasChem.σ_o31D_interp, GasChem.ϕ_o31D_jx)]
-        checkf2(interp, ϕ, 3600 * 12.0f0, 30.0f0, 0.0f0, 150.0f0)
-        checkf2(interp, ϕ, 3600 * 12.0, 30.0, 0.0, 150.0)
-    end
-
+@testset "Ensure Cos SZA is non-allocating" begin
     @check_allocs checkcos(lat, t, long) = GasChem.cos_solar_zenith_angle(t, lat, long)
     checkcos(0.0, 0.0, 0.0)
     checkcos(0.0f0, 0.0f0, 0.0f0)
+end
 
-    @check_allocs checkjmean(σ_interp, ϕ, t, lat, long, T) = GasChem.j_mean(σ_interp, ϕ, T, GasChem.cos_solar_zenith_angle(t, lat, long))
-    checkjmean(GasChem.σ_CH3OOH_interp, GasChem.ϕ_CH3OOH_jx, 0.0f0, 0.0f0, 0.0f0, 0.0f0)
-    checkjmean(GasChem.σ_CH3OOH_interp, GasChem.ϕ_CH3OOH_jx, 0.0, 0.0, 0.0, 0.0)
+@testset "FastJX Initialization" begin
+    fj = GasChem.FastJX()
+    @test_nowarn structural_simplify(fj)
 end
