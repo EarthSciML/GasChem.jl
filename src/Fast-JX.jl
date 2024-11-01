@@ -71,12 +71,12 @@ This function is to compute the cosine of the solar zenith angle, given the unix
 The input variables: lat=latitude(°), long=longitude(°), t=unixtime(s)
     the cosine of the solar zenith angle (SZA) is given by:                                                                            .
            cos(SZA) = sin(LAT)*sin(DEC) + cos(LAT)*cos(DEC)*cos(AHR)
-                                                                            
+
            where LAT = the latitude angle,
                  DEC = the solar declination angle,
                  AHR = the hour angle, all in radians.  All in radians
 """
-function cos_solar_zenith_angle(lat::T, t::T2, long::T)::T where {T,T2}
+function cos_solar_zenith_angle(t, lat, long)
     ut = Dates.unix2datetime(t)
     DOY = dayofyear(ut)
     hours = Dates.hour(ut) + Dates.minute(ut) / 60 + Dates.second(ut) / 3600
@@ -103,55 +103,57 @@ function cos_solar_zenith_angle(lat::T, t::T2, long::T)::T where {T,T2}
     return CSZA
 end
 
+@register_symbolic cos_solar_zenith_angle(t, lat, long)
+cos_solar_zenith_angle(t::DynamicQuantities.Quantity, lat, long) = 1.0
+
 """
 calculate actinic flux at the given cosine of the solar zenith angle `csa`
 maximium actinic flux `max_actinic_flux`
 """
-function calc_flux(csa::T, max_actinic_flux::T)::T where {T}
+function calc_flux(csa, max_actinic_flux)
     max(zero(max_actinic_flux), max_actinic_flux * csa)
 end
 
-"""   
+"""
 Get mean photolysis rates at different times
 """
-function j_mean(σ_interp, ϕ::Float32, time::T2, lat::T, long::T, Temperature::T)::T where {T,T2}
-    csa = cos_solar_zenith_angle(lat, time, long)
+function j_mean(σ_interp, ϕ, Temperature, cos_sza)
     j = zero(Temperature)
     @inbounds for i in 1:18
-        j += calc_flux(csa, T(actinic_flux[i])) * σ_interp[i](Temperature) * T(ϕ)
+        j += calc_flux(cos_sza, actinic_flux[i]) * σ_interp[i](Temperature) * ϕ
     end
     j
 end
-function j_mean(σ_interp, ϕ::Float32, time::T2, lat::T, long::T, Temperature::T)::T where {T<:Integer,T2} # Dummy function for symbolic tracing.
-    round(j_mean(σ_interp, ϕ, Float32(time), Float32(lat), Float32(long), Float32(Temperature)))
+function j_mean(σ_interp, ϕ, Temperature::T, cos_sza)::T where {T<:Integer} # Dummy function for symbolic tracing.
+    round(j_mean(σ_interp, ϕ, Float32(Temperature), cos_sza))
 end
 
-# Dummy functions for unit validation. Basically ModelingToolkit 
-# will call the function with a DynamicQuantities.Quantity or an integer to 
+# Dummy functions for unit validation. Basically ModelingToolkit
+# will call the function with a DynamicQuantities.Quantity or an integer to
 # get information about the type and units of the output.
-j_mean_H2O2(t, lat, long, T::DynamicQuantities.Quantity) = 0.0u"s^-1"
-j_mean_CH2Oa(t, lat, long, T::DynamicQuantities.Quantity) = 0.0u"s^-1"
-j_mean_CH3OOH(t, lat, long, T::DynamicQuantities.Quantity) = 0.0u"s^-1"
-j_mean_NO2(t, lat, long, T::DynamicQuantities.Quantity) = 0.0u"s^-1"
-j_mean_o31D(t, lat, long, T::DynamicQuantities.Quantity) = 0.0u"s^-1"
+j_mean_H2O2(T::DynamicQuantities.Quantity, cos_sza) = 0.0u"s^-1"
+j_mean_CH2Oa(T::DynamicQuantities.Quantity, cos_sza) = 0.0u"s^-1"
+j_mean_CH3OOH(T::DynamicQuantities.Quantity, cos_sza) = 0.0u"s^-1"
+j_mean_NO2(T::DynamicQuantities.Quantity, cos_sza) = 0.0u"s^-1"
+j_mean_o31D(T::DynamicQuantities.Quantity, cos_sza) = 0.0u"s^-1"
 
-j_mean_H2O2(t, lat, long, T) = j_mean(σ_H2O2_interp, ϕ_H2O2_jx, t, lat, long, T)
-@register_symbolic j_mean_H2O2(t, lat, long, T)
-j_mean_CH2Oa(t, lat, long, T) = j_mean(σ_CH2Oa_interp, ϕ_CH2Oa_jx, t, lat, long, T)
-@register_symbolic j_mean_CH2Oa(t, lat, long, T)
-j_mean_CH3OOH(t, lat, long, T) = j_mean(σ_CH3OOH_interp, ϕ_CH3OOH_jx, t, lat, long, T)
-@register_symbolic j_mean_CH3OOH(t, lat, long, T)
-j_mean_NO2(t, lat, long, T) = j_mean(σ_NO2_interp, ϕ_NO2_jx, t, lat, long, T)
-@register_symbolic j_mean_NO2(t, lat, long, T)
-j_mean_o31D(t, lat, long, T) = j_mean(σ_o31D_interp, ϕ_o31D_jx, t, lat, long, T)
-@register_symbolic j_mean_o31D(t, lat, long, T)
+j_mean_H2O2(T, cos_sza) = j_mean(σ_H2O2_interp, ϕ_H2O2_jx, T, cos_sza)
+@register_symbolic j_mean_H2O2(t, cos_sza)
+j_mean_CH2Oa(T, cos_sza) = j_mean(σ_CH2Oa_interp, ϕ_CH2Oa_jx, T, cos_sza)
+@register_symbolic j_mean_CH2Oa(t, cos_sza)
+j_mean_CH3OOH(T, cos_sza) = j_mean(σ_CH3OOH_interp, ϕ_CH3OOH_jx, T, cos_sza)
+@register_symbolic j_mean_CH3OOH(t, cos_sza)
+j_mean_NO2(T, cos_sza) = j_mean(σ_NO2_interp, ϕ_NO2_jx, T, cos_sza)
+@register_symbolic j_mean_NO2(t, cos_sza)
+j_mean_o31D(T, cos_sza) = j_mean(σ_o31D_interp, ϕ_o31D_jx, T, cos_sza)
+@register_symbolic j_mean_o31D(t, cos_sza)
 
 struct FastJXCoupler
     sys
 end
 
 """
-Description: This is a box model used to calculate the photolysis reaction rate constant using the Fast-JX scheme 
+Description: This is a box model used to calculate the photolysis reaction rate constant using the Fast-JX scheme
 (Neu, J. L., Prather, M. J., and Penner, J. E. (2007), Global atmospheric chemistry: Integrating over fractional cloud cover, J. Geophys. Res., 112, D11306, doi:10.1029/2006JD008007.)
 
 Build Fast-JX model
@@ -160,7 +162,7 @@ Build Fast-JX model
     fj = FastJX()
 ```
 """
-function FastJX(;name=:FastJX)
+function FastJX(; name=:FastJX)
     @parameters T = 298.0 [unit = u"K", description = "Temperature"]
     @parameters lat = 40.0 [description = "Latitude (Degrees)"]
     @parameters long = -97.0 [description = "Longitude (Degrees)"]
@@ -170,17 +172,19 @@ function FastJX(;name=:FastJX)
     @variables j_o31D(t) = 4.0 * 10.0^-3 [unit = u"s^-1"]
     @variables j_CH3OOH(t) = 8.9573 * 10.0^-6 [unit = u"s^-1"]
     @variables j_NO2(t) = 0.0149 [unit = u"s^-1"]
-    # TODO(JL): What's difference between the two photolysis reactions of CH2O, do we really need both? 
+    @variables cosSZA(t) [description = "Cosine of the solar zenith angle"]
+    # TODO(JL): What's difference between the two photolysis reactions of CH2O, do we really need both?
     # (@variables j_CH2Ob(t) = 0.00014 [unit = u"s^-1"]) (j_CH2Ob ~ mean_J_CH2Ob(t,lat,T)*j_unit)
 
     eqs = [
-        j_h2o2 ~ j_mean_H2O2(t, lat, long, T)
-        j_CH2Oa ~ j_mean_CH2Oa(t, lat, long, T)
-        j_o31D ~ j_mean_o31D(t, lat, long, T)
-        j_CH3OOH ~ j_mean_CH3OOH(t, lat, long, T)
-        j_NO2 ~ j_mean_NO2(t, lat, long, T)
+        cosSZA ~ cos_solar_zenith_angle(t, lat, long)
+        j_h2o2 ~ j_mean_H2O2(T, cosSZA)
+        j_CH2Oa ~ j_mean_CH2Oa(T, cosSZA)
+        j_o31D ~ j_mean_o31D(T, cosSZA)
+        j_CH3OOH ~ j_mean_CH3OOH(T, cosSZA)
+        j_NO2 ~ j_mean_NO2(T, cosSZA)
     ]
 
-    ODESystem(eqs, t, [j_h2o2, j_CH2Oa, j_o31D, j_CH3OOH, j_NO2], [lat, long, T]; name=name,
+    ODESystem(eqs, t, [j_h2o2, j_CH2Oa, j_o31D, j_CH3OOH, j_NO2, cosSZA], [lat, long, T]; name=name,
         metadata=Dict(:coupletype => FastJXCoupler))
 end
