@@ -163,7 +163,7 @@ function flux_eqs(csa)
     @constants c_flux = 1.0 [unit = u"s^-1", description = "Constant actinic flux (for unit conversion)"]
     for i in 1:18
         wl = WL[i]
-        n = Symbol("F_", wl)
+        n = Symbol("F_", Int(round(wl)))
         v = @variables $n(t) [unit = u"s^-1", description = "Actinic flux at $wl nm"]
         push!(flux_vars, only(v))
     end
