@@ -53,8 +53,9 @@ function EarthSciMLBase.couple2(f::GasChem.FastJXCoupler, g::EarthSciData.GEOSFP
     f = param_to_var(f, :T, :lat, :long)
     ConnectorSystem([
             f.T ~ g.I3₊T,
-            f.lat ~ g.lat,
-            f.long ~ g.lon,
+            f.P ~ g.P,
+            f.lat ~ rad2deg(g.lat),
+            f.long ~ rad2deg(g.lon),
         ], f, g)
 end
 
