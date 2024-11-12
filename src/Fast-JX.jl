@@ -265,7 +265,7 @@ function FastJX(; name=:FastJX)
         j_h2o2 ~ j_mean_H2O2(T/T_unit, flux_vars);
         j_CH2Oa ~ j_mean_CH2Oa(T/T_unit, flux_vars);
         j_CH2Ob ~ j_mean_CH2Ob(T/T_unit, flux_vars);
-        j_o31D ~ j_mean_o31D(T/T_unit, flux_vars);
+        j_o31D ~ j_mean_o31D(T/T_unit, flux_vars)*1e-17;
         j_o32OH ~ j_o31D*adjust_j_o31D(T, P, H2O);
         j_CH3OOH ~ j_mean_CH3OOH(T/T_unit, flux_vars);
         j_NO2 ~ j_mean_NO2(T/T_unit, flux_vars)

@@ -1,18 +1,21 @@
 module EarthSciDataExt
 using GasChem, EarthSciData, ModelingToolkit, EarthSciMLBase, DynamicQuantities
-@register_unit ppb 1
+@register_unit molec 1
+@register_unit mol_air 1u"mol"
+@register_unit ppb 1u"mol/mol_air"
 
+#using EarthSciData
 function EarthSciMLBase.couple2(c::GasChem.SuperFastCoupler, e::EarthSciData.NEI2016MonthlyEmisCoupler)
     c, e = c.sys, e.sys
 
     @constants(
-        MW_NO2 = 46.0055*10^-3, [unit = u"kg/mol", description="NO2 molar mass"],
-        MW_NO = 30.01*10^-3, [unit = u"kg/mol", description="NO molar mass"],
-        MW_FORM = 30.0260*10^-3, [unit = u"kg/mol", description="Formaldehyde molar mass"],
-        MW_CH4 = 16.0425*10^-3, [unit = u"kg/mol", description="Methane molar mass"],
-        MW_CO = 28.0101*10^-3, [unit = u"kg/mol", description="Carbon monoxide molar mass"],
-        MW_SO2 = 64.0638*10^-3, [unit = u"kg/mol", description="Sulfur dioxide molar mass"],
-        MW_ISOP = 68.12*10^-3, [unit = u"kg/mol", description="Isoprene molar mass"],
+        MW_NO2 = 46.0055e-3, [unit = u"kg/mol", description="NO2 molar mass"],
+        MW_NO = 30.01e-3, [unit = u"kg/mol", description="NO molar mass"],
+        MW_FORM = 30.0260e-3, [unit = u"kg/mol", description="Formaldehyde molar mass"],
+        MW_CH4 = 16.0425e-3, [unit = u"kg/mol", description="Methane molar mass"],
+        MW_CO = 28.0101e-3, [unit = u"kg/mol", description="Carbon monoxide molar mass"],
+        MW_SO2 = 64.0638e-3, [unit = u"kg/mol", description="Sulfur dioxide molar mass"],
+        MW_ISOP = 68.12e-3, [unit = u"kg/mol", description="Isoprene molar mass"],
 
         nmolpermol = 1e9, [unit = u"ppb", description="noml/mol, Conversion factor from mol to nmol"],
         R = 8.31446261815324, [unit = u"m^3*Pa/mol/K", description="Ideal gas constant"],
@@ -30,9 +33,9 @@ function EarthSciMLBase.couple2(c::GasChem.SuperFastCoupler, e::EarthSciData.NEI
         c.NO2 => e.NO2 => uconv / MW_NO2,
         c.NO => e.NO => uconv / MW_NO,
         c.CH2O => e.FORM => uconv / MW_FORM,
-        c.CH4 => e.CH4 => uconv / MW_CH4,
+        #c.CH4 => e.CH4 => uconv / MW_CH4,
         c.CO => e.CO => uconv / MW_CO,
-        c.SO2 => e.SO2 => uconv / MW_SO2,
+        #c.SO2 => e.SO2 => uconv / MW_SO2,
         c.ISOP => e.ISOP => uconv / MW_ISOP,
     ))
 end
@@ -50,7 +53,7 @@ end
 function EarthSciMLBase.couple2(f::GasChem.FastJXCoupler, g::EarthSciData.GEOSFPCoupler)
     f, g = f.sys, g.sys
 
-    f = param_to_var(f, :T, :lat, :long)
+    f = param_to_var(f, :T, :lat, :long, :P)
     ConnectorSystem([
             f.T ~ g.I3₊T,
             f.P ~ g.P,

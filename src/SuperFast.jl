@@ -216,11 +216,11 @@ function SuperFast(;name=:SuperFast, rxn_sys=false)
             CH2O(t) = 0.15, [unit = u"ppb"],
             CO(t) = 275.0, [unit = u"ppb"],
             CH3OOH(t) = 1.6, [unit = u"ppb"],
-            DMS(t) = 50, [unit = u"ppb"],
+            DMS(t) = 50.0, [unit = u"ppb"],
             SO2(t) = 2.0, [unit = u"ppb"],
             ISOP(t) = 0.15, [unit = u"ppb"],
             H2O2(t) = 2.34, [unit = u"ppb"],
-            HNO3(t) = 10, [unit = u"ppb"],
+            HNO3(t) = 10.0, [unit = u"ppb"],
         )
 
         #Gas-phase reactions
