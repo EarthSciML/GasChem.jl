@@ -4,7 +4,6 @@ using GasChem, EarthSciData, ModelingToolkit, EarthSciMLBase, DynamicQuantities
 @register_unit mol_air 1u"mol"
 @register_unit ppb 1u"mol/mol_air"
 
-#using EarthSciData
 function EarthSciMLBase.couple2(c::GasChem.SuperFastCoupler, e::EarthSciData.NEI2016MonthlyEmisCoupler)
     c, e = c.sys, e.sys
 

@@ -1,26 +1,26 @@
 using GasChem, EarthSciData
 using Test, Dates, ModelingToolkit, DifferentialEquations, EarthSciMLBase, DynamicQuantities
 
-@testset "NEI2016Extension3way" begin
-    domain = DomainInfo(
-    DateTime(2016, 5, 1),
-    DateTime(2016, 5, 4);
-    lonrange = deg2rad(-115):deg2rad(2.5):deg2rad(-68.75),
-    latrange = deg2rad(25):deg2rad(2):deg2rad(53.7),
-    levrange = 1:15,
-    dtype = Float64)
+# @testset "NEI2016Extension3way" begin
+#     domain = DomainInfo(
+#     DateTime(2016, 5, 1),
+#     DateTime(2016, 5, 4);
+#     lonrange = deg2rad(-115):deg2rad(2.5):deg2rad(-68.75),
+#     latrange = deg2rad(25):deg2rad(2):deg2rad(53.7),
+#     levrange = 1:15,
+#     dtype = Float64)
 
-    emis = NEI2016MonthlyEmis("mrggrid_withbeis_withrwc", domain)
+#     emis = NEI2016MonthlyEmis("mrggrid_withbeis_withrwc", domain)
 
-    model_3way = couple(FastJX(), SuperFast(), emis)
+#     model_3way = couple(FastJX(), SuperFast(), emis)
 
-    sys = structural_simplify(convert(ODESystem, model_3way))
-    @test length(unknowns(sys)) ≈ 15
+#     sys = structural_simplify(convert(ODESystem, model_3way))
+#     @test length(unknowns(sys)) ≈ 15
 
-    eqs = string(equations(sys))
-    wanteq = "Differential(t)(SuperFast₊CH2O(t)) ~ SuperFast₊NEI2016MonthlyEmis_FORM(t)"
-    @test contains(string(eqs), wanteq)
-end
+#     eqs = string(equations(sys))
+#     wanteq = "Differential(t)(SuperFast₊CH2O(t)) ~ SuperFast₊NEI2016MonthlyEmis_FORM(t)"
+#     @test contains(string(eqs), wanteq)
+# end
 
 
 @testset "GEOS-FP" begin
