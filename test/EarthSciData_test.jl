@@ -11,7 +11,7 @@ using Test, Dates, ModelingToolkit, DifferentialEquations, EarthSciMLBase, Dynam
 
     model_3way = couple(FastJX(), SuperFast(), emis)
 
-    sys = structural_simplify(convert(ODESystem, model_3way))
+    sys = convert(ODESystem, model_3way)
     @test length(unknowns(sys)) ≈ 18
 
     eqs = string(equations(sys))
@@ -31,10 +31,10 @@ end
 
     model_3way = couple(FastJX(), SuperFast(), geosfp)
 
-    sys = structural_simplify(convert(ODESystem, model_3way))
+    sys = convert(ODESystem, model_3way)
     @test length(unknowns(sys)) ≈ 18
 
-    eqs = string(equations(convert(ODESystem, model_3way)))
+    eqs = string(observed(sys))
     wanteq = "SuperFast₊T(t) ~ GEOSFP₊I3₊T(t)"
     @test contains(eqs, wanteq)
     wanteq = "FastJX₊T(t) ~ GEOSFP₊I3₊T(t)"

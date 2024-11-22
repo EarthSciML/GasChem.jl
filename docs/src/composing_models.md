@@ -16,8 +16,8 @@ composed_ode = couple(SuperFast(), FastJX()) # Compose two models use the "coupl
 
 start = Dates.datetime2unix(Dates.DateTime(2024, 2, 29))
 tspan = (start, start+3600*24*3)
-sys = structural_simplify(convert(ODESystem, composed_ode)) # Define the coupled system  
-sol = solve(ODEProblem(sys, [], tspan, []),AutoTsit5(Rosenbrock23()), saveat=10.0) # Solve the coupled system
+sys = convert(ODESystem, composed_ode) # Define the coupled system  
+sol = solve(ODEProblem(sys, [], tspan, []), AutoTsit5(Rosenbrock23()), saveat=10.0) # Solve the coupled system
 ```
 
 In the composed system, the variable name for O₃ is not ```O3``` but ```superfast₊O3(t)```. So we need some preparation of the result before visualizing. 
@@ -64,10 +64,10 @@ emis = NEI2016MonthlyEmis("mrggrid_withbeis_withrwc", domain)
 model_noemis = couple(SuperFast(),FastJX()) # A model with chemistry and photolysis, but no emissions.
 model_withemis = couple(SuperFast(), FastJX(), emis) # The same model with emissions.
 
-sys_noemis, _ = convert(ODESystem, model_noemis, simplify=true)
-sys_withemis, _ = convert(ODESystem, model_withemis, simplify=true)
+sys_noemis = convert(ODESystem, model_noemis)
+sys_withemis = convert(ODESystem, model_withemis)
 
-tspan = EarthSciMLBase.tspan(domain)
+tspan = EarthSciMLBase.get_tspan(domain)
 sol_noemis = solve(ODEProblem(sys_noemis, [], tspan, []), AutoTsit5(Rosenbrock23()))
 sol_withemis = solve(ODEProblem(sys_withemis, [], tspan, []), AutoTsit5(Rosenbrock23()))
 

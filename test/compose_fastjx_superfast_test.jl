@@ -7,8 +7,7 @@ using ModelingToolkit:t
     sol_middle = 9.948004877573444
 
     sf = couple(SuperFast(), FastJX())
-    combined_mtk = convert(ODESystem, sf)
-    sys = structural_simplify(combined_mtk)
+    sys = convert(ODESystem, sf)
     tspan = (0.0, 3600 * 24)
     sol = solve(
         ODEProblem(sys, [], tspan, []),
