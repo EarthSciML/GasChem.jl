@@ -36,7 +36,7 @@ end
 
     eqs = string(observed(sys))
     wanteq = "SuperFast₊T(t) ~ GEOSFP₊I3₊T(t)"
-    @test @test contains(eqs, wanteq) || contains(eqs, "SuperFast₊T(t) ~ FastJX₊T(t)")
+    @test contains(eqs, wanteq) || contains(eqs, "SuperFast₊T(t) ~ FastJX₊T(t)")
     wanteq = "FastJX₊T(t) ~ GEOSFP₊I3₊T(t)"
     @test contains(eqs, wanteq)
     wanteq = "SuperFast₊jH2O2(t) ~ FastJX₊j_h2o2(t)"
