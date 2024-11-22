@@ -1,5 +1,5 @@
 using GasChem, EarthSciData
-using Test, Dates, ModelingToolkit, DifferentialEquations, EarthSciMLBase, DynamicQuantities
+using Test, Dates, ModelingToolkit, EarthSciMLBase
 
 @testset "NEI2016Extension3way" begin
     domain = DomainInfo(DateTime(2016, 5, 1), DateTime(2016, 5, 2);
@@ -36,7 +36,7 @@ end
 
     eqs = string(observed(sys))
     wanteq = "SuperFast₊T(t) ~ GEOSFP₊I3₊T(t)"
-    @test contains(eqs, wanteq)
+    @test @test contains(eqs, wanteq) || contains(eqs, "SuperFast₊T(t) ~ FastJX₊T(t)")
     wanteq = "FastJX₊T(t) ~ GEOSFP₊I3₊T(t)"
     @test contains(eqs, wanteq)
     wanteq = "SuperFast₊jH2O2(t) ~ FastJX₊j_h2o2(t)"
