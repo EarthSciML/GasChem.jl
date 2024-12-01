@@ -7,7 +7,7 @@
 function constant_k(t, c; unit=u"ppb^-1", name=:constant_k)
     @constants c = c, [unit = unit]
     @variables k(t) [unit = u"ppb^-1"]
-    NonlinearSystem([k ~ c], [k], []; name=name)
+    ODESystem([k ~ c], t, [k], []; name=name)
 end
 
 function regress_T(t, T, a_0, b_0, T_0; name=:acet_oh)
@@ -16,10 +16,10 @@ function regress_T(t, T, a_0, b_0, T_0; name=:acet_oh)
     @constants a_0 = a_0 [unit = u"ppb^-1"]
     @constants b_0 = b_0 [unit = u"ppb^-1"]
     @variables k(t) [unit = u"ppb^-1"]
-    NonlinearSystem([k ~ a_0 + b_0 * exp(T_0 / T)], [k], []; name=name)
+    ODESystem([k ~ a_0 + b_0 * exp(T_0 / T)], t, [k], []; name=name)
 end
 
-""" 
+"""
 Arrhenius equation:
 ``` math
     k = a0 * exp( c0 / T ) * (T/300)^b0
@@ -35,7 +35,7 @@ function arrhenius(t, T, a0, b0, c0; unit=u"ppb^-1", name=:arrhenius)
         c0 = c0, [unit = u"K"],
     )
     @variables k(t) [unit = unit]
-    NonlinearSystem([k ~ a0 * exp(c0 / T) * (K_300 / T)^b0], [k], []; name=name)
+    ODESystem([k ~ a0 * exp(c0 / T) * (K_300 / T)^b0], t, [k], []; name=name)
 end
 
 """
@@ -57,7 +57,7 @@ function arr_3rdbody(t, T, num_density, a1, b1, c1, a2, b2, c2, fv; unit=u"ppb^-
     blog = log10(xyrat)
     fexp = 1.0 / (1.0 + (blog * blog))
     @variables k(t) [unit = unit]
-    NonlinearSystem([k ~ rlow * (fv^fexp) / (1.0 + xyrat)], [k], []; systems=[alow, ahigh], name=name)
+    ODESystem([k ~ rlow * (fv^fexp) / (1.0 + xyrat)], t, [k], []; systems=[alow, ahigh], name=name)
 end
 
 """
@@ -76,8 +76,8 @@ function rate_HO2HO2(t, T, num_density, H2O, a0, c0, a1, c1; name=:rate_HO2HO2)
         unit_conv = 1, [unit = u"ppb^-1"],
     )
     @variables k(t) [unit = u"ppb^-1"]
-    NonlinearSystem([k ~ unit_conv * (k0.k + k1.k * num_density) * (one + 1.4E-21 * H2O * exp(T_0 / T))], [k], [];
-        systems=[k0, k1], name=name)
+    ODESystem([k ~ unit_conv * (k0.k + k1.k * num_density) * (one + 1.4E-21 * H2O * exp(T_0 / T))],
+        t, [k], []; systems=[k0, k1], name=name)
 end
 
 """
@@ -100,7 +100,7 @@ function rate_OHCO(t, T, num_density; name=:rate_OHCO)
     fexp2 = 1.0 / (1.0 + blog2 * blog2)
     kco2 = klo2.k * 0.6^fexp2 / (1.0 + xyrat2)
     @variables k(t) [unit = u"ppb^-1"]
-    NonlinearSystem([k ~ kco1 + kco2], [k], []; systems=[klo1, khi1, klo2, khi2], name=name)
+    ODESystem([k ~ kco1 + kco2], t, [k], []; systems=[klo1, khi1, klo2, khi2], name=name)
 end
 
 """
@@ -125,14 +125,14 @@ function rate_RO2NO_a1(t, T, a0, c0; name=:rate_RO2NO_a1)
         c0 = c0, [unit = u"K"],
     )
     @variables k(t) [unit = u"ppb^-1"]
-    NonlinearSystem([k ~ a0 * exp(c0 / T) * 3.0e-4], [k], []; name=name)
+    ODESystem([k ~ a0 * exp(c0 / T) * 3.0e-4], t, [k], []; name=name)
 end
 
 """
 Reaction rate for the "B" branch of these RO2 + NO reactions:
     MO2 + NO = CH2O + NO2 + HO2
  in which the "a1" parameter equals exactly 1.
- 
+
  For these reactions, these Arrhenius law terms evaluate to 1:
     (300/T)^b0
     (300/T)^b1 * exp(c1/T)
@@ -146,7 +146,7 @@ function rate_RO2NO_b1(t, T, a0, c0; name=:rate_RO2NO_b1)
         fyrno3 = 3.0e-4,
     )
     @variables k(t) [unit = u"ppb^-1"]
-    NonlinearSystem([k ~ a0 * exp(c0 / T) * (1 - fyrno3)], [k], []; name=name)
+    ODESystem([k ~ a0 * exp(c0 / T) * (1 - fyrno3)], t, [k], []; name=name)
 end
 
 """"
@@ -172,7 +172,7 @@ function rate_RO2NO_a2(t, T, num_density, a0, c0, a1; name=:rate_RO2NO_a2)
     rarb = (xxyn / (one_ppb + (xxyn / yyyn.k))) * (0.411^zzyn)
     fyrno3 = (rarb / (inv_ppb + rarb))
     @variables k(t) [unit = u"ppb^-1"]
-    NonlinearSystem([k ~ k0.k * fyrno3], [k], []; systems=[k0, yyyn], name=name)
+    ODESystem([k ~ k0.k * fyrno3], t, [k], []; systems=[k0, yyyn], name=name)
 end
 
 """
@@ -182,7 +182,7 @@ Reaction rate for the "B" branch of these RO2 + NO reactions:
     R4O2 + NO = NO2 + 0.27HO2 + ...
     B3O2 + NO = NO2 +     HO2 + ...
  in which the "a1" parameter is greater than 1.0.
- 
+
  Use this function when a1 input argument is greater than 1.0.
  """
 function rate_RO2NO_b2(t, T, num_density, a0, c0, a1; name=:rate_RO2NO_b2)
@@ -200,7 +200,7 @@ function rate_RO2NO_b2(t, T, num_density, a0, c0, a1; name=:rate_RO2NO_b2)
     rarb = (xxyn / (one_ppb + (xxyn / yyyn.k))) * (0.411^zzyn)
     fyrno3 = (rarb / (inv_ppb + rarb))
     @variables k(t) [unit = u"ppb^-1"]
-    NonlinearSystem([k ~ k0.k * (1.0 - fyrno3)], [k], []; systems=[k0, yyyn], name=name)
+    ODESystem([k ~ k0.k * (1.0 - fyrno3)], t, [k], []; systems=[k0, yyyn], name=name)
 end
 
 """
@@ -212,7 +212,7 @@ function tbranch(t, T, a0, b0, c0, a1, b1, c1; name=:tbranch)
     @named k0 = arrhenius(t, T, a0, b0, c0)
     @named k1 = arrhenius(t, T, a1, b1, c1)
     @variables k(t) [unit = u"ppb^-1"]
-    NonlinearSystem([k ~ k0.k / (1.0 + unit_conv * k1.k)], [k], []; systems=[k0, k1], name=name)
+    ODESystem([k ~ k0.k / (1.0 + unit_conv * k1.k)], t, [k], []; systems=[k0, k1], name=name)
 end
 
 """
@@ -229,7 +229,7 @@ function rate_OHHNO3(t, T, num_density, a0, c0, a1, c1, a2, c2; name=:rate_OHHNO
     @named k1_5 = arrhenius(t, T, a2, 0, c2)
     k2 = num_density * k1_5.k
     @variables k(t) [unit = u"ppb^-1"]
-    NonlinearSystem([k ~ k0.k + k2 / (1.0 + k2 / k1.k)], [k], []; systems=[k0, k1, k1_5], name=name)
+    ODESystem([k ~ k0.k + k2 / (1.0 + k2 / k1.k)], t, [k], []; systems=[k0, k1, k1_5], name=name)
 end
 
 """
@@ -250,7 +250,7 @@ function eq_const(t, T, num_density, a0, c0, a1, b1, a2, b2, fv; unit=u"ppb^-1",
     @named k0 = arrhenius(t, T, a0, 0, c0)               # backwards rxn rate
     @named k1 = arr_3rdbody(t, T, num_density, a1, b1, 0, a2, b2, 0, fv)  # forwards rxn rate
     @variables k(t) [unit = unit]
-    NonlinearSystem([k ~ unit_conv * k1.k / k0.k], [k], []; systems=[k0, k1], name=name)
+    ODESystem([k ~ unit_conv * k1.k / k0.k], t, [k], []; systems=[k0, k1], name=name)
 end
 
 """
@@ -265,7 +265,7 @@ function rate_RO2HO2(t, T, a0, c0, a1; name=:rate_RO2HO2)
     T = ParentScope(T)
     @named k0 = arrhenius(t, T, a0, 0, c0)
     @variables k(t) [unit = u"ppb^-1"]
-    NonlinearSystem([k ~ k0.k * (1.0 - exp(-0.245 * a1))], [k], []; systems=[k0], name=name)
+    ODESystem([k ~ k0.k * (1.0 - exp(-0.245 * a1))], t, [k], []; systems=[k0], name=name)
 end
 
 """
@@ -273,7 +273,7 @@ Used to compute the rate for this reaction:
     GLYC + OH = 0.732CH2O + 0.361CO2  + 0.505CO    + 0.227OH
               + 0.773HO2  + 0.134GLYX + 0.134HCOOH
  which is the "A" branch of GLYC + OH.
- 
+
  For this reaction, these Arrhenius law terms evaluate to 1:
     (300/T)^b0 * exp(c0/T)
  Because b0 = c0 = 0.
@@ -285,14 +285,14 @@ function rate_GLYCOH_a(t, T, a0; name=:rate_GLYCOH_a)
     glyc_frac = 1.0 - 11.0729 * exp(exp_arg * T)
     glyc_frac = max(glyc_frac, 0.0)
     @variables k(t) [unit = u"ppb^-1"]
-    NonlinearSystem([k ~ a0 * glyc_frac], [k], []; name=name)
+    ODESystem([k ~ a0 * glyc_frac], t, [k], []; name=name)
 end
 
 """
 Used to compute the rate for this reaction:
     GLYC + OH = HCOOH + OH + CO
  which is the "B" branch of GLYC + OH.
- 
+
  For this reaction, these Arrhenius law terms evaluate to 1:
     (300/T)^b0 * exp(c0/T)
  Because b0 = c0 = 0.
@@ -304,7 +304,7 @@ function rate_GLYCOH_b(t, T, a0; name=:rate_GLYCOH_b)
     glyc_frac = 1.0 - 11.0729 * exp(exp_arg * T)
     glyc_frac = max(glyc_frac, 0.0)
     @variables k(t) [unit = u"ppb^-1"]
-    NonlinearSystem([k ~ a0 * (1.0 - glyc_frac)], [k], []; name=name)
+    ODESystem([k ~ a0 * (1.0 - glyc_frac)], t, [k], []; name=name)
 end
 
 """
@@ -319,7 +319,7 @@ function rate_HACOH_a(t, T, a0, c0; name=:rate_HACOH_a)
     hac_frac = 1.0 - 23.7 * exp(exp_arg * T)
     hac_frac = max(hac_frac, 0.0)
     @variables k(t) [unit = u"ppb^-1"]
-    NonlinearSystem([k ~ k0.k * hac_frac], [k], []; systems=[k0], name=name)
+    ODESystem([k ~ k0.k * hac_frac], t, [k], []; systems=[k0], name=name)
 end
 
 """
@@ -334,7 +334,7 @@ function rate_HACOH_b(t, T, a0, c0; name=:rate_HACOH_b)
     hac_frac = 1.0 - 23.7 * exp(exp_arg * T)
     hac_frac = max(hac_frac, 0.0)
     @variables k(t) [unit = u"ppb^-1"]
-    NonlinearSystem([k ~ k0.k * (1.0 - hac_frac)], [k], []; systems=[k0], name=name)
+    ODESystem([k ~ k0.k * (1.0 - hac_frac)], t, [k], []; systems=[k0], name=name)
 end
 
 """
@@ -349,7 +349,7 @@ function rate_DMSOH(t, T, num_density, a0, c0, a1, c1; name=:rate_DMSOH)
     @named k0 = arrhenius(t, T, a0, 0, c0)
     @named k1 = arrhenius(t, T, a1, 0, c1)
     @variables k(t) [unit = u"ppb^-1"]
-    NonlinearSystem([k ~ unit_conv * (k0.k * num_density * c2) / (1.0 + k1.k * c2)], [k], [];
+    ODESystem([k ~ unit_conv * (k0.k * num_density * c2) / (1.0 + k1.k * c2)], t, [k], [];
         systems=[k0, k1], name=name)
 end
 
@@ -365,7 +365,7 @@ function rate_GLYXNO3(t, T, num_density, a0, c0; name=:rate_GLYXNO3)
     O2 = num_density * 0.2095
     @named k0 = arrhenius(t, T, a0, 0, c0)
     @variables k(t) [unit = u"ppb^-1"]
-    NonlinearSystem([k ~ k0.k * (O2 + 3.5E+18) / (2.0 * O2 + 3.5E+18)], [k], []; systems=[k0], name=name)
+    ODESystem([k ~ k0.k * (O2 + 3.5E+18) / (2.0 * O2 + 3.5E+18)], t, [k], []; systems=[k0], name=name)
 end
 
 """
@@ -381,7 +381,7 @@ function arrplus(t, T, a0, b0, c0, d0, e0; unit=u"ppb^-1", name=:arrplus)
     )
     kx = a0 * (d0 + (T * e0)) * exp(-b0 / T) * (T / K_300)^c0
     @variables k(t) [unit = unit]
-    NonlinearSystem([k ~ max(kx, 0.0)], [k], []; name=name)
+    ODESystem([k ~ max(kx, 0.0)], t, [k], []; name=name)
 end
 
 """
@@ -400,7 +400,7 @@ function tunplus(t, T, a0, b0, c0, d0, e0; unit=u"ppb^-1", name=:tunplus)
     k0 = a0 * (d0 + (T * e0))
     k0 = k0 * exp(b0 / T) * exp(c0 / T^3)
     @variables k(t) [unit = unit]
-    NonlinearSystem([k ~ max(k0, 0.0)], [k], []; name=name)
+    ODESystem([k ~ max(k0, 0.0)], t, [k], []; name=name)
 end
 
 """
@@ -421,7 +421,7 @@ function rate_ISO1(t, T, a0, b0, c0, d0, e0, f0, g0; name=:rate_ISO1)
     k1 = f0 * exp(g0 / T)
     k2 = c0 * k0 / (k0 + k1)
     @variables k(t) [unit = u"ppb^-1"]
-    NonlinearSystem([k ~ a0 * exp(b0 / T) * (1.0 - k2)], [k], []; name=name)
+    ODESystem([k ~ a0 * exp(b0 / T) * (1.0 - k2)], t, [k], []; name=name)
 end
 
 """
@@ -446,7 +446,7 @@ function rate_ISO2(t, T, a0, b0, c0, d0, e0, f0, g0; name=:rate_ISO2)
     k1 = f0 * exp(g0 / T)
     k2 = c0 * k0 / (k0 + k1)
     @variables k(t) [unit = u"ppb^-1"]
-    NonlinearSystem([k ~ a0 * exp(b0 / T) * k2], [k], []; name=name)
+    ODESystem([k ~ a0 * exp(b0 / T) * k2], t, [k], []; name=name)
 end
 
 """
@@ -471,7 +471,7 @@ function rate_EPO(t, T, num_density, a1, e1, m1; name=:rate_EPO)
     @constants a1 = a1, [unit = u"ppb^-1"]
     k1 = 1.0 / (m1 * num_density + 1.0)
     @variables k(t) [unit = u"ppb^-1"]
-    NonlinearSystem([k ~ a1 * exp(e1 / T) * k1], [k], []; name=name)
+    ODESystem([k ~ a1 * exp(e1 / T) * k1], t, [k], []; name=name)
 end
 
 function rate_PAN_abab(t, T, num_density, a0, b0, a1, b1, cf; unit=u"ppb^-1", name=:rate_PAN_abab)
@@ -490,7 +490,7 @@ function rate_PAN_abab(t, T, num_density, a0, b0, a1, b1, cf; unit=u"ppb^-1", na
     nc = 0.75 - 1.27 * (log10(cf))
     f = 10.0^(log10(cf) / (1.0 + (log10(kr) / nc)^2))
     @variables k(t) [unit = unit]
-    NonlinearSystem([k ~ k0 * k1 * f / (k0 + k1)], [k], []; name=name)
+    ODESystem([k ~ k0 * k1 * f / (k0 + k1)], t, [k], []; name=name)
 end
 
 function rate_PAN_acac(t, T, num_density, a0, c0, a1, c1, cf; name=:rate_PAN_acac)
@@ -508,7 +508,7 @@ function rate_PAN_acac(t, T, num_density, a0, c0, a1, c1, cf; name=:rate_PAN_aca
     nc = 0.75 - 1.27 * (log10(cf))
     f = 10.0^(log10(cf) / (1.0 + (log10(kr) / nc)^2))
     @variables k(t) [unit = u"ppb^-1"]
-    NonlinearSystem([k ~ k0 * k1 * f / (k0 + k1)], [k], []; name=name)
+    ODESystem([k ~ k0 * k1 * f / (k0 + k1)], t, [k], []; name=name)
 end
 
 """
@@ -550,7 +550,7 @@ function rate_NIT(t, T, num_density, a0, b0, c0, n, x0, y0; name=:rate_NIT)
     k4 = a0 * (x0 - T * y0)
     kx = k4 * exp(b0 / T) * k3
     @variables k(t) [unit = u"ppb^-1"]
-    NonlinearSystem([k ~ max(kx, 0.0)], [k], []; name=name)
+    ODESystem([k ~ max(kx, 0.0)], t, [k], []; name=name)
 end
 
 """
@@ -594,5 +594,5 @@ function rate_ALK(t, T, num_density, a0, b0, c0, n, x0, y0; name=:rate_ALK)
     k4 = a0 * (x0 - T * y0)
     kx = k4 * exp(b0 / T) * k3
     @variables k(t) [unit = u"ppb^-1"]
-    NonlinearSystem([k ~ max(kx, 0.0)], [k], []; name=name)
+    ODESystem([k ~ max(kx, 0.0)], t, [k], []; name=name)
 end

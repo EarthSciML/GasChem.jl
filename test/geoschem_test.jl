@@ -127,5 +127,5 @@ end
         @test contains(string(j_eqs), eq)
     end
 
-    @test_broken convert(ODESystem, gf_coupled, prune=true, simplify=false)
+    @test_nowarn convert(ODESystem, gf_coupled, prune=true, simplify=false)
 end
