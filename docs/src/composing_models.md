@@ -16,7 +16,7 @@ composed_ode = couple(SuperFast(), FastJX()) # Compose two models use the "coupl
 
 start = Dates.datetime2unix(Dates.DateTime(2024, 2, 29))
 tspan = (start, start+3600*24*3)
-sys = structural_simplify(convert(ODESystem, composed_ode)) # Define the coupled system  
+sys = convert(ODESystem, composed_ode) # Define the coupled system  
 sol = solve(ODEProblem(sys, [], tspan, []),AutoTsit5(Rosenbrock23()), saveat=10.0) # Solve the coupled system
 ```
 
@@ -25,7 +25,7 @@ In the composed system, the variable name for O₃ is not ```O3``` but ```superf
 ```@example 1
 vars = unknowns(sys)  # Get the variables in the composed system
 var_dict = Dict(string(var) => var for var in vars)
-pols = ["O3", "OH", "NO", "NO2", "CH4", "CH3O2", "CO","CH3OOH", "CH3O", "DMS", "SO2", "ISOP"]
+pols = ["O3", "OH", "NO", "NO2", "CH3O2", "CO","CH3OOH", "CH3O", "ISOP"]
 var_names_p = ["SuperFast₊$(v)(t)" for v in pols]
 
 x_t = unix2datetime.(sol[t]) # Convert from unixtime to date time for visualizing 
@@ -39,7 +39,7 @@ for (i, v) in enumerate(var_names_p)
     name = pols[i]
     push!(pp, Plots.plot(x_t,sol[var_dict[v]],label = "$name", size = (1000, 600), xrotation=45))
 end
-Plots.plot(pp..., layout=(3, 4))
+Plots.plot(pp..., layout=(3, 3))
 ```
 
 ## Adding Emission Data
@@ -64,16 +64,16 @@ emis = NEI2016MonthlyEmis("mrggrid_withbeis_withrwc", domain)
 model_noemis = couple(SuperFast(),FastJX()) # A model with chemistry and photolysis, but no emissions.
 model_withemis = couple(SuperFast(), FastJX(), emis) # The same model with emissions.
 
-sys_noemis, _ = convert(ODESystem, model_noemis, simplify=true)
-sys_withemis, _ = convert(ODESystem, model_withemis, simplify=true)
+sys_noemis = convert(ODESystem, model_noemis)
+sys_withemis = convert(ODESystem, model_withemis)
 
-tspan = EarthSciMLBase.tspan(domain)
+tspan = EarthSciMLBase.get_tspan(domain)
 sol_noemis = solve(ODEProblem(sys_noemis, [], tspan, []), AutoTsit5(Rosenbrock23()))
 sol_withemis = solve(ODEProblem(sys_withemis, [], tspan, []), AutoTsit5(Rosenbrock23()))
 
 vars = unknowns(sys_noemis)  # Get the variables in the composed system
 var_dict = Dict(string(var) => var for var in vars)
-pols = ["O3", "OH", "NO", "NO2", "CH4", "CH3O2", "CO","CH3OOH", "CH3O", "DMS", "SO2", "ISOP"]
+pols = ["O3", "OH", "NO", "NO2", "CH3O2", "CO","CH3OOH", "CH3O", "ISOP"]
 var_names_p = ["SuperFast₊$(v)(t)" for v in pols]
 
 pp = []
@@ -83,5 +83,5 @@ for (i, v) in enumerate(var_names_p)
     plot!(unix2datetime.(sol_withemis[t]),sol_withemis[var_dict[v]], label="With Emissions", )
     push!(pp, p)
 end
-Plots.plot(pp..., layout=(3, 4))
+Plots.plot(pp..., layout=(3, 3))
 ```

@@ -113,9 +113,7 @@ end
     gf = couple(gc, fjx)
     gf = convert(ODESystem, gf)
 
-    structural_simplify(gf)
-
-    eqs = string.(equations(gf))
+    eqs = string.(observed(gf))
 
     j_eqs = filter(eq -> contains(eq, r"^GEOSChemGasPhase₊j_"), eqs)
     

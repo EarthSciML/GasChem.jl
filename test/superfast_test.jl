@@ -18,30 +18,6 @@ tspan = (0.0, 360.0)
     @test sol[rs.O3][end] ≈ answer
 end
 
-@testset "DMS sensitivity" begin
-    u_dms = 0.0
-
-    rs1 = structural_simplify(SuperFast())
-    o1 = solve(
-        ODEProblem(rs1, [rs1.DMS => 76], tspan, []),
-        Tsit5(),
-        saveat=10.0,
-        abstol=1e-12,
-        reltol=1e-12,
-    )
-    rs2 = structural_simplify(SuperFast())
-    o2 = solve(
-        ODEProblem(rs2, [rs2.DMS => 46], tspan, []),
-        Tsit5(),
-        saveat=10.0,
-        abstol=1e-12,
-        reltol=1e-12,
-    )
-    test1 = o1[rs1.SO2][end] - o2[rs2.SO2][end]
-
-    @test test1 ≈ u_dms
-end
-
 @testset "ISOP sensitivity" begin
     u_isop = 1.326627917253738
 
@@ -73,7 +49,7 @@ end
     o1 = solve(
         ODEProblem(
             rs1,
-            [rs1.NO2 => 100.0, rs1.DMS => 0.1],
+            [rs1.NO2 => 100.0],
             tspan,
             [],
             combinatoric_ratelaws=false,
@@ -85,7 +61,7 @@ end
     )
     rs2 = structural_simplify(SuperFast())
     o2 = solve(
-        ODEProblem(rs2, [rs2.DMS => 0.1], tspan, []),
+        ODEProblem(rs2, [], tspan, []),
         Tsit5(),
         saveat=10.0,
         abstol=1e-12,

@@ -4,28 +4,28 @@
 
 
 "Function to create a constant rate coefficient"
-function constant_k(t, c; unit=u"ppb^-1", name=:constant_k)
+function constant_k(t, c; unit=u"ppb^-1*s^-1", name=:constant_k)
     @constants c = c, [unit = unit]
-    @variables k(t) [unit = u"ppb^-1"]
-    NonlinearSystem([k ~ c], [k], []; name=name)
+    @variables k(t) [unit = unit]
+    ODESystem([k ~ c], t, [k], []; name=name)
 end
 
 function regress_T(t, T, a_0, b_0, T_0; name=:acet_oh)
     T = ParentScope(T)
     @constants T_0 = T_0 [unit = u"K"]
-    @constants a_0 = a_0 [unit = u"ppb^-1"]
-    @constants b_0 = b_0 [unit = u"ppb^-1"]
-    @variables k(t) [unit = u"ppb^-1"]
-    NonlinearSystem([k ~ a_0 + b_0 * exp(T_0 / T)], [k], []; name=name)
+    @constants a_0 = a_0 [unit = u"ppb^-1*s^-1"]
+    @constants b_0 = b_0 [unit = u"ppb^-1*s^-1"]
+    @variables k(t) [unit = u"ppb^-1*s^-1"]
+    ODESystem([k ~ a_0 + b_0 * exp(T_0 / T)], t, [k], []; name=name)
 end
 
-""" 
+"""
 Arrhenius equation:
 ``` math
     k = a0 * exp( c0 / T ) * (T/300)^b0
 ```
 """
-function arrhenius(t, T, a0, b0, c0; unit=u"ppb^-1", name=:arrhenius)
+function arrhenius(t, T, a0, b0, c0; unit=u"ppb^-1*s^-1", name=:arrhenius)
     T = ParentScope(T)
     t = ParentScope(t)
     @constants(
@@ -35,7 +35,7 @@ function arrhenius(t, T, a0, b0, c0; unit=u"ppb^-1", name=:arrhenius)
         c0 = c0, [unit = u"K"],
     )
     @variables k(t) [unit = unit]
-    NonlinearSystem([k ~ a0 * exp(c0 / T) * (K_300 / T)^b0], [k], []; name=name)
+    ODESystem([k ~ a0 * exp(c0 / T) * (K_300 / T)^b0], t, [k], []; name=name)
 end
 
 """
@@ -45,7 +45,7 @@ a2, b2, c2 are the Arrhenius parameters for the upper-limit rate.
 fv         is the falloff curve paramter, (see ATKINSON ET. AL (1992)
            J. Phys. Chem. Ref. Data 21, P. 1145). Usually fv = 0.6.
 """
-function arr_3rdbody(t, T, num_density, a1, b1, c1, a2, b2, c2, fv; unit=u"ppb^-1", name=:arr_3rdbody)
+function arr_3rdbody(t, T, num_density, a1, b1, c1, a2, b2, c2, fv; unit=u"ppb^-1*s^-1", name=:arr_3rdbody)
     t = ParentScope(t)
     T = ParentScope(T)
     num_density = ParentScope(num_density)
@@ -57,7 +57,7 @@ function arr_3rdbody(t, T, num_density, a1, b1, c1, a2, b2, c2, fv; unit=u"ppb^-
     blog = log10(xyrat)
     fexp = 1.0 / (1.0 + (blog * blog))
     @variables k(t) [unit = unit]
-    NonlinearSystem([k ~ rlow * (fv^fexp) / (1.0 + xyrat)], [k], []; systems=[alow, ahigh], name=name)
+    ODESystem([k ~ rlow * (fv^fexp) / (1.0 + xyrat)], t, [k], []; systems=[alow, ahigh], name=name)
 end
 
 """
@@ -75,9 +75,9 @@ function rate_HO2HO2(t, T, num_density, H2O, a0, c0, a1, c1; name=:rate_HO2HO2)
         one = 1.0, [unit = u"ppb"],
         unit_conv = 1, [unit = u"ppb^-1"],
     )
-    @variables k(t) [unit = u"ppb^-1"]
-    NonlinearSystem([k ~ unit_conv * (k0.k + k1.k * num_density) * (one + 1.4E-21 * H2O * exp(T_0 / T))], [k], [];
-        systems=[k0, k1], name=name)
+    @variables k(t) [unit = u"ppb^-1*s^-1"]
+    ODESystem([k ~ unit_conv * (k0.k + k1.k * num_density) * (one + 1.4E-21 * H2O * exp(T_0 / T))],
+        t, [k], []; systems=[k0, k1], name=name)
 end
 
 """
@@ -99,8 +99,8 @@ function rate_OHCO(t, T, num_density; name=:rate_OHCO)
     blog2 = log10(xyrat2)
     fexp2 = 1.0 / (1.0 + blog2 * blog2)
     kco2 = klo2.k * 0.6^fexp2 / (1.0 + xyrat2)
-    @variables k(t) [unit = u"ppb^-1"]
-    NonlinearSystem([k ~ kco1 + kco2], [k], []; systems=[klo1, khi1, klo2, khi2], name=name)
+    @variables k(t) [unit = u"ppb^-1*s^-1"]
+    ODESystem([k ~ kco1 + kco2], t, [k], []; systems=[klo1, khi1, klo2, khi2], name=name)
 end
 
 """
@@ -121,18 +121,18 @@ in Fisher et al. 2018
 function rate_RO2NO_a1(t, T, a0, c0; name=:rate_RO2NO_a1)
     T = ParentScope(T)
     @constants(
-        a0 = a0, [unit = u"ppb^-1"],
+        a0 = a0, [unit = u"ppb^-1*s^-1"],
         c0 = c0, [unit = u"K"],
     )
-    @variables k(t) [unit = u"ppb^-1"]
-    NonlinearSystem([k ~ a0 * exp(c0 / T) * 3.0e-4], [k], []; name=name)
+    @variables k(t) [unit = u"ppb^-1*s^-1"]
+    ODESystem([k ~ a0 * exp(c0 / T) * 3.0e-4], t, [k], []; name=name)
 end
 
 """
 Reaction rate for the "B" branch of these RO2 + NO reactions:
     MO2 + NO = CH2O + NO2 + HO2
  in which the "a1" parameter equals exactly 1.
- 
+
  For these reactions, these Arrhenius law terms evaluate to 1:
     (300/T)^b0
     (300/T)^b1 * exp(c1/T)
@@ -141,12 +141,12 @@ Reaction rate for the "B" branch of these RO2 + NO reactions:
 function rate_RO2NO_b1(t, T, a0, c0; name=:rate_RO2NO_b1)
     T = ParentScope(T)
     @constants(
-        a0 = a0, [unit = u"ppb^-1"],
+        a0 = a0, [unit = u"ppb^-1*s^-1"],
         c0 = c0, [unit = u"K"],
         fyrno3 = 3.0e-4,
     )
-    @variables k(t) [unit = u"ppb^-1"]
-    NonlinearSystem([k ~ a0 * exp(c0 / T) * (1 - fyrno3)], [k], []; name=name)
+    @variables k(t) [unit = u"ppb^-1*s^-1"]
+    ODESystem([k ~ a0 * exp(c0 / T) * (1 - fyrno3)], t, [k], []; name=name)
 end
 
 """"
@@ -161,18 +161,29 @@ function rate_RO2NO_a2(t, T, num_density, a0, c0, a1; name=:rate_RO2NO_a2)
     T = ParentScope(T)
     num_density = ParentScope(num_density)
     @constants(
+        one_s = 1.0, [unit = u"s"],
         one_ppb = 1.0, [unit = u"ppb"],
         inv_ppb = 1.0, [unit = u"ppb^-1"],
     )
     @named k0 = arrhenius(t, T, a0, 0, c0)
-    xxyn = 1.94e-22 * exp(0.97 * a1) * num_density
     @named yyyn = arrhenius(t, T, 0.826, 8.1, 0.0)
-    aaa = log10(xxyn / yyyn.k)
-    zzyn = (1.0 / (1.0 + (aaa * aaa)))
-    rarb = (xxyn / (one_ppb + (xxyn / yyyn.k))) * (0.411^zzyn)
-    fyrno3 = (rarb / (inv_ppb + rarb))
-    @variables k(t) [unit = u"ppb^-1"]
-    NonlinearSystem([k ~ k0.k * fyrno3], [k], []; systems=[k0, yyyn], name=name)
+    @variables(
+        xxyn(t), [unit = u"s^-1"],
+        aaa(t),
+        zzyn(t),
+        rarb(t),
+        fyrno3(t),
+        k(t), [unit = u"ppb^-1*s^-1"],
+    )
+    eqs = [
+        xxyn ~ 1.94e-22 * exp(0.97 * a1) * num_density / one_s
+        aaa ~ log10(xxyn / yyyn.k)
+        zzyn ~ (1.0 / (1.0 + (aaa * aaa)))
+        rarb ~ (xxyn / (one_ppb + (xxyn / yyyn.k))) * (0.411^zzyn) * one_s
+        fyrno3 ~ (rarb / (inv_ppb + rarb))
+        k ~ k0.k * fyrno3
+    ]
+    ODESystem(eqs, t, [xxyn, aaa, zzyn, rarb, fyrno3, k], []; systems=[k0, yyyn], name=name)
 end
 
 """
@@ -182,25 +193,36 @@ Reaction rate for the "B" branch of these RO2 + NO reactions:
     R4O2 + NO = NO2 + 0.27HO2 + ...
     B3O2 + NO = NO2 +     HO2 + ...
  in which the "a1" parameter is greater than 1.0.
- 
+
  Use this function when a1 input argument is greater than 1.0.
  """
 function rate_RO2NO_b2(t, T, num_density, a0, c0, a1; name=:rate_RO2NO_b2)
     T = ParentScope(T)
     num_density = ParentScope(num_density)
     @constants(
+        one_s = 1.0, [unit = u"s"],
         one_ppb = 1.0, [unit = u"ppb"],
         inv_ppb = 1.0, [unit = u"ppb^-1"],
     )
     @named k0 = arrhenius(t, T, a0, 0.0, c0)
-    xxyn = 1.94e-22 * exp(0.97 * a1) * num_density
     @named yyyn = arrhenius(t, T, 0.826, 8.1, 0.0)
-    aaa = log10(xxyn / yyyn.k)
-    zzyn = (1.0 / (1.0 + (aaa * aaa)))
-    rarb = (xxyn / (one_ppb + (xxyn / yyyn.k))) * (0.411^zzyn)
-    fyrno3 = (rarb / (inv_ppb + rarb))
-    @variables k(t) [unit = u"ppb^-1"]
-    NonlinearSystem([k ~ k0.k * (1.0 - fyrno3)], [k], []; systems=[k0, yyyn], name=name)
+    @variables(
+        xxyn(t), [unit = u"s^-1"],
+        aaa(t),
+        zzyn(t),
+        rarb(t),
+        fyrno3(t),
+        k(t), [unit = u"ppb^-1*s^-1"],
+    )
+    eqs = [
+        xxyn ~ 1.94e-22 * exp(0.97 * a1) * num_density / one_s
+        aaa ~ log10(xxyn / yyyn.k)
+        zzyn ~ (1.0 / (1.0 + (aaa * aaa)))
+        rarb ~ (xxyn / (one_ppb + (xxyn / yyyn.k))) * (0.411^zzyn) * one_s
+        fyrno3 ~ (rarb / (inv_ppb + rarb))
+        k ~ k0.k * (1.0 - fyrno3)
+    ]
+    ODESystem(eqs, t, [xxyn, aaa, zzyn, rarb, fyrno3, k], []; systems=[k0, yyyn], name=name)
 end
 
 """
@@ -208,11 +230,11 @@ Temperature Dependent Branching Ratio
 """
 function tbranch(t, T, a0, b0, c0, a1, b1, c1; name=:tbranch)
     T = ParentScope(T)
-    @constants unit_conv = 1, [unit = u"ppb"]
+    @constants unit_conv = 1, [unit = u"ppb*s"]
     @named k0 = arrhenius(t, T, a0, b0, c0)
     @named k1 = arrhenius(t, T, a1, b1, c1)
-    @variables k(t) [unit = u"ppb^-1"]
-    NonlinearSystem([k ~ k0.k / (1.0 + unit_conv * k1.k)], [k], []; systems=[k0, k1], name=name)
+    @variables k(t) [unit = u"ppb^-1*s^-1"]
+    ODESystem([k ~ k0.k / (1.0 + unit_conv * k1.k)], t, [k], []; systems=[k0, k1], name=name)
 end
 
 """
@@ -228,8 +250,8 @@ function rate_OHHNO3(t, T, num_density, a0, c0, a1, c1, a2, c2; name=:rate_OHHNO
     @named k1 = arrhenius(t, T, a1, 0, c1)
     @named k1_5 = arrhenius(t, T, a2, 0, c2)
     k2 = num_density * k1_5.k
-    @variables k(t) [unit = u"ppb^-1"]
-    NonlinearSystem([k ~ k0.k + k2 / (1.0 + k2 / k1.k)], [k], []; systems=[k0, k1, k1_5], name=name)
+    @variables k(t) [unit = u"ppb^-1*s^-1"]
+    ODESystem([k ~ k0.k + k2 / (1.0 + k2 / k1.k)], t, [k], []; systems=[k0, k1, k1_5], name=name)
 end
 
 """
@@ -243,14 +265,14 @@ Used to compute the rate for these reactions:
    ClOO  {+M} = Cl   + O2 {+M}
    Cl2O2 {+M} = 2ClO      {+M}
 """
-function eq_const(t, T, num_density, a0, c0, a1, b1, a2, b2, fv; unit=u"ppb^-1", name=:eq_const)
+function eq_const(t, T, num_density, a0, c0, a1, b1, a2, b2, fv; unit=u"ppb^-1*s^-1", name=:eq_const)
     T = ParentScope(T)
     num_density = ParentScope(num_density)
     @constants unit_conv = 1, [unit = unit]
     @named k0 = arrhenius(t, T, a0, 0, c0)               # backwards rxn rate
     @named k1 = arr_3rdbody(t, T, num_density, a1, b1, 0, a2, b2, 0, fv)  # forwards rxn rate
     @variables k(t) [unit = unit]
-    NonlinearSystem([k ~ unit_conv * k1.k / k0.k], [k], []; systems=[k0, k1], name=name)
+    ODESystem([k ~ unit_conv * k1.k / k0.k], t, [k], []; systems=[k0, k1], name=name)
 end
 
 """
@@ -264,8 +286,8 @@ Carbon Dependence of RO2+HO2, used in these reactions:
 function rate_RO2HO2(t, T, a0, c0, a1; name=:rate_RO2HO2)
     T = ParentScope(T)
     @named k0 = arrhenius(t, T, a0, 0, c0)
-    @variables k(t) [unit = u"ppb^-1"]
-    NonlinearSystem([k ~ k0.k * (1.0 - exp(-0.245 * a1))], [k], []; systems=[k0], name=name)
+    @variables k(t) [unit = u"ppb^-1*s^-1"]
+    ODESystem([k ~ k0.k * (1.0 - exp(-0.245 * a1))], t, [k], []; systems=[k0], name=name)
 end
 
 """
@@ -273,38 +295,38 @@ Used to compute the rate for this reaction:
     GLYC + OH = 0.732CH2O + 0.361CO2  + 0.505CO    + 0.227OH
               + 0.773HO2  + 0.134GLYX + 0.134HCOOH
  which is the "A" branch of GLYC + OH.
- 
+
  For this reaction, these Arrhenius law terms evaluate to 1:
     (300/T)^b0 * exp(c0/T)
  Because b0 = c0 = 0.
 """
 function rate_GLYCOH_a(t, T, a0; name=:rate_GLYCOH_a)
     T = ParentScope(T)
-    @constants a0 = a0, [unit = u"ppb^-1"]
+    @constants a0 = a0, [unit = u"ppb^-1*s^-1"]
     @constants exp_arg = -1.0 / 73.0 [unit = u"K^-1"]
     glyc_frac = 1.0 - 11.0729 * exp(exp_arg * T)
     glyc_frac = max(glyc_frac, 0.0)
-    @variables k(t) [unit = u"ppb^-1"]
-    NonlinearSystem([k ~ a0 * glyc_frac], [k], []; name=name)
+    @variables k(t) [unit = u"ppb^-1*s^-1"]
+    ODESystem([k ~ a0 * glyc_frac], t, [k], []; name=name)
 end
 
 """
 Used to compute the rate for this reaction:
     GLYC + OH = HCOOH + OH + CO
  which is the "B" branch of GLYC + OH.
- 
+
  For this reaction, these Arrhenius law terms evaluate to 1:
     (300/T)^b0 * exp(c0/T)
  Because b0 = c0 = 0.
 """
 function rate_GLYCOH_b(t, T, a0; name=:rate_GLYCOH_b)
     T = ParentScope(T)
-    @constants a0 = a0, [unit = u"ppb^-1"]
+    @constants a0 = a0, [unit = u"ppb^-1*s^-1"]
     @constants exp_arg = -1.0 / 73.0 [unit = u"K^-1"]
     glyc_frac = 1.0 - 11.0729 * exp(exp_arg * T)
     glyc_frac = max(glyc_frac, 0.0)
-    @variables k(t) [unit = u"ppb^-1"]
-    NonlinearSystem([k ~ a0 * (1.0 - glyc_frac)], [k], []; name=name)
+    @variables k(t) [unit = u"ppb^-1*s^-1"]
+    ODESystem([k ~ a0 * (1.0 - glyc_frac)], t, [k], []; name=name)
 end
 
 """
@@ -318,8 +340,8 @@ function rate_HACOH_a(t, T, a0, c0; name=:rate_HACOH_a)
     k0 = arrhenius(t, T, a0, 0, c0)
     hac_frac = 1.0 - 23.7 * exp(exp_arg * T)
     hac_frac = max(hac_frac, 0.0)
-    @variables k(t) [unit = u"ppb^-1"]
-    NonlinearSystem([k ~ k0.k * hac_frac], [k], []; systems=[k0], name=name)
+    @variables k(t) [unit = u"ppb^-1*s^-1"]
+    ODESystem([k ~ k0.k * hac_frac], t, [k], []; systems=[k0], name=name)
 end
 
 """
@@ -333,8 +355,8 @@ function rate_HACOH_b(t, T, a0, c0; name=:rate_HACOH_b)
     k0 = arrhenius(t, T, a0, 0, c0)
     hac_frac = 1.0 - 23.7 * exp(exp_arg * T)
     hac_frac = max(hac_frac, 0.0)
-    @variables k(t) [unit = u"ppb^-1"]
-    NonlinearSystem([k ~ k0.k * (1.0 - hac_frac)], [k], []; systems=[k0], name=name)
+    @variables k(t) [unit = u"ppb^-1*s^-1"]
+    ODESystem([k ~ k0.k * (1.0 - hac_frac)], t, [k], []; systems=[k0], name=name)
 end
 
 """
@@ -344,12 +366,13 @@ Reaction rate for:
 function rate_DMSOH(t, T, num_density, a0, c0, a1, c1; name=:rate_DMSOH)
     T = ParentScope(T)
     num_density = ParentScope(num_density)
-    @constants unit_conv = 1, [unit = u"ppb^-1"]
+    @constants unit_conv = 1, [unit = u"ppb^-1*s^-1"]
+    @constants one_s = 1.0, [unit = u"s"]
     @constants c2 = 0.2095e0, [unit = u"ppb"]
     @named k0 = arrhenius(t, T, a0, 0, c0)
     @named k1 = arrhenius(t, T, a1, 0, c1)
-    @variables k(t) [unit = u"ppb^-1"]
-    NonlinearSystem([k ~ unit_conv * (k0.k * num_density * c2) / (1.0 + k1.k * c2)], [k], [];
+    @variables k(t) [unit = u"ppb^-1*s^-1"]
+    ODESystem([k ~ unit_conv * (k0.k * num_density * c2) / (1 / one_s + k1.k * c2)], t, [k], [];
         systems=[k0, k1], name=name)
 end
 
@@ -364,24 +387,30 @@ function rate_GLYXNO3(t, T, num_density, a0, c0; name=:rate_GLYXNO3)
     num_density = ParentScope(num_density)
     O2 = num_density * 0.2095
     @named k0 = arrhenius(t, T, a0, 0, c0)
-    @variables k(t) [unit = u"ppb^-1"]
-    NonlinearSystem([k ~ k0.k * (O2 + 3.5E+18) / (2.0 * O2 + 3.5E+18)], [k], []; systems=[k0], name=name)
+    @variables k(t) [unit = u"ppb^-1*s^-1"]
+    ODESystem([k ~ k0.k * (O2 + 3.5E+18) / (2.0 * O2 + 3.5E+18)], t, [k], []; systems=[k0], name=name)
 end
 
 """
 Modified Arrhenius law.
 """
-function arrplus(t, T, a0, b0, c0, d0, e0; unit=u"ppb^-1", name=:arrplus)
+function arrplus(t, T, a0, b0, c0, d0, e0; unit=u"ppb^-1*s^-1", name=:arrplus)
     T = ParentScope(T)
     @constants(
         K_300 = 300, [unit = u"K"],
         a0 = a0, [unit = unit],
         b0 = b0, [unit = u"K"],
         e0 = e0, [unit = u"K^-1"],
+        zero = 0.0, [unit = unit],
     )
-    kx = a0 * (d0 + (T * e0)) * exp(-b0 / T) * (T / K_300)^c0
-    @variables k(t) [unit = unit]
-    NonlinearSystem([k ~ max(kx, 0.0)], [k], []; name=name)
+    @variables(
+        k(t), [unit = unit],
+        kx(t), [unit = unit],
+    )
+    ODESystem([
+            kx ~ a0 * (d0 + (T * e0)) * exp(-b0 / T) * (T / K_300)^c0
+            k ~ max(kx, zero)
+        ], t, [k, kx], []; name=name)
 end
 
 """
@@ -389,18 +418,23 @@ Used to compute the rate for these reactions:
     IHOO1 = 1.5OH + ...
     IHOO4 = 1.5OH + ...
 """
-function tunplus(t, T, a0, b0, c0, d0, e0; unit=u"ppb^-1", name=:tunplus)
+function tunplus(t, T, a0, b0, c0, d0, e0; unit=u"ppb^-1*s^-1", name=:tunplus)
     T = ParentScope(T)
     @constants(
         a0 = a0, [unit = unit],
         b0 = b0, [unit = u"K"],
         c0 = c0, [unit = u"K^3"],
         e0 = e0, [unit = u"K^-1"],
+        zero = 0.0, [unit = unit],
     )
-    k0 = a0 * (d0 + (T * e0))
-    k0 = k0 * exp(b0 / T) * exp(c0 / T^3)
-    @variables k(t) [unit = unit]
-    NonlinearSystem([k ~ max(k0, 0.0)], [k], []; name=name)
+    @variables(
+        k0(t), [unit = unit],
+        k(t), [unit = unit],
+    )
+    ODESystem([
+            k0 ~ a0 * (d0 + (T * e0)) * exp(b0 / T) * exp(c0 / T^3)
+            k ~ max(k0, zero)
+        ], t, [k0, k], []; name=name)
 end
 
 """
@@ -412,7 +446,7 @@ function rate_ISO1(t, T, a0, b0, c0, d0, e0, f0, g0; name=:rate_ISO1)
     T = ParentScope(T)
     @constants(
         ct = 1.0E8, [unit = u"K^3"],
-        a0 = a0, [unit = u"ppb^-1"],
+        a0 = a0, [unit = u"ppb^-1*s^-1"],
         b0 = b0, [unit = u"K"],
         e0 = e0, [unit = u"K"],
         g0 = g0, [unit = u"K"],
@@ -420,8 +454,8 @@ function rate_ISO1(t, T, a0, b0, c0, d0, e0, f0, g0; name=:rate_ISO1)
     k0 = d0 * exp(e0 / T) * exp(ct / T^3)
     k1 = f0 * exp(g0 / T)
     k2 = c0 * k0 / (k0 + k1)
-    @variables k(t) [unit = u"ppb^-1"]
-    NonlinearSystem([k ~ a0 * exp(b0 / T) * (1.0 - k2)], [k], []; name=name)
+    @variables k(t) [unit = u"ppb^-1*s^-1"]
+    ODESystem([k ~ a0 * exp(b0 / T) * (1.0 - k2)], t, [k], []; name=name)
 end
 
 """
@@ -437,7 +471,7 @@ function rate_ISO2(t, T, a0, b0, c0, d0, e0, f0, g0; name=:rate_ISO2)
     T = ParentScope(T)
     @constants(
         ct = 1.0E8, [unit = u"K^3"],
-        a0 = a0, [unit = u"ppb^-1"],
+        a0 = a0, [unit = u"ppb^-1*s^-1"],
         b0 = b0, [unit = u"K"],
         e0 = e0, [unit = u"K"],
         g0 = g0, [unit = u"K"],
@@ -445,8 +479,8 @@ function rate_ISO2(t, T, a0, b0, c0, d0, e0, f0, g0; name=:rate_ISO2)
     k0 = d0 * exp(e0 / T) * exp(ct / T^3)
     k1 = f0 * exp(g0 / T)
     k2 = c0 * k0 / (k0 + k1)
-    @variables k(t) [unit = u"ppb^-1"]
-    NonlinearSystem([k ~ a0 * exp(b0 / T) * k2], [k], []; name=name)
+    @variables k(t) [unit = u"ppb^-1*s^-1"]
+    ODESystem([k ~ a0 * exp(b0 / T) * k2], t, [k], []; name=name)
 end
 
 """
@@ -468,10 +502,10 @@ function rate_EPO(t, T, num_density, a1, e1, m1; name=:rate_EPO)
     T = ParentScope(T)
     num_density = ParentScope(num_density)
     @constants e1 = e1, [unit = u"K"]
-    @constants a1 = a1, [unit = u"ppb^-1"]
+    @constants a1 = a1, [unit = u"ppb^-1*s^-1"]
     k1 = 1.0 / (m1 * num_density + 1.0)
-    @variables k(t) [unit = u"ppb^-1"]
-    NonlinearSystem([k ~ a1 * exp(e1 / T) * k1], [k], []; name=name)
+    @variables k(t) [unit = u"ppb^-1*s^-1"]
+    ODESystem([k ~ a1 * exp(e1 / T) * k1], t, [k], []; name=name)
 end
 
 function rate_PAN_abab(t, T, num_density, a0, b0, a1, b1, cf; unit=u"ppb^-1", name=:rate_PAN_abab)
@@ -490,7 +524,7 @@ function rate_PAN_abab(t, T, num_density, a0, b0, a1, b1, cf; unit=u"ppb^-1", na
     nc = 0.75 - 1.27 * (log10(cf))
     f = 10.0^(log10(cf) / (1.0 + (log10(kr) / nc)^2))
     @variables k(t) [unit = unit]
-    NonlinearSystem([k ~ k0 * k1 * f / (k0 + k1)], [k], []; name=name)
+    ODESystem([k ~ k0 * k1 * f / (k0 + k1)], t, [k], []; name=name)
 end
 
 function rate_PAN_acac(t, T, num_density, a0, c0, a1, c1, cf; name=:rate_PAN_acac)
@@ -498,8 +532,8 @@ function rate_PAN_acac(t, T, num_density, a0, c0, a1, c1, cf; name=:rate_PAN_aca
     num_density = ParentScope(num_density)
     @constants(
         K_300 = 300, [unit = u"K"],
-        a0 = a0, [unit = u"ppb^-1"],
-        a1 = a1, [unit = u"ppb^-1"],
+        a0 = a0, [unit = u"ppb^-1*s^-1"],
+        a1 = a1, [unit = u"ppb^-1*s^-1"],
     )
     k0 = a0 * (T / K_300)^c0
     k1 = a1 * (T / K_300)^c1
@@ -507,8 +541,8 @@ function rate_PAN_acac(t, T, num_density, a0, c0, a1, c1, cf; name=:rate_PAN_aca
     kr = k0 / k1
     nc = 0.75 - 1.27 * (log10(cf))
     f = 10.0^(log10(cf) / (1.0 + (log10(kr) / nc)^2))
-    @variables k(t) [unit = u"ppb^-1"]
-    NonlinearSystem([k ~ k0 * k1 * f / (k0 + k1)], [k], []; name=name)
+    @variables k(t) [unit = u"ppb^-1*s^-1"]
+    ODESystem([k ~ k0 * k1 * f / (k0 + k1)], t, [k], []; name=name)
 end
 
 """
@@ -537,20 +571,28 @@ function rate_NIT(t, T, num_density, a0, b0, c0, n, x0, y0; name=:rate_NIT)
     num_density = ParentScope(num_density)
     @constants(
         T_298 = 298.0, [unit = u"K"],
-        a0 = a0, [unit = u"ppb^-1"],
+        a0 = a0, [unit = u"ppb^-1*s^-1"],
         b0 = b0, [unit = u"K"],
         y0 = y0, [unit = u"K^-1"],
+        zero = 0, [unit = u"ppb^-1*s^-1"],
     )
-    k0 = 2.0E-22 * exp(n)
-    k1 = 4.3E-1 * (T / T_298)^(-8)
-    k0 = k0 * num_density
-    k1 = k0 / k1
-    k2 = (k0 / (1.0 + k1)) * 4.1E-1^(1.0 / (1.0 + (log10(k1))^2))
-    k3 = k2 / (k2 + c0)
-    k4 = a0 * (x0 - T * y0)
-    kx = k4 * exp(b0 / T) * k3
-    @variables k(t) [unit = u"ppb^-1"]
-    NonlinearSystem([k ~ max(kx, 0.0)], [k], []; name=name)
+    @variables(
+        k0(t), k1(t), k2_(t), k2(t),
+        k3(t),
+        k4(t), [unit = u"ppb^-1*s^-1"],
+        kx(t), [unit = u"ppb^-1*s^-1"],
+        k(t), [unit = u"ppb^-1*s^-1"],
+    )
+    eqs = [
+        k0 ~ 2.0E-22 * exp(n) * num_density
+        k1 ~ k0 / (4.3E-1 * (T / T_298)^(-8))
+        k2_ ~ (k0 / (1.0 + k1)) * 4.1E-1^(1.0 / (1.0 + (log10(k1))^2))
+        k3 ~ k2_ / (k2_ + c0)
+        k4 ~ a0 * (x0 - T * y0)
+        kx ~ k4 * exp(b0 / T) * k3
+        k ~ max(kx, zero)
+    ]
+    ODESystem(eqs, t, [k0, k1, k2_, k2, k3, k4, kx, k], []; name=name)
 end
 
 """
@@ -581,18 +623,25 @@ function rate_ALK(t, T, num_density, a0, b0, c0, n, x0, y0; name=:rate_ALK)
     num_density = ParentScope(num_density)
     @constants(
         T_298 = 298.0, [unit = u"K"],
-        a0 = a0, [unit = u"ppb^-1"],
+        a0 = a0, [unit = u"ppb^-1*s^-1"],
         b0 = b0, [unit = u"K"],
         y0 = y0, [unit = u"K^-1"],
+        zero = 0, [unit = u"ppb^-1*s^-1"],
     )
-    k0 = 2.0E-22 * exp(n)
-    k1 = 4.3E-1 * (T / T_298)^(-8)
-    k0 = k0 * num_density
-    k1 = k0 / k1
-    k2 = (k0 / (1.0 + k1)) * 4.1E-1^(1.0 / (1.0 + (log10(k1))^2))
-    k3 = c0 / (k2 + c0)
-    k4 = a0 * (x0 - T * y0)
-    kx = k4 * exp(b0 / T) * k3
-    @variables k(t) [unit = u"ppb^-1"]
-    NonlinearSystem([k ~ max(kx, 0.0)], [k], []; name=name)
+    @variables(
+        k0(t), k1(t), k2(t), k3(t),
+        k4(t), [unit = u"ppb^-1*s^-1"],
+        kx(t), [unit = u"ppb^-1*s^-1"],
+        k(t), [unit = u"ppb^-1*s^-1"],
+    )
+    eqs = [
+        k0 ~ 2.0E-22 * exp(n) * num_density
+        k1 ~ k0 / 4.3E-1 * (T / T_298)^(-8)
+        k2 ~ (k0 / (1.0 + k1)) * 4.1E-1^(1.0 / (1.0 + (log10(k1))^2))
+        k3 ~ c0 / (k2 + c0)
+        k4 ~ a0 * (x0 - T * y0)
+        kx ~ k4 * exp(b0 / T) * k3
+        k ~ max(kx, zero)
+    ]
+    ODESystem(eqs, t, [k0, k1, k2, k3, k4, kx, k], []; name=name)
 end

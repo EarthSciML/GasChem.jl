@@ -160,11 +160,11 @@ end
 function flux_eqs(csa)
     flux_vals = calc_fluxes(csa)
     flux_vars = []
-    @constants c_flux = 1.0 #[unit = u"s^-1", description = "Constant actinic flux (for unit conversion)"]
+    @constants c_flux = 1.0 [unit = u"s^-1", description = "Constant actinic flux (for unit conversion)"]
     for i in 1:18
         wl = WL[i]
         n = Symbol("F_", Int(round(wl)))
-        v = @variables $n(t) #[unit = u"s^-1", description = "Actinic flux at $wl nm"]
+        v = @variables $n(t) [unit = u"s^-1", description = "Actinic flux at $wl nm"]
         push!(flux_vars, only(v))
     end
     flux_vars, (flux_vars .~ flux_vals .* c_flux)
@@ -197,7 +197,7 @@ This adjustment is based on the fraction of O(1D) that reacts with H2O to produc
 """
 function adjust_j_o31D(T, P, H2O)
     @constants(
-        T_unit = 1, [unit = u"K", description = "inverse unit of Temperature"],
+        T_unit = 1, [unit = u"K", description = "unit of Temperature"],
         A = 6.02e23, [unit = u"molec/mol", description = "Avogadro's number"],
         R = 8.314e6, [unit = u"(Pa*cm^3)/(K*mol)", description = "universal gas constant"],
         ppb_unit = 1e-9, [unit = u"ppb", description = "Convert from mol/mol_air to ppb"],
@@ -247,16 +247,14 @@ function FastJX(; name=:FastJX)
     @parameters P = 101325 [unit = u"Pa", description = "Pressure"]
     @parameters H2O = 450 [unit = u"ppb"]
 
-    @variables j_h2o2(t) = 1.0097 * 10.0^-5 #[unit = u"s^-1"]
-    @variables j_CH2Oa(t) = 0.00014 #[unit = u"s^-1"]
-    @variables j_CH2Ob(t) = 0.00014 #[unit = u"s^-1"]
-    @variables j_o31D(t) = 4.0 * 10.0^-3 #[unit = u"s^-1"]
-    @variables j_o32OH(t) = 2.27e-4 #[unit = u"s^-1"]
-    @variables j_CH3OOH(t) = 8.9573 * 10.0^-6 #[unit = u"s^-1"]
-    @variables j_NO2(t) = 0.0149 #[unit = u"s^-1"]
+    @variables j_h2o2(t) = 1.0097 * 10.0^-5 [unit = u"s^-1"]
+    @variables j_CH2Oa(t) = 0.00014 [unit = u"s^-1"]
+    @variables j_CH2Ob(t) = 0.00014 [unit = u"s^-1"]
+    @variables j_o31D(t) = 4.0 * 10.0^-3 [unit = u"s^-1"]
+    @variables j_o32OH(t) = 2.27e-4 [unit = u"s^-1"]
+    @variables j_CH3OOH(t) = 8.9573 * 10.0^-6 [unit = u"s^-1"]
+    @variables j_NO2(t) = 0.0149 [unit = u"s^-1"]
     @variables cosSZA(t) [description = "Cosine of the solar zenith angle"]
-    # TODO(JL): What's difference between the two photolysis reactions of CH2O, do we really need both?
-    # (@variables j_CH2Ob(t) = 0.00014 [unit = u"s^-1"]) (j_CH2Ob ~ mean_J_CH2Ob(t,lat,T)*j_unit)
 
     flux_vars, fluxeqs = flux_eqs(cosSZA)
     eqs = [
@@ -265,7 +263,7 @@ function FastJX(; name=:FastJX)
         j_h2o2 ~ j_mean_H2O2(T/T_unit, flux_vars);
         j_CH2Oa ~ j_mean_CH2Oa(T/T_unit, flux_vars);
         j_CH2Ob ~ j_mean_CH2Ob(T/T_unit, flux_vars);
-        j_o31D ~ j_mean_o31D(T/T_unit, flux_vars)*1e-17;
+        j_o31D ~ j_mean_o31D(T/T_unit, flux_vars)*1e-17; #1e-17 is a parameter to adjust the calculated O(^3P)1D photolysis to appropriate magnitudes.
         j_o32OH ~ j_o31D*adjust_j_o31D(T, P, H2O);
         j_CH3OOH ~ j_mean_CH3OOH(T/T_unit, flux_vars);
         j_NO2 ~ j_mean_NO2(T/T_unit, flux_vars)

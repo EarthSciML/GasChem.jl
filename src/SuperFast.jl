@@ -11,12 +11,12 @@ function rate_toppb(t, T, P, a0; name=:rateconvert)
         R = 8.314e6, [unit = u"(Pa*cm^3)/(K*mol)", description = "universal gas constant"],
         ppb_unit = 1e-9, [unit = u"ppb", description = "Convert from mol/mol_air to ppb"],
         num_density_unit_inv = 1, [unit = u"cm^3/molec", description = "multiply by num_density to obtain the unitless value of num_density"],
-        a0 = a0, [unit = u"cm^3/molec"],
+        a0 = a0, [unit = u"cm^3/molec/s"],
     )
     air_volume = R*T/P #unit in cm^3/mol
     c = A / air_volume * ppb_unit #Convert the second reaction rate value, which corresponds to species with units of molec/cm³, to ppb.
-    @variables k(t) [unit = u"ppb^-1"]
-    NonlinearSystem([k ~ a0 * c], [k], []; name=name)
+    @variables k(t) [unit = u"(s*ppb)^-1"]
+    ODESystem([k ~ a0 * c], t, [k], []; name=name)
 end
 
 """ 
@@ -35,14 +35,14 @@ function arrh(t, T, P, a0, b0, c0; name=:arrhenius)
         ppb_unit = 1e-9, [unit = u"ppb", description = "Convert from mol/mol_air to ppb"],
         num_density_unit_inv = 1, [unit = u"cm^3/molec", description = "multiply by num_density to obtain the unitless value of num_density"],
         K_300 = 300, [unit = u"K"],
-        a0 = a0, [unit = u"cm^3/molec"],
+        a0 = a0, [unit = u"cm^3/molec/s"],
         b0 = b0,
         c0 = c0, [unit = u"K"],
     )
-    @variables k(t) [unit = u"ppb^-1"]
+    @variables k(t) [unit = u"(s*ppb)^-1"]
     air_volume = R*T/P #unit in cm^3/mol
     c = A / air_volume * ppb_unit #Convert the second reaction rate value, which corresponds to species with units of molec/cm³, to ppb.
-    NonlinearSystem([k ~ a0 * exp(c0 / T) * (K_300 / T)^b0 * c], [k], []; name=name)
+    ODESystem([k ~ a0 * exp(c0 / T) * (K_300 / T)^b0 * c], t, [k], []; name=name)
 end
 
 """
@@ -71,8 +71,8 @@ function arr_3rd(t, T, P, a1, b1, c1, a2, b2, c2, fv; name=:arr_3rdbody)
     xyrat = rlow / rhigh
     blog = log10(xyrat)
     fexp = 1.0 / (1.0 + (blog * blog))
-    @variables k(t) [unit = u"ppb^-1"]
-    NonlinearSystem([k ~ rlow * (fv^fexp) / (1.0 + xyrat)], [k], []; systems=[alow, ahigh], name=name)
+    @variables k(t) [unit = u"(s*ppb)^-1"]
+    ODESystem([k ~ rlow * (fv^fexp) / (1.0 + xyrat)], t, [k], []; systems=[alow, ahigh], name=name)
 end
 
 """
@@ -96,8 +96,8 @@ function rate_2HO2(t, T, P, H2O, a0, c0, a1, c1; name=:rate_HO2HO2)
     @named k0 = arrh(t, T, P, a0, 0.0, c0)
     @named k1 = arrh(t, T, P, a1, 0.0, c1)
 
-    @variables k(t) [unit = u"ppb^-1"]
-    NonlinearSystem([k ~ (k0.k + k1.k * num_density_unitless) * (1.0 + 1.4e-21 * H2O * H2O_ppb_molec_cm3 * exp(T_0 / T))], [k], [];
+    @variables k(t) [unit = u"(s*ppb)^-1"]
+    ODESystem([k ~ (k0.k + k1.k * num_density_unitless) * (1.0 + 1.4e-21 * H2O * H2O_ppb_molec_cm3 * exp(T_0 / T))], t, [k], [];
         systems=[k0, k1], name=name)
 end
 
@@ -128,8 +128,8 @@ function rate_OH_CO(t, T, P; name=:rate_OHCO)
     blog2 = log10(xyrat2)
     fexp2 = 1.0 / (1.0 + blog2 * blog2)
     kco2 = klo2.k * 0.6^fexp2 / (1.0 + xyrat2)
-    @variables k(t) [unit = u"ppb^-1"]
-    NonlinearSystem([k ~ kco1 + kco2], [k], []; systems=[klo1, khi1, klo2, khi2], name=name)
+    @variables k(t) [unit = u"(s*ppb)^-1"]
+    ODESystem([k ~ kco1 + kco2], t, [k], []; systems=[klo1, khi1, klo2, khi2], name=name)
 end
 
 struct SuperFastCoupler
@@ -192,13 +192,14 @@ function SuperFast(;name=:SuperFast, rxn_sys=false)
     end
 
     rx_sys = @reaction_network SuperFast begin
+        @ivs t [unit = u"s"]
         @parameters(
-            jO32OH = 2.27e-4, #[unit = u"s^-1"],
-            jH2O2 = 1.0097e-5, #[unit = u"s^-1"],
-            jNO2 = 0.0149, #[unit = u"s^-1"],
-            jCH2Oa = 0.00014, #[unit = u"s^-1"],
-            jCH2Ob = 0.00014, #[unit = u"s^-1"],
-            jCH3OOH = 8.9573e-6, #[unit = u"s^-1"],
+            jO32OH = 2.27e-4, [unit = u"s^-1"],
+            jH2O2 = 1.0097e-5, [unit = u"s^-1"],
+            jNO2 = 0.0149, [unit = u"s^-1"],
+            jCH2Oa = 0.00014, [unit = u"s^-1"],
+            jCH2Ob = 0.00014, [unit = u"s^-1"],
+            jCH3OOH = 8.9573e-6, [unit = u"s^-1"],
             T = 280.0, [unit = u"K", description = "Temperature"],
             P = 101325, [unit = u"Pa", description = "Pressure"],
             O2 = 2.1e8, [isconstantspecies=true,unit = u"ppb"],
@@ -216,8 +217,8 @@ function SuperFast(;name=:SuperFast, rxn_sys=false)
             CH2O(t) = 0.15, [unit = u"ppb"],
             CO(t) = 275.0, [unit = u"ppb"],
             CH3OOH(t) = 1.6, [unit = u"ppb"],
-            DMS(t) = 50.0, [unit = u"ppb"],
-            SO2(t) = 2.0, [unit = u"ppb"],
+            #DMS(t) = 50.0, [unit = u"ppb"],
+            #SO2(t) = 2.0, [unit = u"ppb"],
             ISOP(t) = 0.15, [unit = u"ppb"],
             H2O2(t) = 2.34, [unit = u"ppb"],
             HNO3(t) = 10.0, [unit = u"ppb"],
