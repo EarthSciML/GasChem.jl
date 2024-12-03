@@ -1,14 +1,13 @@
 
 function EarthSciMLBase.couple2(c::GEOSChemGasPhaseCoupler, p::FastJXCoupler)
     c, p = c.sys, p.sys
-    c = param_to_var(c, :j_3, :j_9, :j_11, :j_7, :j_10)
+    c = param_to_var(c, :j_3, :j_7, :j_9, :j_10, :j_11)
     ConnectorSystem([
-            c.j_9 ~ p.j_h2o2
-            c.j_7 ~ p.j_CH2Oa
-            c.j_10 ~ p.j_CH3OOH
-            c.j_11 ~ p.j_NO2
             c.j_3 ~ p.j_o31D
-        ], c, p)
+            c.j_7 ~ p.j_CH2Oa
+            c.j_9 ~ p.j_h2o2
+            c.j_10 ~ p.j_CH3OOH
+            c.j_11 ~ p.j_NO2], c, p)
 end
 
 function EarthSciMLBase.couple2(c::SuperFastCoupler, p::FastJXCoupler)

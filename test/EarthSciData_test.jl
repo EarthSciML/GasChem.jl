@@ -1,5 +1,5 @@
 using GasChem, EarthSciData
-using Test, Dates, ModelingToolkit, DifferentialEquations, EarthSciMLBase, DynamicQuantities
+using Test, Dates, ModelingToolkit, EarthSciMLBase
 
 @testset "NEI2016Extension3way" begin
     domain = DomainInfo(
@@ -15,7 +15,7 @@ using Test, Dates, ModelingToolkit, DifferentialEquations, EarthSciMLBase, Dynam
     model_3way = couple(FastJX(), SuperFast(), emis)
 
     sys = convert(ODESystem, model_3way)
-    @test length(unknowns(sys)) ≈ 13
+    @test length(unknowns(sys)) ≈ 18
 
     eqs = string(equations(sys))
 
@@ -25,7 +25,6 @@ end
 
 
 @testset "GEOS-FP" begin
-
     domain = DomainInfo(
         DateTime(2016, 5, 1),
         DateTime(2016, 5, 4);
@@ -39,18 +38,21 @@ end
     model_3way = couple(FastJX(), SuperFast(), geosfp)
 
     sys = convert(ODESystem, model_3way)
-    @test length(unknowns(sys)) ≈ 13
 
-    eqs = string(observed(convert(ODESystem, model_3way)))
-    wanteq = "SuperFast₊P(t) ~ FastJX₊P(t)"
+    @test length(unknowns(sys)) ≈ 18
+
+    eqs = string(observed(sys))
+    wanteq = "SuperFast₊T(t) ~ GEOSFP₊I3₊T(t)"
+    @test contains(eqs, wanteq) || contains(eqs, "SuperFast₊T(t) ~ FastJX₊T(t)")
+    wanteq = "FastJX₊T(t) ~ GEOSFP₊I3₊T(t)"
     @test contains(eqs, wanteq)
-    wanteq = "FastJX₊P(t) ~ GEOSFP₊P(t)"
-    @test contains(eqs, wanteq)
-    wanteq = "FastJX₊T(t) ~ GEOSFP₊I3₊T(t)" 
+    wanteq = "SuperFast₊jH2O2(t) ~ FastJX₊j_h2o2(t)"
     @test contains(eqs, wanteq)
     wanteq = "FastJX₊lat(t) ~ rad2deg(GEOSFP₊lat)"
     @test contains(eqs, wanteq)
-    wanteq = "SuperFast₊jH2O2(t) ~ FastJX₊j_h2o2(t)"
+    wanteq = "SuperFast₊P(t) ~ FastJX₊P(t)"
+    @test contains(eqs, wanteq)
+    wanteq = "FastJX₊P(t) ~ GEOSFP₊P(t)"
     @test contains(eqs, wanteq)
 end
 

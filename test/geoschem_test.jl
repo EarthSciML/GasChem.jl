@@ -1,7 +1,8 @@
-using Main.GasChem
+using GasChem
 using EarthSciMLBase
 using Test
-using DifferentialEquations, ModelingToolkit, DynamicQuantities
+using DifferentialEquations
+using ModelingToolkit, DynamicQuantities
 
 tspan = (0.0, 360.0)
 sys = GEOSChemGasPhase()
@@ -110,13 +111,13 @@ end
 @testset "Compose GEOSChem FastJX" begin
     gc = GEOSChemGasPhase()
     fjx = FastJX()
-    gf = couple(gc, fjx)
-    gf = convert(ODESystem, gf)
+    gf_coupled = couple(gc, fjx)
+    gf = convert(ODESystem, gf_coupled, prune=false, simplify=false)
 
-    eqs = string.(observed(gf))
+    eqs = string.(equations(gf))
 
     j_eqs = filter(eq -> contains(eq, r"^GEOSChemGasPhase₊j_"), eqs)
-    
+
     wanteqs = ["GEOSChemGasPhase₊j_9(t) ~ FastJX₊j_h2o2(t)",
         "GEOSChemGasPhase₊j_7(t) ~ FastJX₊j_CH2Oa(t)",
         "GEOSChemGasPhase₊j_10(t) ~ FastJX₊j_CH3OOH(t)",
@@ -125,4 +126,6 @@ end
     for eq in wanteqs
         @test contains(string(j_eqs), eq)
     end
+
+    @test_nowarn convert(ODESystem, gf_coupled, prune=true, simplify=false)
 end
