@@ -29,7 +29,7 @@ Graph(SuperFast(;name=:SuperFast, rxn_sys=true))
 The chemical species included in the superfast model are:
 
 ```@example 1
-vars = unknowns(model)
+vars = unknowns(model)[1:13]
 using DataFrames
 DataFrame(
         :Name => [string(Symbolics.tosymbol(v, escape=false)) for v ∈ vars],

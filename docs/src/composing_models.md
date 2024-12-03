@@ -25,7 +25,7 @@ In the composed system, the variable name for O₃ is not ```O3``` but ```superf
 ```@example 1
 vars = unknowns(sys)  # Get the variables in the composed system
 var_dict = Dict(string(var) => var for var in vars)
-pols = ["O3", "OH", "NO", "NO2", "CH3O2", "CO","CH3OOH", "CH3O", "ISOP"]
+pols = ["O3", "OH", "NO", "NO2", "CH3O2", "CO","CH3OOH", "CH2O", "ISOP"]
 var_names_p = ["SuperFast₊$(v)(t)" for v in pols]
 
 x_t = unix2datetime.(sol[t]) # Convert from unixtime to date time for visualizing 
@@ -73,7 +73,7 @@ sol_withemis = solve(ODEProblem(sys_withemis, [], tspan, []), AutoTsit5(Rosenbro
 
 vars = unknowns(sys_noemis)  # Get the variables in the composed system
 var_dict = Dict(string(var) => var for var in vars)
-pols = ["O3", "OH", "NO", "NO2", "CH3O2", "CO","CH3OOH", "CH3O", "ISOP"]
+pols = ["O3", "OH", "NO", "NO2", "CH3O2", "CO","CH3OOH", "CH2O", "ISOP"]
 var_names_p = ["SuperFast₊$(v)(t)" for v in pols]
 
 pp = []
