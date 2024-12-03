@@ -21,7 +21,6 @@ end
 
 
 @testset "GEOS-FP" begin
-
     domain = DomainInfo(DateTime(2022, 1, 1), DateTime(2022, 1, 1, 6);
         latrange=deg2rad(-85.0f0):deg2rad(2):deg2rad(85.0f0),
         lonrange=deg2rad(-180.0f0):deg2rad(2.5):deg2rad(175.0f0),
@@ -41,4 +40,26 @@ end
     @test contains(eqs, wanteq)
     wanteq = "SuperFast₊jH2O2(t) ~ FastJX₊j_h2o2(t)"
     @test contains(eqs, wanteq)
+end
+
+@testset "GEOSChemGasPhase couplings" begin
+    domain = DomainInfo(DateTime(2016, 5, 1), DateTime(2016, 5, 2);
+        latrange=deg2rad(-85.0f0):deg2rad(2):deg2rad(85.0f0),
+        lonrange=deg2rad(-180.0f0):deg2rad(2.5):deg2rad(175.0f0),
+        levrange=1:10, dtype=Float64)
+
+    csys = couple(
+        GEOSChemGasPhase(),
+        NEI2016MonthlyEmis("mrggrid_withbeis_withrwc", domain),
+        GEOSFP("4x5", domain),
+        FastJX(),
+        domain,
+    )
+    sys = convert(ODESystem, csys)
+    eqs = string(observed(sys))
+    @test contains(eqs, "GEOSChemGasPhase₊T(t) ~ GEOSFP₊I3₊T(t)") ||
+        contains(eqs, "GEOSChemGasPhase₊T(t) ~ FastJX₊T(t)")
+    @test contains(eqs, "FastJX₊T(t) ~ GEOSFP₊I3₊T(t)") ||
+        contains(eqs, "FastJX₊T(t) ~ GEOSChemGasPhase₊T(t)")
+    @test contains(eqs, "GEOSChemGasPhase₊j_11(t) ~ FastJX₊j_NO2(t)")
 end
