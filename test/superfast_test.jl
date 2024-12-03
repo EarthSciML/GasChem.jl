@@ -4,7 +4,7 @@ using DifferentialEquations, ModelingToolkit, DynamicQuantities
 tspan = (0.0, 360.0)
 
 @testset "Base case" begin
-    answer = 18.861830827565885
+    answer = 23.400804629407062
 
     rs = structural_simplify(SuperFast())
     sol = solve(
@@ -18,32 +18,8 @@ tspan = (0.0, 360.0)
     @test sol[rs.O3][end] ≈ answer
 end
 
-@testset "DMS sensitivity" begin
-    u_dms = 0.8842096169345286
-
-    rs1 = structural_simplify(SuperFast())
-    o1 = solve(
-        ODEProblem(rs1, [rs1.DMS => 76], tspan, []),
-        Tsit5(),
-        saveat=10.0,
-        abstol=1e-12,
-        reltol=1e-12,
-    )
-    rs2 = structural_simplify(SuperFast())
-    o2 = solve(
-        ODEProblem(rs2, [rs2.DMS => 46], tspan, []),
-        Tsit5(),
-        saveat=10.0,
-        abstol=1e-12,
-        reltol=1e-12,
-    )
-    test1 = o1[rs1.SO2][end] - o2[rs2.SO2][end]
-
-    @test test1 ≈ u_dms
-end
-
 @testset "ISOP sensitivity" begin
-    u_isop = 0.19386790460198
+    u_isop = 1.326627917253738
 
     rs1 = structural_simplify(SuperFast())
     o1 = solve(
@@ -67,13 +43,13 @@ end
 end
 
 @testset "NO2 sensitivity" begin
-    u_no2 = 45.85359224356945
+    u_no2 = 28.430159226086346
 
     rs1 = structural_simplify(SuperFast())
     o1 = solve(
         ODEProblem(
             rs1,
-            [rs1.NO2 => 100.0, rs1.DMS => 0.1],
+            [rs1.NO2 => 100.0],
             tspan,
             [],
             combinatoric_ratelaws=false,
@@ -85,7 +61,7 @@ end
     )
     rs2 = structural_simplify(SuperFast())
     o2 = solve(
-        ODEProblem(rs2, [rs2.DMS => 0.1], tspan, []),
+        ODEProblem(rs2, [], tspan, []),
         Tsit5(),
         saveat=10.0,
         abstol=1e-12,
@@ -97,7 +73,7 @@ end
 end
 
 @testset "CO sensitivity" begin
-    u_co = -0.1938631791778107
+    u_co = -3.2610694807314218
 
     rs1 = structural_simplify(SuperFast())
     o1 = solve(
@@ -121,7 +97,7 @@ end
 end
 
 @testset "CH4 sensitivity" begin
-    u_ch4 = 0.006664852234028018
+    u_ch4 = 0.08634137924665097
 
     rs1 = structural_simplify(SuperFast())
     o1 = solve(

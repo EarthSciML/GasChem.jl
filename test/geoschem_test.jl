@@ -122,7 +122,7 @@ end
         "GEOSChemGasPhase₊j_7(t) ~ FastJX₊j_CH2Oa(t)",
         "GEOSChemGasPhase₊j_10(t) ~ FastJX₊j_CH3OOH(t)",
         "GEOSChemGasPhase₊j_11(t) ~ FastJX₊j_NO2(t)",
-        "GEOSChemGasPhase₊j_3(t) ~ c_fixme1*FastJX₊j_o31D(t)"]
+        "GEOSChemGasPhase₊j_3(t) ~ FastJX₊j_o31D(t)"]
     for eq in wanteqs
         @test contains(string(j_eqs), eq)
     end

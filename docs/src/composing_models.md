@@ -25,7 +25,7 @@ In the composed system, the variable name for O₃ is not ```O3``` but ```superf
 ```@example 1
 vars = unknowns(sys)  # Get the variables in the composed system
 var_dict = Dict(string(var) => var for var in vars)
-pols = ["O3", "OH", "NO", "NO2", "CH4", "CH3O2", "CO","CH3OOH", "CH3O", "DMS", "SO2", "ISOP"]
+pols = ["O3", "OH", "NO", "NO2", "CH3O2", "CO","CH3OOH", "CH2O", "ISOP"]
 var_names_p = ["SuperFast₊$(v)(t)" for v in pols]
 
 x_t = unix2datetime.(sol[t]) # Convert from unixtime to date time for visualizing 
@@ -39,7 +39,7 @@ for (i, v) in enumerate(var_names_p)
     name = pols[i]
     push!(pp, Plots.plot(x_t,sol[var_dict[v]],label = "$name", size = (1000, 600), xrotation=45))
 end
-Plots.plot(pp..., layout=(3, 4))
+Plots.plot(pp..., layout=(3, 3))
 ```
 
 ## Adding Emission Data
@@ -73,7 +73,7 @@ sol_withemis = solve(ODEProblem(sys_withemis, [], tspan, []), AutoTsit5(Rosenbro
 
 vars = unknowns(sys_noemis)  # Get the variables in the composed system
 var_dict = Dict(string(var) => var for var in vars)
-pols = ["O3", "OH", "NO", "NO2", "CH4", "CH3O2", "CO","CH3OOH", "CH3O", "DMS", "SO2", "ISOP"]
+pols = ["O3", "OH", "NO", "NO2", "CH3O2", "CO","CH3OOH", "CH2O", "ISOP"]
 var_names_p = ["SuperFast₊$(v)(t)" for v in pols]
 
 pp = []
@@ -83,5 +83,5 @@ for (i, v) in enumerate(var_names_p)
     plot!(unix2datetime.(sol_withemis[t]),sol_withemis[var_dict[v]], label="With Emissions", )
     push!(pp, p)
 end
-Plots.plot(pp..., layout=(3, 4))
+Plots.plot(pp..., layout=(3, 3))
 ```
