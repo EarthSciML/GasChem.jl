@@ -11,7 +11,7 @@ function EarthSciMLBase.couple2(c::GasChem.SuperFastCoupler, e::EarthSciData.NEI
         MW_NO2 = 46.0055e-3, [unit = u"kg/mol", description="NO2 molar mass"],
         MW_NO = 30.01e-3, [unit = u"kg/mol", description="NO molar mass"],
         MW_FORM = 30.0260e-3, [unit = u"kg/mol", description="Formaldehyde molar mass"],
-        MW_CH4 = 16.0425e-3, [unit = u"kg/mol", description="Methane molar mass"],
+        #MW_CH4 = 16.0425e-3, [unit = u"kg/mol", description="Methane molar mass"], # CH4 is currently a constant in SuperFast.
         MW_CO = 28.0101e-3, [unit = u"kg/mol", description="Carbon monoxide molar mass"],
         MW_SO2 = 64.0638e-3, [unit = u"kg/mol", description="Sulfur dioxide molar mass"],
         MW_ISOP = 68.12e-3, [unit = u"kg/mol", description="Isoprene molar mass"],
@@ -32,7 +32,7 @@ function EarthSciMLBase.couple2(c::GasChem.SuperFastCoupler, e::EarthSciData.NEI
         c.NO2 => e.NO2 => uconv / MW_NO2,
         c.NO => e.NO => uconv / MW_NO,
         c.CH2O => e.FORM => uconv / MW_FORM,
-        c.CH4 => e.CH4 => uconv / MW_CH4,
+        #c.CH4 => e.CH4 => uconv / MW_CH4, # CH4 is currently a constant in SuperFast.
         c.CO => e.CO => uconv / MW_CO,
         c.ISOP => e.ISOP => uconv / MW_ISOP,
     ))
