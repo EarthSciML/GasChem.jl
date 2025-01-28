@@ -39,7 +39,7 @@ end
 end
 
 # Unit Test 2: CH2O -> H + HO2 + CO
-@testset "CH2O" begin
+@testset "CH2Oa" begin
     u_2 = [5.200743895500182e-5, 5.20050010722231e-5, 5.200066705839427e-5]
 
     cos_sza = GasChem.cos_solar_zenith_angle(3600 * 12.0, 30.0, 0.0)
@@ -52,6 +52,21 @@ end
 
     @test test_2 ≈ u_2
 end
+
+@testset "CH2Ob" begin
+    u_2 = [4.440814277628268e-5, 4.443217170426024e-5, 4.447488979844258e-5]
+
+    cos_sza = GasChem.cos_solar_zenith_angle(3600 * 12.0, 30.0, 0.0)
+    fluxes = GasChem.calc_fluxes(cos_sza)
+    test_2 = [
+        GasChem.j_mean_CH2Ob(200.0, fluxes),
+        GasChem.j_mean_CH2Ob(250.0, fluxes),
+        GasChem.j_mean_CH2Ob(300.0, fluxes),
+    ]
+
+    @test test_2 ≈ u_2
+end
+
 
 function get_fluxes(t, lat, lon)
     cos_sza = GasChem.cos_solar_zenith_angle(t, lat, lon)
