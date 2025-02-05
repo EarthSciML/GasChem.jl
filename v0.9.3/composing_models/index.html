@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Composing models · GasChem.jl</title><meta name="title" content="Composing models · GasChem.jl"/><meta property="og:title" content="Composing models · GasChem.jl"/><meta property="twitter:title" content="Composing models · GasChem.jl"/><meta name="description" content="Documentation for GasChem.jl."/><meta property="og:description" content="Documentation for GasChem.jl."/><meta property="twitter:description" content="Documentation for GasChem.jl."/><meta property="og:url" content="https://gaschem.earthsci.dev/composing_models/"/><meta property="twitter:url" content="https://gaschem.earthsci.dev/composing_models/"/><link rel="canonical" href="https://gaschem.earthsci.dev/composing_models/"/><script data-outdated-warner src="../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../assets/documenter.js"></script><script src="../search_index.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../">GasChem.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../">Home</a></li><li><a class="tocitem" href="../superfast/">SuperFast</a></li><li><span class="tocitem">GEOS-Chem</span><ul><li><a class="tocitem" href="../geoschem/overview/">Overview</a></li><li><a class="tocitem" href="../geoschem/states/">State Variables</a></li><li><a class="tocitem" href="../geoschem/params/">Parameters</a></li></ul></li><li class="is-active"><a class="tocitem" href>Composing models</a><ul class="internal"><li><a class="tocitem" href="#Illustrative-Example"><span>Illustrative Example</span></a></li><li><a class="tocitem" href="#Adding-Emission-Data"><span>Adding Emission Data</span></a></li></ul></li><li><a class="tocitem" href="../api/">API</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href>Composing models</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Composing models</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/EarthSciML/GasChem.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/EarthSciML/GasChem.jl/blob/main/docs/src/composing_models.md#" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Composing-Models"><a class="docs-heading-anchor" href="#Composing-Models">Composing Models</a><a id="Composing-Models-1"></a><a class="docs-heading-anchor-permalink" href="#Composing-Models" title="Permalink"></a></h1><h2 id="Illustrative-Example"><a class="docs-heading-anchor" href="#Illustrative-Example">Illustrative Example</a><a id="Illustrative-Example-1"></a><a class="docs-heading-anchor-permalink" href="#Illustrative-Example" title="Permalink"></a></h2><p>Here is the complete example of composing, visualizing and solving the SuperFast model and the Fast-JX model, with explanation to follow:</p><pre><code class="language-julia hljs">using EarthSciMLBase, GasChem, ModelingToolkit, Dates, DynamicQuantities, DifferentialEquations
+using ModelingToolkit:t
+
+composed_ode = couple(SuperFast(), FastJX()) # Compose two models use the &quot;couple&quot; function
+
+start = Dates.datetime2unix(Dates.DateTime(2024, 2, 29))
+tspan = (start, start+3600*24*3)
+sys = convert(ODESystem, composed_ode) # Define the coupled system
+sol = solve(ODEProblem(sys, [], tspan, []), AutoTsit5(Rosenbrock23()), saveat=10.0) # Solve the coupled system</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">retcode: Success
+Interpolation: 1st order linear
+t: 25921-element Vector{Float64}:
+ 1.7091648e9
+ 1.70916481e9
+ 1.70916482e9
+ 1.70916483e9
+ 1.70916484e9
+ 1.70916485e9
+ 1.70916486e9
+ 1.70916487e9
+ 1.70916488e9
+ 1.70916489e9
+ ⋮
+ 1.70942392e9
+ 1.70942393e9
+ 1.70942394e9
+ 1.70942395e9
+ 1.70942396e9
+ 1.70942397e9
+ 1.70942398e9
+ 1.70942399e9
+ 1.709424e9
+u: 25921-element Vector{Vector{Float64}}:
+ [20.0, 0.01, 0.01, 10.0, 10.0, 0.01, 0.15, 275.0, 1.6, 0.15, 2.34, 10.0]
+ [19.34805838465806, 4.992299769552269e-6, 1.4318378428642175e-5, 9.279328828942358, 10.692960384980934, 5.267880995793946e-6, 0.17166873492250007, 274.9848859234749, 1.5971432810515482, 0.14627529216304977, 2.339033483891754, 10.027710783631715]
+ [18.76491747472211, 1.246663229140155e-6, 3.5079055813042243e-6, 8.696054480161456, 11.276173254781055, 1.4536142672061366e-6, 0.17170352450980025, 274.98486913053443, 1.5971333736179603, 0.14626148604685563, 2.339025039947737, 10.027772260020926]
+ [18.24020152269725, 1.1867440799753901e-6, 3.6076948463269085e-6, 8.171250468244985, 11.800933619756298, 1.484336742119739e-6, 0.17172626535676502, 274.9848623899627, 1.5971254259631171, 0.14625033384013233, 2.3390173025431613, 10.02781590424077]
+ [17.76608226508235, 1.1265593873353601e-6, 3.687975553285921e-6, 7.697046789580293, 12.27509426757398, 1.5109569200116203e-6, 0.1717478056153779, 274.9848566117947, 1.5971177510033714, 0.1462396275729442, 2.3390097256407687, 10.027858932248456]
+ [17.335137564196863, 1.0718927680604863e-6, 3.7692475879724355e-6, 7.266020746392392, 12.706077866232189, 1.5395424029904224e-6, 0.17176832785172275, 274.98485161687853, 1.5971103047251494, 0.14622930030231202, 2.3390022867283293, 10.02790137383386]
+ [16.944671620885146, 1.0340247369619253e-6, 3.879518366531612e-6, 6.875476039341892, 13.096580534397116, 1.5758880685567195e-6, 0.1717879022679742, 274.98484734165146, 1.597103031142552, 0.14621930618548312, 2.3389949333699596, 10.027943409675927]
+ [16.58619564308016, 9.975466710069412e-7, 3.981946422097424e-6, 6.516923759843255, 13.455091402731018, 1.611377143754226e-6, 0.17180673209558156, 274.9848435965701, 1.597095954244445, 0.1462096090343743, 2.338987719464296, 10.027984817712484]
+ [16.257660826958308, 9.344929217742804e-7, 4.0182951373882915e-6, 6.18831537635226, 13.783659222601408, 1.633266190093776e-6, 0.17182487680703354, 274.98484032357413, 1.5970891270274292, 0.1462002236842191, 2.3389807117851458, 10.02802537812272]
+ [15.958545510725987, 9.362339374394695e-7, 4.200629657870963e-6, 5.889127579638048, 14.08280638289986, 1.6888170007289956e-6, 0.17184231496078642, 274.9848375594253, 1.5970823051121161, 0.14619102248110272, 2.3389736359290727, 10.028066011252402]
+ ⋮
+ [15.94673151874528, 5.538378653918748e-7, 6.077006706619902e-6, 1.6867228797696492, 15.31596609749375, 6.541532072038554e-7, 0.07039532530647746, 274.61666538307804, 1.0281943991383633, 0.005158835660918689, 1.6751574116399832, 12.997215193446943]
+ [15.93211670138237, 5.254030764388153e-7, 5.8843733003821364e-6, 1.6720844983951189, 15.330580190659562, 6.379819864601689e-7, 0.0703942949633165, 274.6166632915924, 1.028190274303165, 0.005158575982068366, 1.6751515627947127, 12.997239478040795]
+ [15.917110943464063, 4.964593714926536e-7, 5.687265517775064e-6, 1.6570555026781175, 15.345585231212498, 6.213337991663105e-7, 0.07039328619255321, 274.6166612331356, 1.0281862087372438, 0.005158317541627018, 1.6751457975864463, 12.997263429587345]
+ [15.909194323628785, 5.259489499943337e-7, 5.923316301805469e-6, 1.649114662970839, 15.3535007937295, 6.40559153012588e-7, 0.07039207241503385, 274.61665921047205, 1.0281818453065945, 0.005158055056952232, 1.6751395849737203, 12.9972887031582]
+ [15.90018983174062, 5.42508092918858e-7, 6.066201785890848e-6, 1.6400862952358393, 15.362504298182484, 6.523938834514826e-7, 0.07039090944356487, 274.61665719590394, 1.0281775689826804, 0.0051577940515179005, 1.6751335007003791, 12.997313562818157]
+ [15.89009746779957, 5.461368002662262e-7, 6.115921970031199e-6, 1.6299703994731178, 15.372595744571456, 6.568379904829942e-7, 0.07038979727814627, 274.61665518943124, 1.028173379765502, 0.005157534525324024, 1.675127544766423, 12.997338008567217]
+ [15.878917231805634, 5.368350720364386e-7, 6.072476854226521e-6, 1.6187669756826748, 15.38377513289641, 6.538914741071231e-7, 0.07038873591877806, 274.61665319105396, 1.028169277655059, 0.005157276478370602, 1.6751217171718513, 12.997362040405385]
+ [15.866649123758812, 5.146029082294951e-7, 5.935866438476817e-6, 1.6064760238645102, 15.39604246315735, 6.43554334323869e-7, 0.07038772536546023, 274.61665120077214, 1.0281652626513513, 0.005157019910657637, 1.6751160179166644, 12.997385658332655]
+ [15.853293143659103, 4.794403088453955e-7, 5.7060907227820845e-6, 1.593097544018624, 15.409397735354274, 6.258265711332321e-7, 0.07038676561819278, 274.61664921858574, 1.0281613347543792, 0.005156764822185125, 1.6751104470008624, 12.997408862349031]</code></pre><p>In the composed system, the variable name for O₃ is not <code>O3</code> but <code>superfast₊O3(t)</code>. So we need some preparation of the result before visualizing. </p><pre><code class="language-julia hljs">vars = unknowns(sys)  # Get the variables in the composed system
+var_dict = Dict(string(var) =&gt; var for var in vars)
+pols = [&quot;O3&quot;, &quot;OH&quot;, &quot;NO&quot;, &quot;NO2&quot;, &quot;CH3O2&quot;, &quot;CO&quot;,&quot;CH3OOH&quot;, &quot;CH2O&quot;, &quot;ISOP&quot;]
+var_names_p = [&quot;SuperFast₊$(v)(t)&quot; for v in pols]
+
+x_t = unix2datetime.(sol[t]) # Convert from unixtime to date time for visualizing</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">25921-element Vector{Dates.DateTime}:
+ 2024-02-29T00:00:00
+ 2024-02-29T00:00:10
+ 2024-02-29T00:00:20
+ 2024-02-29T00:00:30
+ 2024-02-29T00:00:40
+ 2024-02-29T00:00:50
+ 2024-02-29T00:01:00
+ 2024-02-29T00:01:10
+ 2024-02-29T00:01:20
+ 2024-02-29T00:01:30
+ ⋮
+ 2024-03-02T23:58:40
+ 2024-03-02T23:58:50
+ 2024-03-02T23:59:00
+ 2024-03-02T23:59:10
+ 2024-03-02T23:59:20
+ 2024-03-02T23:59:30
+ 2024-03-02T23:59:40
+ 2024-03-02T23:59:50
+ 2024-03-03T00:00:00</code></pre><p>Then, we could plot the results as:</p><pre><code class="language-julia hljs">using Plots
+pp = []
+for (i, v) in enumerate(var_names_p)
+    name = pols[i]
+    push!(pp, Plots.plot(x_t,sol[var_dict[v]],label = &quot;$name&quot;, size = (1000, 600), xrotation=45))
+end
+Plots.plot(pp..., layout=(3, 3))</code></pre><img src="26888826.svg" alt="Example block output"/><h2 id="Adding-Emission-Data"><a class="docs-heading-anchor" href="#Adding-Emission-Data">Adding Emission Data</a><a id="Adding-Emission-Data-1"></a><a class="docs-heading-anchor-permalink" href="#Adding-Emission-Data" title="Permalink"></a></h2><p>GasChem.jl incorporates an emissions model that utilizes data from the <a href="https://gaftp.epa.gov/Air/emismod/2016/v1/gridded/monthly_netCDF/">US National Emissions Inventory for the year 2016</a>. This model is activated as an extension when the <code>EarthSciData</code> package is used. Here&#39;s a simple example:</p><pre><code class="language-julia hljs">using GasChem, EarthSciData # This will trigger the emission extension
+using Dates, ModelingToolkit, DifferentialEquations, EarthSciMLBase
+using Plots, DynamicQuantities
+using ModelingToolkit:t
+
+domain = DomainInfo(
+    Dates.DateTime(2016, 5, 1), Dates.DateTime(2016, 5, 4);
+    lonrange = deg2rad(-129):deg2rad(1):deg2rad(-61),
+    latrange = deg2rad(11):deg2rad(1):deg2rad(59),
+    levrange = 1:1:3,
+    dtype = Float64)
+
+emis = NEI2016MonthlyEmis(&quot;mrggrid_withbeis_withrwc&quot;, domain)
+
+model_noemis = couple(SuperFast(),FastJX()) # A model with chemistry and photolysis, but no emissions.
+model_withemis = couple(SuperFast(), FastJX(), emis) # The same model with emissions.
+
+sys_noemis = convert(ODESystem, model_noemis)
+sys_withemis = convert(ODESystem, model_withemis)
+
+tspan = EarthSciMLBase.get_tspan(domain)
+sol_noemis = solve(ODEProblem(sys_noemis, [], tspan, []), AutoTsit5(Rosenbrock23()))
+sol_withemis = solve(ODEProblem(sys_withemis, [], tspan, []), AutoTsit5(Rosenbrock23()))
+
+vars = unknowns(sys_noemis)  # Get the variables in the composed system
+var_dict = Dict(string(var) =&gt; var for var in vars)
+pols = [&quot;O3&quot;, &quot;OH&quot;, &quot;NO&quot;, &quot;NO2&quot;, &quot;CH3O2&quot;, &quot;CO&quot;,&quot;CH3OOH&quot;, &quot;CH2O&quot;, &quot;ISOP&quot;]
+var_names_p = [&quot;SuperFast₊$(v)(t)&quot; for v in pols]
+
+pp = []
+for (i, v) in enumerate(var_names_p)
+    p = plot(unix2datetime.(sol_noemis[t]),sol_noemis[var_dict[v]], label=&quot;No Emissions&quot;, title = v,
+        size = (1000, 600), xrotation=45)
+    plot!(unix2datetime.(sol_withemis[t]),sol_withemis[var_dict[v]], label=&quot;With Emissions&quot;, )
+    push!(pp, p)
+end
+Plots.plot(pp..., layout=(3, 3))</code></pre><img src="6bd8c37a.svg" alt="Example block output"/></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../geoschem/params/">« Parameters</a><a class="docs-footer-nextpage" href="../api/">API »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.8.0 on <span class="colophon-date" title="Wednesday 5 February 2025 16:48">Wednesday 5 February 2025</span>. Using Julia version 1.11.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
