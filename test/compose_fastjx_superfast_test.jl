@@ -4,7 +4,7 @@ using DifferentialEquations, ModelingToolkit, DynamicQuantities
 using ModelingToolkit:t
 
 @testset "2wayCoupling" begin
-    sol_middle = 10.054760542115613
+    sol_middle = 10.054760758144594
 
     sf = couple(SuperFast(), FastJX())
     sys = convert(ODESystem, sf)

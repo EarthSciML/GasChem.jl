@@ -204,13 +204,13 @@ function SuperFast(;name=:SuperFast, rxn_sys=false)
             P = 101325, [unit = u"Pa", description = "Pressure"],
             O2 = 2.1e8, [isconstantspecies=true,unit = u"ppb"],
             CH4 = 1700.0, [isconstantspecies=true, unit = u"ppb"],
+            H2O = 450.0, [isconstantspecies=true, unit = u"ppb"],
         )
 
         @species(
             O3(t) = 20.0, [unit = u"ppb"],
             OH(t) = 0.01, [unit = u"ppb"],
             HO2(t) = 0.01, [unit = u"ppb"],
-            H2O(t) = 450.0, [unit = u"ppb"],
             NO(t) = 10.0, [unit = u"ppb"],
             NO2(t) = 10.0, [unit = u"ppb"],
             CH3O2(t) = 0.01, [unit = u"ppb"],

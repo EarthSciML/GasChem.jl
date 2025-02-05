@@ -19,7 +19,7 @@ tspan = (0.0, 360.0)
 end
 
 @testset "ISOP sensitivity" begin
-    u_isop = 1.326627917253738
+    u_isop = 1.3266279542331567
 
     rs1 = structural_simplify(SuperFast())
     o1 = solve(
@@ -73,7 +73,7 @@ end
 end
 
 @testset "CO sensitivity" begin
-    u_co = -3.2610694807314218
+    u_co = -3.2610697264494846
 
     rs1 = structural_simplify(SuperFast())
     o1 = solve(
@@ -97,7 +97,7 @@ end
 end
 
 @testset "CH4 sensitivity" begin
-    u_ch4 = 0.08634137924665097
+    u_ch4 = 0.08634138773470212
 
     rs1 = structural_simplify(SuperFast())
     o1 = solve(

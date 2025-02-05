@@ -15,7 +15,7 @@ using Test, Dates, ModelingToolkit, EarthSciMLBase
     model_3way = couple(FastJX(), SuperFast(), emis)
 
     sys = convert(ODESystem, model_3way)
-    @test length(unknowns(sys)) ≈ 13
+    @test length(unknowns(sys)) ≈ 12
 
     eqs = string(equations(sys))
 
@@ -39,7 +39,7 @@ end
 
     sys = convert(ODESystem, model_3way)
 
-    @test length(unknowns(sys)) ≈ 13
+    @test length(unknowns(sys)) ≈ 12
 
     eqs = string(observed(sys))
     wanteq = "SuperFast₊T(t) ~ GEOSFP₊I3₊T(t)"

@@ -89,11 +89,24 @@ end
 
 function EarthSciMLBase.couple2(c::GasChem.SuperFastCoupler, g::EarthSciData.GEOSFPCoupler)
     c, g = c.sys, g.sys
+    @constants(
+        T_inv = 1, [unit = u"K^-1", description="Inverse of temperature"],
+        P_inv = 1, [unit = u"Pa^-1", description="Pressure"],
+        ppb_unit = 1, [unit = u"ppb"],
+    )
+    function water_concentration_ppb(RH, p, T)
+        Tc = T - 273.15
+        es_hPa = 6.112 * exp((17.62 * Tc) / (Tc + 243.12))
+        es = es_hPa * 100.0          # Convert hPa to Pa
+        e = RH * es                  # Actual water vapor partial pressure
+        return (e / p) * 1e9       # ppb
+    end
 
-    c = param_to_var(c, :T, :P)
+    c = param_to_var(c, :T, :P, :H2O)
     ConnectorSystem([
             c.T ~ g.I3₊T,
             c.P ~ g.P,
+            c.H2O ~ water_concentration_ppb(g.A3dyn₊RH, g.P*P_inv, g.I3₊T*T_inv)*ppb_unit,
         ], c, g)
 end
 
@@ -116,12 +129,26 @@ end
 function EarthSciMLBase.couple2(f::GasChem.FastJXCoupler, g::EarthSciData.GEOSFPCoupler)
     f, g = f.sys, g.sys
 
-    f = param_to_var(f, :T, :lat, :long, :P)
+    @constants(
+        T_inv = 1, [unit = u"K^-1", description="Inverse of temperature"],
+        P_inv = 1, [unit = u"Pa^-1", description="Pressure"],
+        ppb_unit = 1, [unit = u"ppb"],
+    )
+    function water_concentration_ppb(RH, p, T)
+        Tc = T - 273.15
+        es_hPa = 6.112 * exp((17.62 * Tc) / (Tc + 243.12))
+        es = es_hPa * 100.0          # Convert hPa to Pa
+        e = RH * es                  # Actual water vapor partial pressure
+        return (e / p) * 1e9       # ppb
+    end
+    
+    f = param_to_var(f, :T, :lat, :long, :P, :H2O)
     ConnectorSystem([
             f.T ~ g.I3₊T,
             f.P ~ g.P,
             f.lat ~ rad2deg(g.lat),
             f.long ~ rad2deg(g.lon),
+            f.H2O ~ water_concentration_ppb(g.A3dyn₊RH, g.P*P_inv, g.I3₊T*T_inv)*ppb_unit,
         ], f, g)
 end
 
