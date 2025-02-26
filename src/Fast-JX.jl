@@ -288,7 +288,7 @@ function FastJX(; name=:FastJX)
     @parameters lat = 40.0 [description = "Latitude (Degrees)"]
     @parameters long = -97.0 [description = "Longitude (Degrees)"]
     @parameters P = 101325 [unit = u"Pa", description = "Pressure"]
-    @parameters P_unit = 1 [unit = u"Pa", description = "Unit of pressure"]
+    @constants P_unit = 1.0 [unit = u"Pa", description = "Unit of pressure"]
     @parameters H2O = 450 [unit = u"ppb"]
 
     @variables j_h2o2(t) = 1.0097 * 10.0^-5 [unit = u"s^-1"]
