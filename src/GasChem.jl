@@ -17,6 +17,7 @@ using ModelingToolkit:t
 include("SuperFast.jl")
 include("geoschem_ratelaws.jl")
 include("geoschem_fullchem.jl")
+include("direct_flux.jl")
 include("Fast-JX.jl")
 include("fastjx_couplings.jl")
 

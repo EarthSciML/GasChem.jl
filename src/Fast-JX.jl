@@ -3,6 +3,9 @@ export FastJX
 # Effective wavelength in 18 bins covering 177–850 nm
 const WL = SA_F32[187, 191, 193, 196, 202, 208, 211, 214, 261, 267, 277, 295, 303, 310, 316, 333, 380, 574]
 
+# Top of the atmosphere solar flux in 18 bins
+const top_flux = SA_F32[1.391E+12, 1.627E+12, 1.664E+12, 9.278E+11, 7.842E+12, 4.680E+12, 9.918E+12, 1.219E+13, 6.364E+14, 4.049E+14, 3.150E+14, 5.889E+14, 7.678E+14, 5.045E+14, 8.902E+14, 3.853E+15, 1.547E+16, 2.131E+17]
+
 function interp2_func(x1, x2, T1, T2)
     if x1 ≈ x2
         return (T) -> x1
@@ -96,8 +99,15 @@ const σ_NO2_interp = create_fjx_interp([200.0f0, 294.0f0], [
     SA_F32[0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 2.313*0.1, 4.694*0.1, 7.553*0.1, 1.063, 1.477, 1.869, 2.295, 3.448, 4.643, 4.345*0.001] * 10.0f0^-19.0f0,
 ])
 
+# Cross sections σ for Rayleigh scattering for different wavelengths(18 bins), temperatures
+const σ_Raylay = SA_F32[5.073, 4.479, 4.196, 3.906, 3.355, 2.929, 2.736, 2.581, 1.049, 9.492*0.1, 8.103*0.1, 6.131*0.1, 5.422*0.1, 4.923*0.1, 4.514*0.1, 3.643*0.1, 2.087*0.1, 3.848*0.01]* 10.0f0^-25.0f0
 
-const actinic_flux = SA_F32[1.391E+12, 1.627E+12, 1.664E+12, 9.278E+11, 7.842E+12, 4.680E+12, 9.918E+12, 1.219E+13, 6.364E+14, 4.049E+14, 3.150E+14, 5.889E+14, 7.678E+14, 5.045E+14, 8.902E+14, 3.853E+15, 1.547E+16, 2.131E+17]
+# Cross sections σ for O2 for different wavelengths(18 bins), temperatures
+const σ_O2_interp = create_fjx_interp([180.0f0, 260.0f0, 300.0f0], [
+SA_F32[1.727, 1.989*0.1, 3.004*0.01, 9.833*0.001, 7.306*0.001, 6.827*0.001, 6.238*0.001, 5.748*0.001, 1.153*0.0001, 5.030*0.0001, 4.150*0.0001, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000]*10.0f0^-21.0f0,
+SA_F32[1.727, 1.989*0.1, 3.004*0.01, 9.833*0.001, 7.306*0.001, 6.827*0.001, 6.238*0.001, 5.748*0.001, 1.153*0.0001, 5.030*0.0001, 4.150*0.0001, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000]*10.0f0^-21.0f0,
+SA_F32[2.763, 4.269*0.1, 7.478*0.01, 2.100*0.01, 8.350*0.001, 6.827*0.001, 6.238*0.001, 5.994*0.001, 1.153*0.0001, 5.030*0.0001, 4.150*0.0001, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000]*10.0f0^-21.0f0,
+])
 
 """
     cos_solar_zenith_angle(lat, t, long)
@@ -144,21 +154,54 @@ end
 # get information about the type and units of the output.
 cos_solar_zenith_angle(t::DynamicQuantities.Quantity, lat, long) = 1.0
 
+function calc_direct_flux(CSZA, P, i::Int)
+    # using default P_levels, T_profile
+    N_profile = path_density(P_levels) #molecules/cm^2 in each layer
+    z_profile = ZHL(P_levels, T_profile) 
 
-# calculate actinic flux at the given cosine of the solar zenith angle `csa` and
-# maximium actinic flux `max_actinic_flux`
-function calc_flux(csa, max_actinic_flux)
-    max(zero(max_actinic_flux), max_actinic_flux * csa)
-end
+    # calculate optical depth
+    OD_ray_profile = hcat(Rayleigh_OD.(N_profile)...) # Rayleigh OD in each layer
+    OD_abs_profile = hcat(OD_abs.(T_profile_top, N_profile)...) # O2 absorption OD in each layer
+    OD_total = OD_abs_profile + OD_ray_profile
+    # TODO: add O3 absorption OD & aerosols and cloud OD
 
-# calculate all actinic fluxes
-function calc_fluxes(csa)
-    [calc_flux(csa, actinic_flux[i]) for i in 1:18]
+    AMF2 = sphere2(CSZA, z_profile)
+
+    # calculate direct flux attenuation factor
+    single_direct_flux_factor = direct_solar_beam_box_singlewavelength(Matrix(OD_total'), AMF2, P, i)
+    fluxes = top_flux[i] * single_direct_flux_factor
+
+    return fluxes
 end
+@register_symbolic calc_direct_flux(CSZA, P, i::Int)
+
+#Dummy function for unit validation.
+calc_direct_flux(CSZA::DynamicQuantities.Quantity, P::DynamicQuantities.Quantity, i::DynamicQuantities.Quantity) = 1.0
+
+function calc_direct_fluxes(CSZA, P)
+    # using default P_levels, T_profile
+    N_profile = path_density(P_levels) #molecules/cm^2 in each layer
+    z_profile = ZHL(P_levels, T_profile) 
+
+    # calculate optical depth
+    OD_ray_profile = hcat(Rayleigh_OD.(N_profile)...) # Rayleigh OD in each layer
+    OD_abs_profile = hcat(OD_abs.(T_profile_top, N_profile)...) # O2 absorption OD in each layer
+    OD_total = OD_abs_profile + OD_ray_profile
+    # TODO: add O3 absorption OD & aerosols and cloud OD
+
+    AMF2 = sphere2(CSZA, z_profile)
+
+    # calculate direct flux attenuation factor
+    direct_flux_factor = direct_solar_beam_box(Matrix(OD_total'), AMF2, P)
+    fluxes = top_flux .* direct_flux_factor
+
+    return fluxes
+end
+@register_symbolic calc_direct_fluxes(CSZA, P)
 
 # Symbolic equations for actinic flux
-function flux_eqs(csa)
-    flux_vals = calc_fluxes(csa)
+function flux_eqs(csa, P)
+    flux_vals = []
     flux_vars = []
     @constants c_flux = 1.0 [unit = u"s^-1", description = "Constant actinic flux (for unit conversion)"]
     for i in 1:18
@@ -166,10 +209,10 @@ function flux_eqs(csa)
         n = Symbol("F_", Int(round(wl)))
         v = @variables $n(t) [unit = u"s^-1", description = "Actinic flux at $wl nm"]
         push!(flux_vars, only(v))
+        push!(flux_vals, calc_direct_flux(csa, P, i))
     end
     flux_vars, (flux_vars .~ flux_vals .* c_flux)
 end
-
 
 """
 Get mean photolysis rates at different times
@@ -245,6 +288,7 @@ function FastJX(; name=:FastJX)
     @parameters lat = 40.0 [description = "Latitude (Degrees)"]
     @parameters long = -97.0 [description = "Longitude (Degrees)"]
     @parameters P = 101325 [unit = u"Pa", description = "Pressure"]
+    @parameters P_unit = 1 [unit = u"Pa", description = "Unit of pressure"]
     @parameters H2O = 450 [unit = u"ppb"]
 
     @variables j_h2o2(t) = 1.0097 * 10.0^-5 [unit = u"s^-1"]
@@ -256,7 +300,7 @@ function FastJX(; name=:FastJX)
     @variables j_NO2(t) = 0.0149 [unit = u"s^-1"]
     @variables cosSZA(t) [description = "Cosine of the solar zenith angle"]
 
-    flux_vars, fluxeqs = flux_eqs(cosSZA)
+    flux_vars, fluxeqs = flux_eqs(cosSZA, P/P_unit)
     eqs = [
         cosSZA ~ cos_solar_zenith_angle(t, lat, long);
         fluxeqs;
@@ -270,5 +314,5 @@ function FastJX(; name=:FastJX)
     ]
 
     ODESystem(eqs, t, [j_h2o2, j_CH2Oa, j_CH2Ob, j_o32OH, j_o31D, j_CH3OOH, j_NO2, cosSZA, flux_vars...],
-        [lat, long, T, P, H2O]; name=name, metadata=Dict(:coupletype => FastJXCoupler))
+    [lat, long, T, P, H2O]; name=name, metadata=Dict(:coupletype => FastJXCoupler))
 end
