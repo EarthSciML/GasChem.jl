@@ -157,7 +157,7 @@ cos_solar_zenith_angle(t::DynamicQuantities.Quantity, lat, long) = 1.0
 function calc_direct_flux(CSZA, P, i::Int)
     # using default P_levels, T_profile
     N_profile = path_density(P_levels) #molecules/cm^2 in each layer
-    z_profile = ZHL(P_levels, T_profile) 
+    z_profile = ZHL(P_levels, T_profile)
 
     # calculate optical depth
     OD_ray_profile = hcat(Rayleigh_OD.(N_profile)...) # Rayleigh OD in each layer
@@ -181,7 +181,7 @@ calc_direct_flux(CSZA::DynamicQuantities.Quantity, P::DynamicQuantities.Quantity
 function calc_direct_fluxes(CSZA, P)
     # using default P_levels, T_profile
     N_profile = path_density(P_levels) #molecules/cm^2 in each layer
-    z_profile = ZHL(P_levels, T_profile) 
+    z_profile = ZHL(P_levels, T_profile)
 
     # calculate optical depth
     OD_ray_profile = hcat(Rayleigh_OD.(N_profile)...) # Rayleigh OD in each layer
@@ -306,9 +306,9 @@ function FastJX(; name=:FastJX)
         fluxeqs;
         j_h2o2 ~ j_mean_H2O2(T/T_unit, flux_vars)*0.0557; #0.0557 is a parameter to adjust the calculated H2O2 photolysis to appropriate magnitudes.
         j_CH2Oa ~ j_mean_CH2Oa(T/T_unit, flux_vars)*0.945; #0.945 is a parameter to adjust the calculated CH2Oa photolysis to appropriate magnitudes.
-        j_CH2Ob ~ j_mean_CH2Ob(T/T_unit, flux_vars)*1.11; #1.11 is a parameter to adjust the calculated CH2Ob photolysis to appropriate magnitudes. 
+        j_CH2Ob ~ j_mean_CH2Ob(T/T_unit, flux_vars)*1.11; #1.11 is a parameter to adjust the calculated CH2Ob photolysis to appropriate magnitudes.
         j_o31D ~ j_mean_o31D(T/T_unit, flux_vars)*2.33e-21; #2.33e-21 is a parameter to adjust the calculated O(^3)1D photolysis to appropriate magnitudes.
-        j_o32OH ~ j_o31D*adjust_j_o31D(T, P, H2O); 
+        j_o32OH ~ j_o31D*adjust_j_o31D(T, P, H2O);
         j_CH3OOH ~ j_mean_CH3OOH(T/T_unit, flux_vars)*0.0931; #0.0931 is a parameter to adjust the calculated CH3OOH photolysis to appropriate magnitudes.
         j_NO2 ~ j_mean_NO2(T/T_unit, flux_vars)*1.03 #1.03 is a parameter to adjust the calculated NO2 photolysis to appropriate magnitudes.
     ]
