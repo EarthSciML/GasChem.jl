@@ -122,64 +122,52 @@ function calcRZ2(ZHL, i)
 end
 
 # --- Ascending (Upward) Calculation ---
-function ascending_mass_factor(XMU1, RQ2, RZ2, I)
-    XMU2 = sqrt(1.0 - RQ2[I] * (1.0 - XMU1^2))
-    diff = RZ2[I+1] - RZ2[I]
-    AMF2I = (RZ2[I+1] * XMU2 - RZ2[I] * XMU1) / diff
+function ascending_mass_factor(XMU1, ZHL, I)
+    RZ2I, RZ2Ip1, RQ2 = sphere2info(ZHL, I)
+    XMU2 = sqrt(1.0 - RQ2 * (1.0 - XMU1^2))
+    diff = RZ2Ip1 - RZ2I
+    AMF2I = (RZ2Ip1 * XMU2 - RZ2I * XMU1) / diff
     XMU1 = XMU2
     return AMF2I, XMU1
 end
 
 # --- Descending (Twilight) Calculation (only for U0 < 0) ---
-function descending_mass_factor(XMU1, RQ2, RZ2, II)
-    diff = RZ2[II+1] - RZ2[II]
-    DIFF = RZ2[II+1] * sqrt(1.0 - XMU1^2) - RZ2[II]
+function descending_mass_factor(XMU1, ZHL, II)
+    RZ2II, RZ2IIp1, RQ2 = sphere2info(ZHL, II)
+    diff = RZ2IIp1 - RZ2II
+    DIFF = RZ2IIp1 * sqrt(1.0 - XMU1^2) - RZ2II
     done = false
     if II == 1
         DIFF = max(DIFF, 0.0)
     end
     if DIFF < 0.0
-        XMU2 = sqrt(1.0 - (1.0 - XMU1^2) / RQ2[II])
-        XL = abs(RZ2[II+1] * XMU1 - RZ2[II] * XMU2)
+        XMU2 = sqrt(1.0 - (1.0 - XMU1^2) / RQ2)
+        XL = abs(RZ2IIp1 * XMU1 - RZ2II * XMU2)
         AMF2II = 2.0 * XL / diff
         XMU1 = XMU2
     else
-        AMF2II = 2.0 * RZ2[II+1] * XMU1 / diff
+        AMF2II = 2.0 * RZ2IIp1 * XMU1 / diff
         done = true
     end
     return AMF2II, XMU1, done
 end
 
-"""
-Information for calculating the air mass factor matrix using spherical geometry
+function sphere2info(ZHL, i)
+    # Build the fine vertical grid RZ2 with 2*L1U+1 points:
+    # Odd indices correspond to CTM edges; even indices are midpoints.
+    RZ2i = calcRZ2(ZHL, i)
+    RZ2ip1 = calcRZ2(ZHL, i+1)
 
-    - L1U: The CTM grid dimension (levels+1).
-    - U0: Cosine of the solar zenith angle.
-    - ZHL: Vector (length L1U+1) containing the heights (in cm) of the bottom edge of each CTM level and the top-of-atmosphere.
-"""
-struct Sphere2Info{L1,L2,T}
-    "fine vertical grid RZ2 with 2*L1U+1 points"
-    RZ2::NTuple{L1,T}
-    "Pre-calculated squared ratios for each sublayer."
-    RQ2::NTuple{L2,T}
-    "Shadow height for sun below the horizon."
-    SHADHT::T
+    # Pre-calculate squared ratios for each sublayer.
+    RQ2 = (RZ2i / RZ2ip1)^2
 
-    function Sphere2Info{L1,L2,T}(U0, ZHL) where {L1,L2,T}
-        # Build the fine vertical grid RZ2 with 2*L1U+1 points:
-        # Odd indices correspond to CTM edges; even indices are midpoints.
-        RZ2 = ntuple(i -> calcRZ2(ZHL, i), Val(L1))
-
-        # Pre-calculate squared ratios for each sublayer.
-        RQ2 = ntuple(i -> (RZ2[i] / RZ2[i+1])^2, L2)
-
-        # Compute shadow height for sun below the horizon.
-        SHADHT = ifelse(U0 < 0.0, RZ2[1] / sqrt(1.0 - U0^2), 0.0)
-        new{L1,L2,Float64}(RZ2, RQ2, SHADHT)
-    end
+    return RZ2i, RZ2ip1, RQ2
 end
 
-function sphere2J(si::Sphere2Info, U0, J)
+# Compute shadow height for sun below the horizon.
+shadht(U0, RZ21) = ifelse(U0 < 0.0, RZ21 / sqrt(1.0 - U0^2), 0.0)
+
+function sphere2J(U0, ZHL, J)
     # U0 is cosine of the solar zenith angle
     # J is row in matrix to calculate for.
     L2 = 73 * 2
@@ -187,14 +175,14 @@ function sphere2J(si::Sphere2Info, U0, J)
     n = 2 * 73 + 1
     AMF2 = zeros(Float64, n)
 
-    if si.RZ2[J] < si.SHADHT
+    if calcRZ2(ZHL, J) < shadht(U0, calcRZ2(ZHL, 1))
         return AMF2
     end
 
     # --- Ascending (Upward) Calculation ---
     XMU1 = abs(U0)
     for I in J:L2
-        AMF2[I], XMU1 = ascending_mass_factor(XMU1, si.RQ2, si.RZ2, I)
+        AMF2[I], XMU1 = ascending_mass_factor(XMU1, ZHL, I)
     end
     AMF2[L2+1] = 1.0
 
@@ -205,7 +193,7 @@ function sphere2J(si::Sphere2Info, U0, J)
 
     XMU1 = abs(U0)
     for II in (J-1):-1:1
-        AMF2[II], XMU1, done = descending_mass_factor(XMU1, si.RQ2, si.RZ2, II)
+        AMF2[II], XMU1, done = descending_mass_factor(XMU1, ZHL, II)
         if done
             break
         end
@@ -238,8 +226,7 @@ function direct_solar_beam_box(DTAU, U0, ZHL, P; threshold::Float64=76.0)
     n_layers -= 1
     # n_edge is assumed to be the number of CTM grid edges.
 
-    si = Sphere2Info{73 * 2 + 1,73 * 2,Float64}(U0, ZHL)
-    AMF2J = sphere2J(si, U0, fine_index)
+    AMF2J = sphere2J(U0, ZHL, fine_index)
 
     # Define the number of fine-grid points.
     ng = 2 * n_layers + 1
@@ -276,8 +263,7 @@ function direct_solar_beam_box_singlewavelength(DTAU, U0, ZHL, P, k; threshold::
     n_layers = size(DTAU, 1) - 1
     # n_edge is assumed to be the number of CTM grid edges.
 
-    si = Sphere2Info{73 * 2 + 1,73 * 2,Float64}(U0, ZHL)
-    AMF2J = sphere2J(si, U0, fine_index)
+    AMF2J = sphere2J(U0, ZHL, fine_index)
 
     # Define the number of fine-grid points.
     ng = 2 * n_layers + 1
