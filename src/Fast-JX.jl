@@ -223,6 +223,7 @@ function FastJX(; name=:FastJX)
     @variables cosSZA(t) [description = "Cosine of the solar zenith angle"]
 
     flux_vars, fluxeqs = flux_eqs(cosSZA, P/P_unit)
+
     eqs = [
         cosSZA ~ cos_solar_zenith_angle(t, lat, long);
         fluxeqs;
@@ -236,5 +237,5 @@ function FastJX(; name=:FastJX)
     ]
 
     ODESystem(eqs, t, [j_h2o2, j_CH2Oa, j_CH2Ob, j_o32OH, j_o31D, j_CH3OOH, j_NO2, cosSZA, flux_vars...],
-    [lat, long, T, P, H2O]; name=name, metadata=Dict(:coupletype => FastJXCoupler))
+      [lat, long, T, P, H2O]; name=name, metadata=Dict(:coupletype => FastJXCoupler))
 end
