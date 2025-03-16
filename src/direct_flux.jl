@@ -155,9 +155,8 @@ struct Sphere2Info{L1, L2, T}
     end
 end
 
-function sphere2(U0, ZHL)
+function sphere2J(si::Sphere2Info, U0)
     L2 = 73*2
-    si = Sphere2Info{73*2+1,L2,Float64}(U0, ZHL)
     # Define the size of the output grid. (Original code sets n = 2*LJX1U+1.)
     n = 2 * 73 + 1
     AMF2 = zeros(Float64, n, n) #Vector{Vector{Float64}}(undef, n)
@@ -201,10 +200,11 @@ function find_closest_pressure_index(pressure, P_levels)
 end
 @register_symbolic find_closest_pressure_index(pressure, P_levels)
 
-function direct_solar_beam_box(DTAUX, AMF2, P; threshold::Float64=76.0)
+function direct_solar_beam_box(DTAUX, U0, ZHL, P; threshold::Float64=76.0)
     # Calculate the direct attenuated solar beam (i.e. the unscattered or "direct" beam)by computing an effective optical depth along the slanted light path and applying the Beer–Lambert law.
     # DTAUX: Optical depth per CTM layer (dimensions: n_layers × n_wave)
-    # AMF2: Air mass factor matrix (size: (2*n_edge+1)×(2*n_edge+1))
+    # U0: Cosine of the solar zenith angle.
+    # ZHL: Vector (length L1U+1) containing the heights (in cm) of the bottom edge of each CTM level and the top-of-atmosphere.
     # P: Pressure (unit: Pa)
     # threshold: A cutoff value for the effective optical depth (default 76.0)
 
@@ -216,6 +216,9 @@ function direct_solar_beam_box(DTAUX, AMF2, P; threshold::Float64=76.0)
     # n_edge is assumed to be the number of CTM grid edges.
     # Build the extended optical depth grid by appending a zero row (top-of-atmosphere).
     DTAU = vcat(DTAUX, zeros(1, n_wave))
+
+    si = Sphere2Info{73*2+1,73*2,Float64}(U0, ZHL)
+    AMF2 = sphere2J(si, U0)
 
     # Define the number of fine-grid points.
     ng = 2 * n_layers + 1
@@ -236,12 +239,13 @@ function direct_solar_beam_box(DTAUX, AMF2, P; threshold::Float64=76.0)
 end
 @register_symbolic direct_solar_beam_box(DTAUX, AMF2, P)
 
-function direct_solar_beam_box_singlewavelength(DTAUX, AMF2, P, k; threshold::Float64=76.0)
+function direct_solar_beam_box_singlewavelength(DTAUX, U0, ZHL, P, k; threshold::Float64=76.0)
     # Calculate the direct attenuated solar beam (i.e. the unscattered or "direct" beam)
     # by computing an effective optical depth along the slanted light path and applying
     # the Beer–Lambert law.
     # DTAUX: Optical depth per CTM layer (dimensions: n_layers × n_wave)
-    # AMF2: Air mass factor matrix (size: (2*n_edge+1)×(2*n_edge+1))
+    # U0: Cosine of the solar zenith angle.
+    # ZHL: Vector (length L1U+1) containing the heights (in cm) of the bottom edge of each CTM level and the top-of-atmosphere.
     # P: Pressure (unit: Pa)
     # threshold: A cutoff value for the effective optical depth (default 76.0)
 
@@ -253,6 +257,9 @@ function direct_solar_beam_box_singlewavelength(DTAUX, AMF2, P, k; threshold::Fl
     # n_edge is assumed to be the number of CTM grid edges.
     # Build the extended optical depth grid by appending a zero row (top-of-atmosphere).
     DTAU = vcat(DTAUX, zeros(1, n_wave))
+
+    si = Sphere2Info{73*2+1,73*2,Float64}(U0, ZHL)
+    AMF2 = sphere2J(si, U0)
 
     # Define the number of fine-grid points.
     ng = 2 * n_layers + 1

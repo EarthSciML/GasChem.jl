@@ -165,10 +165,8 @@ function calc_direct_flux(CSZA, P, i::Int)
     OD_total = OD_abs_profile + OD_ray_profile
     # TODO: add O3 absorption OD & aerosols and cloud OD
 
-    AMF2 = sphere2(CSZA, z_profile)
-
     # calculate direct flux attenuation factor
-    single_direct_flux_factor = direct_solar_beam_box_singlewavelength(Matrix(OD_total'), AMF2, P, i)
+    single_direct_flux_factor = direct_solar_beam_box_singlewavelength(Matrix(OD_total'), CSZA, z_profile, P, i)
     fluxes = top_flux[i] * single_direct_flux_factor
 
     return fluxes
@@ -189,10 +187,8 @@ function calc_direct_fluxes(CSZA, P)
     OD_total = OD_abs_profile + OD_ray_profile
     # TODO: add O3 absorption OD & aerosols and cloud OD
 
-    AMF2 = sphere2(CSZA, z_profile)
-
     # calculate direct flux attenuation factor
-    direct_flux_factor = direct_solar_beam_box(Matrix(OD_total'), AMF2, P)
+    direct_flux_factor = direct_solar_beam_box(Matrix(OD_total'), CSZA, z_profile, P)
     fluxes = top_flux .* direct_flux_factor
 
     return fluxes
