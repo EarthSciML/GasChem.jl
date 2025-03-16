@@ -97,42 +97,81 @@ function calcRZ2(ZHL, i)
     end
 end
 
+# --- Ascending (Upward) Calculation ---
+function ascending_mass_factor(XMU1, RQ2, RZ2, I)
+    XMU2 = sqrt(1.0 - RQ2[I] * (1.0 - XMU1^2))
+    diff = RZ2[I+1] - RZ2[I]
+    AMF2I = (RZ2[I+1] * XMU2 - RZ2[I] * XMU1) / diff
+    XMU1 = XMU2
+    return AMF2I, XMU1
+end
+
+# --- Descending (Twilight) Calculation (only for U0 < 0) ---
+function descending_mass_factor(XMU1, RQ2, RZ2, II)
+    diff = RZ2[II+1] - RZ2[II]
+    DIFF = RZ2[II+1] * sqrt(1.0 - XMU1^2) - RZ2[II]
+    done = false
+    if II == 1
+        DIFF = max(DIFF, 0.0)
+    end
+    if DIFF < 0.0
+        XMU2 = sqrt(1.0 - (1.0 - XMU1^2) / RQ2[II])
+        XL = abs(RZ2[II+1] * XMU1 - RZ2[II] * XMU2)
+        AMF2II = 2.0 * XL / diff
+        XMU1 = XMU2
+    else
+        AMF2II = 2.0 * RZ2[II+1] * XMU1 / diff
+        done = true
+    end
+    return AMF2II, XMU1, done
+end
+
+"""
+Information for calculating the air mass factor matrix using spherical geometry
+
+    - L1U: The CTM grid dimension (levels+1).
+    - U0: Cosine of the solar zenith angle.
+    - ZHL: Vector (length L1U+1) containing the heights (in cm) of the bottom edge of each CTM level and the top-of-atmosphere.
+"""
+struct Sphere2Info{L1, L2, T}
+    "fine vertical grid RZ2 with 2*L1U+1 points"
+    RZ2::NTuple{L1, T}
+    "Pre-calculated squared ratios for each sublayer."
+    RQ2::NTuple{L2, T}
+    "Shadow height for sun below the horizon."
+    SHADHT::T
+
+    function Sphere2Info{L1,L2,T}(U0, ZHL) where {L1,L2,T}
+        # Build the fine vertical grid RZ2 with 2*L1U+1 points:
+        # Odd indices correspond to CTM edges; even indices are midpoints.
+        RZ2 = ntuple(i -> calcRZ2(ZHL, i), L1)
+
+        # Pre-calculate squared ratios for each sublayer.
+        RQ2 = ntuple(i -> (RZ2[i] / RZ2[i+1])^2, L2)
+
+        # Compute shadow height for sun below the horizon.
+        SHADHT = ifelse(U0 < 0.0, RZ2[1] / sqrt(1.0 - U0^2), 0.0)
+        new{L1,L2,Float64}(RZ2, RQ2, SHADHT)
+    end
+end
+
 function sphere2(U0, ZHL)
-    # Compute the air mass factor matrix (AMF2) using spherical geometry.
-    # U0: Cosine of the solar zenith angle.
-    # ZHL: Vector (length L1U+1) containing the heights (in cm) of the bottom edge of each CTM level and the top-of-atmosphere.
-
-    LJX1U = L1U = 73 # L1U: The CTM grid dimension (levels+1).
-    # LJX1U: Used to size the output AMF2 matrix; typically LJX1U ~ L1U.
-
-    # Build the fine vertical grid RZ2 with 2*L1U+1 points:
-    # Odd indices correspond to CTM edges; even indices are midpoints.
-    L2 = 2 * L1U
-    RZ2 = ntuple(i -> calcRZ2(ZHL, i), Val(L2 + 1))
-
-    # Pre-calculate squared ratios for each sublayer.
-    RQ2 = ntuple(i -> (RZ2[i] / RZ2[i+1])^2, L2)
-
-    # Compute shadow height for sun below the horizon.
-    SHADHT = ifelse(U0 < 0.0, RZ2[1] / sqrt(1.0 - U0^2), 0.0)
-
+    L2 = 73*2
+    si = Sphere2Info{73*2+1,L2,Float64}(U0, ZHL)
     # Define the size of the output grid. (Original code sets n = 2*LJX1U+1.)
-    n = 2 * LJX1U + 1
-    AMF2 = Vector{Vector{Float64}}(undef, n)
+    n = 2 * 73 + 1
+    AMF2 = zeros(Float64, n, n) #Vector{Vector{Float64}}(undef, n)
 
     # Loop over each fine-grid starting level (J).
     for J in 1:(L2+1)
-        if RZ2[J] < SHADHT
+        if si.RZ2[J] < si.SHADHT
             continue
         end
 
         # --- Ascending (Upward) Calculation ---
         XMU1 = abs(U0)
         for I in J:L2
-            XMU2 = sqrt(1.0 - RQ2[I] * (1.0 - XMU1^2))
-            diff = RZ2[I+1] - RZ2[I]
-            AMF2[I, J] = (RZ2[I+1] * XMU2 - RZ2[I] * XMU1) / diff
-            XMU1 = XMU2
+            AMF2[I, J], XMU1 = ascending_mass_factor(XMU1, si.RQ2, si.RZ2, I)
         end
         AMF2[L2+1, J] = 1.0
 
@@ -143,27 +182,14 @@ function sphere2(U0, ZHL)
 
         XMU1 = abs(U0)
         for II in (J-1):-1:1
-            diff = RZ2[II+1] - RZ2[II]
-            DIFF = RZ2[II+1] * sqrt(1.0 - XMU1^2) - RZ2[II]
-            if II == 1
-                DIFF = max(DIFF, 0.0)
-            end
-            if DIFF < 0.0
-                XMU2 = sqrt(1.0 - (1.0 - XMU1^2) / RQ2[II])
-                XL = abs(RZ2[II+1] * XMU1 - RZ2[II] * XMU2)
-                AMF2[II, J] = 2.0 * XL / diff
-                XMU1 = XMU2
-            else
-                AMF2[II, J] = 2.0 * RZ2[II+1] * XMU1 / diff
+            AMF2[II, J], XMU1, done = descending_mass_factor(XMU1, si.RQ2, si.RZ2, II)
+            if done
                 break
             end
         end
     end
-
     return AMF2
 end
-
-
 
 function find_closest_pressure_index(pressure, P_levels)
     n = length(P_levels)
