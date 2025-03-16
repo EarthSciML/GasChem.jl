@@ -6,49 +6,6 @@ const WL = SA_F32[187, 191, 193, 196, 202, 208, 211, 214, 261, 267, 277, 295, 30
 # Top of the atmosphere solar flux in 18 bins
 const top_flux = SA_F32[1.391E+12, 1.627E+12, 1.664E+12, 9.278E+11, 7.842E+12, 4.680E+12, 9.918E+12, 1.219E+13, 6.364E+14, 4.049E+14, 3.150E+14, 5.889E+14, 7.678E+14, 5.045E+14, 8.902E+14, 3.853E+15, 1.547E+16, 2.131E+17]
 
-function interp2_func(x1, x2, T1, T2)
-    if x1 ≈ x2
-        return (T) -> x1
-    end
-    function interp2(T)
-        T = clamp(T, T1, T2)
-        x1 + (T - T1) * (x2 - x1) / (T2 - T1)
-    end
-end
-
-function interp3_func(x1, x2, x3, T1, T2, T3)
-    if x1 ≈ x2 && x2 ≈ x3
-        return (T) -> x1
-    end
-    function interp3(T)
-        T = clamp(T, T1, T3)
-        ifelse(T < T2,
-            x1 + (T - T1) * (x2 - x1) / (T2 - T1),
-            x2 + (T - T2) * (x3 - x2) / (T3 - T2),
-        )
-    end
-end
-
-function interp_func(temperatures, cross_sections)
-    if length(temperatures) == 2
-        return interp2_func(cross_sections[1], cross_sections[2], temperatures[1], temperatures[2])
-    elseif length(temperatures) == 3
-        return interp3_func(cross_sections[1], cross_sections[2], cross_sections[3],
-            temperatures[1], temperatures[2], temperatures[3])
-    end
-    LinearInterpolation(temperatures, cross_sections, extrapolation_bc=Flat())
-end
-
-"""
-Create a vector of interpolators to interpolate the cross sections σ (TODO: What are the units?) for different wavelengths (in nm) and temperatures (in K).
-
-We use use linear interpolation with flat extrapolation.
-"""
-function create_fjx_interp(temperatures::Vector{Float32}, cross_sections::Vector{SVector{18,Float32}})
-    [interp_func(temperatures, [x[i] for x ∈ cross_sections]) for i ∈ 1:length(WL)]
-    #[linear_interpolation(temperatures, [x[i] for x ∈ cross_sections], extrapolation_bc=Flat()) for i ∈ 1:length(WL)]
-end
-
 #   Cross sections and quantum yield from GEOS-CHEM "FJX_spec.dat" for photo-reactive species included in SuperFast:
 
 # Cross sections σ for O3(1D) for different wavelengths(18 bins), temperatures
@@ -99,16 +56,6 @@ const σ_NO2_interp = create_fjx_interp([200.0f0, 294.0f0], [
     SA_F32[0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 2.313*0.1, 4.694*0.1, 7.553*0.1, 1.063, 1.477, 1.869, 2.295, 3.448, 4.643, 4.345*0.001] * 10.0f0^-19.0f0,
 ])
 
-# Cross sections σ for Rayleigh scattering for different wavelengths(18 bins), temperatures
-const σ_Raylay = SA_F32[5.073, 4.479, 4.196, 3.906, 3.355, 2.929, 2.736, 2.581, 1.049, 9.492*0.1, 8.103*0.1, 6.131*0.1, 5.422*0.1, 4.923*0.1, 4.514*0.1, 3.643*0.1, 2.087*0.1, 3.848*0.01]* 10.0f0^-25.0f0
-
-# Cross sections σ for O2 for different wavelengths(18 bins), temperatures
-const σ_O2_interp = create_fjx_interp([180.0f0, 260.0f0, 300.0f0], [
-SA_F32[1.727, 1.989*0.1, 3.004*0.01, 9.833*0.001, 7.306*0.001, 6.827*0.001, 6.238*0.001, 5.748*0.001, 1.153*0.0001, 5.030*0.0001, 4.150*0.0001, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000]*10.0f0^-21.0f0,
-SA_F32[1.727, 1.989*0.1, 3.004*0.01, 9.833*0.001, 7.306*0.001, 6.827*0.001, 6.238*0.001, 5.748*0.001, 1.153*0.0001, 5.030*0.0001, 4.150*0.0001, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000]*10.0f0^-21.0f0,
-SA_F32[2.763, 4.269*0.1, 7.478*0.01, 2.100*0.01, 8.350*0.001, 6.827*0.001, 6.238*0.001, 5.994*0.001, 1.153*0.0001, 5.030*0.0001, 4.150*0.0001, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000]*10.0f0^-21.0f0,
-])
-
 """
     cos_solar_zenith_angle(lat, t, long)
 This function is to compute the cosine of the solar zenith angle, given the unixtime, latitude and longitude
@@ -155,18 +102,8 @@ end
 cos_solar_zenith_angle(t::DynamicQuantities.Quantity, lat, long) = 1.0
 
 function calc_direct_flux(CSZA, P, i::Int)
-    # using default P_levels, T_profile
-    N_profile = path_density(P_levels) #molecules/cm^2 in each layer
-    z_profile = ZHL(P_levels, T_profile)
-
-    # calculate optical depth
-    OD_ray_profile = hcat(Rayleigh_OD.(N_profile)...) # Rayleigh OD in each layer
-    OD_abs_profile = hcat(OD_abs.(T_profile_top, N_profile)...) # O2 absorption OD in each layer
-    OD_total = OD_abs_profile + OD_ray_profile
-    # TODO: add O3 absorption OD & aerosols and cloud OD
-
     # calculate direct flux attenuation factor
-    single_direct_flux_factor = direct_solar_beam_box_singlewavelength(Matrix(OD_total'), CSZA, z_profile, P, i)
+    single_direct_flux_factor = direct_solar_beam_box_singlewavelength(OD_total, CSZA, z_profile, P, i)
     fluxes = top_flux[i] * single_direct_flux_factor
 
     return fluxes
@@ -177,20 +114,9 @@ end
 calc_direct_flux(CSZA::DynamicQuantities.Quantity, P::DynamicQuantities.Quantity, i::DynamicQuantities.Quantity) = 1.0
 
 function calc_direct_fluxes(CSZA, P)
-    # using default P_levels, T_profile
-    N_profile = path_density(P_levels) #molecules/cm^2 in each layer
-    z_profile = ZHL(P_levels, T_profile)
-
-    # calculate optical depth
-    OD_ray_profile = hcat(Rayleigh_OD.(N_profile)...) # Rayleigh OD in each layer
-    OD_abs_profile = hcat(OD_abs.(T_profile_top, N_profile)...) # O2 absorption OD in each layer
-    OD_total = OD_abs_profile + OD_ray_profile
-    # TODO: add O3 absorption OD & aerosols and cloud OD
-
     # calculate direct flux attenuation factor
-    direct_flux_factor = direct_solar_beam_box(Matrix(OD_total'), CSZA, z_profile, P)
+    direct_flux_factor = direct_solar_beam_box(OD_total, CSZA, z_profile, P)
     fluxes = top_flux .* direct_flux_factor
-
     return fluxes
 end
 @register_symbolic calc_direct_fluxes(CSZA, P)
