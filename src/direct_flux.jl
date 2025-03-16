@@ -167,13 +167,14 @@ end
 # Compute shadow height for sun below the horizon.
 shadht(U0, RZ21) = ifelse(U0 < 0.0, RZ21 / sqrt(1.0 - U0^2), 0.0)
 
+# Calculate row J in the air mass factor matrix using spherical geometry
 function sphere2J(U0, ZHL, J)
     # U0 is cosine of the solar zenith angle
     # J is row in matrix to calculate for.
     L2 = 73 * 2
     # Define the size of the output grid. (Original code sets n = 2*LJX1U+1.)
     n = 2 * 73 + 1
-    AMF2 = zeros(Float64, n)
+    AMF2 = MVector{n,Float64}(undef)
 
     if calcRZ2(ZHL, J) < shadht(U0, calcRZ2(ZHL, 1))
         return AMF2
