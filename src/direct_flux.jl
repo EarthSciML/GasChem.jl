@@ -49,7 +49,7 @@ function path_density(P)
 end
 
 # Cross sections σ for Rayleigh scattering for different wavelengths(18 bins), temperatures
-const σ_Raylay = SA_F32[5.073, 4.479, 4.196, 3.906, 3.355, 2.929, 2.736, 2.581, 1.049, 9.492*0.1, 8.103*0.1, 6.131*0.1, 5.422*0.1, 4.923*0.1, 4.514*0.1, 3.643*0.1, 2.087*0.1, 3.848*0.01]* 10.0f0^-25.0f0
+const σ_Raylay = SA_F32[5.073, 4.479, 4.196, 3.906, 3.355, 2.929, 2.736, 2.581, 1.049, 9.492*0.1, 8.103*0.1, 6.131*0.1, 5.422*0.1, 4.923*0.1, 4.514*0.1, 3.643*0.1, 2.087*0.1, 3.848*0.01] * 10.0f0^-25.0f0
 
 function Rayleigh_OD(N)
     OD = σ_Raylay * N
@@ -58,9 +58,9 @@ end
 
 # Cross sections σ for O2 for different wavelengths(18 bins), temperatures
 const σ_O2_interp = create_fjx_interp([180.0f0, 260.0f0, 300.0f0], [
-SA_F32[1.727, 1.989*0.1, 3.004*0.01, 9.833*0.001, 7.306*0.001, 6.827*0.001, 6.238*0.001, 5.748*0.001, 1.153*0.0001, 5.030*0.0001, 4.150*0.0001, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000]*10.0f0^-21.0f0,
-SA_F32[1.727, 1.989*0.1, 3.004*0.01, 9.833*0.001, 7.306*0.001, 6.827*0.001, 6.238*0.001, 5.748*0.001, 1.153*0.0001, 5.030*0.0001, 4.150*0.0001, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000]*10.0f0^-21.0f0,
-SA_F32[2.763, 4.269*0.1, 7.478*0.01, 2.100*0.01, 8.350*0.001, 6.827*0.001, 6.238*0.001, 5.994*0.001, 1.153*0.0001, 5.030*0.0001, 4.150*0.0001, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000]*10.0f0^-21.0f0,
+    SA_F32[1.727, 1.989*0.1, 3.004*0.01, 9.833*0.001, 7.306*0.001, 6.827*0.001, 6.238*0.001, 5.748*0.001, 1.153*0.0001, 5.030*0.0001, 4.150*0.0001, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000] * 10.0f0^-21.0f0,
+    SA_F32[1.727, 1.989*0.1, 3.004*0.01, 9.833*0.001, 7.306*0.001, 6.827*0.001, 6.238*0.001, 5.748*0.001, 1.153*0.0001, 5.030*0.0001, 4.150*0.0001, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000] * 10.0f0^-21.0f0,
+    SA_F32[2.763, 4.269*0.1, 7.478*0.01, 2.100*0.01, 8.350*0.001, 6.827*0.001, 6.238*0.001, 5.994*0.001, 1.153*0.0001, 5.030*0.0001, 4.150*0.0001, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000] * 10.0f0^-21.0f0,
 ])
 
 function OD_abs(T, N)
@@ -94,7 +94,10 @@ const z_profile = SVector{74}(ZHL(P_levels, T_profile))
 # calculate optical depth
 const OD_ray_profile = hcat(Rayleigh_OD.(N_profile)...) # Rayleigh OD in each layer
 const OD_abs_profile = SMatrix{18,73}(hcat(OD_abs.(T_profile_top, N_profile)...)) # O2 absorption OD in each layer
-const OD_total = SMatrix{73,18}((OD_abs_profile + OD_ray_profile)')
+const OD_total = SMatrix{74,18}(
+    vcat((OD_abs_profile + OD_ray_profile)', zeros(1, 18))
+    # Build the extended optical depth grid by appending a zero row (top-of-atmosphere).
+)
 # TODO: add O3 absorption OD & aerosols and cloud OD
 
 
@@ -219,9 +222,9 @@ function find_closest_pressure_index(pressure, P_levels)
     return index
 end
 
-function direct_solar_beam_box(DTAUX, U0, ZHL, P; threshold::Float64=76.0)
+function direct_solar_beam_box(DTAU, U0, ZHL, P; threshold::Float64=76.0)
     # Calculate the direct attenuated solar beam (i.e. the unscattered or "direct" beam)by computing an effective optical depth along the slanted light path and applying the Beer–Lambert law.
-    # DTAUX: Optical depth per CTM layer (dimensions: n_layers × n_wave)
+    # DTAU: Optical depth per CTM layer (dimensions: n_layers+1 × n_wave)
     # U0: Cosine of the solar zenith angle.
     # ZHL: Vector (length L1U+1) containing the heights (in cm) of the bottom edge of each CTM level and the top-of-atmosphere.
     # P: Pressure (unit: Pa)
@@ -230,11 +233,10 @@ function direct_solar_beam_box(DTAUX, U0, ZHL, P; threshold::Float64=76.0)
     closest_index = find_closest_pressure_index(P, P_levels)
     fine_index = 2 * closest_index - 1
 
-    # Determine dimensions from DTAUX.
-    n_layers, n_wave = size(DTAUX)
+    # Determine dimensions from DTAU.
+    n_layers, n_wave = size(DTAU)
+    n_layers -= 1
     # n_edge is assumed to be the number of CTM grid edges.
-    # Build the extended optical depth grid by appending a zero row (top-of-atmosphere).
-    DTAU = vcat(DTAUX, zeros(1, n_wave))
 
     si = Sphere2Info{73 * 2 + 1,73 * 2,Float64}(U0, ZHL)
     AMF2J = sphere2J(si, U0, fine_index)
@@ -257,11 +259,11 @@ function direct_solar_beam_box(DTAUX, U0, ZHL, P; threshold::Float64=76.0)
     return FTAU2
 end
 
-function direct_solar_beam_box_singlewavelength(DTAUX, U0, ZHL, P, k; threshold::Float64=76.0)
+function direct_solar_beam_box_singlewavelength(DTAU, U0, ZHL, P, k; threshold::Float64=76.0)
     # Calculate the direct attenuated solar beam (i.e. the unscattered or "direct" beam)
     # by computing an effective optical depth along the slanted light path and applying
     # the Beer–Lambert law.
-    # DTAUX: Optical depth per CTM layer (dimensions: n_layers × n_wave)
+    # DTAU: Optical depth per CTM layer (dimensions: n_layers+1 × n_wave)
     # U0: Cosine of the solar zenith angle.
     # ZHL: Vector (length L1U+1) containing the heights (in cm) of the bottom edge of each CTM level and the top-of-atmosphere.
     # P: Pressure (unit: Pa)
@@ -270,11 +272,9 @@ function direct_solar_beam_box_singlewavelength(DTAUX, U0, ZHL, P, k; threshold:
     closest_index = find_closest_pressure_index(P, P_levels)
     fine_index = 2 * closest_index - 1
 
-    # Determine dimensions from DTAUX.
-    n_layers, n_wave = size(DTAUX)
+    # Determine dimensions from DTAU.
+    n_layers = size(DTAU, 1) - 1
     # n_edge is assumed to be the number of CTM grid edges.
-    # Build the extended optical depth grid by appending a zero row (top-of-atmosphere).
-    DTAU = vcat(DTAUX, zeros(1, n_wave))
 
     si = Sphere2Info{73 * 2 + 1,73 * 2,Float64}(U0, ZHL)
     AMF2J = sphere2J(si, U0, fine_index)
