@@ -43,7 +43,7 @@ end
 
 # Unit Test 2: CH2O -> H + HO2 + CO
 @testset "CH2O" begin
-    u_2 = [ 8.642676369563976e-5, 8.642271238446067e-5, 8.641551005347563e-5]
+    u_2 = [8.642676369563976e-5, 8.642271238446067e-5, 8.641551005347563e-5]
 
     fluxes = get_fluxes(3600 * 12.0, 30.0, 0.0, 0.9)
     test_2 = [
@@ -95,7 +95,29 @@ end
 end
 
 @testset "Direct Flux" begin
-    @parameters P,csa
+    @parameters P, csa
     x = GasChem.calc_direct_fluxes(csa, P)
-    @test substitute(x, Dict(P => 1013525, csa=>0.42255961917649837)) ≈ [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 6.942926208560752e-20, 9.324385539750345e11, 1.6175240854575052e10, 6.451788954313698e10, 2.65230857303719e13, 4.949172766139693e13, 4.1853350675689734e13, 9.0818932182367e13, 6.106135960927899e14, 5.384781489955934e15, 1.75419654839834e17]
+    @test substitute(x, Dict(P => 1013525, csa => 0.42255961917649837)) ≈ [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 6.942926208560752e-20, 9.324385539750345e11, 1.6175240854575052e10, 6.451788954313698e10, 2.65230857303719e13, 4.949172766139693e13, 4.1853350675689734e13, 9.0818932182367e13, 6.106135960927899e14, 5.384781489955934e15, 1.75419654839834e17]
+end
+
+@testset "Direct Flux 2" begin
+    t, lat, lon, P = 3600 * 12.0, 30.0, 0.0, 0.9
+
+    cos_sza = GasChem.cos_solar_zenith_angle(t, lat, lon)
+
+    @test GasChem.calc_direct_flux(cos_sza, P, 1) ≈ 1.391000027136e12
+    @test GasChem.calc_direct_flux(cos_sza, P, 2) ≈ 1.6270000128e12
+    @test GasChem.calc_direct_flux(cos_sza, P, 4) ≈ 9.27799967744e11
+    @test GasChem.calc_direct_flux(cos_sza, P, 6) ≈ 4.680000208896e12
+    @test GasChem.calc_direct_flux(cos_sza, P, 8) ≈ 1.219000008704e13
+    @test GasChem.calc_direct_flux(cos_sza, P, 10) ≈ 4.0489998876672e14
+    @test GasChem.calc_direct_flux(cos_sza, P, 12) ≈ 5.88900011606016e14
+    @test GasChem.calc_direct_flux(cos_sza, P, 14) ≈ 5.04500011925504e14
+    @test GasChem.calc_direct_flux(cos_sza, P, 16) ≈ 3.853000128856064e15
+    @test GasChem.calc_direct_flux(cos_sza, P, 18) ≈ 2.1310000789140275e17
+
+    P = 100
+    @test GasChem.calc_direct_flux(cos_sza, P, 1) ≈ 3.1945754293116e6
+    P = 500
+    @test GasChem.calc_direct_flux(cos_sza, P, 1) ≈ 1.681154736397082e-16
 end
