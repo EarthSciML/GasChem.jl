@@ -8,9 +8,9 @@ using Test, SafeTestsets
     @safetestset "FastJX" begin
         include("fastjx_test.jl")
     end
-    # @safetestset "compose_fastjx_superfast" begin
-    #     include("compose_fastjx_superfast_test.jl")
-    # end
+#     @safetestset "compose_fastjx_superfast" begin
+#         include("compose_fastjx_superfast_test.jl")
+#     end
     @safetestset "geoschem_test" begin
          include("geoschem_test.jl")
     end

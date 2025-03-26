@@ -134,3 +134,23 @@ end
     P = 500
     @test GasChem.calc_direct_flux(cos_sza, P, 1) ≈ 1.681154736397082e-16
 end
+
+@testset "Direct Flux Twilight" begin
+    P = 1
+    cos_sza = -0.1
+    @test GasChem.calc_direct_flux(cos_sza, P, 1) ≈ 0.0
+    @test GasChem.calc_direct_flux(cos_sza, P, 3) ≈ 9.210824994693922e6
+    @test GasChem.calc_direct_flux(cos_sza, P, 5) ≈ 2.7107178595671622e11
+    @test GasChem.calc_direct_flux(cos_sza, P, 7) ≈ 5.738136573445582e11
+    @test GasChem.calc_direct_flux(cos_sza, P, 9) ≈ 5.04267784656514e14
+    @test GasChem.calc_direct_flux(cos_sza, P, 11) ≈ 2.326848158168617e14
+    @test GasChem.calc_direct_flux(cos_sza, P, 13) ≈ 6.962821827121719e14
+    @test GasChem.calc_direct_flux(cos_sza, P, 15) ≈ 8.206081725002852e14
+    @test GasChem.calc_direct_flux(cos_sza, P, 18) ≈ 2.116264141002065e17
+
+    P = 100
+    @test GasChem.calc_direct_flux(cos_sza, P, 3) ≈ 0.0
+    @test GasChem.calc_direct_flux(cos_sza, P, 9) ≈ 23.739997461455154
+    @test GasChem.calc_direct_flux(cos_sza, P, 18) ≈ 8.475995351825976e16
+end
+
