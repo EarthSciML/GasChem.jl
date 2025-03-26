@@ -174,7 +174,8 @@ function sphere2J(U0, ZHL, J)
     L2 = 73 * 2
     # Define the size of the output grid. (Original code sets n = 2*LJX1U+1.)
     n = 2 * 73 + 1
-    AMF2 = zeros(Float64, n)
+    AMF2 = MVector{n,Float64}(undef)
+    AMF2 .= 0.0
 
     if calcRZ2(ZHL, J) < shadht(U0, calcRZ2(ZHL, 1))
         return AMF2
