@@ -3,48 +3,8 @@ export FastJX
 # Effective wavelength in 18 bins covering 177–850 nm
 const WL = SA_F32[187, 191, 193, 196, 202, 208, 211, 214, 261, 267, 277, 295, 303, 310, 316, 333, 380, 574]
 
-function interp2_func(x1, x2, T1, T2)
-    if x1 ≈ x2
-        return (T) -> x1
-    end
-    function interp2(T)
-        T = clamp(T, T1, T2)
-        x1 + (T - T1) * (x2 - x1) / (T2 - T1)
-    end
-end
-
-function interp3_func(x1, x2, x3, T1, T2, T3)
-    if x1 ≈ x2 && x2 ≈ x3
-        return (T) -> x1
-    end
-    function interp3(T)
-        T = clamp(T, T1, T3)
-        ifelse(T < T2,
-            x1 + (T - T1) * (x2 - x1) / (T2 - T1),
-            x2 + (T - T2) * (x3 - x2) / (T3 - T2),
-        )
-    end
-end
-
-function interp_func(temperatures, cross_sections)
-    if length(temperatures) == 2
-        return interp2_func(cross_sections[1], cross_sections[2], temperatures[1], temperatures[2])
-    elseif length(temperatures) == 3
-        return interp3_func(cross_sections[1], cross_sections[2], cross_sections[3],
-            temperatures[1], temperatures[2], temperatures[3])
-    end
-    LinearInterpolation(temperatures, cross_sections, extrapolation_bc=Flat())
-end
-
-"""
-Create a vector of interpolators to interpolate the cross sections σ (TODO: What are the units?) for different wavelengths (in nm) and temperatures (in K).
-
-We use use linear interpolation with flat extrapolation.
-"""
-function create_fjx_interp(temperatures::Vector{Float32}, cross_sections::Vector{SVector{18,Float32}})
-    [interp_func(temperatures, [x[i] for x ∈ cross_sections]) for i ∈ 1:length(WL)]
-    #[linear_interpolation(temperatures, [x[i] for x ∈ cross_sections], extrapolation_bc=Flat()) for i ∈ 1:length(WL)]
-end
+# Top of the atmosphere solar flux in 18 bins
+const top_flux = SA_F32[1.391E+12, 1.627E+12, 1.664E+12, 9.278E+11, 7.842E+12, 4.680E+12, 9.918E+12, 1.219E+13, 6.364E+14, 4.049E+14, 3.150E+14, 5.889E+14, 7.678E+14, 5.045E+14, 8.902E+14, 3.853E+15, 1.547E+16, 2.131E+17]
 
 #   Cross sections and quantum yield from GEOS-CHEM "FJX_spec.dat" for photo-reactive species included in SuperFast:
 
@@ -96,9 +56,6 @@ const σ_NO2_interp = create_fjx_interp([200.0f0, 294.0f0], [
     SA_F32[0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 2.313*0.1, 4.694*0.1, 7.553*0.1, 1.063, 1.477, 1.869, 2.295, 3.448, 4.643, 4.345*0.001] * 10.0f0^-19.0f0,
 ])
 
-
-const actinic_flux = SA_F32[1.391E+12, 1.627E+12, 1.664E+12, 9.278E+11, 7.842E+12, 4.680E+12, 9.918E+12, 1.219E+13, 6.364E+14, 4.049E+14, 3.150E+14, 5.889E+14, 7.678E+14, 5.045E+14, 8.902E+14, 3.853E+15, 1.547E+16, 2.131E+17]
-
 """
     cos_solar_zenith_angle(lat, t, long)
 This function is to compute the cosine of the solar zenith angle, given the unixtime, latitude and longitude
@@ -144,21 +101,29 @@ end
 # get information about the type and units of the output.
 cos_solar_zenith_angle(t::DynamicQuantities.Quantity, lat, long) = 1.0
 
+function calc_direct_flux(CSZA, P, i::Int)
+    # calculate direct flux attenuation factor
+    single_direct_flux_factor = direct_solar_beam_box_singlewavelength(OD_total, CSZA, z_profile, P, i)
+    fluxes = top_flux[i] * single_direct_flux_factor
 
-# calculate actinic flux at the given cosine of the solar zenith angle `csa` and
-# maximium actinic flux `max_actinic_flux`
-function calc_flux(csa, max_actinic_flux)
-    max(zero(max_actinic_flux), max_actinic_flux * csa)
+    return fluxes
 end
+@register_symbolic calc_direct_flux(CSZA, P, i::Int)
 
-# calculate all actinic fluxes
-function calc_fluxes(csa)
-    [calc_flux(csa, actinic_flux[i]) for i in 1:18]
+#Dummy function for unit validation.
+calc_direct_flux(CSZA::DynamicQuantities.Quantity, P::DynamicQuantities.Quantity, i::DynamicQuantities.Quantity) = 1.0
+
+function calc_direct_fluxes(CSZA, P)
+    # calculate direct flux attenuation factor
+    direct_flux_factor = direct_solar_beam_box(OD_total, CSZA, z_profile, P)
+    fluxes = top_flux .* direct_flux_factor
+    return fluxes
 end
+@register_symbolic calc_direct_fluxes(CSZA, P)
 
 # Symbolic equations for actinic flux
-function flux_eqs(csa)
-    flux_vals = calc_fluxes(csa)
+function flux_eqs(csa, P)
+    flux_vals = []
     flux_vars = []
     @constants c_flux = 1.0 [unit = u"s^-1", description = "Constant actinic flux (for unit conversion)"]
     for i in 1:18
@@ -166,10 +131,10 @@ function flux_eqs(csa)
         n = Symbol("F_", Int(round(wl)))
         v = @variables $n(t) [unit = u"s^-1", description = "Actinic flux at $wl nm"]
         push!(flux_vars, only(v))
+        push!(flux_vals, calc_direct_flux(csa, P, i))
     end
     flux_vars, (flux_vars .~ flux_vals .* c_flux)
 end
-
 
 """
 Get mean photolysis rates at different times
@@ -245,6 +210,7 @@ function FastJX(; name=:FastJX)
     @parameters lat = 40.0 [description = "Latitude (Degrees)"]
     @parameters long = -97.0 [description = "Longitude (Degrees)"]
     @parameters P = 101325 [unit = u"Pa", description = "Pressure"]
+    @constants P_unit = 1.0 [unit = u"Pa", description = "Unit of pressure"]
     @parameters H2O = 450 [unit = u"ppb"]
 
     @variables j_h2o2(t) = 1.0097 * 10.0^-5 [unit = u"s^-1"]
@@ -256,17 +222,8 @@ function FastJX(; name=:FastJX)
     @variables j_NO2(t) = 0.0149 [unit = u"s^-1"]
     @variables cosSZA(t) [description = "Cosine of the solar zenith angle"]
 
-    #=
-    Because we are currently missing Raleigh and aerosol scattering, we add adjustments below
-    to the photolysis rates to make them more representative of ground-level atmosphere.
-    Adjustment factors are calculated using information from:
+    flux_vars, fluxeqs = flux_eqs(cosSZA, P/P_unit)
 
-    Kelp, Makoto M., et al. "An online‐learned neural network chemical solver for stable long‐term global
-    simulations of atmospheric chemistry." Journal of Advances in Modeling Earth Systems 14.6 (2022): e2021MS002926.
-
-    These factors should be removed once scattering is included in the model.
-    =#
-    flux_vars, fluxeqs = flux_eqs(cosSZA)
     eqs = [
         cosSZA ~ cos_solar_zenith_angle(t, lat, long);
         fluxeqs;
@@ -280,5 +237,5 @@ function FastJX(; name=:FastJX)
     ]
 
     ODESystem(eqs, t, [j_h2o2, j_CH2Oa, j_CH2Ob, j_o32OH, j_o31D, j_CH3OOH, j_NO2, cosSZA, flux_vars...],
-        [lat, long, T, P, H2O]; name=name, metadata=Dict(:coupletype => FastJXCoupler))
+      [lat, long, T, P, H2O]; name=name, metadata=Dict(:coupletype => FastJXCoupler))
 end
