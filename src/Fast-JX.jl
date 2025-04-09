@@ -229,11 +229,11 @@ function FastJX(; name=:FastJX)
         fluxeqs;
         j_h2o2 ~ j_mean_H2O2(T/T_unit, flux_vars)*0.0557; #0.0557 is a parameter to adjust the calculated H2O2 photolysis to appropriate magnitudes.
         j_CH2Oa ~ j_mean_CH2Oa(T/T_unit, flux_vars)*0.945; #0.945 is a parameter to adjust the calculated CH2Oa photolysis to appropriate magnitudes.
-        j_CH2Ob ~ j_mean_CH2Ob(T/T_unit, flux_vars)*1.11; #1.11 is a parameter to adjust the calculated CH2Ob photolysis to appropriate magnitudes.
+        j_CH2Ob ~ j_mean_CH2Ob(T/T_unit, flux_vars)*0.813; #0.813 is a parameter to adjust the calculated CH2Ob photolysis to appropriate magnitudes.
         j_o31D ~ j_mean_o31D(T/T_unit, flux_vars)*2.33e-21; #2.33e-21 is a parameter to adjust the calculated O(^3)1D photolysis to appropriate magnitudes.
         j_o32OH ~ j_o31D*adjust_j_o31D(T, P, H2O);
         j_CH3OOH ~ j_mean_CH3OOH(T/T_unit, flux_vars)*0.0931; #0.0931 is a parameter to adjust the calculated CH3OOH photolysis to appropriate magnitudes.
-        j_NO2 ~ j_mean_NO2(T/T_unit, flux_vars)*1.03 #1.03 is a parameter to adjust the calculated NO2 photolysis to appropriate magnitudes.
+        j_NO2 ~ j_mean_NO2(T/T_unit, flux_vars)*0.444 #0.444 is a parameter to adjust the calculated NO2 photolysis to appropriate magnitudes.
     ]
 
     ODESystem(eqs, t, [j_h2o2, j_CH2Oa, j_CH2Ob, j_o32OH, j_o31D, j_CH3OOH, j_NO2, cosSZA, flux_vars...],
