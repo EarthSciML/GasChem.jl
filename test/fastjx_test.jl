@@ -8,6 +8,10 @@ function get_fluxes(t, lat, lon, P)
     return GasChem.calc_direct_fluxes(cos_sza, P)
 end
 
+fj = structural_simplify(FastJX())
+test_time = 3600 * 12.0
+p = [30.0, 0.0, 298.0, 101325, 450]
+
 #   Unit Test 0: O3 -> O2 + O(1D)
 @testset "o31D" begin
     u_0 = [
@@ -33,12 +37,20 @@ end
 
     fluxes = get_fluxes(3600 * 12.0, 30.0, 0.0, 0.9)
     test_1 = [
-        GasChem.j_mean_H2O2(150.0f0, fluxes),
-        GasChem.j_mean_H2O2(250.0f0, fluxes),
-        GasChem.j_mean_H2O2(350.0f0, fluxes),
+        GasChem.j_mean_H2O2(150.0, fluxes),
+        GasChem.j_mean_H2O2(250.0, fluxes),
+        GasChem.j_mean_H2O2(350.0, fluxes),
     ]
 
     @test test_1 ≈ u_1
+
+    H2O2_factor = 0.0557
+    j_H2O2_func = ModelingToolkit.build_explicit_observed_function(
+        fj,                # The system
+        [fj.j_h2o2],       # The observed variable we want
+    )
+    j_H2O2_value = (j_H2O2_func([], p, test_time))[1]
+    @test j_H2O2_value ≈ GasChem.j_mean_H2O2(298.0, get_fluxes(3600 * 12.0, 30.0, 0.0, 101325))*H2O2_factor rtol = 0.004
 end
 
 # Unit Test 2: CH2O -> H + HO2 + CO
@@ -53,6 +65,14 @@ end
     ]
 
     @test test_2 ≈ u_2
+
+    CH2Oa_factor = 0.945
+    j_CH2Oa_func = ModelingToolkit.build_explicit_observed_function(
+        fj,                # The system
+        [fj.j_CH2Oa],       # The observed variable we want
+    )
+    j_CH2Oa_value = (j_CH2Oa_func([], p, test_time))[1]
+    @test j_CH2Oa_value ≈ GasChem.j_mean_CH2Oa(298.0, get_fluxes(3600 * 12.0, 30.0, 0.0, 101325))*CH2Oa_factor rtol = 1e-6
 end
 
 @testset "CH2Ob" begin
@@ -66,6 +86,14 @@ end
     ]
 
     @test test_2 ≈ u_2
+
+    CH2Ob_factor = 0.813
+    j_CH2Ob_func = ModelingToolkit.build_explicit_observed_function(
+        fj,                # The system
+        [fj.j_CH2Ob],       # The observed variable we want
+    )
+    j_CH2Ob_value = (j_CH2Ob_func([], p, test_time))[1]
+    @test j_CH2Ob_value ≈ GasChem.j_mean_CH2Ob(298.0, get_fluxes(3600 * 12.0, 30.0, 0.0, 101325))*CH2Ob_factor rtol = 1e-6
 end
 
 # Unit Test 3: CH3OOH -> OH + HO2 + CH2O
@@ -79,6 +107,14 @@ end
     ]
 
     @test test_3 ≈ u_3
+
+    CH3OOH_factor = 0.0931
+    j_CH3OOH_func = ModelingToolkit.build_explicit_observed_function(
+        fj,                # The system
+        [fj.j_CH3OOH],       # The observed variable we want
+    )
+    j_CH3OOH_value = (j_CH3OOH_func([], p, test_time))[1]
+    @test j_CH3OOH_value ≈ GasChem.j_mean_CH3OOH(298.0, get_fluxes(3600 * 12.0, 30.0, 0.0, 101325))*CH3OOH_factor rtol = 1e-6
 end
 
 
@@ -94,6 +130,17 @@ end
     ]
 
     @test test_4 ≈ u_4 rtol = 1e-6
+
+    NO2_factor = 0.444
+    j_NO2_func = ModelingToolkit.build_explicit_observed_function(
+        fj,                # The system
+        [fj.j_NO2],       # The observed variable we want
+    )
+
+    j_NO2_value = (j_NO2_func([], p, test_time))[1]
+
+    @test j_NO2_value ≈ GasChem.j_mean_NO2(298.0, get_fluxes(3600 * 12.0, 30.0, 0.0, 101325))*NO2_factor rtol = 1e-6
+
 end
 
 @testset "Ensure Cos SZA is non-allocating" begin
