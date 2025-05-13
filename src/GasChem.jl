@@ -7,7 +7,7 @@ using Dates
 using DynamicQuantities
 using StaticArrays
 using Interpolations
-using ModelingToolkit:t
+using ModelingToolkit: t
 
 @register_unit molec 1
 @register_unit mol_air 1u"mol"

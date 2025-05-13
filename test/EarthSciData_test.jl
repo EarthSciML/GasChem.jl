@@ -3,12 +3,13 @@ using Test, Dates, ModelingToolkit, EarthSciMLBase
 
 @testset "NEI2016Extension3way" begin
     domain = DomainInfo(
-    DateTime(2016, 5, 1),
-    DateTime(2016, 5, 4);
-    lonrange = deg2rad(-115):deg2rad(2.5):deg2rad(-68.75),
-    latrange = deg2rad(25):deg2rad(2):deg2rad(53.7),
-    levrange = 1:15,
-    dtype = Float64)
+        DateTime(2016, 5, 1),
+        DateTime(2016, 5, 4);
+        lonrange = deg2rad(-115):deg2rad(2.5):deg2rad(-68.75),
+        latrange = deg2rad(25):deg2rad(2):deg2rad(53.7),
+        levrange = 1:15,
+        dtype = Float64
+    )
 
     emis = NEI2016MonthlyEmis("mrggrid_withbeis_withrwc", domain)
 
@@ -23,7 +24,6 @@ using Test, Dates, ModelingToolkit, EarthSciMLBase
     @test contains(string(eqs), wanteq)
 end
 
-
 @testset "GEOS-FP" begin
     domain = DomainInfo(
         DateTime(2016, 5, 1),
@@ -31,7 +31,8 @@ end
         lonrange = deg2rad(-115):deg2rad(2.5):deg2rad(-68.75),
         latrange = deg2rad(25):deg2rad(2):deg2rad(53.7),
         levrange = 1:15,
-        dtype = Float64)
+        dtype = Float64
+    )
 
     geosfp = GEOSFP("4x5", domain)
 
@@ -57,23 +58,27 @@ end
 end
 
 @testset "GEOSChemGasPhase couplings" begin
-    domain = DomainInfo(DateTime(2016, 5, 1), DateTime(2016, 5, 2);
-        latrange=deg2rad(-85.0f0):deg2rad(2):deg2rad(85.0f0),
-        lonrange=deg2rad(-180.0f0):deg2rad(2.5):deg2rad(175.0f0),
-        levrange=1:10, dtype=Float64)
+    domain = DomainInfo(
+        DateTime(2016, 5, 1),
+        DateTime(2016, 5, 2);
+        latrange = deg2rad(-85.0f0):deg2rad(2):deg2rad(85.0f0),
+        lonrange = deg2rad(-180.0f0):deg2rad(2.5):deg2rad(175.0f0),
+        levrange = 1:10,
+        dtype = Float64
+    )
 
     csys = couple(
         GEOSChemGasPhase(),
         NEI2016MonthlyEmis("mrggrid_withbeis_withrwc", domain),
         GEOSFP("4x5", domain),
         FastJX(),
-        domain,
+        domain
     )
     sys = convert(ODESystem, csys)
     eqs = string(observed(sys))
     @test contains(eqs, "GEOSChemGasPhase₊T(t) ~ GEOSFP₊I3₊T(t)") ||
-        contains(eqs, "GEOSChemGasPhase₊T(t) ~ FastJX₊T(t)")
+          contains(eqs, "GEOSChemGasPhase₊T(t) ~ FastJX₊T(t)")
     @test contains(eqs, "FastJX₊T(t) ~ GEOSFP₊I3₊T(t)") ||
-        contains(eqs, "FastJX₊T(t) ~ GEOSChemGasPhase₊T(t)")
+          contains(eqs, "FastJX₊T(t) ~ GEOSChemGasPhase₊T(t)")
     @test contains(eqs, "GEOSChemGasPhase₊j_11(t) ~ FastJX₊j_NO2(t)")
 end

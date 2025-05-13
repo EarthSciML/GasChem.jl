@@ -18,18 +18,17 @@ p = [30.0, 0.0, 298.0, 101325, 450]
         3.008127306705564e15,
         3.0354776971213985e15,
         5.082768676900143e15,
-        6.079063776373681e15,
+        6.079063776373681e15
     ]
     fluxes = get_fluxes(3600 * 12.0, 30.0, 0.0, 0.9)
     test_0 = [
         GasChem.j_mean_o31D(100.0, fluxes),
         GasChem.j_mean_o31D(220.0, fluxes),
         GasChem.j_mean_o31D(300.0, fluxes),
-        GasChem.j_mean_o31D(400.0, fluxes),
+        GasChem.j_mean_o31D(400.0, fluxes)
     ]
     @test test_0 ≈ u_0 rtol = 1e-6
 end
-
 
 #   Unit Test 1: H2O2 -> OH + OH
 @testset "H2O2" begin
@@ -39,7 +38,7 @@ end
     test_1 = [
         GasChem.j_mean_H2O2(150.0, fluxes),
         GasChem.j_mean_H2O2(250.0, fluxes),
-        GasChem.j_mean_H2O2(350.0, fluxes),
+        GasChem.j_mean_H2O2(350.0, fluxes)
     ]
 
     @test test_1 ≈ u_1
@@ -47,10 +46,11 @@ end
     H2O2_factor = 0.0557
     j_H2O2_func = ModelingToolkit.build_explicit_observed_function(
         fj,                # The system
-        [fj.j_h2o2],       # The observed variable we want
+        [fj.j_h2o2]       # The observed variable we want
     )
     j_H2O2_value = (j_H2O2_func([], p, test_time))[1]
-    @test j_H2O2_value ≈ GasChem.j_mean_H2O2(298.0, get_fluxes(3600 * 12.0, 30.0, 0.0, 101325))*H2O2_factor rtol = 0.004
+    @test j_H2O2_value ≈
+          GasChem.j_mean_H2O2(298.0, get_fluxes(3600 * 12.0, 30.0, 0.0, 101325))*H2O2_factor rtol = 0.004
 end
 
 # Unit Test 2: CH2O -> H + HO2 + CO
@@ -61,7 +61,7 @@ end
     test_2 = [
         GasChem.j_mean_CH2Oa(200.0, fluxes),
         GasChem.j_mean_CH2Oa(250.0, fluxes),
-        GasChem.j_mean_CH2Oa(300.0, fluxes),
+        GasChem.j_mean_CH2Oa(300.0, fluxes)
     ]
 
     @test test_2 ≈ u_2
@@ -69,10 +69,14 @@ end
     CH2Oa_factor = 0.945
     j_CH2Oa_func = ModelingToolkit.build_explicit_observed_function(
         fj,                # The system
-        [fj.j_CH2Oa],       # The observed variable we want
+        [fj.j_CH2Oa]       # The observed variable we want
     )
     j_CH2Oa_value = (j_CH2Oa_func([], p, test_time))[1]
-    @test j_CH2Oa_value ≈ GasChem.j_mean_CH2Oa(298.0, get_fluxes(3600 * 12.0, 30.0, 0.0, 101325))*CH2Oa_factor rtol = 1e-6
+    @test j_CH2Oa_value ≈
+          GasChem.j_mean_CH2Oa(
+        298.0,
+        get_fluxes(3600 * 12.0, 30.0, 0.0, 101325)
+    )*CH2Oa_factor rtol = 1e-6
 end
 
 @testset "CH2Ob" begin
@@ -82,7 +86,7 @@ end
     test_2 = [
         GasChem.j_mean_CH2Ob(200.0, fluxes),
         GasChem.j_mean_CH2Ob(250.0, fluxes),
-        GasChem.j_mean_CH2Ob(300.0, fluxes),
+        GasChem.j_mean_CH2Ob(300.0, fluxes)
     ]
 
     @test test_2 ≈ u_2
@@ -90,10 +94,14 @@ end
     CH2Ob_factor = 0.813
     j_CH2Ob_func = ModelingToolkit.build_explicit_observed_function(
         fj,                # The system
-        [fj.j_CH2Ob],       # The observed variable we want
+        [fj.j_CH2Ob]       # The observed variable we want
     )
     j_CH2Ob_value = (j_CH2Ob_func([], p, test_time))[1]
-    @test j_CH2Ob_value ≈ GasChem.j_mean_CH2Ob(298.0, get_fluxes(3600 * 12.0, 30.0, 0.0, 101325))*CH2Ob_factor rtol = 1e-6
+    @test j_CH2Ob_value ≈
+          GasChem.j_mean_CH2Ob(
+        298.0,
+        get_fluxes(3600 * 12.0, 30.0, 0.0, 101325)
+    )*CH2Ob_factor rtol = 1e-6
 end
 
 # Unit Test 3: CH3OOH -> OH + HO2 + CH2O
@@ -103,7 +111,7 @@ end
     test_3 = [
         GasChem.j_mean_CH3OOH(200.0, get_fluxes(3600 * 6.0, 30.0, 0.0, 0.9)),
         GasChem.j_mean_CH3OOH(200.0, get_fluxes(3600 * 12.0, 30.0, 0.0, 0.9)),
-        GasChem.j_mean_CH3OOH(200.0, get_fluxes(3600 * 18.0, 30.0, 0.0, 0.9)),
+        GasChem.j_mean_CH3OOH(200.0, get_fluxes(3600 * 18.0, 30.0, 0.0, 0.9))
     ]
 
     @test test_3 ≈ u_3
@@ -111,12 +119,15 @@ end
     CH3OOH_factor = 0.0931
     j_CH3OOH_func = ModelingToolkit.build_explicit_observed_function(
         fj,                # The system
-        [fj.j_CH3OOH],       # The observed variable we want
+        [fj.j_CH3OOH]       # The observed variable we want
     )
     j_CH3OOH_value = (j_CH3OOH_func([], p, test_time))[1]
-    @test j_CH3OOH_value ≈ GasChem.j_mean_CH3OOH(298.0, get_fluxes(3600 * 12.0, 30.0, 0.0, 101325))*CH3OOH_factor rtol = 1e-6
+    @test j_CH3OOH_value ≈
+          GasChem.j_mean_CH3OOH(
+        298.0,
+        get_fluxes(3600 * 12.0, 30.0, 0.0, 101325)
+    )*CH3OOH_factor rtol = 1e-6
 end
-
 
 # Unit Test 4: NO2 -> NO + O
 @testset "NO2" begin
@@ -126,7 +137,7 @@ end
     test_4 = [
         GasChem.j_mean_NO2(150.0, fluxes),
         GasChem.j_mean_NO2(250.0, fluxes),
-        GasChem.j_mean_NO2(300.0, fluxes),
+        GasChem.j_mean_NO2(300.0, fluxes)
     ]
 
     @test test_4 ≈ u_4 rtol = 1e-6
@@ -134,13 +145,13 @@ end
     NO2_factor = 0.444
     j_NO2_func = ModelingToolkit.build_explicit_observed_function(
         fj,                # The system
-        [fj.j_NO2],       # The observed variable we want
+        [fj.j_NO2]       # The observed variable we want
     )
 
     j_NO2_value = (j_NO2_func([], p, test_time))[1]
 
-    @test j_NO2_value ≈ GasChem.j_mean_NO2(298.0, get_fluxes(3600 * 12.0, 30.0, 0.0, 101325))*NO2_factor rtol = 1e-6
-
+    @test j_NO2_value ≈
+          GasChem.j_mean_NO2(298.0, get_fluxes(3600 * 12.0, 30.0, 0.0, 101325))*NO2_factor rtol = 1e-6
 end
 
 @testset "Ensure Cos SZA is non-allocating" begin
@@ -157,7 +168,26 @@ end
 @testset "Direct Flux" begin
     @parameters P, csa
     x = GasChem.calc_direct_fluxes(csa, P)
-    @test substitute(x, Dict(P => 1013525, csa => 0.42255961917649837)) ≈ [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 6.942926208560752e-20, 9.324385539750345e11, 1.6175240854575052e10, 6.451788954313698e10, 2.65230857303719e13, 4.949172766139693e13, 4.1853350675689734e13, 9.0818932182367e13, 6.106135960927899e14, 5.384781489955934e15, 1.75419654839834e17]
+    @test substitute(x, Dict(P => 1013525, csa => 0.42255961917649837)) ≈ [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        6.942926208560752e-20,
+        9.324385539750345e11,
+        1.6175240854575052e10,
+        6.451788954313698e10,
+        2.65230857303719e13,
+        4.949172766139693e13,
+        4.1853350675689734e13,
+        9.0818932182367e13,
+        6.106135960927899e14,
+        5.384781489955934e15,
+        1.75419654839834e17
+    ]
 end
 
 @testset "Direct Flux 2" begin
@@ -200,4 +230,3 @@ end
     @test GasChem.calc_direct_flux(cos_sza, P, 9) ≈ 23.739997461455154
     @test GasChem.calc_direct_flux(cos_sza, P, 18) ≈ 8.475995351825976e16
 end
-

@@ -12,7 +12,7 @@ makedocs(;
         prettyurls = get(ENV, "CI", "false") == "true",
         canonical = "https://gaschem.earthsci.dev",
         assets = String[],
-        repolink="https://github.com/EarthSciML/GasChem.jl",
+        repolink = "https://github.com/EarthSciML/GasChem.jl"
     ),
     pages = [
         "Home" => "index.md",
@@ -20,11 +20,11 @@ makedocs(;
         "GEOS-Chem" => [
             "Overview" => "geoschem/overview.md",
             "State Variables" => "geoschem/states.md",
-            "Parameters" => "geoschem/params.md",
+            "Parameters" => "geoschem/params.md"
         ],
         "Composing models" => "composing_models.md",
-        "API" => "api.md",
-    ],
+        "API" => "api.md"
+    ]
 )
 
 deploydocs(; repo = "github.com/EarthSciML/GasChem.jl.git")
