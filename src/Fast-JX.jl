@@ -509,15 +509,19 @@ end
 Description: This is a box model used to calculate the photolysis reaction rate constant using the Fast-JX scheme
 (Neu, J. L., Prather, M. J., and Penner, J. E. (2007), Global atmospheric chemistry: Integrating over fractional cloud cover, J. Geophys. Res., 112, D11306, doi:10.1029/2006JD008007.)
 
+Argument:
+
+  - `t_ref`: Reference time for the model, can be a `DateTime` or a Unix timestamp (in seconds).
+
 # Example
 
 Build Fast-JX model:
 
 ```julia
-fj = FastJX()
+fj = FastJX(DateTime(2000, 1, 1))
 ```
 """
-function FastJX(; name = :FastJX)
+function FastJX(t_ref::AbstractFloat; name = :FastJX)
     @constants T_unit = 1.0 [
         unit = u"K",
         description = "Unit temperature (for unit conversion)"
@@ -526,21 +530,22 @@ function FastJX(; name = :FastJX)
     @parameters lat = 40.0 [description = "Latitude (Degrees)"]
     @parameters long = -97.0 [description = "Longitude (Degrees)"]
     @parameters P = 101325 [unit = u"Pa", description = "Pressure"]
-    @constants P_unit = 1.0 [unit = u"Pa", description = "Unit of pressure"]
+    @constants P_unit = 1.0 [unit = u"Pa", description = "Unit pressure"]
     @parameters H2O = 450 [unit = u"ppb"]
+    @parameters t_ref = t_ref [unit = u"s", description = "Reference Unix time"]
 
-    @variables j_h2o2(t) = 1.0097 * 10.0^-5 [unit = u"s^-1"]
-    @variables j_CH2Oa(t) = 0.00014 [unit = u"s^-1"]
-    @variables j_CH2Ob(t) = 0.00014 [unit = u"s^-1"]
-    @variables j_o31D(t) = 4.0 * 10.0^-3 [unit = u"s^-1"]
-    @variables j_o32OH(t) = 2.27e-4 [unit = u"s^-1"]
-    @variables j_CH3OOH(t) = 8.9573 * 10.0^-6 [unit = u"s^-1"]
-    @variables j_NO2(t) = 0.0149 [unit = u"s^-1"]
+    @variables j_h2o2(t) [unit = u"s^-1"]
+    @variables j_CH2Oa(t) [unit = u"s^-1"]
+    @variables j_CH2Ob(t) [unit = u"s^-1"]
+    @variables j_o31D(t) [unit = u"s^-1"]
+    @variables j_o32OH(t) [unit = u"s^-1"]
+    @variables j_CH3OOH(t) [unit = u"s^-1"]
+    @variables j_NO2(t) [unit = u"s^-1"]
     @variables cosSZA(t) [description = "Cosine of the solar zenith angle"]
 
     flux_vars, fluxeqs = flux_eqs(cosSZA, P/P_unit)
 
-    eqs = [cosSZA ~ cos_solar_zenith_angle(t, lat, long);
+    eqs = [cosSZA ~ cos_solar_zenith_angle(t + t_ref, lat, long);
            fluxeqs;
            j_h2o2 ~ j_mean_H2O2(T/T_unit, flux_vars)*0.0557; #0.0557 is a parameter to adjust the calculated H2O2 photolysis to appropriate magnitudes.
            j_CH2Oa ~ j_mean_CH2Oa(T/T_unit, flux_vars)*0.945; #0.945 is a parameter to adjust the calculated CH2Oa photolysis to appropriate magnitudes.
@@ -554,8 +559,9 @@ function FastJX(; name = :FastJX)
         eqs,
         t,
         [j_h2o2, j_CH2Oa, j_CH2Ob, j_o32OH, j_o31D, j_CH3OOH, j_NO2, cosSZA, flux_vars...],
-        [lat, long, T, P, H2O];
+        [lat, long, T, P, H2O, t_ref];
         name = name,
         metadata = Dict(:coupletype => FastJXCoupler)
     )
 end
+FastJX(t_ref::DateTime; kwargs...) = FastJX(datetime2unix(t_ref); kwargs...)

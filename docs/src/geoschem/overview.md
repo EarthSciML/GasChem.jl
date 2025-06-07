@@ -5,9 +5,8 @@ The original version is used in the [GEOS-Chem](https://geoschem.github.io/) glo
 The version here is adapted from GEOS-Chem version 14.1.1.
 This mechanism is the result of many journal articles which are cited in API documentation for the [`GEOSChemGasPhase`](@ref) type.
 
-!!! warning
-This implementation is a work in progress.
-In particular, it does not yet include heterogeneous chemistry.
+![WARNING]
+This implementation is a work in progress. In particular, it does not yet include heterogeneous chemistry.
 
 ## System overview
 

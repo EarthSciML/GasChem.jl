@@ -8,9 +8,10 @@ function get_fluxes(t, lat, lon, P)
     return GasChem.calc_direct_fluxes(cos_sza, P)
 end
 
-fj = structural_simplify(FastJX())
+fj = structural_simplify(FastJX(0.0))
 test_time = 3600 * 12.0
-p = [30.0, 0.0, 298.0, 101325, 450]
+# [t_ref, lat, long, T, P, H2O]
+p = [0.0, 30.0, 0.0, 298.0, 101325, 450] # TODO(CT): Account for fact that parameters may not be in this order.
 
 #   Unit Test 0: O3 -> O2 + O(1D)
 @testset "o31D" begin
@@ -161,7 +162,7 @@ end
 end
 
 @testset "FastJX Initialization" begin
-    fj = GasChem.FastJX()
+    fj = GasChem.FastJX(0.0)
     @test_nowarn structural_simplify(fj)
 end
 

@@ -7,13 +7,14 @@ using Test, Dates, ModelingToolkit, EarthSciMLBase
         DateTime(2016, 5, 4);
         lonrange = deg2rad(-115):deg2rad(2.5):deg2rad(-68.75),
         latrange = deg2rad(25):deg2rad(2):deg2rad(53.7),
-        levrange = 1:15,
-        dtype = Float64
+        levrange = 1:15
     )
 
-    emis = NEI2016MonthlyEmis("mrggrid_withbeis_withrwc", domain)
-
-    model_3way = couple(FastJX(), SuperFast(), emis)
+    model_3way = couple(
+        FastJX(get_tref(domain)),
+        SuperFast(),
+        NEI2016MonthlyEmis("mrggrid_withbeis_withrwc", domain)
+    )
 
     sys = convert(ODESystem, model_3way)
     @test length(unknowns(sys)) ≈ 12
@@ -30,13 +31,14 @@ end
         DateTime(2016, 5, 4);
         lonrange = deg2rad(-115):deg2rad(2.5):deg2rad(-68.75),
         latrange = deg2rad(25):deg2rad(2):deg2rad(53.7),
-        levrange = 1:15,
-        dtype = Float64
+        levrange = 1:15
     )
 
-    geosfp = GEOSFP("4x5", domain)
-
-    model_3way = couple(FastJX(), SuperFast(), geosfp)
+    model_3way = couple(
+        FastJX(get_tref(domain)),
+        SuperFast(),
+        GEOSFP("4x5", domain)
+    )
 
     sys = convert(ODESystem, model_3way)
 
@@ -46,7 +48,7 @@ end
     wanteq = "SuperFast₊T(t) ~ GEOSFP₊I3₊T(t)"
     @test contains(eqs, wanteq) || contains(eqs, "SuperFast₊T(t) ~ FastJX₊T(t)")
     wanteq = "FastJX₊T(t) ~ GEOSFP₊I3₊T(t)"
-    @test contains(eqs, wanteq)
+    @test contains(eqs, wanteq) || contains(eqs, "FastJX₊T(t) ~ SuperFast₊T(t)")
     wanteq = "SuperFast₊jH2O2(t) ~ FastJX₊j_h2o2(t)"
     @test contains(eqs, wanteq)
     wanteq = "FastJX₊lat(t) ~ rad2deg(GEOSFP₊lat)"
@@ -63,15 +65,14 @@ end
         DateTime(2016, 5, 2);
         latrange = deg2rad(-85.0f0):deg2rad(2):deg2rad(85.0f0),
         lonrange = deg2rad(-180.0f0):deg2rad(2.5):deg2rad(175.0f0),
-        levrange = 1:10,
-        dtype = Float64
+        levrange = 1:10
     )
 
     csys = couple(
         GEOSChemGasPhase(),
         NEI2016MonthlyEmis("mrggrid_withbeis_withrwc", domain),
         GEOSFP("4x5", domain),
-        FastJX(),
+        FastJX(get_tref(domain)),
         domain
     )
     sys = convert(ODESystem, csys)

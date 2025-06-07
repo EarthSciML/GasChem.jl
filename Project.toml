@@ -1,7 +1,7 @@
 name = "GasChem"
 uuid = "58070593-4751-4c87-a5d1-63807d11d76c"
 authors = ["EarthSciML authors and contributors"]
-version = "0.9.7"
+version = "0.10.0"
 
 [deps]
 Catalyst = "479239e8-5488-4da2-87a7-35f2df7eef83"
@@ -20,23 +20,23 @@ EarthSciDataExt = "EarthSciData"
 
 [compat]
 AllocCheck = "0.2"
-Catalyst = "14"
-DifferentialEquations = "7"
-DynamicQuantities = "0.13, 1"
-EarthSciData = "0.11, 0.12"
-EarthSciMLBase = "0.20.1, 0.21, 0.22"
-Interpolations = "0.14, 0.15, 0.16"
-ModelingToolkit = "9"
+Catalyst = "14.4.1"
+DynamicQuantities = "1"
+EarthSciData = "0.13"
+EarthSciMLBase = "0.23"
+Interpolations = "0.16"
+ModelingToolkit = "9.79.1"
+OrdinaryDiffEqRosenbrock = "1.10.1"
 SafeTestsets = "0.0.1, 0.1"
 StaticArrays = "1"
-julia = "1"
+julia = "1.10"
 
 [extras]
 AllocCheck = "9b6a8646-10ed-4001-bbdc-1d2f46dfbb1a"
-DifferentialEquations = "0c46a032-eb83-5123-abaf-570d42b7fbaa"
 EarthSciData = "a293c155-435f-439d-9c11-a083b6b47337"
+OrdinaryDiffEqRosenbrock = "43230ef6-c299-4910-a778-202eb28ce4ce"
 SafeTestsets = "1bc83da4-3b8d-516f-aca4-4fe02f6d838f"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["AllocCheck", "Test", "SafeTestsets", "DifferentialEquations", "EarthSciData"]
+test = ["AllocCheck", "Test", "SafeTestsets", "OrdinaryDiffEqRosenbrock", "EarthSciData"]

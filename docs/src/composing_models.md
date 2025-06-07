@@ -14,10 +14,11 @@ using EarthSciMLBase, GasChem, ModelingToolkit, Dates, DynamicQuantities,
       DifferentialEquations
 using ModelingToolkit: t
 
-composed_ode = couple(SuperFast(), FastJX()) # Compose two models use the "couple" function
-
 start = Dates.datetime2unix(Dates.DateTime(2024, 2, 29))
-tspan = (start, start+3600*24*3)
+
+composed_ode = couple(SuperFast(), FastJX(start)) # Compose two models use the "couple" function
+
+tspan = (0.0, 3600.0*24*3)
 sys = convert(ODESystem, composed_ode) # Define the coupled system  
 sol = solve(ODEProblem(sys, [], tspan, []), AutoTsit5(Rosenbrock23()), saveat = 10.0) # Solve the coupled system
 ```
@@ -30,7 +31,7 @@ var_dict = Dict(string(var) => var for var in vars)
 pols = ["O3", "OH", "NO", "NO2", "CH3O2", "CO", "CH3OOH", "CH2O", "ISOP"]
 var_names_p = ["SuperFast₊$(v)(t)" for v in pols]
 
-x_t = unix2datetime.(sol[t]) # Convert from unixtime to date time for visualizing 
+x_t = unix2datetime.(sol[t] .+ start) # Convert from unixtime to date time for visualizing 
 ```
 
 Then, we could plot the results as:
@@ -62,13 +63,12 @@ domain = DomainInfo(
     Dates.DateTime(2016, 5, 1), Dates.DateTime(2016, 5, 4);
     lonrange = deg2rad(-129):deg2rad(1):deg2rad(-61),
     latrange = deg2rad(11):deg2rad(1):deg2rad(59),
-    levrange = 1:1:3,
-    dtype = Float64)
+    levrange = 1:1:3)
 
 emis = NEI2016MonthlyEmis("mrggrid_withbeis_withrwc", domain)
 
-model_noemis = couple(SuperFast(), FastJX()) # A model with chemistry and photolysis, but no emissions.
-model_withemis = couple(SuperFast(), FastJX(), emis) # The same model with emissions.
+model_noemis = couple(SuperFast(), FastJX(get_tref(domain))) # A model with chemistry and photolysis, but no emissions.
+model_withemis = couple(SuperFast(), FastJX(get_tref(domain)), emis) # The same model with emissions.
 
 sys_noemis = convert(ODESystem, model_noemis)
 sys_withemis = convert(ODESystem, model_withemis)
@@ -84,10 +84,10 @@ var_names_p = ["SuperFast₊$(v)(t)" for v in pols]
 
 pp = []
 for (i, v) in enumerate(var_names_p)
-    p = plot(unix2datetime.(sol_noemis[t]), sol_noemis[var_dict[v]],
+    p = plot(unix2datetime.(sol_noemis[t] .+ get_tref(domain)), sol_noemis[var_dict[v]],
         label = "No Emissions", title = v,
         size = (1000, 600), xrotation = 45)
-    plot!(unix2datetime.(sol_withemis[t]),
+    plot!(unix2datetime.(sol_withemis[t] .+ get_tref(domain)),
         sol_withemis[var_dict[v]], label = "With Emissions")
     push!(pp, p)
 end
