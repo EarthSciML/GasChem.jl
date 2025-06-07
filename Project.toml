@@ -28,7 +28,7 @@ Interpolations = "0.16"
 ModelingToolkit = "9.79.1"
 OrdinaryDiffEqRosenbrock = "1.10.1"
 SafeTestsets = "0.0.1, 0.1"
-StaticArrays = "1"
+StaticArrays = "1.9"
 julia = "1.10"
 
 [extras]
