@@ -8,6 +8,7 @@ using DynamicQuantities
 using StaticArrays
 using Interpolations
 using ModelingToolkit: t
+using JLD2
 
 @register_unit molec 1
 @register_unit mol_air 1u"mol"
@@ -20,6 +21,7 @@ include("geoschem_fullchem.jl")
 include("fastjx_interp.jl")
 include("direct_flux.jl")
 include("Fast-JX.jl")
+include("interpolations_FastJX.jl")
 include("fastjx_couplings.jl")
 
 end

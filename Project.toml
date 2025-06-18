@@ -1,7 +1,7 @@
 name = "GasChem"
 uuid = "58070593-4751-4c87-a5d1-63807d11d76c"
 authors = ["EarthSciML authors and contributors"]
-version = "0.10.0"
+version = "0.10.1"
 
 [deps]
 Catalyst = "479239e8-5488-4da2-87a7-35f2df7eef83"
@@ -9,6 +9,7 @@ Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
 DynamicQuantities = "06fc5a27-2a28-4c7c-a15d-362465fb6821"
 EarthSciMLBase = "e53f1632-a13c-4728-9402-0c66d48804b0"
 Interpolations = "a98d9a8b-a2ab-59e6-89dd-64a1c18fca59"
+JLD2 = "033835bb-8acc-5ee8-8aae-3f567f8a3819"
 ModelingToolkit = "961ee093-0014-501f-94e3-6117800e7a78"
 StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 
