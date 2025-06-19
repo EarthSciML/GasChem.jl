@@ -1,39 +1,26 @@
 export FastJX_interpolation
 
-@load joinpath(@__DIR__, "interpolations.jld2") interpolations_18
-
-function check_P(P)
-    P_result = 101325
-    if P > 101325
-        P_result = 101325
-    elseif P < 0.5
-        P_result = 0.5
-    else
-        P_result = P
-    end
-    return P_result
-end
-@register_symbolic check_P(P)
+BSON.@load joinpath(@__DIR__, "interpolations.bson") interpolations_18
 
 # Create symbolic wrapper functions for each interpolation
-flux_interp_1(P, csa) = interpolations_18[1](P, csa)
-flux_interp_2(P, csa) = interpolations_18[2](P, csa)
-flux_interp_3(P, csa) = interpolations_18[3](P, csa)
-flux_interp_4(P, csa) = interpolations_18[4](P, csa)
-flux_interp_5(P, csa) = interpolations_18[5](P, csa)
-flux_interp_6(P, csa) = interpolations_18[6](P, csa)
-flux_interp_7(P, csa) = interpolations_18[7](P, csa)
-flux_interp_8(P, csa) = interpolations_18[8](P, csa)
-flux_interp_9(P, csa) = interpolations_18[9](P, csa)
-flux_interp_10(P, csa) = interpolations_18[10](P, csa)
-flux_interp_11(P, csa) = interpolations_18[11](P, csa)
-flux_interp_12(P, csa) = interpolations_18[12](P, csa)
-flux_interp_13(P, csa) = interpolations_18[13](P, csa)
-flux_interp_14(P, csa) = interpolations_18[14](P, csa)
-flux_interp_15(P, csa) = interpolations_18[15](P, csa)
-flux_interp_16(P, csa) = interpolations_18[16](P, csa)
-flux_interp_17(P, csa) = interpolations_18[17](P, csa)
-flux_interp_18(P, csa) = interpolations_18[18](P, csa)
+flux_interp_1(P, csa) = interpolations_18[1](log(P), csa)
+flux_interp_2(P, csa) = interpolations_18[2](log(P), csa)
+flux_interp_3(P, csa) = interpolations_18[3](log(P), csa)
+flux_interp_4(P, csa) = interpolations_18[4](log(P), csa)
+flux_interp_5(P, csa) = interpolations_18[5](log(P), csa)
+flux_interp_6(P, csa) = interpolations_18[6](log(P), csa)
+flux_interp_7(P, csa) = interpolations_18[7](log(P), csa)
+flux_interp_8(P, csa) = interpolations_18[8](log(P), csa)
+flux_interp_9(P, csa) = interpolations_18[9](log(P), csa)
+flux_interp_10(P, csa) = interpolations_18[10](log(P), csa)
+flux_interp_11(P, csa) = interpolations_18[11](log(P), csa)
+flux_interp_12(P, csa) = interpolations_18[12](log(P), csa)
+flux_interp_13(P, csa) = interpolations_18[13](log(P), csa)
+flux_interp_14(P, csa) = interpolations_18[14](log(P), csa)
+flux_interp_15(P, csa) = interpolations_18[15](log(P), csa)
+flux_interp_16(P, csa) = interpolations_18[16](log(P), csa)
+flux_interp_17(P, csa) = interpolations_18[17](log(P), csa)
+flux_interp_18(P, csa) = interpolations_18[18](log(P), csa)
 
 @register_symbolic flux_interp_1(P, csa)
 @register_symbolic flux_interp_2(P, csa)
@@ -65,7 +52,7 @@ function flux_eqs_interpolation(csa, P)
                           flux_interp_13, flux_interp_14, flux_interp_15, flux_interp_16, flux_interp_17, flux_interp_18]
 
     for i in 1:18
-        f = interpolation_funcs[i](check_P(P), csa)
+        f = interpolation_funcs[i](P, csa)
         wl = WL[i]
         n1 = Symbol("F_", Int(round(wl)))
         v1 = @variables $n1(t) [unit = u"s^-1", description = "Actinic flux at $wl nm"]
