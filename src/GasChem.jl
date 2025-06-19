@@ -8,7 +8,7 @@ using DynamicQuantities
 using StaticArrays
 using Interpolations
 using ModelingToolkit: t
-using JLD2
+using BSON
 
 @register_unit molec 1
 @register_unit mol_air 1u"mol"
