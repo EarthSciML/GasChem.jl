@@ -1,0 +1,11 @@
+url_path,views_total,views_unique
+/EarthSciML/GasChem.jl,26,3
+/EarthSciML/GasChem.jl/blob/main/src/Fast-JX.jl,13,1
+/EarthSciML/GasChem.jl/blob/main/src/fastjx_couplings.jl,12,1
+/EarthSciML/GasChem.jl/blob/main/src/geoschem_fullchem.jl,12,1
+/EarthSciML/GasChem.jl/blob/73ca1aec53bc3ce326801b94d9af15b85a55d2bb/src/Fast-JX.jl,10,3
+/EarthSciML/GasChem.jl/compare/main...jialinl6:GasChemMTK.jl:main,7,1
+/EarthSciML/GasChem.jl/tree/main/src,7,1
+/EarthSciML/GasChem.jl/blob/main/test/fastjx_test.jl,6,2
+/EarthSciML/GasChem.jl/blob/main/Project.toml,6,1
+/EarthSciML/GasChem.jl/blob/73ca1aec53bc3ce326801b94d9af15b85a55d2bb/test/fastjx_test.jl,5,2
