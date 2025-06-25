@@ -1,27 +1,27 @@
-export FastJX_interpolation
+export FastJX_interpolation_troposphere
 
-BSON.@load joinpath(@__DIR__, "interpolations.bson") interpolations_18
-const interpolations_18_const = tuple(interpolations_18...)
+BSON.@load joinpath(@__DIR__, "interpolations_troposphere.bson") interpolations_18_troposphere
+const interpolations_18_const = tuple(interpolations_18_troposphere...)
 
 # Create symbolic wrapper functions for each interpolation
-flux_interp_1(P, csa) = interpolations_18_const[1](log(P), csa)
-flux_interp_2(P, csa) = interpolations_18_const[2](log(P), csa)
-flux_interp_3(P, csa) = interpolations_18_const[3](log(P), csa)
-flux_interp_4(P, csa) = interpolations_18_const[4](log(P), csa)
-flux_interp_5(P, csa) = interpolations_18_const[5](log(P), csa)
-flux_interp_6(P, csa) = interpolations_18_const[6](log(P), csa)
-flux_interp_7(P, csa) = interpolations_18_const[7](log(P), csa)
-flux_interp_8(P, csa) = interpolations_18_const[8](log(P), csa)
-flux_interp_9(P, csa) = interpolations_18_const[9](log(P), csa)
-flux_interp_10(P, csa) = interpolations_18_const[10](log(P), csa)
-flux_interp_11(P, csa) = interpolations_18_const[11](log(P), csa)
-flux_interp_12(P, csa) = interpolations_18_const[12](log(P), csa)
-flux_interp_13(P, csa) = interpolations_18_const[13](log(P), csa)
-flux_interp_14(P, csa) = interpolations_18_const[14](log(P), csa)
-flux_interp_15(P, csa) = interpolations_18_const[15](log(P), csa)
-flux_interp_16(P, csa) = interpolations_18_const[16](log(P), csa)
-flux_interp_17(P, csa) = interpolations_18_const[17](log(P), csa)
-flux_interp_18(P, csa) = interpolations_18_const[18](log(P), csa)
+flux_interp_1(P, csa) = interpolations_18_const[1](ustrip(P), ustrip(csa))
+flux_interp_2(P, csa) = interpolations_18_const[2](ustrip(P), ustrip(csa))
+flux_interp_3(P, csa) = interpolations_18_const[3](ustrip(P), ustrip(csa))
+flux_interp_4(P, csa) = interpolations_18_const[4](ustrip(P), ustrip(csa))
+flux_interp_5(P, csa) = interpolations_18_const[5](ustrip(P), ustrip(csa))
+flux_interp_6(P, csa) = interpolations_18_const[6](ustrip(P), ustrip(csa))
+flux_interp_7(P, csa) = interpolations_18_const[7](ustrip(P), ustrip(csa))
+flux_interp_8(P, csa) = interpolations_18_const[8](ustrip(P), ustrip(csa))
+flux_interp_9(P, csa) = interpolations_18_const[9](ustrip(P), ustrip(csa))
+flux_interp_10(P, csa) = interpolations_18_const[10](ustrip(P), ustrip(csa))
+flux_interp_11(P, csa) = interpolations_18_const[11](ustrip(P), ustrip(csa))
+flux_interp_12(P, csa) = interpolations_18_const[12](ustrip(P), ustrip(csa))
+flux_interp_13(P, csa) = interpolations_18_const[13](ustrip(P), ustrip(csa))
+flux_interp_14(P, csa) = interpolations_18_const[14](ustrip(P), ustrip(csa))
+flux_interp_15(P, csa) = interpolations_18_const[15](ustrip(P), ustrip(csa))
+flux_interp_16(P, csa) = interpolations_18_const[16](ustrip(P), ustrip(csa))
+flux_interp_17(P, csa) = interpolations_18_const[17](ustrip(P), ustrip(csa))
+flux_interp_18(P, csa) = interpolations_18_const[18](ustrip(P), ustrip(csa))
 
 @register_symbolic flux_interp_1(P, csa)
 @register_symbolic flux_interp_2(P, csa)
@@ -80,7 +80,7 @@ Build Fast-JX model:
 fj = FastJX(DateTime(2000, 1, 1))
 ```
 """
-function FastJX_interpolation(t_ref::AbstractFloat; name = :FastJX)
+function FastJX_interpolation_troposphere(t_ref::AbstractFloat; name = :FastJX)
     @constants T_unit = 1.0 [
         unit = u"K",
         description = "Unit temperature (for unit conversion)"
@@ -123,4 +123,4 @@ function FastJX_interpolation(t_ref::AbstractFloat; name = :FastJX)
         metadata = Dict(:coupletype => FastJXCoupler)
     )
 end
-FastJX_interpolation(t_ref::DateTime; kwargs...) = FastJX_interpolation(datetime2unix(t_ref); kwargs...)
+FastJX_interpolation_troposphere(t_ref::DateTime; kwargs...) = FastJX_interpolation_troposphere(datetime2unix(t_ref); kwargs...)
