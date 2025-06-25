@@ -19,7 +19,7 @@ end
 @testset "2wayCoupling" begin
     sol_middle = 10.054760758144594
 
-    sf = couple(SuperFast(), FastJX_interpolation(0.0))
+    sf = couple(SuperFast(), FastJX_interpolation_troposphere(0.0))
     sys = convert(ODESystem, sf)
     tspan = (0.0, 3600 * 24)
     prob = ODEProblem(sys, [], tspan, [])
