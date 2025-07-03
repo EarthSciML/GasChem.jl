@@ -1033,7 +1033,7 @@ function rate_NIT(t, T, num_density, a0, b0, c0, n, x0, y0; name = :rate_NIT)
     C = num_density * ppb_unit  # molec/cm³ → ppb 
     eqs = [k0 ~ 2.0E-22 * exp(n) * (num_density * num_density_unit_inv)
            k1 ~ k0 / (4.3E-1 * (T / T_298)^(-8))
-           k2_ ~ (k0 / (1.0 + k1)) * 4.1E-1^(1.0 / (2.0E-22 * exp(n) * (num_density * num_density_unit_inv)))
+           k2_ ~ (k0 / (1.0 + k1)) * 4.1E-1^(1.0 / (1.0 + (log10(k1))^2))
            k3 ~ k2_ / (k2_ + c0)
            k4 ~ a0 * (x0 - T * y0)
            kx ~ k4 * exp(b0 / T) * k3 * (C * unit_conv)

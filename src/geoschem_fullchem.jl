@@ -111,8 +111,8 @@ function GEOSChemGasPhase(; name = :GEOSChemGasPhase, rxn_sys = false)
         push!(rate_systems, sys)
         return sys.k
     end
-    function regressT(t, T, P, a_0, b_0, T_0)
-        sys = regress_T(t, T, P, a_0, b_0, T_0; name = Symbol(:acet_oh_, i))
+    function regressT(t, T, num_density, a_0, b_0, T_0)
+        sys = regress_T(t, T, num_density, a_0, b_0, T_0; name = Symbol(:acet_oh_, i))
         i += 1
         push!(rate_systems, sys)
         return sys.k
