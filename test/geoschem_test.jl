@@ -117,11 +117,38 @@ end
     j_eqs = filter(eq -> contains(eq, r"^GEOSChemGasPhase₊j_"), eqs)
 
     wanteqs = [
-        "GEOSChemGasPhase₊j_9(t) ~ FastJX₊j_h2o2(t)",
-        "GEOSChemGasPhase₊j_7(t) ~ FastJX₊j_CH2Oa(t)",
-        "GEOSChemGasPhase₊j_10(t) ~ FastJX₊j_CH3OOH(t)",
-        "GEOSChemGasPhase₊j_11(t) ~ FastJX₊j_NO2(t)",
-        "GEOSChemGasPhase₊j_3(t) ~ FastJX₊j_o31D(t)"
+        "GEOSChemGasPhase₊j_1(t) ~ FastJX₊j_O2(t)", "GEOSChemGasPhase₊j_2(t) ~ FastJX₊j_O3(t)", 
+        "GEOSChemGasPhase₊j_3(t) ~ FastJX₊j_O31D(t)", "GEOSChemGasPhase₊j_6(t) ~ FastJX₊j_NO(t)", 
+        "GEOSChemGasPhase₊j_7(t) ~ FastJX₊j_H2COa(t)", "GEOSChemGasPhase₊j_8(t) ~ FastJX₊j_H2COb(t)", 
+        "GEOSChemGasPhase₊j_9(t) ~ FastJX₊j_H2O2(t)", "GEOSChemGasPhase₊j_10(t) ~ FastJX₊j_CH3OOH(t)", 
+        "GEOSChemGasPhase₊j_11(t) ~ FastJX₊j_NO2(t)", "GEOSChemGasPhase₊j_12(t) ~ FastJX₊j_NO3a(t)", 
+        "GEOSChemGasPhase₊j_13(t) ~ FastJX₊j_NO3b(t)", "GEOSChemGasPhase₊j_14(t) ~ FastJX₊j_N2O5(t)", 
+        "GEOSChemGasPhase₊j_15(t) ~ FastJX₊j_HNO2(t)", "GEOSChemGasPhase₊j_16(t) ~ FastJX₊j_HNO3(t)", 
+        "GEOSChemGasPhase₊j_18(t) ~ FastJX₊j_HNO4(t)", "GEOSChemGasPhase₊j_19(t) ~ FastJX₊j_ClNO3a(t)", 
+        "GEOSChemGasPhase₊j_20(t) ~ FastJX₊j_ClNO3b(t)", "GEOSChemGasPhase₊j_22(t) ~ FastJX₊j_Cl2(t)", 
+        "GEOSChemGasPhase₊j_24(t) ~ FastJX₊j_HOCl(t)", "GEOSChemGasPhase₊j_25(t) ~ FastJX₊j_OClO(t)", 
+        "GEOSChemGasPhase₊j_26(t) ~ FastJX₊j_Cl2O2(t)", "GEOSChemGasPhase₊j_27(t) ~ FastJX₊j_ClO(t)", 
+        "GEOSChemGasPhase₊j_28(t) ~ FastJX₊j_BrO(t)", "GEOSChemGasPhase₊j_30(t) ~ FastJX₊j_BrNO3(t)", 
+        "GEOSChemGasPhase₊j_32(t) ~ FastJX₊j_HOBr(t)", "GEOSChemGasPhase₊j_33(t) ~ FastJX₊j_BrCl(t)", 
+        "GEOSChemGasPhase₊j_34(t) ~ FastJX₊j_OCS(t)", "GEOSChemGasPhase₊j_37(t) ~ FastJX₊j_CFCl3(t)", 
+        "GEOSChemGasPhase₊j_38(t) ~ FastJX₊j_CF2Cl2(t)", "GEOSChemGasPhase₊j_39(t) ~ FastJX₊j_F113(t)", 
+        "GEOSChemGasPhase₊j_40(t) ~ FastJX₊j_F114(t)", "GEOSChemGasPhase₊j_41(t) ~ FastJX₊j_F115(t)", 
+        "GEOSChemGasPhase₊j_42(t) ~ FastJX₊j_CCl4(t)", "GEOSChemGasPhase₊j_43(t) ~ FastJX₊j_CH3Cl(t)", 
+        "GEOSChemGasPhase₊j_44(t) ~ FastJX₊j_MeCCl3(t)", "GEOSChemGasPhase₊j_45(t) ~ FastJX₊j_CH2Cl2(t)", 
+        "GEOSChemGasPhase₊j_46(t) ~ FastJX₊j_CHF2Cl(t)", "GEOSChemGasPhase₊j_47(t) ~ FastJX₊j_F123(t)", 
+        "GEOSChemGasPhase₊j_48(t) ~ FastJX₊j_F141b(t)", "GEOSChemGasPhase₊j_49(t) ~ FastJX₊j_F142b(t)", 
+        "GEOSChemGasPhase₊j_50(t) ~ FastJX₊j_CH3Br(t)", "GEOSChemGasPhase₊j_51(t) ~ FastJX₊j_H1211(t)", 
+        "GEOSChemGasPhase₊j_53(t) ~ FastJX₊j_H1301(t)", "GEOSChemGasPhase₊j_54(t) ~ FastJX₊j_H2402(t)", 
+        "GEOSChemGasPhase₊j_55(t) ~ FastJX₊j_CH2Br2(t)", "GEOSChemGasPhase₊j_56(t) ~ FastJX₊j_CHBr3(t)", 
+        "GEOSChemGasPhase₊j_59(t) ~ FastJX₊j_PAN(t)", "GEOSChemGasPhase₊j_61(t) ~ FastJX₊j_ActAld(t)", 
+        "GEOSChemGasPhase₊j_63(t) ~ FastJX₊j_MeVKa(t)", "GEOSChemGasPhase₊j_64(t) ~ FastJX₊j_MeVKb(t)", 
+        "GEOSChemGasPhase₊j_65(t) ~ FastJX₊j_MeVKc(t)", "GEOSChemGasPhase₊j_66(t) ~ FastJX₊j_MeAcr(t)", 
+        "GEOSChemGasPhase₊j_68(t) ~ FastJX₊j_GlyAld(t)", "GEOSChemGasPhase₊j_69(t) ~ FastJX₊j_MEKeto(t)", 
+        "GEOSChemGasPhase₊j_70(t) ~ FastJX₊j_PrAld(t)", "GEOSChemGasPhase₊j_71(t) ~ FastJX₊j_MGlyxl(t)", 
+        "GEOSChemGasPhase₊j_72(t) ~ FastJX₊j_Glyxla(t)", "GEOSChemGasPhase₊j_73(t) ~ FastJX₊j_Glyxlb(t)", 
+        "GEOSChemGasPhase₊j_74(t) ~ FastJX₊j_Glyxlc(t)", "GEOSChemGasPhase₊j_76(t) ~ FastJX₊j_Aceta(t)", 
+        "GEOSChemGasPhase₊j_77(t) ~ FastJX₊j_Acetb(t)", "GEOSChemGasPhase₊j_122(t) ~ FastJX₊j_CH3I(t)", 
+        "GEOSChemGasPhase₊j_134(t) ~ FastJX₊j_CH3NO3(t)"
     ]
     for eq in wanteqs
         @test contains(string(j_eqs), eq)
