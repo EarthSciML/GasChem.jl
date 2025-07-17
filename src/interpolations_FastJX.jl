@@ -1,6 +1,16 @@
 export FastJX_interpolation_troposphere
 
-BSON.@load joinpath(@__DIR__, "interpolations_troposphere.bson") interpolations_18_troposphere
+BSON.@load joinpath(@__DIR__, "tropospheric_interpolation_data.bson") Z_all tropospheric_P cosSZA_vals
+# Z_all is a vector of 18 matrices, each of which represents the actinic flux at different CSZA and Pressure.
+
+interpolations_18_troposphere = []
+for i in 1:18
+    itp = interpolate(Z_all[i], BSpline(Linear()), OnGrid())
+    f_in = Interpolations.scale(itp, tropospheric_P, cosSZA_vals)
+    f_ext = extrapolate(f_in, Flat())
+    push!(interpolations_18_troposphere, f_ext)
+end
+
 const interpolations_18_const = tuple(interpolations_18_troposphere...)
 
 # Create symbolic wrapper functions for each interpolation
