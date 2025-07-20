@@ -3,7 +3,7 @@
 # The GEOS-Chem license applies: https://github.com/geoschem/geos-chem/blob/main/LICENSE.txt
 
 """
-Function to create a constant rate coefficient
+Function to create a constant rate coefficient for second-order reactions
 """
 function constant_k(t, T, num_density, c; unit = u"ppb^-1*s^-1", name = :constant_k)
     T = ParentScope(T)
@@ -19,6 +19,9 @@ function constant_k(t, T, num_density, c; unit = u"ppb^-1*s^-1", name = :constan
     ODESystem([k ~ c * C], t, [k], []; name = name)
 end
 
+"""
+Function to create a constant rate coefficient for first-order reactions
+"""
 function constant_k_1(t, c; unit = u"s^-1", name = :constant_k_1)
     @constants(
         c = c, [unit = u"s^-1"],
@@ -67,6 +70,18 @@ function arrhenius_ppb(t, T, num_density, a0, b0, c0; unit = u"ppb^-1*s^-1", nam
     ODESystem([k ~ a0 * exp(c0 / T) * (K_300 / T)^b0 * C], t, [k], []; name = name)
 end
 
+"""
+Compute a third-order reaction rate constant using a modified Arrhenius equation,
+with output units in `ppb⁻²·s⁻¹`.
+
+This function is appropriate when reactant concentrations are expressed in ppb (mol/mol_air × 10⁹).
+
+The formula used is:
+
+```math
+k(t) = a₀ * exp(c₀ / T) * (300 / T)^b₀
+```
+"""
 function arrhenius_ppb_3(t, T, num_density, a0, b0, c0; unit = u"ppb^-2*s^-1", name = :arrhenius_ppb_3)
     T = ParentScope(T)
     num_density = ParentScope(num_density)
@@ -84,6 +99,16 @@ function arrhenius_ppb_3(t, T, num_density, a0, b0, c0; unit = u"ppb^-2*s^-1", n
     ODESystem([k ~ a0 * exp(c0 / T) * (K_300 / T)^b0 * C * C], t, [k], []; name = name)
 end
 
+"""
+Compute a second-order reaction rate constant using a modified Arrhenius equation,
+with output in SI units `m³·molec⁻¹·s⁻¹`.
+
+The formula used is:
+
+```math
+k(t) = a₀ * exp(c₀ / T) * (300 / T)^b₀
+```
+"""
 function arrhenius_mlc_SI(t, T, a0, b0, c0; unit = u"m^3*molec^-1*s^-1", name = :arrhenius_mlc_SI)
     T = ParentScope(T)
     t = ParentScope(t)
@@ -97,7 +122,16 @@ function arrhenius_mlc_SI(t, T, a0, b0, c0; unit = u"m^3*molec^-1*s^-1", name = 
     ODESystem([k ~ a0 * (exp(c0 / T) * (K_300 / T)^b0) * unit_conv], t, [k], []; name = name)
 end
 
+"""
+Compute a first-order reaction rate constant using a modified Arrhenius equation,
+with output units in `s⁻¹`.
 
+The formula used is:
+
+```math
+k(t) = a₀ * exp(c₀ / T) * (300 / T)^b₀
+```
+"""
 function arrhenius_mlc_1(t, T, a0, b0, c0; unit = u"s^-1", name = :arrhenius_mlc_1)
     T = ParentScope(T)
     t = ParentScope(t)
@@ -161,6 +195,13 @@ function arr_3rdbody(
     )
 end
 
+"""
+Third body effect for pressure dependence of first-order rate coefficients.
+a1, b1, c1 are the Arrhenius parameters for the lower-limit rate.
+a2, b2, c2 are the Arrhenius parameters for the upper-limit rate.
+fv         is the falloff curve paramter, (see ATKINSON ET. AL (1992)
+J. Phys. Chem. Ref. Data 21, P. 1145). Usually fv = 0.6.
+"""
 function arr_3rdbody_1(
         t,
         T,
@@ -190,7 +231,6 @@ function arr_3rdbody_1(
     blog = log10(xyrat) #no unit
     fexp = 1.0 / (1.0 + (blog * blog)) #no unit
     @variables k(t) [unit = unit]
-    # (XY 7/1/2025 First-order reaction, no need to convert unit)
     ODESystem(
         [k ~ rlow * (fv^fexp) / (1.0 + xyrat)],
         t,
@@ -476,15 +516,13 @@ function rate_OHHNO3(t, T, num_density, a0, c0, a1, c1, a2, c2; name = :rate_OHH
 end
 
 """
-Calculates the equilibrium constant
+Calculates the equilibrium constant  for second-order reactions
 Find the backwards reaction by K=kforward/kbackwards
 Calculates the rate constant of the forward reaction
 
 Used to compute the rate for these reactions:
 PPN        = RCO3 + NO2
 PAN        = MCO3 + NO2
-ClOO  {+M} = Cl   + O2 {+M}
-Cl2O2 {+M} = 2ClO      {+M}
 """
 function eq_const(
         t,
@@ -508,7 +546,15 @@ function eq_const(
     @variables k(t) [unit = unit]
     ODESystem([k ~ k1.k / k0.k * unit_conv], t, [k], []; systems = [k0, k1], name = name)
 end
+"""
+Calculates the equilibrium constant for first-order reactions
+Find the backwards reaction by K=kforward/kbackwards
+Calculates the rate constant of the forward reaction
 
+Used to compute the rate for these reactions:
+ClOO  {+M} = Cl   + O2 {+M}
+Cl2O2 {+M} = 2ClO      {+M}
+"""
 function eq_const_1(
         t,
         T,
@@ -707,7 +753,7 @@ function rate_GLYXNO3(t, T, num_density, a0, c0; name = :rate_GLYXNO3)
 end
 
 """
-Modified Arrhenius law.
+Modified Arrhenius law with output in units `cm³·molec⁻¹·s⁻¹`.
 """
 function arrplus_mlc(t, T, a0, b0, c0, d0, e0; unit = u"cm^3*molec^-1*s^-1", name = :arrplus_mlc)
     T = ParentScope(T)
@@ -732,6 +778,9 @@ function arrplus_mlc(t, T, a0, b0, c0, d0, e0; unit = u"cm^3*molec^-1*s^-1", nam
     )
 end
 
+"""
+Modified Arrhenius law with output in units `s⁻¹`.
+"""
 function arrplus_mlc_1(t, T, a0, b0, c0, d0, e0; unit = u"s^-1", name = :arrplus_mlc_1)
     T = ParentScope(T)
     @constants(
@@ -755,6 +804,9 @@ function arrplus_mlc_1(t, T, a0, b0, c0, d0, e0; unit = u"s^-1", name = :arrplus
     )
 end
 
+"""
+Modified Arrhenius law with output in units `ppb·s⁻¹`.
+"""
 function arrplus_ppb(t, T, num_density, a0, b0, c0, d0, e0; unit = u"ppb^-1*s^-1", name = :arrplus_ppb)
     T = ParentScope(T)
     num_density = ParentScope(num_density)
@@ -779,7 +831,9 @@ function arrplus_ppb(t, T, num_density, a0, b0, c0, d0, e0; unit = u"ppb^-1*s^-1
 end
 
 """
-Used to compute the rate for these reactions:
+Computes a temperature-dependent reaction rate constant using a modified
+Arrhenius expression with additional tunneling effect terms.
+Used to compute the rate for these reactions with output in units `cm³·molec⁻¹·s⁻¹`:
 IHOO1 = 1.5OH + ...
 IHOO4 = 1.5OH + ...
 """
@@ -806,6 +860,13 @@ function tunplus_mlc(t, T, a0, b0, c0, d0, e0; unit = u"cm^3*molec^-1*s^-1", nam
     )
 end
 
+"""
+Computes a temperature-dependent reaction rate constant using a modified
+Arrhenius expression with additional tunneling effect terms.
+Used to compute the rate for these reactions with output in units `s⁻¹`:
+IHOO1 = 1.5OH + ...
+IHOO4 = 1.5OH + ...
+"""
 function tunplus_mlc_1(t, T, a0, b0, c0, d0, e0; unit = u"s^-1", name = :tunplus_mlc_1)
     T = ParentScope(T)
     @constants(
@@ -829,6 +890,13 @@ function tunplus_mlc_1(t, T, a0, b0, c0, d0, e0; unit = u"s^-1", name = :tunplus
     )
 end
 
+"""
+Computes a temperature-dependent reaction rate constant using a modified
+Arrhenius expression with additional tunneling effect terms.
+Used to compute the rate for these reactions with output in units `ppb·s⁻¹`:
+IHOO1 = 1.5OH + ...
+IHOO4 = 1.5OH + ...
+"""
 function tunplus_ppb(t, T, num_density, a0, b0, c0, d0, e0; unit = u"ppb^-1*s^-1", name = :tunplus_ppb)
     T = ParentScope(T)
     num_density = ParentScope(num_density)
@@ -935,6 +1003,10 @@ function rate_EPO(t, T, num_density, a1, e1, m1; name = :rate_EPO)
     ODESystem([k ~ a1 * exp(e1 / T) * k1 * C], t, [k], []; name = name)
 end
 
+"""
+Used to compute the rate for reaction:
+BZPAN --> BZCO3 + NO2
+"""
 function rate_PAN_abab(
         t,
         T,
@@ -962,10 +1034,15 @@ function rate_PAN_abab(
     nc = 0.75 - 1.27 * (log10(cf)) #no unit
     f = 10.0^(log10(cf) / (1.0 + (log10(kr) / nc)^2)) #no unit
     @variables k(t) [unit = unit]
-    #(XY 7/1/2025) first-order rxn rate constant for ``BZPAN --> BZCO3 + NO2``, no need to convert unit
     ODESystem([k ~ k0 * k1 * f / (k0 + k1)], t, [k], []; name = name)
 end
 
+"""
+Used to compute the rate for reaction:
+MACR1OO + NO2 --> MPAN
+MACRNO2 + NO2 --> MPAN + NO2
+BZCO3 + NO2 --> BZPAN
+"""
 function rate_PAN_acac(t, T, num_density, a0, c0, a1, c1, cf; name = :rate_PAN_acac)
     T = ParentScope(T)
     num_density = ParentScope(num_density)
