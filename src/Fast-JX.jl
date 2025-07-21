@@ -49,15 +49,8 @@ const top_flux = SA_F32[
 
 
 
-##GEOS-Chem
 # HOCl=>OH+Cl      JPL10
 const ϕ_HOCl_jx = 1.0f0
-# const σ_HOCl_interp = create_fjx_interp(
-#     [300.0f0],
-#     [
-#         SA_F32[0, 3.695e-21, 1.571e-20, 2.435e-20, 5.887e-20, 5.424e-20, 5.798e-20, 6.694e-20, 1.019e-19, 6.541e-20, 5.43e-20, 5.57e-20, 6.067e-20, 5.955e-20, 5.376e-20, 3.12e-20, 2.197e-21, 0],
-#     ]
-# )
 const σ_HOCl = SA_F32[0, 3.695e-21, 1.571e-20, 2.435e-20, 5.887e-20, 5.424e-20, 5.798e-20, 6.694e-20, 1.019e-19, 6.541e-20, 5.43e-20, 5.57e-20, 6.067e-20, 5.955e-20, 5.376e-20, 3.12e-20, 2.197e-21, 0]
 const σ_HOCl_interp = [(T) -> σ_HOCl[i] for i in 1:18]
 
@@ -75,12 +68,6 @@ const σ_CH2Ob_interp = σ_H2COb_interp
 
 # CH2C(CH3)CHO >   Methacrolein => CH2=C(CH3)+HCO (q=0.003) JPL10
 const ϕ_MeAcr_jx = 1.0f0
-# const σ_MeAcr_interp = create_fjx_interp(
-#     [298.0f0],
-#     [
-#         SA_F32[0, 0, 0, 0, 0, 0, 0, 0, 9.45e-24, 2.852e-23, 5.252e-23, 7.912e-23, 1.182e-22, 1.5e-22, 1.779e-22, 1.959e-22, 1.305e-23, 0],
-#     ]
-# )
 const σ_MeAcr = SA_F32[0, 0, 0, 0, 0, 0, 0, 0, 9.45e-24, 2.852e-23, 5.252e-23, 7.912e-23, 1.182e-22, 1.5e-22, 1.779e-22, 1.959e-22, 1.305e-23, 0]
 const σ_MeAcr_interp = [(T) -> σ_MeAcr[i] for i in 1:18]
 
@@ -119,12 +106,6 @@ const σ_CFCl3_interp = create_fjx_interp(
 
 # NO=N+O          delta(1,0)&(0,0) scaled by 0.6 (WACCM in PhotoComp2008)
 const ϕ_NO_jx = 1.0f0
-# const σ_NO_interp = create_fjx_interp(
-#     [298.0f0],
-#     [
-#         SA_F32[6.054e-19, 6.936e-19, 3.475e-19, 0, 0, 0, 0, 8.892e-21, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-#     ]
-# )
 const σ_NO = SA_F32[6.054e-19, 6.936e-19, 3.475e-19, 0, 0, 0, 0, 8.892e-21, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 const σ_NO_interp = [(T) -> σ_NO[i] for i in 1:18]
 
@@ -196,12 +177,6 @@ const σ_CHF2Cl_interp = create_fjx_interp(
 
 # OClO=>O+ClO      JPL10
 const ϕ_OClO_jx = 1.0f0
-# const σ_OClO_interp = create_fjx_interp(
-#     [204.0f0],
-#     [
-#         SA_F32[0, 0, 0, 0, 0, 0, 0, 0, 4.061e-19, 5.616e-19, 8.776e-19, 1.211e-18, 1.857e-18, 2.606e-18, 2.522e-18, 4.227e-18, 1.25e-18, 0],
-#     ]
-# )
 const σ_OClO = SA_F32[0, 0, 0, 0, 0, 0, 0, 0, 4.061e-19, 5.616e-19, 8.776e-19, 1.211e-18, 1.857e-18, 2.606e-18, 2.522e-18, 4.227e-18, 1.25e-18, 0]
 const σ_OClO_interp = [(T) -> σ_OClO[i] for i in 1:18]
 
@@ -218,12 +193,6 @@ const σ_H1211_interp = create_fjx_interp(
 
 # BrO=>Br+O        JPL10
 const ϕ_BrO_jx = 1.0f0
-# const σ_BrO_interp = create_fjx_interp(
-#     [300.0f0],
-#     [
-#         SA_F32[0, 0, 0, 0, 0, 0, 0, 0, 0, 5.62e-19, 1.202e-18, 2.008e-18, 3.239e-18, 4.52e-18, 5.064e-18, 5.809e-18, 2.408e-19, 0],
-#     ]
-# )
 const σ_BrO = SA_F32[0, 0, 0, 0, 0, 0, 0, 0, 0, 5.62e-19, 1.202e-18, 2.008e-18, 3.239e-18, 4.52e-18, 5.064e-18, 5.809e-18, 2.408e-19, 0]
 const σ_BrO_interp = [(T) -> σ_BrO[i] for i in 1:18]
 
@@ -273,12 +242,6 @@ const σ_H2402_interp = create_fjx_interp(
 
 # C2H5CHO >C2H5+   Propionaldehyde(propanal) => C2H5+HCO  JPL10
 const ϕ_PrAld_jx = 1.0f0
-# const σ_PrAld_interp = create_fjx_interp(
-#     [298.0f0],
-#     [
-#         SA_F32[0, 0, 1.797e-23, 0, 3.43e-22, 5.337e-22, 6.041e-22, 6.842e-22, 2.988e-20, 4.52e-20, 5.122e-20, 5.545e-20, 4.628e-20, 3.576e-20, 2.436e-20, 5.836e-21, 4.083e-24, 0],
-#     ]
-# )
 const σ_PrAld = SA_F32[0, 0, 1.797e-23, 0, 3.43e-22, 5.337e-22, 6.041e-22, 6.842e-22, 2.988e-20, 4.52e-20, 5.122e-20, 5.545e-20, 4.628e-20, 3.576e-20, 2.436e-20, 5.836e-21, 4.083e-24, 0]
 const σ_PrAld_interp = [(T) -> σ_PrAld[i] for i in 1:18]
 
@@ -318,23 +281,11 @@ const σ_F113_interp = create_fjx_interp(
 
 # HO2NO2=>HO2+NO2  JPL10 & scaled 1-micron J added to last bin
 const ϕ_HNO4_jx = 1.0f0
-# const σ_HNO4_interp = create_fjx_interp(
-#     [300.0f0],
-#     [
-#         SA_F32[4.631e-18, 7.576e-18, 8.407e-18, 7.479e-18, 4.744e-18, 2.854e-18, 2.217e-18, 1.843e-18, 2.799e-19, 2.21e-19, 1.539e-19, 2.685e-20, 1.171e-20, 5.683e-21, 3.102e-21, 8.269e-22, 1.309e-23, 6.723e-23],
-#     ]
-# )
 const σ_HNO4 = SA_F32[4.631e-18, 7.576e-18, 8.407e-18, 7.479e-18, 4.744e-18, 2.854e-18, 2.217e-18, 1.843e-18, 2.799e-19, 2.21e-19, 1.539e-19, 2.685e-20, 1.171e-20, 5.683e-21, 3.102e-21, 8.269e-22, 1.309e-23, 6.723e-23]
 const σ_HNO4_interp = [(T) -> σ_HNO4[i] for i in 1:18]
 
 # ClO=>Cl+O        JPL10
 const ϕ_ClO_jx = 1.0f0
-# const σ_ClO_interp = create_fjx_interp(
-#     [300.0f0],
-#     [
-#         SA_F32[0, 0, 0, 0, 0, 0, 0, 0, 4.737e-18, 3.262e-18, 1.858e-18, 1.428e-18, 5.982e-19, 3.548e-19, 1.427e-19, 0, 0, 0],
-#     ]
-# )
 const σ_ClO = SA_F32[0, 0, 0, 0, 0, 0, 0, 0, 4.737e-18, 3.262e-18, 1.858e-18, 1.428e-18, 5.982e-19, 3.548e-19, 1.427e-19, 0, 0, 0]
 const σ_ClO_interp = [(T) -> σ_ClO[i] for i in 1:18]
 
@@ -385,12 +336,6 @@ const σ_F142b_interp = create_fjx_interp(
 
 # CF3CF2Cl=>       CF3CF2Cl = CFC-115   JPL10
 const ϕ_F115_jx = 1.0f0
-# const σ_F115_interp = create_fjx_interp(
-#     [300.0f0],
-#     [
-#         SA_F32[6.876e-21, 2.986e-21, 1.891e-21, 1.018e-21, 3.531e-22, 1.124e-22, 6.079e-23, 6.176e-23, 5.728e-27, 6.317e-25, 1.345e-24, 0, 0, 0, 0, 0, 0, 0],
-#     ]
-# )
 const σ_F115 = SA_F32[6.876e-21, 2.986e-21, 1.891e-21, 1.018e-21, 3.531e-22, 1.124e-22, 6.079e-23, 6.176e-23, 5.728e-27, 6.317e-25, 1.345e-24, 0, 0, 0, 0, 0, 0, 0]
 const σ_F115_interp = [(T) -> σ_F115[i] for i in 1:18]
 
@@ -464,12 +409,6 @@ const σ_CH3I_interp = create_fjx_interp(
 
 # HONO=>OH+NO      JPL10
 const ϕ_HNO2_jx = 1.0f0
-# const σ_HNO2_interp = create_fjx_interp(
-#     [300.0f0],
-#     [
-#         SA_F32[9.693e-19, 1.387e-18, 1.574e-18, 1.808e-18, 2.154e-18, 2.188e-18, 2.079e-18, 1.911e-18, 1.171e-19, 1.849e-19, 1.489e-19, 5.487e-21, 9.353e-21, 1.895e-20, 3.195e-20, 9.008e-20, 2.261e-20, 0],
-#     ]
-# )
 const σ_HNO2 = SA_F32[9.693e-19, 1.387e-18, 1.574e-18, 1.808e-18, 2.154e-18, 2.188e-18, 2.079e-18, 1.911e-18, 1.171e-19, 1.849e-19, 1.489e-19, 5.487e-21, 9.353e-21, 1.895e-20, 3.195e-20, 9.008e-20, 2.261e-20, 0]
 const σ_HNO2_interp = [(T) -> σ_HNO2[i] for i in 1:18]
 
@@ -509,12 +448,6 @@ const σ_MeCCl3_interp = create_fjx_interp(
 
 # ClOOCl=>ClO+ClO  JPL10
 const ϕ_Cl2O2_jx = 1.0f0
-# const σ_Cl2O2_interp = create_fjx_interp(
-#     [220.0f0],
-#     [
-#         SA_F32[0, 2.177e-19, 9.321e-19, 1.435e-18, 3.578e-18, 3.009e-18, 2.648e-18, 2.357e-18, 4.063e-18, 1.971e-18, 1.236e-18, 8.681e-19, 5.719e-19, 4.163e-19, 3.234e-19, 1.921e-19, 1.541e-20, 0],
-#     ]
-# )
 const σ_Cl2O2 = SA_F32[0, 2.177e-19, 9.321e-19, 1.435e-18, 3.578e-18, 3.009e-18, 2.648e-18, 2.357e-18, 4.063e-18, 1.971e-18, 1.236e-18, 8.681e-19, 5.719e-19, 4.163e-19, 3.234e-19, 1.921e-19, 1.541e-20, 0]
 const σ_Cl2O2_interp = [(T) -> σ_Cl2O2[i] for i in 1:18]
 
@@ -655,23 +588,11 @@ const σ_NO2_interp = create_fjx_interp(
 
 # CH3OOH=>CH3O+OH 
 const ϕ_CH3OOH_jx = 1.0f0
-# const σ_CH3OOH_interp = create_fjx_interp(
-#     [298.0f0],
-#     [
-#         SA_F32[0, 0, 0, 0, 0, 3.12e-19, 2.882e-19, 2.25e-19, 2.716e-20, 2.74e-20, 2.143e-20, 5.624e-21, 3.52e-21, 2.403e-21, 1.697e-21, 7.23e-22, 2.285e-23, 0],
-#     ]
-# )
 const σ_CH3OOH = SA_F32[0, 0, 0, 0, 0, 3.12e-19, 2.882e-19, 2.25e-19, 2.716e-20, 2.74e-20, 2.143e-20, 5.624e-21, 3.52e-21, 2.403e-21, 1.697e-21, 7.23e-22, 2.285e-23, 0]
 const σ_CH3OOH_interp = [(T) -> σ_CH3OOH[i] for i in 1:18]
 
 # HOCH2CHO >       Glycol Aldehyde => CH2OH+HCO[0.83] CH3OH+CO[0.10] OH+CH2CHO
 const ϕ_GlyAld_jx = 1.0f0
-# const σ_GlyAld_interp = create_fjx_interp(
-#     [298.0f0],
-#     [
-#         SA_F32[0, 0, 0, 0, 7.413e-20, 1.879e-19, 1.038e-19, 4.946e-20, 5.168e-20, 5.719e-20, 5.581e-20, 4.81e-20, 2.912e-20, 1.567e-20, 7.019e-21, 7.099e-22, 0, 0],
-#     ]
-# )
 const σ_GlyAld = SA_F32[0, 0, 0, 0, 7.413e-20, 1.879e-19, 1.038e-19, 4.946e-20, 5.168e-20, 5.719e-20, 5.581e-20, 4.81e-20, 2.912e-20, 1.567e-20, 7.019e-21, 7.099e-22, 0, 0]
 const σ_GlyAld_interp = [(T) -> σ_GlyAld[i] for i in 1:18]
 
@@ -701,12 +622,6 @@ const σ_MGlyxl_interp = create_fjx_interp(
 
 # HOBr=>OH+Br      JPL10
 const ϕ_HOBr_jx = 1.0f0
-# const σ_HOBr_interp = create_fjx_interp(
-#     [300.0f0],
-#     [
-#         SA_F32[0, 0, 0, 0, 0, 0, 0, 0, 1.324e-19, 2.011e-19, 2.202e-19, 2.196e-19, 1.726e-19, 1.367e-19, 1.157e-19, 1.125e-19, 3.274e-20, 0],
-#     ]
-# )
 const σ_HOBr =  SA_F32[0, 0, 0, 0, 0, 0, 0, 0, 1.324e-19, 2.011e-19, 2.202e-19, 2.196e-19, 1.726e-19, 1.367e-19, 1.157e-19, 1.125e-19, 3.274e-20, 0]
 const σ_HOBr_interp = [(T) -> σ_HOBr[i] for i in 1:18]
 
@@ -862,14 +777,9 @@ function j_mean(σ_interp, ϕ, Temperature, fluxes)
     j
 end
 
-#j_mean_H2O2(T, fluxes) = j_mean(σ_H2O2_interp, ϕ_H2O2_jx, T, fluxes)
 j_mean_CH2Oa(T, fluxes) = j_mean(σ_CH2Oa_interp, ϕ_CH2Oa_jx, T, fluxes)
 j_mean_CH2Ob(T, fluxes) = j_mean(σ_CH2Ob_interp, ϕ_CH2Ob_jx, T, fluxes)
-#j_mean_CH3OOH(T, fluxes) = j_mean(σ_CH3OOH_interp, ϕ_CH3OOH_jx, T, fluxes)
-#j_mean_NO2(T, fluxes) = j_mean(σ_NO2_interp, ϕ_NO2_jx, T, fluxes)
 j_mean_o31D(T, fluxes) = j_mean(σ_o31D_interp, ϕ_o31D_jx, T, fluxes)
-
-##GEOS-Chem
 j_mean_HOCl(T, fluxes) = j_mean(σ_HOCl_interp, ϕ_HOCl_jx, T, fluxes)
 j_mean_H2COb(T, fluxes) = j_mean(σ_H2COb_interp, ϕ_H2COb_jx, T, fluxes)
 j_mean_MeAcr(T, fluxes) = j_mean(σ_MeAcr_interp, ϕ_MeAcr_jx, T, fluxes)
@@ -1018,11 +928,8 @@ function FastJX(t_ref::AbstractFloat; name = :FastJX)
     @variables j_CH2Ob(t) [unit = u"s^-1"]
     @variables j_o31D(t) [unit = u"s^-1"]
     @variables j_o32OH(t) [unit = u"s^-1"]
-    #@variables j_CH3OOH(t) [unit = u"s^-1"]
     @variables j_NO2(t) [unit = u"s^-1"]
     @variables cosSZA(t) [description = "Cosine of the solar zenith angle"]
-
-    #GEOS-Chem
     @variables j_HOCl(t) [unit = u"s^-1"]
     @variables j_H2COb(t) [unit = u"s^-1"]
     @variables j_MeAcr(t) [unit = u"s^-1"]
@@ -1078,7 +985,6 @@ function FastJX(t_ref::AbstractFloat; name = :FastJX)
     @variables j_CH2Cl2(t) [unit = u"s^-1"]
     @variables j_O2(t) [unit = u"s^-1"]
     @variables j_BrNO3(t) [unit = u"s^-1"]
-    #@variables j_NO2(t) [unit = u"s^-1"]
     @variables j_CH3OOH(t) [unit = u"s^-1"]
     @variables j_GlyAld(t) [unit = u"s^-1"]
     @variables j_H2COa(t) [unit = u"s^-1"]
@@ -1101,7 +1007,6 @@ function FastJX(t_ref::AbstractFloat; name = :FastJX)
            j_o32OH ~ j_o31D*adjust_j_o31D(T, P, H2O);
            j_CH3OOH ~ j_mean_CH3OOH(T/T_unit, flux_vars)*0.0931; #0.0931 is a parameter to adjust the calculated CH3OOH photolysis to appropriate magnitudes.
            j_NO2 ~ j_mean_NO2(T/T_unit, flux_vars)*0.444
-           ##GEOS-Chem
            j_HOCl ~ j_mean_HOCl(T/T_unit, flux_vars);
            j_H2COb ~ j_mean_H2COb(T/T_unit, flux_vars);
            j_MeAcr ~ j_mean_MeAcr(T/T_unit, flux_vars);
@@ -1143,7 +1048,6 @@ function FastJX(t_ref::AbstractFloat; name = :FastJX)
            j_CH3I ~ j_mean_CH3I(T/T_unit, flux_vars);
            j_HNO2 ~ j_mean_HNO2(T/T_unit, flux_vars);
            j_Aceta ~ j_mean_Aceta(T/T_unit, flux_vars);
-           #j_N2O ~ j_mean_N2O(T/T_unit, flux_vars);
            j_MeCCl3 ~ j_mean_MeCCl3(T/T_unit, flux_vars);
            j_Cl2O2 ~ j_mean_Cl2O2(T/T_unit, flux_vars);
            j_CH3Br ~ j_mean_CH3Br(T/T_unit, flux_vars);
@@ -1157,8 +1061,6 @@ function FastJX(t_ref::AbstractFloat; name = :FastJX)
            j_CH2Cl2 ~ j_mean_CH2Cl2(T/T_unit, flux_vars);
            j_O2 ~ j_mean_O2(T/T_unit, flux_vars);
            j_BrNO3 ~ j_mean_BrNO3(T/T_unit, flux_vars);
-           #j_NO2 ~ j_mean_NO2(T/T_unit, flux_vars);
-           #j_CH3OOH ~ j_mean_CH3OOH(T/T_unit, flux_vars);
            j_GlyAld ~ j_mean_GlyAld(T/T_unit, flux_vars);
            j_H2COa ~ j_mean_H2COa(T/T_unit, flux_vars);
            j_MGlyxl ~ j_mean_MGlyxl(T/T_unit, flux_vars);
@@ -1178,9 +1080,8 @@ function FastJX(t_ref::AbstractFloat; name = :FastJX)
         j_CH3NO3, j_CHBr3, j_F123, j_CHF2Cl, j_OClO, j_H1211, j_BrO, j_CH3Cl, j_MEKeto, 
         j_PAN, j_H2402, j_PrAld, j_MeVKa, j_MeVKb, j_MeVKc, j_ClNO3b, j_F113, j_HNO4, j_ClO, j_H2O2, j_CH2Br2, 
         j_OCS, j_F142b, j_F115, j_O31D, j_CF3I, j_Glyxla, j_CCl4, j_Cl2, j_CH3I, j_HNO2, 
-        j_Aceta, #j_N2O,
-        j_MeCCl3, j_Cl2O2, j_CH3Br, j_HNO3, j_CF2Cl2, j_Glyxlb, 
-        j_F141b, j_O3, j_ClNO3a, j_ActAld, j_CH2Cl2, j_O2, j_BrNO3, #j_NO2, #j_CH3OOH, 
+        j_Aceta, j_MeCCl3, j_Cl2O2, j_CH3Br, j_HNO3, j_CF2Cl2, j_Glyxlb, 
+        j_F141b, j_O3, j_ClNO3a, j_ActAld, j_CH2Cl2, j_O2, j_BrNO3, 
         j_GlyAld, j_H2COa, j_MGlyxl, j_HOBr, j_NO3a, j_NO3b, j_Acetb, j_BrCl, 
         cosSZA, flux_vars...],
         [lat, long, T, P, H2O, t_ref];
