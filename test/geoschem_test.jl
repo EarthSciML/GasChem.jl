@@ -10,13 +10,7 @@ sys = structural_simplify(sys)
 
 # Unit Test 0: Base case
 @testset "Base case" begin
-    u_0 = [2.1327512182118245
-           211.8938586170381
-           83.2370879010155
-           17.646210820369
-           606.1557601209427
-           5.8614918579823065
-           56.63543840034316]
+    u_0 = [6.748699799890642e-7, 2391.7636911471445, 7.959064698668025, -1.0e-323, 4.077796381700777e-6, 5.1356378937680525, 286.178591326171]
 
     vals = ModelingToolkit.get_defaults(sys)
     for k in setdiff(unknowns(sys), keys(vals))
@@ -32,7 +26,7 @@ end
 
 # Unit Test 1: O1D sensitivity to O3
 @testset "O1D sensitivity to O3" begin
-    u_1 = 1.7279825730298626e-5
+    u_1 = -2.831863778346037e-7
 
     vals = ModelingToolkit.get_defaults(sys)
     for k in setdiff(unknowns(sys), keys(vals))
@@ -51,7 +45,7 @@ end
 
 # Unit Test 2: OH sensitivity to O3
 @testset "OH sensitivity to O3" begin
-    u_2 = 5.209463225241961e-7
+    u_2 = 1.4156332440296447e-5
 
     vals = ModelingToolkit.get_defaults(sys)
     for k in setdiff(unknowns(sys), keys(vals))
@@ -70,7 +64,7 @@ end
 
 # Unit Test 3: NO2 sensitivity to O3
 @testset "NO2 sensitivity to O3" begin
-    u_3 = 1.8946337831948767e-9
+    u_3 = 0.00010203156076485248
 
     vals = ModelingToolkit.get_defaults(sys)
     for k in setdiff(unknowns(sys), keys(vals))
@@ -89,7 +83,7 @@ end
 
 # Unit Test 4: HO2 sensitivity to O3
 @testset "HO2 sensitivity to O3" begin
-    u_4 = -6.469934550779044e-6
+    u_4 = 5.386170377672298e-10
 
     vals = ModelingToolkit.get_defaults(sys)
     for k in setdiff(unknowns(sys), keys(vals))
