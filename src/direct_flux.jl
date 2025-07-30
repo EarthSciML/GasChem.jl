@@ -556,11 +556,11 @@ const mean_o3_profile = SVector{73}([
     7.092392120024747e-9
 ])
 
-function OD_abs(T, N)
+function OD_abs(T, N, layer_index)
     XQO2 = [σ_O2_interp[i](T) for i in 1:18]
     XQO3 = [σ_O3_interp[i](T) for i in 1:18]
     OD_O2 = XQO2 * N * 0.20948 # O2 absorption optical depth
-    OD_O3 = XQO3 * mean_o3_profile * N # O3 absorption optical depth
+    OD_O3 = XQO3 * mean_o3_profile[layer_index] * N # O3 absorption optical depth
     OD_abs = OD_O2 + OD_O3
     return OD_abs
 end
@@ -588,7 +588,7 @@ const z_profile = SVector{74}(ZHL(P_levels, T_profile))
 
 # calculate optical depth
 const OD_ray_profile = hcat(Rayleigh_OD.(N_profile)...) # Rayleigh OD in each layer
-const OD_abs_profile = SMatrix{18, 73}(hcat(OD_abs.(T_profile_top, N_profile)...)) # O2 absorption OD in each layer
+const OD_abs_profile = SMatrix{18, 73}(hcat([OD_abs(T_profile_top[i], N_profile[i], i) for i in 1:73]...)) # O2 absorption OD in each layer
 const OD_total = SMatrix{74, 18}(
     vcat((OD_abs_profile + OD_ray_profile)', zeros(1, 18)),
 # Build the extended optical depth grid by appending a zero row (top-of-atmosphere).
