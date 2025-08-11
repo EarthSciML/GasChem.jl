@@ -124,13 +124,13 @@ function FastJX_interpolation_troposphere(t_ref::AbstractFloat; name = :FastJX)
            j_CH3OOH ~ j_mean_CH3OOH(T/T_unit, flux_vars)*0.0931; #0.0931 is a parameter to adjust the calculated CH3OOH photolysis to appropriate magnitudes.
            j_NO2 ~ j_mean_NO2(T/T_unit, flux_vars)*0.444]
 
-    ODESystem(
+    System(
         eqs,
         t,
         [j_h2o2, j_CH2Oa, j_CH2Ob, j_o32OH, j_o31D, j_CH3OOH, j_NO2, cosSZA, flux_vars...],
         [lat, long, T, P, H2O, t_ref];
         name = name,
-        metadata = Dict(:coupletype => FastJXCoupler)
+        metadata = Dict(CoupleType => FastJXCoupler)
     )
 end
 FastJX_interpolation_troposphere(t_ref::DateTime; kwargs...) = FastJX_interpolation_troposphere(datetime2unix(t_ref); kwargs...)

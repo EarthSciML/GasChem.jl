@@ -9,6 +9,7 @@ using StaticArrays
 using Interpolations
 using ModelingToolkit: t
 using BSON
+using DocStringExtensions
 
 @register_unit molec 1
 @register_unit mol_air 1u"mol"
