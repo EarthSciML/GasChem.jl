@@ -1,12 +1,13 @@
 name = "GasChem"
 uuid = "58070593-4751-4c87-a5d1-63807d11d76c"
 authors = ["EarthSciML authors and contributors"]
-version = "0.10.2"
+version = "0.11.0"
 
 [deps]
 BSON = "fbb218c0-5317-5bc6-957e-2ee96dd4b1f0"
 Catalyst = "479239e8-5488-4da2-87a7-35f2df7eef83"
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
+DocStringExtensions = "ffbed154-4ef7-542d-bbb7-c09d3a79fcae"
 DynamicQuantities = "06fc5a27-2a28-4c7c-a15d-362465fb6821"
 EarthSciMLBase = "e53f1632-a13c-4728-9402-0c66d48804b0"
 Interpolations = "a98d9a8b-a2ab-59e6-89dd-64a1c18fca59"
@@ -22,23 +23,26 @@ EarthSciDataExt = "EarthSciData"
 [compat]
 AllocCheck = "0.2"
 BSON = "0.3.9"
-Catalyst = "14.4.1"
+Catalyst = "16"
+DocStringExtensions = "0.9.5"
 DynamicQuantities = "1"
-EarthSciData = "0.13"
-EarthSciMLBase = "0.23"
+EarthSciData = "0.14"
+EarthSciMLBase = "0.24"
 Interpolations = "0.16"
-ModelingToolkit = "9.79.1"
+ModelingToolkit = "10"
 OrdinaryDiffEqRosenbrock = "1.10.1"
-SafeTestsets = "0.0.1, 0.1"
 StaticArrays = "1.9"
+SymbolicIndexingInterface = "0.3.42"
+TestItemRunner = "1.1.0"
 julia = "1.10"
 
 [extras]
 AllocCheck = "9b6a8646-10ed-4001-bbdc-1d2f46dfbb1a"
 EarthSciData = "a293c155-435f-439d-9c11-a083b6b47337"
 OrdinaryDiffEqRosenbrock = "43230ef6-c299-4910-a778-202eb28ce4ce"
-SafeTestsets = "1bc83da4-3b8d-516f-aca4-4fe02f6d838f"
+SymbolicIndexingInterface = "2efcf032-c050-4f8e-a9bb-153293bab1f5"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+TestItemRunner = "f8b46487-2199-4994-9208-9a1283c18c0a"
 
 [targets]
-test = ["AllocCheck", "Test", "SafeTestsets", "OrdinaryDiffEqRosenbrock", "EarthSciData"]
+test = ["AllocCheck", "Test", "OrdinaryDiffEqRosenbrock", "EarthSciData", "SymbolicIndexingInterface", "TestItemRunner"]
