@@ -63,8 +63,6 @@ const σ_H2COb_interp = create_fjx_interp(
         SA_F32[0, 0, 0, 0, 0, 0, 0, 0, 3.649e-21, 5.768e-21, 5.305e-21, 8.154e-21, 7.914e-21, 4.002e-21, 1.085e-20, 1.085e-20, 6.819e-23, 0],
     ]
 )
-const ϕ_CH2Ob_jx = ϕ_H2COb_jx
-const σ_CH2Ob_interp = σ_H2COb_interp
 
 # CH2C(CH3)CHO >   Methacrolein => CH2=C(CH3)+HCO (q=0.003) JPL10
 const ϕ_MeAcr_jx = 1.0f0
@@ -298,8 +296,6 @@ const σ_H2O2_interp = create_fjx_interp(
         SA_F32[2.325e-19, 4.629e-19, 5.394e-19, 5.429e-19, 4.447e-19, 3.755e-19, 3.457e-19, 3.197e-19, 5.465e-20, 4.966e-20, 3.524e-20, 9.354e-21, 5.763e-21, 3.911e-21, 2.718e-21, 1.138e-21, 7.927e-24, 0],
     ]
 )
-const ϕ_h2o2_jx = ϕ_H2O2_jx
-const σ_h2o2_interp = σ_H2O2_interp
 
 # CH2Br2=>         CH2Br2 = dibromo methane    JPL10
 const ϕ_CH2Br2_jx = 1.0f0
@@ -349,8 +345,6 @@ const σ_O31D_interp = create_fjx_interp(
         SA_F32[0.4896, 0.5072, 0.5268, 0.5647, 0.6549, 0.735, 0.7763, 0.8162, 0.9, 0.9, 0.8985, 0.9, 0.8968, 0.5709, 0.2309, 0.09735, 0, 0],
     ]
 )
-const ϕ_o31D_jx = ϕ_O31D_jx
-const σ_o31D_interp = σ_O31D_interp
 
 # CF3I=>CF3+I      CF3I = tri-fluoro iodo methane   JPL10
 const ϕ_CF3I_jx = 1.0f0
@@ -605,8 +599,6 @@ const σ_H2COa_interp = create_fjx_interp(
         SA_F32[0, 0, 0, 0, 0, 0, 0, 0, 3.147e-21, 1.018e-20, 1.266e-20, 2.315e-20, 2.497e-20, 1.131e-20, 2.189e-20, 4.751e-21, 0, 0],
     ]
 )
-const ϕ_CH2Oa_jx = ϕ_H2COa_jx
-const σ_CH2Oa_interp = σ_H2COa_interp
 
 # CH3COC(O)H >HCO+ Methyl glyoxal = CH3COC(O)H => CH3CO + HCO   JPL10
 const ϕ_MGlyxl_jx = 1.0f0
@@ -777,9 +769,6 @@ function j_mean(σ_interp, ϕ, Temperature, fluxes)
     j
 end
 
-j_mean_CH2Oa(T, fluxes) = j_mean(σ_CH2Oa_interp, ϕ_CH2Oa_jx, T, fluxes)
-j_mean_CH2Ob(T, fluxes) = j_mean(σ_CH2Ob_interp, ϕ_CH2Ob_jx, T, fluxes)
-j_mean_o31D(T, fluxes) = j_mean(σ_o31D_interp, ϕ_o31D_jx, T, fluxes)
 j_mean_HOCl(T, fluxes) = j_mean(σ_HOCl_interp, ϕ_HOCl_jx, T, fluxes)
 j_mean_H2COb(T, fluxes) = j_mean(σ_H2COb_interp, ϕ_H2COb_jx, T, fluxes)
 j_mean_MeAcr(T, fluxes) = j_mean(σ_MeAcr_interp, ϕ_MeAcr_jx, T, fluxes)
@@ -848,12 +837,12 @@ j_mean_BrCl(T, fluxes) = j_mean(σ_BrCl_interp, ϕ_BrCl_jx, T, fluxes)
 
 
 """
-    adjust_j_o31D(T, P, H2O)
+    adjust_j_O31D(T, P, H2O)
 
 Adjust the photolysis rate of O3 -> O2 + O(1D) to represent the effective rate for O3 -> 2OH.
 This adjustment is based on the fraction of O(1D) that reacts with H2O to produce 2 OH.
 """
-function adjust_j_o31D(T, P, H2O)
+function adjust_j_O31D(T, P, H2O)
     @constants(T_unit=1,
         [unit=u"K", description="unit of Temperature"],
         A=6.02e23,
@@ -923,10 +912,6 @@ function FastJX(t_ref::AbstractFloat; name = :FastJX)
     @parameters H2O = 450 [unit = u"ppb"]
     @parameters t_ref = t_ref [unit = u"s", description = "Reference Unix time"]
 
-    @variables j_h2o2(t) [unit = u"s^-1"]
-    @variables j_CH2Oa(t) [unit = u"s^-1"]
-    @variables j_CH2Ob(t) [unit = u"s^-1"]
-    @variables j_o31D(t) [unit = u"s^-1"]
     @variables j_o32OH(t) [unit = u"s^-1"]
     @variables j_NO2(t) [unit = u"s^-1"]
     @variables cosSZA(t) [description = "Cosine of the solar zenith angle"]
@@ -1000,13 +985,9 @@ function FastJX(t_ref::AbstractFloat; name = :FastJX)
 
     eqs = [cosSZA ~ cos_solar_zenith_angle(t + t_ref, lat, long);
            fluxeqs;
-           j_h2o2 ~ j_mean_H2O2(T/T_unit, flux_vars)*0.0557; #0.0557 is a parameter to adjust the calculated H2O2 photolysis to appropriate magnitudes.
-           j_CH2Oa ~ j_mean_CH2Oa(T/T_unit, flux_vars)*0.945; #0.945 is a parameter to adjust the calculated CH2Oa photolysis to appropriate magnitudes.
-           j_CH2Ob ~ j_mean_CH2Ob(T/T_unit, flux_vars)*0.813; #0.813 is a parameter to adjust the calculated CH2Ob photolysis to appropriate magnitudes.
-           j_o31D ~ j_mean_o31D(T/T_unit, flux_vars)*2.33e-21; #2.33e-21 is a parameter to adjust the calculated O(^3)1D photolysis to appropriate magnitudes.
-           j_o32OH ~ j_o31D*adjust_j_o31D(T, P, H2O);
+           j_o32OH ~ j_O31D*adjust_j_O31D(T, P, H2O);
            j_CH3OOH ~ j_mean_CH3OOH(T/T_unit, flux_vars)*0.0931; #0.0931 is a parameter to adjust the calculated CH3OOH photolysis to appropriate magnitudes.
-           j_NO2 ~ j_mean_NO2(T/T_unit, flux_vars)*0.444
+           j_NO2 ~ j_mean_NO2(T/T_unit, flux_vars);
            j_HOCl ~ j_mean_HOCl(T/T_unit, flux_vars);
            j_H2COb ~ j_mean_H2COb(T/T_unit, flux_vars);
            j_MeAcr ~ j_mean_MeAcr(T/T_unit, flux_vars);
@@ -1075,7 +1056,7 @@ function FastJX(t_ref::AbstractFloat; name = :FastJX)
     ODESystem(
         eqs,
         t,
-        [j_h2o2, j_CH2Oa, j_CH2Ob, j_o31D, j_o32OH, j_CH3OOH, j_NO2, 
+        [j_o32OH, j_CH3OOH, j_NO2, 
         j_HOCl, j_H2COb, j_MeAcr, j_N2O5, j_H1301, j_CFCl3, j_NO, j_Glyxlc, j_F114, 
         j_CH3NO3, j_CHBr3, j_F123, j_CHF2Cl, j_OClO, j_H1211, j_BrO, j_CH3Cl, j_MEKeto, 
         j_PAN, j_H2402, j_PrAld, j_MeVKa, j_MeVKb, j_MeVKc, j_ClNO3b, j_F113, j_HNO4, j_ClO, j_H2O2, j_CH2Br2, 
