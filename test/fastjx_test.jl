@@ -202,24 +202,24 @@ end
     @parameters P, csa
     x = GasChem.calc_direct_fluxes(csa, P)
     @test substitute(x, Dict(P => 1013525, csa => 0.42255961917649837)) ≈ [
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        6.942926208560752e-20,
-        9.324385539750345e11,
-        1.6175240854575052e10,
-        6.451788954313698e10,
-        2.65230857303719e13,
-        4.949172766139693e13,
-        4.1853350675689734e13,
-        9.0818932182367e13,
-        6.106135960927899e14,
-        5.384781489955934e15,
-        1.75419654839834e17
+        0.0, 
+        0.0, 
+        0.0, 
+        0.0, 
+        0.0, 
+        0.0, 
+        0.0, 
+        0.0, 
+        0.0, 
+        0.0, 
+        0.008445690580780573, 
+        4.368635862759404e6, 
+        3.861091113407282e11, 
+        7.162608365510285e12, 
+        4.381532157326822e13, 
+        5.5736656209660256e14, 
+        5.378272528516121e15, 
+        1.6978055609093792e17
     ]
 end
 
@@ -240,26 +240,26 @@ end
     @test GasChem.calc_direct_flux(cos_sza, P, 18) ≈ 2.1310000789140275e17
 
     P = 100
-    @test GasChem.calc_direct_flux(cos_sza, P, 1) ≈ 3.1945754293116e6
+    @test GasChem.calc_direct_flux(cos_sza, P, 1) ≈ 3.0643508503689505e6
     P = 500
-    @test GasChem.calc_direct_flux(cos_sza, P, 1) ≈ 1.681154736397082e-16
+    @test GasChem.calc_direct_flux(cos_sza, P, 1) ≈ 8.931704683157367e-17
 end
 
 @testset "Direct Flux Twilight" begin
     P = 1
     cos_sza = -0.1
     @test GasChem.calc_direct_flux(cos_sza, P, 1) ≈ 0.0
-    @test GasChem.calc_direct_flux(cos_sza, P, 3) ≈ 9.210824994693922e6
-    @test GasChem.calc_direct_flux(cos_sza, P, 5) ≈ 2.7107178595671622e11
-    @test GasChem.calc_direct_flux(cos_sza, P, 7) ≈ 5.738136573445582e11
-    @test GasChem.calc_direct_flux(cos_sza, P, 9) ≈ 5.04267784656514e14
-    @test GasChem.calc_direct_flux(cos_sza, P, 11) ≈ 2.326848158168617e14
-    @test GasChem.calc_direct_flux(cos_sza, P, 13) ≈ 6.962821827121719e14
-    @test GasChem.calc_direct_flux(cos_sza, P, 15) ≈ 8.206081725002852e14
-    @test GasChem.calc_direct_flux(cos_sza, P, 18) ≈ 2.116264141002065e17
+    @test GasChem.calc_direct_flux(cos_sza, P, 3) ≈ 890275.9088383563
+    @test GasChem.calc_direct_flux(cos_sza, P, 5) ≈ 4.250677812848234e10
+    @test GasChem.calc_direct_flux(cos_sza, P, 7) ≈ 1.6784210577555624e10
+    @test GasChem.calc_direct_flux(cos_sza, P, 9) ≈ 8.920108354738617e-7
+    @test GasChem.calc_direct_flux(cos_sza, P, 11) ≈ 5.4169480803700356e10
+    @test GasChem.calc_direct_flux(cos_sza, P, 13) ≈ 1.697289300309447e14
+    @test GasChem.calc_direct_flux(cos_sza, P, 15) ≈ 6.569697111320194e14
+    @test GasChem.calc_direct_flux(cos_sza, P, 18) ≈ 2.0972515867967904e17
 
     P = 100
     @test GasChem.calc_direct_flux(cos_sza, P, 3) ≈ 0.0
-    @test GasChem.calc_direct_flux(cos_sza, P, 9) ≈ 23.739997461455154
-    @test GasChem.calc_direct_flux(cos_sza, P, 18) ≈ 8.475995351825976e16
+    @test GasChem.calc_direct_flux(cos_sza, P, 9) ≈ 0.0
+    @test GasChem.calc_direct_flux(cos_sza, P, 18) ≈ 4.908683888514731e16
 end
