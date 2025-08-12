@@ -49,7 +49,7 @@ end
     @test contains(eqs, wanteq) || contains(eqs, "SuperFast₊T(t) ~ FastJX₊T(t)")
     wanteq = "FastJX₊T(t) ~ GEOSFP₊I3₊T(t)"
     @test contains(eqs, wanteq) || contains(eqs, "FastJX₊T(t) ~ SuperFast₊T(t)")
-    wanteq = "SuperFast₊jH2O2(t) ~ FastJX₊j_h2o2(t)"
+    wanteq = "SuperFast₊jH2O2(t) ~ FastJX₊j_H2O2(t)"
     @test contains(eqs, wanteq)
     wanteq = "FastJX₊lat(t) ~ rad2deg(GEOSFP₊lat)"
     @test contains(eqs, wanteq)

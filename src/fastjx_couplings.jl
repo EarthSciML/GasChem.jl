@@ -85,15 +85,15 @@ function EarthSciMLBase.couple2(c::SuperFastCoupler, p::FastJXCoupler)
         convert(ODESystem, c),
         :jH2O2,
         :jNO2,
-        :jCH2Oa,
-        :jCH2Ob,
+        :jH2COa,
+        :jH2COb,
         :jCH3OOH,
         :jO32OH
     )
     ConnectorSystem(
-        [c.jH2O2 ~ p.j_h2o2
-         c.jCH2Oa ~ p.j_CH2Oa
-         c.jCH2Ob ~ p.j_CH2Ob
+        [c.jH2O2 ~ p.j_H2O2
+         c.jH2COa ~ p.j_H2COa
+         c.jH2COb ~ p.j_H2COb
          c.jCH3OOH ~ p.j_CH3OOH
          c.jNO2 ~ p.j_NO2
          c.jO32OH ~ p.j_o32OH],
