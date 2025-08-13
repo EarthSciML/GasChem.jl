@@ -44,14 +44,13 @@ end
 
     @test test_1 ≈ u_1
 
-    H2O2_factor = 0.0557
     j_H2O2_func = ModelingToolkit.build_explicit_observed_function(
         fj,                # The system
         [fj.j_h2o2]       # The observed variable we want
     )
     j_H2O2_value = (j_H2O2_func([], p, test_time))[1]
     @test j_H2O2_value ≈
-          GasChem.j_mean_H2O2(298.0, get_fluxes(3600 * 12.0, 40.0, -97.0, 101325))*H2O2_factor rtol = 0.004
+          GasChem.j_mean_H2O2(298.0, get_fluxes(3600 * 12.0, 40.0, -97.0, 101325)) 
 end
 
 # Unit Test 2: CH2O -> H + HO2 + CO
@@ -67,7 +66,6 @@ end
 
     @test test_2 ≈ u_2
 
-    CH2Oa_factor = 0.945
     j_CH2Oa_func = ModelingToolkit.build_explicit_observed_function(
         fj,                # The system
         [fj.j_CH2Oa]       # The observed variable we want
@@ -77,7 +75,7 @@ end
           GasChem.j_mean_CH2Oa(
         298.0,
         get_fluxes(3600 * 12.0, 40.0, -97.0, 101325)
-    )*CH2Oa_factor rtol = 1e-6
+    ) 
 end
 
 @testset "CH2Ob" begin
@@ -92,7 +90,6 @@ end
 
     @test test_2 ≈ u_2
 
-    CH2Ob_factor = 0.813
     j_CH2Ob_func = ModelingToolkit.build_explicit_observed_function(
         fj,                # The system
         [fj.j_CH2Ob]       # The observed variable we want
@@ -102,7 +99,7 @@ end
           GasChem.j_mean_CH2Ob(
         298.0,
         get_fluxes(3600 * 12.0, 40.0, -97.0, 101325)
-    )*CH2Ob_factor rtol = 1e-6
+    ) 
 end
 
 # Unit Test 3: CH3OOH -> OH + HO2 + CH2O
@@ -117,7 +114,6 @@ end
 
     @test test_3 ≈ u_3
 
-    CH3OOH_factor = 0.0931
     j_CH3OOH_func = ModelingToolkit.build_explicit_observed_function(
         fj,                # The system
         [fj.j_CH3OOH]       # The observed variable we want
@@ -127,7 +123,7 @@ end
           GasChem.j_mean_CH3OOH(
         298.0,
         get_fluxes(3600 * 12.0, 40.0, -97.0, 101325)
-    )*CH3OOH_factor rtol = 1e-6
+    ) 
 end
 
 # Unit Test 4: NO2 -> NO + O
@@ -143,7 +139,6 @@ end
 
     @test test_4 ≈ u_4 rtol = 1e-6
 
-    NO2_factor = 0.444
     j_NO2_func = ModelingToolkit.build_explicit_observed_function(
         fj,                # The system
         [fj.j_NO2]       # The observed variable we want
@@ -152,7 +147,7 @@ end
     j_NO2_value = (j_NO2_func([], p, test_time))[1]
 
     @test j_NO2_value ≈
-          GasChem.j_mean_NO2(298.0, get_fluxes(3600 * 12.0, 40.0, -97.0, 101325))*NO2_factor rtol = 1e-6
+          GasChem.j_mean_NO2(298.0, get_fluxes(3600 * 12.0, 40.0, -97.0, 101325))
 end
 
 
