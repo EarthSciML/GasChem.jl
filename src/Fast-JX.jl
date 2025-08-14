@@ -336,8 +336,7 @@ const σ_F115 = SA_F32[6.876e-21, 2.986e-21, 1.891e-21, 1.018e-21, 3.531e-22, 1.
 const σ_F115_interp = [(T) -> σ_F115[i] for i in 1:18]
 
 # Qyld O3=O(1D)+O2 JPL10 3/2013   (7/2020 interp fix ~1e-4)
-const ϕ_O31D_jx = 1.0f0
-const σ_O31D_interp = create_fjx_interp(
+const ϕ_O31D_interp = create_fjx_interp(
     [218.0f0, 258.0f0, 298.0f0],
     [
         SA_F32[0.4896, 0.5071, 0.5266, 0.5646, 0.655, 0.7351, 0.7763, 0.8162, 0.9, 0.9, 0.8984, 0.9, 0.8948, 0.4755, 0.1023, 0.07773, 0, 0],
@@ -345,6 +344,8 @@ const σ_O31D_interp = create_fjx_interp(
         SA_F32[0.4896, 0.5072, 0.5268, 0.5647, 0.6549, 0.735, 0.7763, 0.8162, 0.9, 0.9, 0.8985, 0.9, 0.8968, 0.5709, 0.2309, 0.09735, 0, 0],
     ]
 )
+
+const ϕ_o31D_interp = ϕ_O31D_interp
 
 # CF3I=>CF3+I      CF3I = tri-fluoro iodo methane   JPL10
 const ϕ_CF3I_jx = 1.0f0
@@ -764,7 +765,8 @@ Get mean photolysis rates at different times
 function j_mean(σ_interp, ϕ, Temperature, fluxes)
     j = zero(Temperature)
     for i in 1:18
-        j += fluxes[i] * σ_interp[i](Temperature) * ϕ
+        ϕ_val = ϕ isa Vector && ϕ[i] isa Function ? ϕ[i](Temperature) : ϕ
+        j += fluxes[i] * σ_interp[i](Temperature) * ϕ_val
     end
     j
 end
@@ -802,7 +804,7 @@ j_mean_CH2Br2(T, fluxes) = j_mean(σ_CH2Br2_interp, ϕ_CH2Br2_jx, T, fluxes)
 j_mean_OCS(T, fluxes) = j_mean(σ_OCS_interp, ϕ_OCS_jx, T, fluxes)
 j_mean_F142b(T, fluxes) = j_mean(σ_F142b_interp, ϕ_F142b_jx, T, fluxes)
 j_mean_F115(T, fluxes) = j_mean(σ_F115_interp, ϕ_F115_jx, T, fluxes)
-j_mean_O31D(T, fluxes) = j_mean(σ_O31D_interp, ϕ_O31D_jx, T, fluxes)
+j_mean_O31D(T, fluxes) = j_mean(σ_O3_interp, ϕ_O31D_interp, T, fluxes)
 j_mean_CF3I(T, fluxes) = j_mean(σ_CF3I_interp, ϕ_CF3I_jx, T, fluxes)
 j_mean_Glyxla(T, fluxes) = j_mean(σ_Glyxla_interp, ϕ_Glyxla_jx, T, fluxes)
 j_mean_CCl4(T, fluxes) = j_mean(σ_CCl4_interp, ϕ_CCl4_jx, T, fluxes)
@@ -986,7 +988,7 @@ function FastJX(t_ref::AbstractFloat; name = :FastJX)
     eqs = [cosSZA ~ cos_solar_zenith_angle(t + t_ref, lat, long);
            fluxeqs;
            j_o32OH ~ j_O31D*adjust_j_O31D(T, P, H2O);
-           j_CH3OOH ~ j_mean_CH3OOH(T/T_unit, flux_vars)*0.0931; #0.0931 is a parameter to adjust the calculated CH3OOH photolysis to appropriate magnitudes.
+           j_CH3OOH ~ j_mean_CH3OOH(T/T_unit, flux_vars);
            j_NO2 ~ j_mean_NO2(T/T_unit, flux_vars);
            j_HOCl ~ j_mean_HOCl(T/T_unit, flux_vars);
            j_H2COb ~ j_mean_H2COb(T/T_unit, flux_vars);
