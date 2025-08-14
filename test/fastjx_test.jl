@@ -75,7 +75,7 @@ end
     @test j_H2COa_value ≈
           GasChem.j_mean_H2COa(
         298.0,
-        get_fluxes(3600 * 12.0, 40.0, -97.0, 101325)
+        get_fluxes(3600 * 12.0, 40.0, -97.0, 101325))
 end
 
 @testset "H2COb" begin
@@ -98,7 +98,7 @@ end
     @test j_H2COb_value ≈
           GasChem.j_mean_H2COb(
         298.0,
-        get_fluxes(3600 * 12.0, 40.0, -97.0, 101325)
+        get_fluxes(3600 * 12.0, 40.0, -97.0, 101325))
 end
 
 # Unit Test 3: CH3OOH -> OH + HO2 + CH2O
