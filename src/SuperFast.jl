@@ -257,9 +257,9 @@ function SuperFast(; name = :SuperFast, rxn_sys = false)
             [unit=u"s^-1"],
             jNO2=0.0149,
             [unit=u"s^-1"],
-            jCH2Oa=0.00014,
+            jH2COa=0.00014,
             [unit=u"s^-1"],
-            jCH2Ob=0.00014,
+            jH2COb=0.00014,
             [unit=u"s^-1"],
             jCH3OOH=8.9573e-6,
             [unit=u"s^-1"],
@@ -329,8 +329,8 @@ function SuperFast(; name = :SuperFast, rxn_sys = false)
         jO32OH, O3 --> 2OH #simplified reaction of: O3 --> O2 + O1d; O1d + H2O --> 2OH
         jH2O2, H2O2 --> 2OH
         jNO2, NO2 --> NO + O3
-        jCH2Oa, CH2O --> HO2 + HO2 + CO
-        jCH2Ob, CH2O --> CO
+        jH2COa, CH2O --> HO2 + HO2 + CO
+        jH2COb, CH2O --> CO
         jCH3OOH, CH3OOH --> CH2O + HO2 + OH
     end
     rxns = compose(rx_sys, rate_systems)

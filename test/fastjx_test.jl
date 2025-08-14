@@ -14,7 +14,7 @@ test_time = 3600 * 12.0
 #p = [0.0, 30.0, 0.0, 298.0, 101325, 450] # TODO(CT): Account for fact that parameters may not be in this order.
 p = [0.0, 40.0, -97.0, 298.0, 101325.0, 450.0 ]
 #   Unit Test 0: O3 -> O2 + O(1D)
-@testset "o31D" begin
+@testset "O31D" begin
     u_0 = [
         0.007369280845991884, 
         0.007374722096550664, 
@@ -23,10 +23,10 @@ p = [0.0, 40.0, -97.0, 298.0, 101325.0, 450.0 ]
     ]
     fluxes = get_fluxes(3600 * 12.0, 30.0, 0.0, 0.9)
     test_0 = [
-        GasChem.j_mean_o31D(100.0, fluxes),
-        GasChem.j_mean_o31D(220.0, fluxes),
-        GasChem.j_mean_o31D(300.0, fluxes),
-        GasChem.j_mean_o31D(400.0, fluxes)
+        GasChem.j_mean_O31D(100.0, fluxes),
+        GasChem.j_mean_O31D(220.0, fluxes),
+        GasChem.j_mean_O31D(300.0, fluxes),
+        GasChem.j_mean_O31D(400.0, fluxes)
     ]
     @test test_0 ≈ u_0 rtol = 1e-6
 end
@@ -46,7 +46,7 @@ end
 
     j_H2O2_func = ModelingToolkit.build_explicit_observed_function(
         fj,                # The system
-        [fj.j_h2o2]       # The observed variable we want
+        [fj.j_H2O2]       # The observed variable we want
     )
     j_H2O2_value = (j_H2O2_func([], p, test_time))[1]
     @test j_H2O2_value ≈
@@ -54,52 +54,51 @@ end
 end
 
 # Unit Test 2: CH2O -> H + HO2 + CO
-@testset "CH2Oa" begin
+@testset "H2COa" begin
     u_2 = [8.642676785125311e-5, 8.64227156795509e-5, 8.641551181874694e-5]
 
     fluxes = get_fluxes(3600 * 12.0, 30.0, 0.0, 0.9)
     test_2 = [
-        GasChem.j_mean_CH2Oa(200.0, fluxes),
-        GasChem.j_mean_CH2Oa(250.0, fluxes),
-        GasChem.j_mean_CH2Oa(300.0, fluxes)
+        GasChem.j_mean_H2COa(200.0, fluxes),
+        GasChem.j_mean_H2COa(250.0, fluxes),
+        GasChem.j_mean_H2COa(300.0, fluxes)
     ]
 
     @test test_2 ≈ u_2
 
-    j_CH2Oa_func = ModelingToolkit.build_explicit_observed_function(
+    j_H2COa_func = ModelingToolkit.build_explicit_observed_function(
+
         fj,                # The system
-        [fj.j_CH2Oa]       # The observed variable we want
+        [fj.j_H2COa]       # The observed variable we want
     )
-    j_CH2Oa_value = (j_CH2Oa_func([], p, test_time))[1]
-    @test j_CH2Oa_value ≈
-          GasChem.j_mean_CH2Oa(
+    j_H2COa_value = (j_H2COa_func([], p, test_time))[1]
+    @test j_H2COa_value ≈
+          GasChem.j_mean_H2COa(
         298.0,
         get_fluxes(3600 * 12.0, 40.0, -97.0, 101325)
-    ) 
 end
 
-@testset "CH2Ob" begin
+@testset "H2COb" begin
     u_2 = [7.16264584129105e-5, 7.166900731492678e-5, 7.174464980740016e-5]
 
     fluxes = get_fluxes(3600 * 12.0, 30.0, 0.0, 0.9)
     test_2 = [
-        GasChem.j_mean_CH2Ob(200.0, fluxes),
-        GasChem.j_mean_CH2Ob(250.0, fluxes),
-        GasChem.j_mean_CH2Ob(300.0, fluxes)
+        GasChem.j_mean_H2COb(200.0, fluxes),
+        GasChem.j_mean_H2COb(250.0, fluxes),
+        GasChem.j_mean_H2COb(300.0, fluxes)
     ]
 
     @test test_2 ≈ u_2
 
-    j_CH2Ob_func = ModelingToolkit.build_explicit_observed_function(
+    j_H2COb_func = ModelingToolkit.build_explicit_observed_function(
         fj,                # The system
-        [fj.j_CH2Ob]       # The observed variable we want
+        [fj.j_H2COb]       # The observed variable we want
     )
-    j_CH2Ob_value = (j_CH2Ob_func([], p, test_time))[1]
-    @test j_CH2Ob_value ≈
-          GasChem.j_mean_CH2Ob(
+    j_H2COb_value = (j_H2COb_func([], p, test_time))[1]
+    @test j_H2COb_value ≈
+          GasChem.j_mean_H2COb(
         298.0,
         get_fluxes(3600 * 12.0, 40.0, -97.0, 101325)
-    ) 
 end
 
 # Unit Test 3: CH3OOH -> OH + HO2 + CH2O

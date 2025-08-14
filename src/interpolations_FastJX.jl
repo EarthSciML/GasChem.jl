@@ -103,10 +103,10 @@ function FastJX_interpolation_troposphere(t_ref::AbstractFloat; name = :FastJX)
     @parameters H2O = 450 [unit = u"ppb"]
     @parameters t_ref = t_ref [unit = u"s", description = "Reference Unix time"]
 
-    @variables j_h2o2(t) [unit = u"s^-1"]
-    @variables j_CH2Oa(t) [unit = u"s^-1"]
-    @variables j_CH2Ob(t) [unit = u"s^-1"]
-    @variables j_o31D(t) [unit = u"s^-1"]
+    @variables j_H2O2(t) [unit = u"s^-1"]
+    @variables j_H2COa(t) [unit = u"s^-1"]
+    @variables j_H2COb(t) [unit = u"s^-1"]
+    @variables j_O31D(t) [unit = u"s^-1"]
     @variables j_o32OH(t) [unit = u"s^-1"]
     @variables j_CH3OOH(t) [unit = u"s^-1"]
     @variables j_NO2(t) [unit = u"s^-1"]
@@ -116,18 +116,18 @@ function FastJX_interpolation_troposphere(t_ref::AbstractFloat; name = :FastJX)
 
     eqs = [cosSZA ~ cos_solar_zenith_angle(t + t_ref, lat, long);
            fluxeqs;
-           j_h2o2 ~ j_mean_H2O2(T/T_unit, flux_vars)*0.0557; #0.0557 is a parameter to adjust the calculated H2O2 photolysis to appropriate magnitudes.
-           j_CH2Oa ~ j_mean_CH2Oa(T/T_unit, flux_vars)*0.945; #0.945 is a parameter to adjust the calculated CH2Oa photolysis to appropriate magnitudes.
-           j_CH2Ob ~ j_mean_CH2Ob(T/T_unit, flux_vars)*0.813; #0.813 is a parameter to adjust the calculated CH2Ob photolysis to appropriate magnitudes.
-           j_o31D ~ j_mean_o31D(T/T_unit, flux_vars)*2.33e-21; #2.33e-21 is a parameter to adjust the calculated O(^3)1D photolysis to appropriate magnitudes.
-           j_o32OH ~ j_o31D*adjust_j_o31D(T, P, H2O);
+           j_H2O2 ~ j_mean_H2O2(T/T_unit, flux_vars);
+           j_H2COa ~ j_mean_H2COa(T/T_unit, flux_vars);
+           j_H2COb ~ j_mean_H2COb(T/T_unit, flux_vars);
+           j_O31D ~ j_mean_O31D(T/T_unit, flux_vars);
+           j_o32OH ~ j_O31D*adjust_j_O31D(T, P, H2O);
            j_CH3OOH ~ j_mean_CH3OOH(T/T_unit, flux_vars)*0.0931; #0.0931 is a parameter to adjust the calculated CH3OOH photolysis to appropriate magnitudes.
            j_NO2 ~ j_mean_NO2(T/T_unit, flux_vars)*0.444]
 
     ODESystem(
         eqs,
         t,
-        [j_h2o2, j_CH2Oa, j_CH2Ob, j_o32OH, j_o31D, j_CH3OOH, j_NO2, cosSZA, flux_vars...],
+        [j_H2O2, j_H2COa, j_H2COb, j_o32OH, j_O31D, j_CH3OOH, j_NO2, cosSZA, flux_vars...],
         [lat, long, T, P, H2O, t_ref];
         name = name,
         metadata = Dict(:coupletype => FastJXCoupler)
