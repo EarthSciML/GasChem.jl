@@ -1214,7 +1214,7 @@ function FastJX(t_ref::AbstractFloat; name = :FastJX)
            j_Acetb ~ j_mean_Acetb(T / T_unit, flux_vars);
            j_BrCl ~ j_mean_BrCl(T / T_unit, flux_vars)]
 
-    System(
+    fjx = System(
         eqs,
         t,
         vars,
@@ -1223,6 +1223,7 @@ function FastJX(t_ref::AbstractFloat; name = :FastJX)
         metadata = Dict(CoupleType => FastJXCoupler),
         systems = [flux, j_o31D_adj]
     )
+    return flatten(fjx) # Need to do flatten because otherwise coupling doesn't work correctly
 end
 FastJX(t_ref::DateTime; kwargs...) = FastJX(datetime2unix(t_ref); kwargs...)
 FastJX(domain::DomainInfo; kwargs...) = FastJX(get_tref(domain); kwargs...)

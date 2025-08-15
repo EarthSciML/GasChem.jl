@@ -71,7 +71,7 @@ function flux_eqs_interpolation(csa, P)
         push!(flux_vals, f)
     end
 
-    flux_vars, (flux_vars .~ flux_vals .* c_flux)
+    flux_vars, (flux_vars .~ collect(flux_vals) .* c_flux), c_flux # TODO(CT): remove "collect" when https://github.com/SciML/ModelingToolkit.jl/issues/3888 is fixed.
 end
 
 """
@@ -112,7 +112,9 @@ function FastJX_interpolation_troposphere(t_ref::AbstractFloat; name = :FastJX)
     @variables j_NO2(t) [unit = u"s^-1"]
     @variables cosSZA(t) [description = "Cosine of the solar zenith angle"]
 
-    flux_vars, fluxeqs = flux_eqs_interpolation(cosSZA, P/P_unit)
+    flux_vars, fluxeqs, c_flux = flux_eqs_interpolation(cosSZA, P/P_unit)
+    j_o31D_adj = adjust_j_o31D(ParentScope(T), ParentScope(P), ParentScope(H2O))
+
 
     eqs = [cosSZA ~ cos_solar_zenith_angle(t + t_ref, lat, long);
            fluxeqs;
@@ -120,17 +122,19 @@ function FastJX_interpolation_troposphere(t_ref::AbstractFloat; name = :FastJX)
            j_CH2Oa ~ j_mean_CH2Oa(T/T_unit, flux_vars)*0.945; #0.945 is a parameter to adjust the calculated CH2Oa photolysis to appropriate magnitudes.
            j_CH2Ob ~ j_mean_CH2Ob(T/T_unit, flux_vars)*0.813; #0.813 is a parameter to adjust the calculated CH2Ob photolysis to appropriate magnitudes.
            j_o31D ~ j_mean_o31D(T/T_unit, flux_vars)*2.33e-21; #2.33e-21 is a parameter to adjust the calculated O(^3)1D photolysis to appropriate magnitudes.
-           j_o32OH ~ j_o31D*adjust_j_o31D(T, P, H2O);
+           j_o32OH ~ j_o31D*j_o31D_adj.j_O31D_adj;
            j_CH3OOH ~ j_mean_CH3OOH(T/T_unit, flux_vars)*0.0931; #0.0931 is a parameter to adjust the calculated CH3OOH photolysis to appropriate magnitudes.
            j_NO2 ~ j_mean_NO2(T/T_unit, flux_vars)*0.444]
 
-    System(
+    fjx = System(
         eqs,
         t,
         [j_h2o2, j_CH2Oa, j_CH2Ob, j_o32OH, j_o31D, j_CH3OOH, j_NO2, cosSZA, flux_vars...],
-        [lat, long, T, P, H2O, t_ref];
+        [lat, long, T, P, H2O, t_ref, c_flux, T_unit, P_unit];
         name = name,
-        metadata = Dict(CoupleType => FastJXCoupler)
+        metadata = Dict(CoupleType => FastJXCoupler),
+        systems = [j_o31D_adj],
     )
+    return flatten(fjx) # Need to do flatten because otherwise coupling doesn't work correctly
 end
 FastJX_interpolation_troposphere(t_ref::DateTime; kwargs...) = FastJX_interpolation_troposphere(datetime2unix(t_ref); kwargs...)
