@@ -64,8 +64,6 @@ const σ_H2COb_interp = create_fjx_interp(
             7.914e-21, 4.002e-21, 1.085e-20, 1.085e-20, 6.819e-23, 0]
     ]
 )
-const ϕ_CH2Ob_jx = ϕ_H2COb_jx
-const σ_CH2Ob_interp = σ_H2COb_interp
 
 # CH2C(CH3)CHO >   Methacrolein => CH2=C(CH3)+HCO (q=0.003) JPL10
 const ϕ_MeAcr_jx = 1.0f0
@@ -347,8 +345,6 @@ const σ_H2O2_interp = create_fjx_interp(
             5.763e-21, 3.911e-21, 2.718e-21, 1.138e-21, 7.927e-24, 0]
     ]
 )
-const ϕ_h2o2_jx = ϕ_H2O2_jx
-const σ_h2o2_interp = σ_H2O2_interp
 
 # CH2Br2=>         CH2Br2 = dibromo methane    JPL10
 const ϕ_CH2Br2_jx = 1.0f0
@@ -396,8 +392,7 @@ const σ_F115 = SA_F32[6.876e-21, 2.986e-21, 1.891e-21, 1.018e-21, 3.531e-22, 1.
 const σ_F115_interp = [(T) -> σ_F115[i] for i in 1:18]
 
 # Qyld O3=O(1D)+O2 JPL10 3/2013   (7/2020 interp fix ~1e-4)
-const ϕ_O31D_jx = 1.0f0
-const σ_O31D_interp = create_fjx_interp(
+const ϕ_O31D_interp = create_fjx_interp(
     [218.0f0, 258.0f0, 298.0f0],
     [
         SA_F32[0.4896, 0.5071, 0.5266, 0.5646, 0.655, 0.7351, 0.7763, 0.8162,
@@ -408,8 +403,8 @@ const σ_O31D_interp = create_fjx_interp(
             0.9, 0.9, 0.8985, 0.9, 0.8968, 0.5709, 0.2309, 0.09735, 0, 0]
     ]
 )
-const ϕ_o31D_jx = ϕ_O31D_jx
-const σ_o31D_interp = σ_O31D_interp
+
+const ϕ_o31D_interp = ϕ_O31D_interp
 
 # CF3I=>CF3+I      CF3I = tri-fluoro iodo methane   JPL10
 const ϕ_CF3I_jx = 1.0f0
@@ -712,8 +707,6 @@ const σ_H2COa_interp = create_fjx_interp(
             2.315e-20, 2.497e-20, 1.131e-20, 2.189e-20, 4.751e-21, 0, 0]
     ]
 )
-const ϕ_CH2Oa_jx = ϕ_H2COa_jx
-const σ_CH2Oa_interp = σ_H2COa_interp
 
 # CH3COC(O)H >HCO+ Methyl glyoxal = CH3COC(O)H => CH3CO + HCO   JPL10
 const ϕ_MGlyxl_jx = 1.0f0
@@ -896,14 +889,12 @@ Get mean photolysis rates at different times
 function j_mean(σ_interp, ϕ, Temperature, fluxes)
     j = zero(Temperature)
     for i in 1:18
-        j += fluxes[i] * σ_interp[i](Temperature) * ϕ
+        ϕ_val = ϕ isa Vector && ϕ[i] isa Function ? ϕ[i](Temperature) : ϕ
+        j += fluxes[i] * σ_interp[i](Temperature) * ϕ_val
     end
     j
 end
 
-j_mean_CH2Oa(T, fluxes) = j_mean(σ_CH2Oa_interp, ϕ_CH2Oa_jx, T, fluxes)
-j_mean_CH2Ob(T, fluxes) = j_mean(σ_CH2Ob_interp, ϕ_CH2Ob_jx, T, fluxes)
-j_mean_o31D(T, fluxes) = j_mean(σ_o31D_interp, ϕ_o31D_jx, T, fluxes)
 j_mean_HOCl(T, fluxes) = j_mean(σ_HOCl_interp, ϕ_HOCl_jx, T, fluxes)
 j_mean_H2COb(T, fluxes) = j_mean(σ_H2COb_interp, ϕ_H2COb_jx, T, fluxes)
 j_mean_MeAcr(T, fluxes) = j_mean(σ_MeAcr_interp, ϕ_MeAcr_jx, T, fluxes)
@@ -937,7 +928,7 @@ j_mean_CH2Br2(T, fluxes) = j_mean(σ_CH2Br2_interp, ϕ_CH2Br2_jx, T, fluxes)
 j_mean_OCS(T, fluxes) = j_mean(σ_OCS_interp, ϕ_OCS_jx, T, fluxes)
 j_mean_F142b(T, fluxes) = j_mean(σ_F142b_interp, ϕ_F142b_jx, T, fluxes)
 j_mean_F115(T, fluxes) = j_mean(σ_F115_interp, ϕ_F115_jx, T, fluxes)
-j_mean_O31D(T, fluxes) = j_mean(σ_O31D_interp, ϕ_O31D_jx, T, fluxes)
+j_mean_O31D(T, fluxes) = j_mean(σ_O3_interp, ϕ_O31D_interp, T, fluxes)
 j_mean_CF3I(T, fluxes) = j_mean(σ_CF3I_interp, ϕ_CF3I_jx, T, fluxes)
 j_mean_Glyxla(T, fluxes) = j_mean(σ_Glyxla_interp, ϕ_Glyxla_jx, T, fluxes)
 j_mean_CCl4(T, fluxes) = j_mean(σ_CCl4_interp, ϕ_CCl4_jx, T, fluxes)
@@ -971,7 +962,7 @@ j_mean_Acetb(T, fluxes) = j_mean(σ_Acetb_interp, ϕ_Acetb_jx, T, fluxes)
 j_mean_BrCl(T, fluxes) = j_mean(σ_BrCl_interp, ϕ_BrCl_jx, T, fluxes)
 
 """
-    adjust_j_o31D(T, P, H2O)
+    adjust_j_O31D(T, P, H2O)
 
 Adjust the photolysis rate of O3 -> O2 + O(1D) to represent the effective rate for O3 -> 2OH.
 This adjustment is based on the fraction of O(1D) that reacts with H2O to produce 2 OH.
@@ -1066,11 +1057,7 @@ function FastJX(t_ref::AbstractFloat; name = :FastJX)
 
     vars = @variables begin
         cosSZA(t), [description = "Cosine of the solar zenith angle"]
-
-        j_h2o2(t), [unit = u"s^-1"]
-        j_CH2Oa(t), [unit = u"s^-1"]
-        j_CH2Ob(t), [unit = u"s^-1"]
-        j_o31D(t), [unit = u"s^-1"]
+          
         j_o32OH(t), [unit = u"s^-1"]
         j_NO2(t), [unit = u"s^-1"]
         j_HOCl(t), [unit = u"s^-1"]
@@ -1144,13 +1131,9 @@ function FastJX(t_ref::AbstractFloat; name = :FastJX)
     j_o31D_adj = adjust_j_o31D(ParentScope(T), ParentScope(P), ParentScope(H2O))
 
     eqs = [cosSZA ~ cos_solar_zenith_angle(t + t_ref, lat, long);
-           j_h2o2 ~ j_mean_H2O2(T / T_unit, flux_vars) * 0.0557; #0.0557 is a parameter to adjust the calculated H2O2 photolysis to appropriate magnitudes.
-           j_CH2Oa ~ j_mean_CH2Oa(T / T_unit, flux_vars) * 0.945; #0.945 is a parameter to adjust the calculated CH2Oa photolysis to appropriate magnitudes.
-           j_CH2Ob ~ j_mean_CH2Ob(T / T_unit, flux_vars) * 0.813; #0.813 is a parameter to adjust the calculated CH2Ob photolysis to appropriate magnitudes.
-           j_o31D ~ j_mean_o31D(T / T_unit, flux_vars) * 2.33e-21; #2.33e-21 is a parameter to adjust the calculated O(^3)1D photolysis to appropriate magnitudes.
            j_o32OH ~ j_o31D * j_o31D_adj.j_O31D_adj;
-           j_CH3OOH ~ j_mean_CH3OOH(T / T_unit, flux_vars) * 0.0931; #0.0931 is a parameter to adjust the calculated CH3OOH photolysis to appropriate magnitudes.
-           j_NO2 ~ j_mean_NO2(T / T_unit, flux_vars) * 0.444
+           j_CH3OOH ~ j_mean_CH3OOH(T / T_unit, flux_vars);
+           j_NO2 ~ j_mean_NO2(T / T_unit, flux_vars);
            j_HOCl ~ j_mean_HOCl(T / T_unit, flux_vars);
            j_H2COb ~ j_mean_H2COb(T / T_unit, flux_vars);
            j_MeAcr ~ j_mean_MeAcr(T / T_unit, flux_vars);
@@ -1168,7 +1151,7 @@ function FastJX(t_ref::AbstractFloat; name = :FastJX)
            j_H1211 ~ j_mean_H1211(T / T_unit, flux_vars);
            j_BrO ~ j_mean_BrO(T / T_unit, flux_vars);
            j_CH3Cl ~ j_mean_CH3Cl(T / T_unit, flux_vars);
-           j_MEKeto ~ j_mean_MEKeto(T / T_unit, flux_vars);
+           j_MEKeto ~ j_mean_MEKeto(T/T_unit, flux_vars);
            j_PAN ~ j_mean_PAN(T / T_unit, flux_vars);
            j_H2402 ~ j_mean_H2402(T / T_unit, flux_vars);
            j_PrAld ~ j_mean_PrAld(T / T_unit, flux_vars);
