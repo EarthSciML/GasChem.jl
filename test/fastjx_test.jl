@@ -49,14 +49,14 @@ end
 
     @test test_1 ≈ u_1
 
-    j_H2O2_func = getsym(prob, fj.j_h2o2)
+    j_H2O2_func = getsym(prob, fj.j_H2O2)
     j_H2O2_value = j_H2O2_func(prob)
     j_want = GasChem.j_mean_H2O2(298.0, get_fluxes(3600 * 12.0, 40.0, -97.0, 101325)) 
     @test j_H2O2_value≈j_want rtol=0.004
 end
 
 # Unit Test 2: CH2O -> H + HO2 + CO
-@testitem "CH2Oa" setup=[FastJXSetup] begin
+@testitem "H2COa" setup=[FastJXSetup] begin
     u_2 = [8.642676785125311e-5, 8.64227156795509e-5, 8.641551181874694e-5]
 
     fluxes = get_fluxes(3600 * 12.0, 30.0, 0.0, 0.9)
@@ -69,14 +69,14 @@ end
     @test test_2 ≈ u_2
 
 
-    j_CH2Oa_func = getsym(prob, fj.j_CH2Oa)
-    j_CH2Oa_value = j_CH2Oa_func(prob)
-    @test j_CH2Oa_value≈GasChem.j_mean_CH2Oa(298.0,
+    j_H2COa_func = getsym(prob, fj.j_H2COa)
+    j_H2COa_value = j_H2COa_func(prob)
+    @test j_H2COa_value≈GasChem.j_mean_H2COa(298.0,
         get_fluxes(3600 * 12.0, 40.0, -97.0, 101325)
     ) rtol=1e-6
 end
 
-@testitem "CH2Ob" setup=[FastJXSetup] begin
+@testitem "H2COb" setup=[FastJXSetup] begin
     u_2 = [7.16264584129105e-5, 7.166900731492678e-5, 7.174464980740016e-5]
 
     fluxes = get_fluxes(3600 * 12.0, 30.0, 0.0, 0.9)
@@ -88,10 +88,10 @@ end
 
     @test test_2 ≈ u_2
 
-    j_CH2Ob_func = getsym(prob, fj.j_CH2Ob)
-    j_CH2Ob_value = j_CH2Ob_func(prob)
-    @test j_CH2Ob_value≈
-    GasChem.j_mean_CH2Ob(
+    j_H2COb_func = getsym(prob, fj.j_H2COb)
+    j_H2COb_value = j_H2COb_func(prob)
+    @test j_H2COb_value≈
+    GasChem.j_mean_H2COb(
         298.0,
         get_fluxes(3600 * 12.0, 40.0, -97.0, 101325)
     ) rtol=1e-6
