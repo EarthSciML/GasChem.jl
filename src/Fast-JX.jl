@@ -1131,7 +1131,7 @@ function FastJX(t_ref::AbstractFloat; name = :FastJX)
     j_o31D_adj = adjust_j_o31D(ParentScope(T), ParentScope(P), ParentScope(H2O))
 
     eqs = [cosSZA ~ cos_solar_zenith_angle(t + t_ref, lat, long);
-           j_o32OH ~ j_o31D * j_o31D_adj.j_O31D_adj;
+           j_o32OH ~ j_O31D * j_o31D_adj.j_O31D_adj;
            j_CH3OOH ~ j_mean_CH3OOH(T / T_unit, flux_vars);
            j_NO2 ~ j_mean_NO2(T / T_unit, flux_vars);
            j_HOCl ~ j_mean_HOCl(T / T_unit, flux_vars);
