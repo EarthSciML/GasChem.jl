@@ -122,7 +122,7 @@ function FastJX_interpolation_troposphere(t_ref::AbstractFloat; name = :FastJX)
            j_H2COa ~ j_mean_H2COa(T/T_unit, flux_vars);
            j_H2COb ~ j_mean_H2COb(T/T_unit, flux_vars);
            j_O31D ~ j_mean_O31D(T/T_unit, flux_vars);
-           j_o32OH ~ j_O31D*adjust_j_O31D(T, P, H2O);
+           j_o32OH ~ j_O31D * j_o31D_adj.j_O31D_adj;
            j_CH3OOH ~ j_mean_CH3OOH(T/T_unit, flux_vars); 
            j_NO2 ~ j_mean_NO2(T/T_unit, flux_vars)]
 
