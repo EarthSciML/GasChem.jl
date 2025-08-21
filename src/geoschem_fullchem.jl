@@ -430,7 +430,7 @@ function GEOSChemGasPhase(; name = :GEOSChemGasPhase, rxn_sys = false)
         return sys.k
     end
 
-    rx_sys = @reaction_network GEOSChemGasPhase begin
+    rx_sys = @network_component GEOSChemGasPhase begin
         # Comment format is:
         # Species   - Molecular formula; full name
         # Equations - Date modified; Reference; Developer initials
@@ -1080,12 +1080,12 @@ function GEOSChemGasPhase(; name = :GEOSChemGasPhase, rxn_sys = false)
             [unit=u"Pa", description="Pressure"],
             num_density=2.7e19,
             [
-            unit = u"molec/cm^3",    
+            unit = u"molec/cm^3",
             description="Number density of air.",
             ],
             num_density_inv=1,
             [
-            unit = u"cm^3/molec",    
+            unit = u"cm^3/molec",
             description="multiply by num_density to obtain the unitless value of num_density",
             ],
             k_mt1=0,
@@ -3191,10 +3191,10 @@ function GEOSChemGasPhase(; name = :GEOSChemGasPhase, rxn_sys = false)
         return rxns
     end
     sys = convert(
-        ODESystem,
-        rxns,
+        Catalyst.ReactionRateSystem,
+        complete(rxns),
         combinatoric_ratelaws = false,
         name = name,
-        metadata = Dict(:coupletype => GEOSChemGasPhaseCoupler)
+        metadata = Dict(CoupleType => GEOSChemGasPhaseCoupler)
     )
 end

@@ -71,7 +71,7 @@ function flux_eqs_interpolation(csa, P)
         push!(flux_vals, f)
     end
 
-    flux_vars, (flux_vars .~ flux_vals .* c_flux)
+    flux_vars, (flux_vars .~ collect(flux_vals) .* c_flux), c_flux # TODO(CT): remove "collect" when https://github.com/SciML/ModelingToolkit.jl/issues/3888 is fixed.
 end
 
 """
@@ -112,7 +112,9 @@ function FastJX_interpolation_troposphere(t_ref::AbstractFloat; name = :FastJX)
     @variables j_NO2(t) [unit = u"s^-1"]
     @variables cosSZA(t) [description = "Cosine of the solar zenith angle"]
 
-    flux_vars, fluxeqs = flux_eqs_interpolation(cosSZA, P/P_unit)
+    flux_vars, fluxeqs, c_flux = flux_eqs_interpolation(cosSZA, P/P_unit)
+    j_o31D_adj = adjust_j_o31D(ParentScope(T), ParentScope(P), ParentScope(H2O))
+
 
     eqs = [cosSZA ~ cos_solar_zenith_angle(t + t_ref, lat, long);
            fluxeqs;
@@ -120,17 +122,19 @@ function FastJX_interpolation_troposphere(t_ref::AbstractFloat; name = :FastJX)
            j_H2COa ~ j_mean_H2COa(T/T_unit, flux_vars);
            j_H2COb ~ j_mean_H2COb(T/T_unit, flux_vars);
            j_O31D ~ j_mean_O31D(T/T_unit, flux_vars);
-           j_o32OH ~ j_O31D*adjust_j_O31D(T, P, H2O);
+           j_o32OH ~ j_O31D * j_o31D_adj.j_O31D_adj;
            j_CH3OOH ~ j_mean_CH3OOH(T/T_unit, flux_vars); 
            j_NO2 ~ j_mean_NO2(T/T_unit, flux_vars)]
 
-    ODESystem(
+    fjx = System(
         eqs,
         t,
         [j_H2O2, j_H2COa, j_H2COb, j_o32OH, j_O31D, j_CH3OOH, j_NO2, cosSZA, flux_vars...],
-        [lat, long, T, P, H2O, t_ref];
+        [lat, long, T, P, H2O, t_ref, c_flux, T_unit, P_unit];
         name = name,
-        metadata = Dict(:coupletype => FastJXCoupler)
+        metadata = Dict(CoupleType => FastJXCoupler),
+        systems = [j_o31D_adj],
     )
+    return flatten(fjx) # Need to do flatten because otherwise coupling doesn't work correctly
 end
 FastJX_interpolation_troposphere(t_ref::DateTime; kwargs...) = FastJX_interpolation_troposphere(datetime2unix(t_ref); kwargs...)
