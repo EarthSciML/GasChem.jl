@@ -63,7 +63,6 @@ end
     @named base_sys = System(Equation[], t, [], [T, num_density])
     sys = mtkcompile(extend(GasChem.arrhenius_mlc_1(t, T, a0, b0, c0), base_sys))
     prob = ODEProblem(sys, [], (0.0, 3600.0))
-    expected = a0 * exp(c0 / 293.0) * (300.0 / 293.0)^b0
     @test getsym(prob, sys.k)(prob) ≈ 1.793786143019844e-14
 end
 
