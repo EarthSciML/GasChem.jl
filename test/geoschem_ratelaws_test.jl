@@ -7,7 +7,7 @@
 
     @parameters T=293.0 [unit = u"K"]
     @parameters num_density = 2.7e19,
-    [unit = u"molec/cm^3", description = "Number density of air."]
+    [unit = u"1/cm^3", description = "Number density of air."]
 end
 
 @testitem "constant_k" setup=[RateLawSetup] begin
@@ -89,14 +89,14 @@ end
 end
 
 @testitem "rate_HO2HO2" setup=[RateLawSetup] begin
-    H2O = 1000.0  # ppb
+    @parameters H2O=1000.0, [unit=u"1.0", description="H2O; Water vapor"]
     a0, c0 = 3.00e-13, 460.0
     a1, c1 = 2.1e-33, 920.0
-    @named base_sys = System(Equation[], t, [], [T, num_density])
+    @named base_sys = System(Equation[], t, [], [T, num_density, H2O])
     sys = mtkcompile(extend(GasChem.rate_HO2HO2(t, T, num_density, H2O, a0, c0, a1, c1), base_sys))
     prob = ODEProblem(sys, [], (0.0, 3600.0))
     k_val = getsym(prob, sys.k)(prob)
-    @test k_val ≈ 0
+    @test k_val ≈ 0.07430493859316299
 end
 
 @testitem "rate_OHCO" setup=[RateLawSetup] begin
@@ -173,7 +173,7 @@ end
     sys = mtkcompile(extend(GasChem.eq_const(t, T, num_density, a0, c0, a1, b1, a2, b2, fv), base_sys))
     prob = ODEProblem(sys, [], (0.0, 3600.0))
     k_val = getsym(prob, sys.k)(prob)
-    @test k_val ≈ 0
+    @test k_val ≈ 2.1206340759025532e-27
 end
 
 @testitem "eq_const_1" setup=[RateLawSetup] begin
@@ -252,15 +252,6 @@ end
     @test k_val ≈ 3.567255335036053e-5
 end
 
-@testitem "arrplus_mlc" setup=[RateLawSetup] begin
-    a0, b0, c0, d0, e0 = 1.0e-12, 298.0, 0.0, 1.0, 0.0
-    @named base_sys = System(Equation[], t, [], [T, num_density])
-    sys = mtkcompile(extend(GasChem.arrplus_mlc(t, T, a0, b0, c0, d0, e0), base_sys))
-    prob = ODEProblem(sys, [], (0.0, 3600.0))
-    k_val = getsym(prob, sys.k)(prob)
-    @test k_val ≈ 0
-end
-
 @testitem "arrplus_mlc_1" setup=[RateLawSetup] begin
     a0, b0, c0, d0, e0 = 1.0e-12, 298.0, 0.0, 1.0, 0.0
     @named base_sys = System(Equation[], t, [], [T, num_density])
@@ -277,15 +268,6 @@ end
     prob = ODEProblem(sys, [], (0.0, 3600.0))
     k_val = getsym(prob, sys.k)(prob)
     @test k_val ≈ 0.009764682205778403
-end
-
-@testitem "tunplus_mlc" setup=[RateLawSetup] begin
-    a0, b0, c0, d0, e0 = 1.0e-12, 298.0, 1.0e8, 1.0, 0.0
-    @named base_sys = System(Equation[], t, [], [T, num_density])
-    sys = mtkcompile(extend(GasChem.tunplus_mlc(t, T, a0, b0, c0, d0, e0), base_sys))
-    prob = ODEProblem(sys, [], (0.0, 3600.0))
-    k_val = getsym(prob, sys.k)(prob)
-    @test k_val ≈ 0
 end
 
 @testitem "tunplus_mlc_1" setup=[RateLawSetup] begin

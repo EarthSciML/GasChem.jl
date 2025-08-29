@@ -536,7 +536,7 @@ function eq_const(
     num_density = ParentScope(num_density)
     @named k0 = arrhenius_ppb(t, T, num_density, a0, 0, c0)  # backwards rxn rate
     @named k1 = arr_3rdbody(t, T, num_density, a1, b1, 0, a2, b2, 0, fv)  # forwards rxn rate
-    @constants unit_conv = 1.0, [unit = unit]
+    consts = @constants unit_conv = 1.0, [unit = unit]
     @variables k(t) [unit = unit]
     ODESystem(
         [k ~ k1.k / k0.k * unit_conv], t, [k], consts; systems = [k0, k1], name = name)
@@ -743,30 +743,6 @@ function rate_GLYXNO3(t, T, num_density, a0, c0; name = :rate_GLYXNO3)
 end
 
 """
-Modified Arrhenius law with output in units `cm³·molec⁻¹·s⁻¹`.
-"""
-function arrplus_mlc(
-        t, T, a0, b0, c0, d0, e0; unit = u"cm^3*molec^-1*s^-1", name = :arrplus_mlc)
-    T = ParentScope(T)
-    consts = @constants begin
-        K_300 = 300, [unit = u"K"]
-        a0 = a0, [unit = unit]
-        b0 = b0, [unit = u"K"]
-        e0 = e0, [unit = u"K^-1"]
-        zero = 0.0, [unit = unit]
-    end
-    @variables(k(t), [unit = unit], kx(t), [unit = unit],)
-    ODESystem(
-        [kx ~ a0 * (d0 + (T * e0)) * exp(-b0 / T) * (T / K_300)^c0
-         k ~ max(kx, zero)],
-        t,
-        [k, kx],
-        consts;
-        name = name
-    )
-end
-
-"""
 Modified Arrhenius law with output in units `s⁻¹`.
 """
 function arrplus_mlc_1(t, T, a0, b0, c0, d0, e0; unit = u"s^-1", name = :arrplus_mlc_1)
@@ -819,33 +795,6 @@ function arrplus_ppb(
     )
 end
 
-"""
-Computes a temperature-dependent reaction rate constant using a modified
-Arrhenius expression with additional tunneling effect terms.
-Used to compute the rate for these reactions with output in units `cm³·molec⁻¹·s⁻¹`:
-IHOO1 = 1.5OH + ...
-IHOO4 = 1.5OH + ...
-"""
-function tunplus_mlc(
-        t, T, a0, b0, c0, d0, e0; unit = u"cm^3*molec^-1*s^-1", name = :tunplus_mlc)
-    T = ParentScope(T)
-    consts = @constants begin
-        a0 = a0, [unit = unit]
-        b0 = b0, [unit = u"K"]
-        c0 = c0, [unit = u"K^3"]
-        e0 = e0, [unit = u"K^-1"]
-        zero = 0.0, [unit = unit]
-    end
-    @variables(k0(t), [unit = unit], k(t), [unit = unit],)
-    ODESystem(
-        [k0 ~ a0 * (d0 + (T * e0)) * exp(b0 / T) * exp(c0 / T^3)
-         k ~ max(k0, zero)],
-        t,
-        [k0, k],
-        consts;
-        name = name
-    )
-end
 
 """
 Computes a temperature-dependent reaction rate constant using a modified
