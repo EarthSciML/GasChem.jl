@@ -6,8 +6,10 @@
     using GasChem, Test
 
     @parameters T=293.0 [unit = u"K"]
-    @parameters num_density = 2.7e19,
-    [unit = u"1/cm^3", description = "Number density of air."]
+    N_A = 6.02214076e23 # Avogadro's number
+    cm3_m3 = 1e6
+    @parameters num_density = 2.7e19 / N_A * cm3_m3,
+    [unit = u"mol/m^3", description = "Number density of air."]
 end
 
 @testitem "constant_k" setup=[RateLawSetup] begin

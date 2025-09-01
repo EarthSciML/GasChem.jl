@@ -1078,14 +1078,14 @@ function GEOSChemGasPhase(; name = :GEOSChemGasPhase, rxn_sys = false)
             [unit=u"K", description="Temperature"],
             P=101325,
             [unit=u"Pa", description="Pressure"],
-            num_density=2.7e19,
+            num_density=2.7e19 / N_A * cm3_m3,
             [
-            unit = u"molec/cm^3",
+            unit = u"mol/m^3",
             description="Number density of air.",
             ],
             num_density_inv=1,
             [
-            unit = u"cm^3/molec",
+            unit = u"m^3/mol",
             description="multiply by num_density to obtain the unitless value of num_density",
             ],
             k_mt1=0,

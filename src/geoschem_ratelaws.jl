@@ -2,6 +2,9 @@
 # Adapted from https://github.com/geoschem/geos-chem/tree/4722f288e90291ba904222f4bbe4fc216d17c34a/KPP/fullchem
 # The GEOS-Chem license applies: https://github.com/geoschem/geos-chem/blob/main/LICENSE.txt
 
+const N_A = 6.02214076e23 # Avogadro's number
+const cm3_m3 = 1e6
+
 """
 Function to create a constant rate coefficient for second-order reactions
 """
@@ -9,7 +12,7 @@ function constant_k(t, T, num_density, c; unit = u"ppb^-1*s^-1", name = :constan
     T = ParentScope(T)
     num_density = ParentScope(num_density)
     consts = @constants begin
-        c = c, [unit = u"molec^-1*cm^3*s^-1"]
+        c = c * N_A / cm3_m3, [unit = u"mol^-1*m^3*s^-1"]
         ppb_unit = 1e-9, [unit = u"ppb^-1", description = "Convert from mol/mol_air to ppb"]
     end
     @variables(k(t), [unit = unit],)
@@ -34,10 +37,10 @@ function regress_T(t, T, num_density, a_0, b_0, T_0; name = :acet_oh)
     num_density = ParentScope(num_density)
     consts = @constants begin
         T_0 = T_0, [unit = u"K"]
-        a_0 = a_0 #[unit = u"cm^3*molec^-1*s^-1"]
-        b_0 = b_0 #[unit = u"cm^3*molec^-1*s^-1"]
+        a_0 = a_0
+        b_0 = b_0
         ppb_unit = 1e-9, [unit = u"ppb^-1", description = "Convert from mol/mol_air to ppb"]
-        unit_conv = 1.0, [unit = u"cm^3*molec^-1*s^-1"]
+        unit_conv = 1.0 / cm3_m3 * N_A, [unit = u"m^3*mol^-1*s^-1"]
     end
     @variables k(t) [unit = u"ppb^-1*s^-1"]
 
@@ -63,7 +66,7 @@ function arrhenius_ppb(
         b0 = b0
         c0 = c0, [unit = u"K"]
         ppb_unit = 1e-9, [unit = u"ppb^-1", description = "Convert from mol/mol_air to ppb"]
-        unit_conv = 1.0, [unit = u"cm^3*molec^-1*s^-1"]
+        unit_conv = 1.0 / cm3_m3 * N_A, [unit = u"m^3*mol^-1*s^-1"]
     end
     @variables k(t) [unit = unit]
     C = num_density * ppb_unit * unit_conv
