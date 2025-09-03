@@ -87,7 +87,7 @@ end
     sys = mtkcompile(extend(GasChem.arr_3rdbody_1(t, T, num_density, a1, b1, c1, a2, b2, c2, fv), base_sys))
     prob = ODEProblem(sys, [], (0.0, 3600.0))
     k_val = getsym(prob, sys.k)(prob)
-    @test k_val ≈ 6.661881646263328e-18
+    @test k_val ≈ 6.661881646263327e-12
 end
 
 @testitem "rate_HO2HO2" setup=[RateLawSetup] begin

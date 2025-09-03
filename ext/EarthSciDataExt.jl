@@ -76,14 +76,9 @@ function EarthSciMLBase.couple2(
         [unit=u"kg/mol", description="Sulfur dioxide molar mass"],
         MW_ISOP=68.12e-3,
         [unit=u"kg/mol", description="Isoprene molar mass"],
-        nmolpermol=1e9,
-        [unit=u"ppb", description="nmol/mol, Conversion factor from mol to nmol"],
-        R=8.31446261815324,
-        [unit=u"m^3*Pa/mol/K", description="Ideal gas constant"],
-        NA=6.02214076e23,
-        [unit=u"molec/mol", description="The Avogadro constant"],
-        num_den_unit_conv = 1e6,
-        [unit = u"cm^3/m^3"],)
+        ppb_unit=1e9,
+        [unit=u"ppb", description="ppb unit"],
+        )
 
     # Emissions are in units of "kg/m3/s" and need to be converted to "ppb/s" or "nmol/mol/s".
     # To do this we need to convert kg of emissions to nmol of emissions,
@@ -92,7 +87,7 @@ function EarthSciMLBase.couple2(
     # mol_air = m3_air / R / T * P = m3 / (m3*Pa/mol/K) / K * Pa = mol
     # So, the overall conversion is:
     # nmol_emissions / mol_air = (kg_emissions / MW_emission * nmolpermol) / (m3_air / R / T * P)
-    uconv = NA * nmolpermol / (c.num_density * num_den_unit_conv)
+    uconv = ppb_unit / c.num_density
     #TODO(CT): Add missing couplings.
     operator_compose(
         convert(ODESystem, c),
@@ -150,16 +145,11 @@ function EarthSciMLBase.couple2(
     #TODO(CT): Add missing couplings.
     c = param_to_var(c, :T, :num_density)
     @constants(
-        R=8.31446261815324,
-        [unit=u"m^3*Pa/mol/K", description="Ideal gas constant"],
-        NA=6.02214076e23,
-        [unit=u"molec/mol", description="The Avogadro constant"],
-        num_den_unit_conv = 1e6,
-        [unit = u"cm^3/m^3"],
+        R=8.31446261815324, [unit=u"m^3*Pa/mol/K", description="Ideal gas constant"],
     )
     ConnectorSystem([
         c.T ~ gfp.I3₊T, 
-        c.num_density * num_den_unit_conv ~ (gfp.P / R * NA / gfp.I3₊T)
+        c.num_density  ~ (gfp.P / R / gfp.I3₊T)
         ], c, gfp)
 end
 
