@@ -1088,7 +1088,7 @@ function GEOSChemGasPhase(; name = :GEOSChemGasPhase, rxn_sys = false)
             unit = u"mol/m^3",
             description="Number density of air.",
             ],
-            num_density_inv=1,
+            num_density_inv= N_A / cm3_m3,
             [
             unit = u"m^3/mol",
             description="multiply by num_density to obtain the unitless value of num_density",
