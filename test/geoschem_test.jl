@@ -10,8 +10,8 @@ end
 
 # Unit Test 0: Base case
 @testitem "Base case" setup=[GEOSChemGasPhaseSetup] begin
-    u_0 = [3.833601143657688e-6, 2.565590651065059, 4.741655927949206, 
-           4.0e-323, 2.12451928742871e-5, 5.111538549832941, 203.66003431702717]
+    u_0 = [19.995176711847932, 0.002380578760821661, 0.0, 9.428652108253236e-251, 
+    5.879149823894928e-6, 0.0, 1.840000000235526e7]
 
     vals = ModelingToolkit.get_defaults(sys)
     for k in setdiff(unknowns(sys), keys(vals))
@@ -27,14 +27,14 @@ end
 
 # Unit Test 1: O1D sensitivity to O3
 @testitem "O1D sensitivity to O3" setup=[GEOSChemGasPhaseSetup] begin
-    u_1 = 1.6797552256348174e-8
+    u_1 = 5.129930507052904e-7
 
     vals = ModelingToolkit.get_defaults(sys)
     @unpack O3, O1D = sys
     vals[O3] = 20
-    vals[O1D] = 0
+    vals[O1D] = 1E-6
     o1 = solve(ODEProblem(sys, vals, tspan), Rosenbrock23())
-    vals[O1D] = 10
+    vals[O1D] = 1E-6 * 1.1E0
     o2 = solve(ODEProblem(sys, vals, tspan), Rosenbrock23())
     test1 = o1[O3][end] - o2[O3][end]
 
@@ -43,14 +43,14 @@ end
 
 # Unit Test 2: OH sensitivity to O3
 @testitem "OH sensitivity to O3" setup=[GEOSChemGasPhaseSetup] begin
-    u_2 = 1.382042082942887e-6
+    u_2 = 2.761839468234939e-8
 
     vals = ModelingToolkit.get_defaults(sys)
     @unpack O3, OH = sys
     vals[O3] = 20
-    vals[OH] = 0
+    vals[OH] = 4E-6
     o1 = solve(ODEProblem(sys, vals, tspan), Rosenbrock23(), abstol = 1e-6, reltol = 1e-6)
-    vals[OH] = 1000
+    vals[OH] = 4E-6 * 1.05E0
     o2 = solve(ODEProblem(sys, vals, tspan), Rosenbrock23(), abstol = 1e-6, reltol = 1e-6)
     test2 = o1[O3][end] - o2[O3][end]
 
@@ -59,14 +59,14 @@ end
 
 # Unit Test 3: NO2 sensitivity to O3
 @testitem "NO2 sensitivity to O3" setup=[GEOSChemGasPhaseSetup] begin
-    u_3 =  -3.4336010807325956e-7
+    u_3 =  1.1784680253867919e-7
 
     vals = ModelingToolkit.get_defaults(sys)
     @unpack O3, NO2 = sys
     vals[O3] = 20
-    vals[NO2] = 20
+    vals[NO2] = 4E-4
     o1 = solve(ODEProblem(sys, vals, tspan), Rosenbrock23(), abstol = 1e-6, reltol = 1e-6)
-    vals[NO2] = 4000
+    vals[NO2] = 4E-4 * 1.05E0
     o2 = solve(ODEProblem(sys, vals, tspan), Rosenbrock23(), abstol = 1e-6, reltol = 1e-6)
     test3 = o1[O3][end] - o2[O3][end]
 
@@ -75,14 +75,14 @@ end
 
 # Unit Test 4: HO2 sensitivity to O3
 @testitem "HO2 sensitivity to O3" setup=[GEOSChemGasPhaseSetup] begin
-    u_4 = 2.4732115224621195e-7
+    u_4 = 1.589129183798832e-8
 
     vals = ModelingToolkit.get_defaults(sys)
     @unpack O3, HO2 = sys
     vals[O3] = 20
-    vals[HO2] = 0
+    vals[HO2] = 4E-6
     o1 = solve(ODEProblem(sys, vals, tspan), Rosenbrock23(), abstol = 1e-6, reltol = 1e-6)
-    vals[HO2] = 20
+    vals[HO2] = 4E-6 * 1.05E0
     o2 = solve(ODEProblem(sys, vals, tspan), Rosenbrock23(), abstol = 1e-6, reltol = 1e-6)
     test4 = o1[O3][end] - o2[O3][end]
 
