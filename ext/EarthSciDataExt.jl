@@ -76,8 +76,6 @@ function EarthSciMLBase.couple2(
         [unit=u"kg/mol", description="Sulfur dioxide molar mass"],
         MW_ISOP=68.12e-3,
         [unit=u"kg/mol", description="Isoprene molar mass"],
-        ppb_unit=1e9,
-        [unit=u"ppb", description="ppb unit"],
         )
 
     # Emissions are in units of "kg/m3/s" and need to be converted to "ppb/s" or "nmol/mol/s".
@@ -87,7 +85,7 @@ function EarthSciMLBase.couple2(
     # mol_air = m3_air / R / T * P = m3 / (m3*Pa/mol/K) / K * Pa = mol
     # So, the overall conversion is:
     # nmol_emissions / mol_air = (kg_emissions / MW_emission * nmolpermol) / (m3_air / R / T * P)
-    uconv = ppb_unit / c.num_density
+    uconv = 1e9 / c.num_density
     #TODO(CT): Add missing couplings.
     operator_compose(
         convert(ODESystem, c),
