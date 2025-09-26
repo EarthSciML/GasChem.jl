@@ -274,7 +274,7 @@ function SuperFast(; name = :SuperFast, rxn_sys = false)
             H2O=1.839e7,
             [isconstantspecies=true, unit=u"ppb"],)
 
-        @species(O3(t)=20.0,
+        @species(O3(t)=40.0,
             [unit=u"ppb"],
             OH(t)=4e-6,
             [unit=u"ppb"],
