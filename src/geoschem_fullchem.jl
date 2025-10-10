@@ -723,12 +723,12 @@ function GEOSChemGasPhase(; name = :GEOSChemGasPhase, rxn_sys = false)
             TRO2(t)=0.0, [unit=u"ppb", description="Peroxy radical from TOLU oxidation"],
             XYLE(t)=0.0, [unit=u"ppb", description="C8H10; Xylene"],
             XRO2(t)=0.0, [unit=u"ppb", description="Peroxy radical from XYLE oxidation"],
-            H2(t)=5E2, [unit=u"ppb", description="H2; Molecular hydrogen"],
-            N2(t)=7.81E8, [unit=u"ppb", description="N2; Molecular nitrogen"],
-            O2(t)=2.1E8, [unit=u"ppb", description="O2; Molecular oxygen"],
             RCOOH(t)=0.0, [unit=u"ppb", description="C2H5C(O)OH; > C2 organic acids "],)
 
         @parameters(
+            H2=5E2, [isconstantspecies=true, unit=u"ppb", description="H2; Molecular hydrogen"],
+            N2=7.81E8, [isconstantspecies=true, unit=u"ppb", description="N2; Molecular nitrogen"],
+            O2=2.1E8, [isconstantspecies=true, unit=u"ppb", description="O2; Molecular oxygen"],
             N_A=6.02214076e23,
             [description="Avogadro's number"],
             cm3_m3=1e6,

@@ -27,7 +27,7 @@ end
 
 # Unit Test 1: O1D sensitivity to O3
 @testitem "O1D sensitivity to O3" setup=[GEOSChemGasPhaseSetup] begin
-    u_1 = 5.129930507052904e-7
+    u_1 = 8.160593694128693e-7
 
     vals = ModelingToolkit.get_defaults(sys)
     @unpack O3, O1D = sys
@@ -43,7 +43,7 @@ end
 
 # Unit Test 2: OH sensitivity to O3
 @testitem "OH sensitivity to O3" setup=[GEOSChemGasPhaseSetup] begin
-    u_2 = 2.761839468234939e-8
+    u_2 = 8.209088520061414e-9
 
     vals = ModelingToolkit.get_defaults(sys)
     @unpack O3, OH = sys
@@ -75,7 +75,7 @@ end
 
 # Unit Test 4: HO2 sensitivity to O3
 @testitem "HO2 sensitivity to O3" setup=[GEOSChemGasPhaseSetup] begin
-    u_4 = 1.589129183798832e-8
+    u_4 = 1.6049252593575147e-8
 
     vals = ModelingToolkit.get_defaults(sys)
     @unpack O3, HO2 = sys
