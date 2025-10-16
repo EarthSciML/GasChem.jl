@@ -263,6 +263,10 @@ function SuperFast(; name = :SuperFast, rxn_sys = false)
             [unit=u"s^-1"],
             jCH3OOH=8.9573e-6,
             [unit=u"s^-1"],
+            jA = 1.0,
+            [unit=u"s^-1"],
+            jB = 1.0,
+            [unit=u"s^-1"],
             T=280.0,
             [unit=u"K", description="Temperature"],
             P=101325,
@@ -299,6 +303,10 @@ function SuperFast(; name = :SuperFast, rxn_sys = false)
             H2O2(t)=4e-6,
             [unit=u"ppb"],
             HNO3(t)=4e-6,
+            [unit=u"ppb"],
+            A(t)=40.0,
+            [unit=u"ppb"],
+            B(t)=40.0,
             [unit=u"ppb"],)
 
         #Gas-phase reactions
@@ -332,6 +340,10 @@ function SuperFast(; name = :SuperFast, rxn_sys = false)
         jH2COa, CH2O --> HO2 + HO2 + CO
         jH2COb, CH2O --> CO
         jCH3OOH, CH3OOH --> CH2O + HO2 + OH
+
+        # Tracer
+        jA, A --> B
+        jB, B --> A
     end
     rxns = compose(rx_sys, rate_systems)
     if rxn_sys
