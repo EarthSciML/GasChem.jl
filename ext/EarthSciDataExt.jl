@@ -207,8 +207,8 @@ c, e = c.sys, e.sys
     # [unit=u"kg/mol", description="Sulfur dioxide molar mass"],
     MW_ALD2=44.052e-3,
     [unit=u"kg/mol", description="Aldehyde molar mass"],
-    MW_ALDX=58.08e-3,
-    [unit=u"kg/mol", description="Aldehyde molar mass"],
+    # MW_ALDX=58.08e-3,
+    # [unit=u"kg/mol", description="Aldehyde molar mass"],
     MW_Air=28.97e-3,
     [unit=u"kg/mol", description="Molar mass of air"],
     nmolpermol=1e9,
@@ -225,7 +225,7 @@ operator_compose(
         c.CH2O => e.FORM => uconv / MW_FORM,
         c.CO => e.CO => uconv / MW_CO,
         c.ALD => e.ALD2 => uconv / MW_ALD2,
-        c.ALD => e.ALDX => uconv / MW_ALDX,
+        # c.ALD => e.ALDX => uconv / MW_ALDX,
     )
 )
 end

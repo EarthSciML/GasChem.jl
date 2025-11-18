@@ -123,7 +123,7 @@ function EarthSciMLBase.couple2(c::PolluCoupler, p::FastJXCoupler)
         [c.jNO2_O3P ~ p.j_NO2
          c.jH2COa ~ p.j_H2COa
          c.jH2COb ~ p.j_H2COb
-         c.jALD ~ p.j_PrAld
+         c.jALD ~ p.j_ActAld
          c.jPAN ~ p.j_PAN
          c.jO3_O1D ~ p.j_O31D
          c.jO3_O3P ~ p.j_O3
