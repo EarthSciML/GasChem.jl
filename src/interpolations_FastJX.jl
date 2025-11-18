@@ -110,12 +110,24 @@ function FastJX_interpolation_troposphere(t_ref::AbstractFloat; name = :FastJX)
     @variables j_o32OH(t) [unit = u"s^-1"]
     @variables j_CH3OOH(t) [unit = u"s^-1"]
     @variables j_NO2(t) [unit = u"s^-1"]
+    @variables j_PrAld(t) [unit = u"s^-1"]
+    @variables j_PAN(t) [unit = u"s^-1"]
+    @variables j_NO3b(t) [unit = u"s^-1"]
+    @variables j_NO3a(t) [unit = u"s^-1"]
+    @variables j_N2O5(t) [unit = u"s^-1"]
+    @variables j_O3(t) [unit = u"s^-1"]
     @variables cosSZA(t) [description = "Cosine of the solar zenith angle"]
 
     flux_vars, fluxeqs = flux_eqs_interpolation(cosSZA, P/P_unit)
 
     eqs = [cosSZA ~ cos_solar_zenith_angle(t + t_ref, lat, long);
            fluxeqs;
+           j_PrAld ~ j_mean_PrAld(T/T_unit, flux_vars);
+           j_PAN ~ j_mean_PAN(T/T_unit, flux_vars);
+           j_O3 ~ j_mean_O3(T/T_unit, flux_vars);
+           j_NO3b ~ j_mean_NO3b(T/T_unit, flux_vars);
+           j_NO3a ~ j_mean_NO3a(T/T_unit, flux_vars);
+           j_N2O5 ~ j_mean_N2O5(T/T_unit, flux_vars);
            j_H2O2 ~ j_mean_H2O2(T/T_unit, flux_vars);
            j_H2COa ~ j_mean_H2COa(T/T_unit, flux_vars);
            j_H2COb ~ j_mean_H2COb(T/T_unit, flux_vars);
@@ -127,7 +139,7 @@ function FastJX_interpolation_troposphere(t_ref::AbstractFloat; name = :FastJX)
     ODESystem(
         eqs,
         t,
-        [j_H2O2, j_H2COa, j_H2COb, j_o32OH, j_O31D, j_CH3OOH, j_NO2, cosSZA, flux_vars...],
+        [j_H2O2, j_H2COa, j_H2COb, j_o32OH, j_O31D, j_CH3OOH, j_NO2, j_O3, j_NO3b, j_NO3a, j_N2O5, j_PrAld, j_PAN, cosSZA, flux_vars...],
         [lat, long, T, P, H2O, t_ref];
         name = name,
         metadata = Dict(:coupletype => FastJXCoupler)

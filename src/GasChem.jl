@@ -16,6 +16,7 @@ using BSON
 #TODO if @register_unit ppb 1e-9u"mol/mol_air" if @register_unit ppb 1e-9u"mol/mol_air", though it's physically correct, but this will result ModelingToolkit.ValidationError when coupling different models.
 
 include("SuperFast.jl")
+include("Pollu.jl")
 include("geoschem_ratelaws.jl")
 include("geoschem_fullchem.jl")
 include("fastjx_interp.jl")
