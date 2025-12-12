@@ -1,7 +1,7 @@
 name = "GasChem"
 uuid = "58070593-4751-4c87-a5d1-63807d11d76c"
-authors = ["EarthSciML authors and contributors"]
 version = "0.11.0"
+authors = ["EarthSciML authors and contributors"]
 
 [deps]
 BSON = "fbb218c0-5317-5bc6-957e-2ee96dd4b1f0"
@@ -29,7 +29,7 @@ DynamicQuantities = "1"
 EarthSciData = "0.14"
 EarthSciMLBase = "0.24"
 Interpolations = "0.16"
-ModelingToolkit = "10"
+ModelingToolkit = "10, 11"
 OrdinaryDiffEqRosenbrock = "1.10.1"
 SciMLBase = "2.114.0"
 StaticArrays = "1.9"
