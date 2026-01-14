@@ -1,0 +1,11 @@
+url_path,views_total,views_unique
+/EarthSciML/GasChem.jl,10,4
+/EarthSciML/GasChem.jl/tree/main/src,4,2
+/EarthSciML/GasChem.jl/blob/main/ext/EarthSciDataExt.jl,3,1
+/EarthSciML/GasChem.jl/tree/main/ext,3,1
+/EarthSciML/GasChem.jl/blob/739f5e2b25e32a712bc3ffa2845c91bca3cce234/src/geoschem_fullchem.jl,2,1
+/EarthSciML/GasChem.jl/issues,2,1
+/EarthSciML/GasChem.jl/actions/workflows/Downgrade.yml,1,1
+/EarthSciML/GasChem.jl/blob/65d16d2361c16ff1b47af47845773864a0d667ff/src/interpolations_FastJX.jl,1,1
+/EarthSciML/GasChem.jl/blob/739f5e2b25e32a712bc3ffa2845c91bca3cce234/src/geoschem_ratelaws.jl,1,1
+/EarthSciML/GasChem.jl/blob/main/src/Fast-JX.jl,1,1
