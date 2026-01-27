@@ -25,4 +25,16 @@ include("Fast-JX.jl")
 include("interpolations_FastJX.jl")
 include("fastjx_couplings.jl")
 
+# Tropospheric chemistry from Seinfeld & Pandis Chapter 6
+include("oh_production.jl")
+include("nox_photochemistry.jl")
+include("co_oxidation.jl")
+include("methane_oxidation.jl")
+include("combined_system.jl")
+
+export OHProduction, NOxPhotochemistry, COOxidation, MethaneOxidation, MethaneOxidationODE
+export PhotostationaryState, OzoneProductionEfficiency
+export TroposphericChemistrySystem
+export get_typical_conditions, get_urban_conditions, get_remote_conditions
+
 end

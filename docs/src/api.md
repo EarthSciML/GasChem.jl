@@ -1,10 +1,37 @@
-## Index
+# API Reference
 
-```@index
+## OH Production (Section 6.1)
+
+```@docs
+OHProduction
 ```
 
-## API Documentation
+## NOx Photochemistry (Section 6.2)
 
-```@autodocs
-Modules = [GasChem]
+```@docs
+NOxPhotochemistry
+PhotostationaryState
+```
+
+## CO Oxidation (Section 6.3)
+
+```@docs
+COOxidation
+OzoneProductionEfficiency
+```
+
+## Methane Oxidation (Section 6.4)
+
+```@docs
+MethaneOxidation
+MethaneOxidationODE
+```
+
+## Combined System
+
+```@docs
+TroposphericChemistrySystem
+get_typical_conditions
+get_urban_conditions
+get_remote_conditions
 ```
