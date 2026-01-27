@@ -24,5 +24,6 @@ include("direct_flux.jl")
 include("Fast-JX.jl")
 include("interpolations_FastJX.jl")
 include("fastjx_couplings.jl")
+include("StratosphericChemistry.jl")
 
 end
