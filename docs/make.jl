@@ -16,6 +16,7 @@ makedocs(;
     ),
     pages = [
         "Home" => "index.md",
+        "Atmospheric Lifetime" => "AtmosphericLifetime.md",
         "SuperFast" => "superfast.md",
         "GEOS-Chem" => [
             "Overview" => "geoschem/overview.md",
