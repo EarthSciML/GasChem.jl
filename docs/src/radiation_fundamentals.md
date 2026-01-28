@@ -15,6 +15,17 @@ The equations describe:
 
 **Reference**: Seinfeld, J.H. and Pandis, S.N. (2006). *Atmospheric Chemistry and Physics: From Air Pollution to Climate Change*, 2nd Edition. John Wiley & Sons, Inc., Hoboken, New Jersey. Chapter 4, pp. 98-105.
 
+```@docs
+PhotonEnergy
+BlackbodyRadiation
+WienDisplacement
+StefanBoltzmann
+PlanetaryEnergyBalance
+ClimateSensitivity
+TOARadiativeForcing
+RadiationFundamentals
+```
+
 ### Physical Constants
 
 The following fundamental constants are used throughout:
@@ -283,15 +294,13 @@ The Planck function describes the spectral distribution of radiation emitted by 
 ```@example radiation
 using Plots
 
-# Physical constants
-h = 6.626e-34  # Planck's constant (J·s)
-c = 2.9979e8   # Speed of light (m/s)
-k = 1.381e-23  # Boltzmann constant (J/K)
+# Use the BlackbodyRadiation MTK component to compute spectra
+@named bb_analysis = BlackbodyRadiation()
+compiled_bb = mtkcompile(bb_analysis)
 
-# Planck function
-function planck(lambda, T)
-    return 2 * pi * c^2 * h * lambda^(-5) / (exp(c * h / (k * lambda * T)) - 1)
-end
+# Also use WienDisplacement for peak wavelengths
+@named wien_analysis = WienDisplacement()
+compiled_wien_analysis = mtkcompile(wien_analysis)
 
 # Wavelength range (in meters)
 lambda_range = 10 .^ range(-7, -4, length=500)  # 100 nm to 100 um
@@ -307,13 +316,27 @@ p1 = plot(xlabel="Wavelength (m)", ylabel="Spectral Radiance (W/m³)",
           xlims=(1e-7, 1e-4), ylims=(1e0, 1e14),
           legend=:topright, size=(700, 500))
 
+bb_prob = NonlinearProblem(compiled_bb, Dict(); build_initializeprob=false)
+wien_prob = NonlinearProblem(compiled_wien_analysis, Dict(); build_initializeprob=false)
+
 for (T, col, lab) in zip(temperatures, colors, labels)
-    F = planck.(lambda_range, T)
+    # Compute spectrum using BlackbodyRadiation component
+    F = Float64[]
+    for λ in lambda_range
+        prob_i = remake(bb_prob, p = [compiled_bb.T => Float64(T), compiled_bb.λ => λ])
+        sol_i = solve(prob_i)
+        push!(F, sol_i[compiled_bb.F_B_λ])
+    end
     plot!(p1, lambda_range, F, label=lab, color=col, linewidth=2)
 
-    # Mark peak wavelength (Wien's law)
-    lambda_max = 2.897e-3 / T
-    F_max = planck(lambda_max, T)
+    # Mark peak wavelength using WienDisplacement component
+    wien_prob_i = remake(wien_prob, p = [compiled_wien_analysis.T => Float64(T)])
+    wien_sol = solve(wien_prob_i)
+    lambda_max = wien_sol[compiled_wien_analysis.λ_max]
+
+    bb_peak_prob = remake(bb_prob, p = [compiled_bb.T => Float64(T), compiled_bb.λ => lambda_max])
+    bb_peak_sol = solve(bb_peak_prob)
+    F_max = bb_peak_sol[compiled_bb.F_B_λ]
     scatter!(p1, [lambda_max], [F_max], color=col, markersize=6, label="")
 end
 
@@ -485,9 +508,19 @@ p4 = plot(temperatures, emissive_power,
           linewidth=2, color=:orange,
           size=(600, 400))
 
-# Mark key temperatures
-scatter!(p4, [255], [5.671e-8 * 255^4], color=:blue, markersize=8, label="Earth eq. (255 K)")
-scatter!(p4, [288], [5.671e-8 * 288^4], color=:red, markersize=8, label="Earth surface (288 K)")
+# Mark key temperatures using the StefanBoltzmann component
+sb_prob = NonlinearProblem(compiled_sb, Dict(); build_initializeprob=false)
+
+sb_eq_prob = remake(sb_prob, p = [compiled_sb.T => 255.0])
+sb_eq_sol = solve(sb_eq_prob)
+F_eq = sb_eq_sol[compiled_sb.F_B]
+
+sb_surf_prob = remake(sb_prob, p = [compiled_sb.T => 288.0])
+sb_surf_sol = solve(sb_surf_prob)
+F_surf = sb_surf_sol[compiled_sb.F_B]
+
+scatter!(p4, [255], [F_eq], color=:blue, markersize=8, label="Earth eq. (255 K)")
+scatter!(p4, [288], [F_surf], color=:red, markersize=8, label="Earth surface (288 K)")
 
 savefig(p4, "stefan_boltzmann.svg")
 p4

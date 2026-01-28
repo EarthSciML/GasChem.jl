@@ -89,7 +89,7 @@ temperature T for a given wavelength λ.
         h = 6.626e-34, [description = "Planck's constant", unit = u"J*s"]
         c = 2.9979e8, [description = "Speed of light", unit = u"m/s"]
         k_B = 1.381e-23, [description = "Boltzmann constant", unit = u"J/K"]
-        π_val = 3.14159265358979, [description = "Pi (dimensionless)", unit = u"1"]
+        π_val = Float64(π), [description = "Pi (dimensionless)", unit = u"1"]
     end
 
     @parameters begin
