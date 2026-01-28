@@ -1,5 +1,8 @@
 # API Reference
 
+Full API documentation for the Seinfeld & Pandis Chapter 6 tropospheric
+chemistry components.
+
 ## OH Production (Section 6.1)
 
 ```@docs

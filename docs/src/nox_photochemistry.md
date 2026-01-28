@@ -1,100 +1,160 @@
 # [NOx Photochemistry](@id nox_photochemistry)
 
-Implementation of the NOx photochemical cycle, based on Seinfeld & Pandis
-Chapter 6, Section 6.2 (pp. 207-212).
+## Overview
 
-## Background
+The NOx (NO + NO2) photochemical cycle is fundamental to tropospheric ozone
+chemistry. In the absence of other species, three reactions cycle rapidly between
+NO, NO2, and O3 during the day, establishing a "photostationary state" known
+as the Leighton relationship (Eq. 6.6).
 
-The NOx (NO + NO₂) photochemical cycle is fundamental to tropospheric ozone
-chemistry. In the absence of other species, the cycle involves:
+This system implements equations 6.5-6.8 from Section 6.2 of Seinfeld & Pandis,
+including the ground-state O atom steady state, the photostationary state ozone
+concentration, the photostationary state deviation parameter (Phi), and the
+net ozone production rate.
 
-```
-NO₂ + hν → NO + O        (λ < 424 nm)     [R1]
-O + O₂ + M → O₃ + M                        [R2]
-NO + O₃ → NO₂ + O₂                         [R3]
-```
+Two components are provided:
+- `NOxPhotochemistry`: Full diagnostic system with all four equations
+- `PhotostationaryState`: Simplified system for analyzing deviations from the Leighton relationship
 
-These reactions cycle rapidly during the day, establishing a "photostationary
-state" relationship between O₃, NO, and NO₂.
-
-## Equations
-
-### Equation 6.5: Ground-State Oxygen Atom Steady-State
-
-```math
-[O] = \frac{j_{NO_2}[NO_2]}{k_2[O_2][M]}
-```
-
-The concentration of ground-state O atoms is determined by the balance between
-production from NO₂ photolysis and loss by reaction with O₂.
-
-### Equation 6.6: Photostationary State (Leighton Relationship)
-
-```math
-[O_3] = \frac{j_{NO_2}[NO_2]}{k_{NO+O_3}[NO]}
-```
-
-This is the fundamental photostationary state relationship, also known as the
-Leighton relationship. It predicts the ozone concentration when the NO-NO₂-O₃
-system is in photochemical equilibrium.
-
-### Equation 6.7: Photostationary State Parameter (Φ)
-
-```math
-\Phi = \frac{j_{NO_2}[NO_2]}{k_{NO+O_3}[NO][O_3]}
-```
-
-In perfect photostationary state, Φ = 1. Deviations indicate:
-- **Φ > 1**: Net O₃ production (presence of HO₂, RO₂ converting NO to NO₂)
-- **Φ < 1**: Net O₃ loss (additional NO sources, or nighttime)
-
-Typical urban measurements show Φ = 1.5-3 during daytime.
-
-### Equation 6.8: Net O₃ Production Rate
-
-```math
-\frac{d[O_3]}{dt} = j_{NO_2}[NO_2] - k_{NO+O_3}[NO][O_3]
-```
-
-When the system is not in photostationary state, this gives the net rate of
-ozone change.
-
-## Rate Constants at 298 K
-
-| Reaction | Rate Constant | Units |
-|----------|---------------|-------|
-| NO₂ + hν → NO + O | ~8 × 10⁻³ | s⁻¹ (midday) |
-| O + O₂ + M → O₃ + M | 6.0 × 10⁻³⁴ | cm⁶ molecule⁻² s⁻¹ |
-| NO + O₃ → NO₂ + O₂ | 1.8 × 10⁻¹⁴ | cm³ molecule⁻¹ s⁻¹ |
-
-## Photostationary State Example
-
-For typical urban conditions at midday:
-- j_NO₂ = 8 × 10⁻³ s⁻¹
-- [NO₂] = 2 ppb = 5 × 10¹⁰ molecules cm⁻³
-- [NO] = 1 ppb = 2.5 × 10¹⁰ molecules cm⁻³
-- k_NO+O₃ = 1.8 × 10⁻¹⁴ cm³ s⁻¹
-
-```math
-[O_3]_{pss} = \frac{8 \times 10^{-3} \times 5 \times 10^{10}}{1.8 \times 10^{-14} \times 2.5 \times 10^{10}} \approx 9 \times 10^{11} \text{ molecules cm}^{-3} \approx 36 \text{ ppb}
-```
-
-## Usage
-
-```julia
-using TroposphericChemistry
-using ModelingToolkit
-
-# Create the NOx photochemistry system
-@named nox_sys = NOxPhotochemistry()
-
-# Or use the simplified photostationary state model
-@named pss_sys = PhotostationaryState()
-```
-
-## API
+**Reference**: Seinfeld, J.H. and Pandis, S.N. (2006). *Atmospheric Chemistry and Physics:
+From Air Pollution to Climate Change*, 2nd Edition. John Wiley & Sons. Section 6.2, pp. 207-212.
 
 ```@docs
 NOxPhotochemistry
+```
+
+```@docs
 PhotostationaryState
 ```
+
+## Implementation
+
+### NOxPhotochemistry: State Variables
+
+```@example nox_phot
+using DataFrames, ModelingToolkit, Symbolics, DynamicQuantities, GasChem
+
+sys = NOxPhotochemistry()
+vars = unknowns(sys)
+DataFrame(
+    :Name => [string(Symbolics.tosymbol(v, escape=false)) for v in vars],
+    :Units => [dimension(ModelingToolkit.get_unit(v)) for v in vars],
+    :Description => [ModelingToolkit.getdescription(v) for v in vars]
+)
+```
+
+### NOxPhotochemistry: Parameters
+
+```@example nox_phot
+params = parameters(sys)
+DataFrame(
+    :Name => [string(Symbolics.tosymbol(p, escape=false)) for p in params],
+    :Units => [dimension(ModelingToolkit.get_unit(p)) for p in params],
+    :Description => [ModelingToolkit.getdescription(p) for p in params]
+)
+```
+
+### NOxPhotochemistry: Equations
+
+```@example nox_phot
+eqs = equations(sys)
+```
+
+### PhotostationaryState: State Variables
+
+```@example nox_phot
+pss = PhotostationaryState()
+vars_pss = unknowns(pss)
+DataFrame(
+    :Name => [string(Symbolics.tosymbol(v, escape=false)) for v in vars_pss],
+    :Units => [dimension(ModelingToolkit.get_unit(v)) for v in vars_pss],
+    :Description => [ModelingToolkit.getdescription(v) for v in vars_pss]
+)
+```
+
+### PhotostationaryState: Equations
+
+```@example nox_phot
+equations(pss)
+```
+
+## Analysis
+
+### Photostationary State O3 vs NO2/NO Ratio
+
+The Leighton relationship (Eq. 6.6) predicts that the photostationary state
+ozone concentration is proportional to the NO2/NO ratio:
+
+``[O_3]_{pss} = \frac{j_{NO_2}}{k_{NO+O_3}} \cdot \frac{[NO_2]}{[NO]}``
+
+This plot shows how the predicted O3 varies with the NO2/NO ratio for
+typical midday photolysis conditions.
+
+```@example nox_phot
+using Plots
+
+# Rate constants
+j_NO2 = 8e-3      # NO2 photolysis rate [s^-1], midday value
+k_NO_O3 = 1.8e-14 # NO + O3 rate constant at 298 K [cm3/molec/s]
+
+# Vary NO2/NO ratio
+ratio_NO2_NO = range(0.1, 10.0, length=200)
+
+# Photostationary state O3 (Eq. 6.6)
+# [O3] = j_NO2 * [NO2] / (k_NO_O3 * [NO]) = (j_NO2 / k_NO_O3) * (NO2/NO)
+O3_pss = (j_NO2 / k_NO_O3) .* ratio_NO2_NO  # molec/cm3
+
+# Convert to ppb (at STP: 1 ppb = 2.5e10 molec/cm3)
+O3_ppb = O3_pss ./ 2.5e10
+
+plot(ratio_NO2_NO, O3_ppb,
+    xlabel="[NO₂]/[NO] ratio",
+    ylabel="O₃ (ppb)",
+    title="Photostationary State O₃ (Eq. 6.6)",
+    label="O₃_pss = (j_NO₂/k_NO+O₃) × [NO₂]/[NO]",
+    linewidth=2, legend=:topleft, size=(600, 400))
+savefig("nox_pss_o3.svg") # hide
+```
+
+![Photostationary state O3 vs NO2/NO ratio](nox_pss_o3.svg)
+
+The linear relationship shows that higher NO2/NO ratios lead to higher
+photostationary state ozone. For a ratio of 2 (typical of moderately
+polluted conditions), the predicted O3 is about 36 ppb. In real urban
+environments, Phi > 1 because peroxy radicals (HO2, RO2) provide an
+additional pathway for NO-to-NO2 conversion beyond the O3 + NO reaction.
+
+### Photostationary State Parameter (Phi) Interpretation
+
+The deviation of Phi from unity indicates the importance of peroxy radical chemistry:
+
+```@example nox_phot
+# Fixed concentrations for illustration
+j_NO2_val = 8e-3
+k_NO_O3_val = 1.8e-14
+NO_val = 2.5e10       # 1 ppb
+NO2_val = 5.0e10      # 2 ppb
+O3_measured = range(0.5e12, 3e12, length=200)  # 20-120 ppb
+
+# Phi = j_NO2 * [NO2] / (k_NO_O3 * [NO] * [O3])
+Phi = j_NO2_val .* NO2_val ./ (k_NO_O3_val .* NO_val .* O3_measured)
+O3_ppb_axis = O3_measured ./ 2.5e10
+
+plot(O3_ppb_axis, Phi,
+    xlabel="Measured O₃ (ppb)",
+    ylabel="Φ",
+    title="Photostationary State Parameter vs O₃",
+    label="Φ (NO=1 ppb, NO₂=2 ppb)",
+    linewidth=2, legend=:topright, size=(600, 400))
+hline!([1.0], linestyle=:dash, color=:gray, label="Φ = 1 (exact PSS)")
+annotate!([(90, 2.0, text("Φ > 1: net O₃ production\n(peroxy radicals active)", 8, :left)),
+           (90, 0.6, text("Φ < 1: net O₃ loss", 8, :left))])
+savefig("nox_phi.svg") # hide
+```
+
+![Photostationary state parameter Phi](nox_phi.svg)
+
+When measured O3 is lower than the photostationary state value, Phi > 1,
+indicating that peroxy radicals are converting NO to NO2 and producing O3.
+When measured O3 exceeds the PSS value, Phi < 1. Typical urban daytime
+measurements show Phi = 1.5-3, reflecting significant peroxy radical activity.

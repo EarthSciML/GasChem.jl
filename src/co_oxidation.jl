@@ -20,9 +20,7 @@ allowing catalytic ozone production.
 Reference: Seinfeld & Pandis (2006), Section 6.3, pp. 212-219
 """
 
-using ModelingToolkit
-using Unitful
-using ModelingToolkit: t_nounits as t, D_nounits as D
+using ModelingToolkit: t, D
 
 # ============================================================================
 # Equations 6.9-6.13: Basic CO Oxidation Cycle
@@ -84,35 +82,35 @@ from Seinfeld & Pandis Chapter 6, including HOx cycling and steady-state relatio
 - k_OH_NO2 = 1.0 × 10⁻¹¹ cm³ molecule⁻¹ s⁻¹
 - k_HO2_O3 = 2.0 × 10⁻¹⁵ cm³ molecule⁻¹ s⁻¹
 """
-function COOxidation(; name=:COOxidation)
+@component function COOxidation(; name=:COOxidation)
     # Parameters - Rate constants at 298 K
     @parameters begin
-        k_CO_OH = 2.4e-13, [description = "CO + OH rate [cm³/s]"]
-        k_HO2_NO = 8.1e-12, [description = "HO₂ + NO rate [cm³/s]"]
-        k_HO2_HO2 = 2.9e-12, [description = "HO₂ + HO₂ rate [cm³/s]"]
-        k_OH_NO2 = 1.0e-11, [description = "OH + NO₂ + M rate [cm³/s]"]
-        k_HO2_O3 = 2.0e-15, [description = "HO₂ + O₃ rate [cm³/s]"]
-        k_OH_O3 = 7.3e-14, [description = "OH + O₃ rate [cm³/s]"]
+        k_CO_OH = 2.4e-13, [description = "CO + OH rate constant", unit = u"cm^3/molec/s"]
+        k_HO2_NO = 8.1e-12, [description = "HO₂ + NO rate constant", unit = u"cm^3/molec/s"]
+        k_HO2_HO2 = 2.9e-12, [description = "HO₂ + HO₂ rate constant", unit = u"cm^3/molec/s"]
+        k_OH_NO2 = 1.0e-11, [description = "OH + NO₂ + M rate constant", unit = u"cm^3/molec/s"]
+        k_HO2_O3 = 2.0e-15, [description = "HO₂ + O₃ rate constant", unit = u"cm^3/molec/s"]
+        k_OH_O3 = 7.3e-14, [description = "OH + O₃ rate constant", unit = u"cm^3/molec/s"]
     end
 
     # Input variables
     @variables begin
-        CO(t), [description = "CO concentration [molecules/cm³]"]
-        OH(t), [description = "OH concentration [molecules/cm³]"]
-        HO2(t), [description = "HO₂ concentration [molecules/cm³]"]
-        NO(t), [description = "NO concentration [molecules/cm³]"]
-        NO2(t), [description = "NO₂ concentration [molecules/cm³]"]
-        O3(t), [description = "O₃ concentration [molecules/cm³]"]
+        CO(t), [description = "CO concentration", unit = u"molec/cm^3"]
+        OH(t), [description = "OH concentration", unit = u"molec/cm^3"]
+        HO2(t), [description = "HO₂ concentration", unit = u"molec/cm^3"]
+        NO(t), [description = "NO concentration", unit = u"molec/cm^3"]
+        NO2(t), [description = "NO₂ concentration", unit = u"molec/cm^3"]
+        O3(t), [description = "O₃ concentration", unit = u"molec/cm^3"]
     end
 
     # Output variables
     @variables begin
-        P_O3(t), [description = "Net O₃ production rate [molecules/cm³/s]"]
-        L_HOx(t), [description = "HOx loss rate [molecules/cm³/s]"]
-        L_OH(t), [description = "OH loss rate [molecules/cm³/s]"]
-        L_HO2(t), [description = "HO₂ loss rate [molecules/cm³/s]"]
-        chain_length(t), [description = "HOx chain length"]
-        HO2_ss(t), [description = "HO₂ steady-state (high NOx) [molecules/cm³]"]
+        P_O3(t), [description = "Net O₃ production rate", unit = u"molec/cm^3/s"]
+        L_HOx(t), [description = "HOx loss rate", unit = u"molec/cm^3/s"]
+        L_OH(t), [description = "OH loss rate", unit = u"molec/cm^3/s"]
+        L_HO2(t), [description = "HO₂ loss rate", unit = u"molec/cm^3/s"]
+        chain_length(t), [description = "HOx chain length (dimensionless)", unit = u"1"]
+        HO2_ss(t), [description = "HO₂ steady-state (high NOx)", unit = u"molec/cm^3"]
     end
 
     # Equations
@@ -138,7 +136,7 @@ function COOxidation(; name=:COOxidation)
         chain_length ~ (k_HO2_NO * HO2 * NO) / L_HOx,
     ]
 
-    return ODESystem(eqs, t; name=name)
+    return System(eqs, t; name, checks=false)
 end
 
 """
@@ -163,27 +161,27 @@ From Equations 6.21-6.24:
 - `L_NOx`: NOx loss rate [molecules cm⁻³ s⁻¹]
 - `OPE`: Ozone production efficiency [dimensionless]
 """
-function OzoneProductionEfficiency(; name=:OzoneProductionEfficiency)
+@component function OzoneProductionEfficiency(; name=:OzoneProductionEfficiency)
     @parameters begin
-        k_HO2_NO = 8.1e-12, [description = "HO₂ + NO rate [cm³/s]"]
-        k_RO2_NO = 8.0e-12, [description = "RO₂ + NO rate (average) [cm³/s]"]
-        k_OH_NO2 = 1.0e-11, [description = "OH + NO₂ + M rate [cm³/s]"]
+        k_HO2_NO = 8.1e-12, [description = "HO₂ + NO rate constant", unit = u"cm^3/molec/s"]
+        k_RO2_NO = 8.0e-12, [description = "RO₂ + NO rate constant (average)", unit = u"cm^3/molec/s"]
+        k_OH_NO2 = 1.0e-11, [description = "OH + NO₂ + M rate constant", unit = u"cm^3/molec/s"]
     end
 
     # Input variables
     @variables begin
-        OH(t), [description = "OH concentration [molecules/cm³]"]
-        HO2(t), [description = "HO₂ concentration [molecules/cm³]"]
-        RO2(t), [description = "Organic peroxy radical concentration [molecules/cm³]"]
-        NO(t), [description = "NO concentration [molecules/cm³]"]
-        NO2(t), [description = "NO₂ concentration [molecules/cm³]"]
+        OH(t), [description = "OH concentration", unit = u"molec/cm^3"]
+        HO2(t), [description = "HO₂ concentration", unit = u"molec/cm^3"]
+        RO2(t), [description = "Organic peroxy radical concentration", unit = u"molec/cm^3"]
+        NO(t), [description = "NO concentration", unit = u"molec/cm^3"]
+        NO2(t), [description = "NO₂ concentration", unit = u"molec/cm^3"]
     end
 
     # Output variables
     @variables begin
-        P_O3(t), [description = "Gross O₃ production rate [molecules/cm³/s]"]
-        L_NOx(t), [description = "NOx loss rate [molecules/cm³/s]"]
-        OPE(t), [description = "Ozone Production Efficiency"]
+        P_O3(t), [description = "Gross O₃ production rate", unit = u"molec/cm^3/s"]
+        L_NOx(t), [description = "NOx loss rate", unit = u"molec/cm^3/s"]
+        OPE(t), [description = "Ozone Production Efficiency (dimensionless)", unit = u"1"]
     end
 
     eqs = [
@@ -197,5 +195,5 @@ function OzoneProductionEfficiency(; name=:OzoneProductionEfficiency)
         OPE ~ P_O3 / L_NOx,
     ]
 
-    return ODESystem(eqs, t; name=name)
+    return System(eqs, t; name, checks=false)
 end

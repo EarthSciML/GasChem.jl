@@ -17,9 +17,7 @@ or react with H₂O to produce OH:
 Reference: Seinfeld & Pandis (2006), Section 6.1, pp. 204-207
 """
 
-using ModelingToolkit
-using Unitful
-using ModelingToolkit: t_nounits as t, D_nounits as D
+using ModelingToolkit: t, D
 
 # ============================================================================
 # Equation 6.1: O(¹D) Steady-State Concentration
@@ -82,32 +80,34 @@ This is an algebraic system that computes diagnostic quantities from input conce
 - k3_O2 = 4.0 × 10⁻¹¹ cm³ molecule⁻¹ s⁻¹
 - k4 = 2.2 × 10⁻¹⁰ cm³ molecule⁻¹ s⁻¹
 """
-function OHProduction(; name=:OHProduction)
+@component function OHProduction(; name=:OHProduction)
     # Parameters
     @parameters begin
-        j_O3 = 1e-5, [description = "O₃ photolysis rate producing O(¹D) [s⁻¹]"]
-        k3_N2 = 2.6e-11, [description = "O(¹D) + N₂ quenching rate [cm³/s]"]
-        k3_O2 = 4.0e-11, [description = "O(¹D) + O₂ quenching rate [cm³/s]"]
-        k4 = 2.2e-10, [description = "O(¹D) + H₂O → 2OH rate [cm³/s]"]
-        f_N2 = 0.78, [description = "Fraction of air that is N₂"]
-        f_O2 = 0.21, [description = "Fraction of air that is O₂"]
+        j_O3 = 1e-5, [description = "O₃ photolysis rate producing O(¹D)", unit = u"s^-1"]
+        k3_N2 = 2.6e-11, [description = "O(¹D) + N₂ quenching rate", unit = u"cm^3/molec/s"]
+        k3_O2 = 4.0e-11, [description = "O(¹D) + O₂ quenching rate", unit = u"cm^3/molec/s"]
+        k4 = 2.2e-10, [description = "O(¹D) + H₂O → 2OH rate", unit = u"cm^3/molec/s"]
+        f_N2 = 0.78, [description = "Fraction of air that is N₂ (dimensionless)", unit = u"1"]
+        f_O2 = 0.21, [description = "Fraction of air that is O₂ (dimensionless)", unit = u"1"]
     end
 
     # Input variables (concentrations)
     @variables begin
-        O3(t), [description = "Ozone concentration [molecules/cm³]"]
-        H2O(t), [description = "Water vapor concentration [molecules/cm³]"]
-        M(t), [description = "Total air number density [molecules/cm³]"]
+        O3(t), [description = "Ozone concentration", unit = u"molec/cm^3"]
+        H2O(t), [description = "Water vapor concentration", unit = u"molec/cm^3"]
+        M(t), [description = "Total air number density", unit = u"molec/cm^3"]
     end
 
-    # Computed intermediate
+    # Computed intermediate: effective quenching rate constant.
+    # Note: k3_eff depends on symbolic parameters f_N2, k3_N2, f_O2, k3_O2,
+    # so it cannot be placed in a @constants block. It remains a symbolic expression.
     k3_eff = f_N2 * k3_N2 + f_O2 * k3_O2
 
     # Output variables (diagnostics computed from steady-state relations)
     @variables begin
-        O1D(t), [description = "O(¹D) steady-state concentration [molecules/cm³]"]
-        P_OH(t), [description = "OH production rate [molecules/cm³/s]"]
-        ε_OH(t), [description = "OH yield fraction"]
+        O1D(t), [description = "O(¹D) steady-state concentration", unit = u"molec/cm^3"]
+        P_OH(t), [description = "OH production rate", unit = u"molec/cm^3/s"]
+        ε_OH(t), [description = "OH yield fraction (dimensionless)", unit = u"1"]
     end
 
     # Equations (algebraic relationships)
@@ -122,5 +122,5 @@ function OHProduction(; name=:OHProduction)
         P_OH ~ 2 * j_O3 * O3 * ε_OH,
     ]
 
-    return ODESystem(eqs, t; name=name)
+    return System(eqs, t; name, checks=false)
 end

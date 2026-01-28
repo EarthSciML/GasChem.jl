@@ -15,9 +15,7 @@ The systems are coupled through shared species (OH, HO₂, NO, NO₂, O₃).
 Reference: Seinfeld & Pandis (2006), Chapter 6
 """
 
-using ModelingToolkit
-using Unitful
-using ModelingToolkit: t_nounits as t, D_nounits as D
+using ModelingToolkit: t, D
 
 """
     TroposphericChemistrySystem(; name)
@@ -35,6 +33,11 @@ mechanisms to create a comprehensive diagnostic model of tropospheric photochemi
 - NOx cycles between NO and NO₂ through O₃ and peroxy radicals
 - O₃ is produced when peroxy radicals oxidize NO to NO₂
 
+# Subsystem Composition:
+- `oh`: OHProduction subsystem (Section 6.1)
+- `nox`: NOxPhotochemistry subsystem (Section 6.2)
+- `co`: COOxidation subsystem (Section 6.3)
+
 # Input Variables
 All species concentrations must be provided as inputs.
 
@@ -44,128 +47,82 @@ All species concentrations must be provided as inputs.
 - HOx: Total HOx (OH + HO₂)
 - chain_length: HOx chain length
 """
-function TroposphericChemistrySystem(; name=:TroposphericChemistrySystem)
+@component function TroposphericChemistrySystem(; name=:TroposphericChemistrySystem)
     # =========================================================================
-    # Parameters
+    # Subsystems (composed from individual component functions)
+    # =========================================================================
+    oh_sys = OHProduction(; name=:oh)
+    nox_sys = NOxPhotochemistry(; name=:nox)
+    co_sys = COOxidation(; name=:co)
+
+    # =========================================================================
+    # Parameters (additional parameters for combined diagnostics)
     # =========================================================================
     @parameters begin
-        # OH Production (from O₃ photolysis)
-        j_O3 = 1e-5, [description = "O₃ photolysis rate [s⁻¹]"]
-        k_O1D_N2 = 2.6e-11, [description = "O(¹D) + N₂ rate [cm³/s]"]
-        k_O1D_O2 = 4.0e-11, [description = "O(¹D) + O₂ rate [cm³/s]"]
-        k_O1D_H2O = 2.2e-10, [description = "O(¹D) + H₂O rate [cm³/s]"]
-
-        # NOx photochemistry
-        j_NO2 = 8e-3, [description = "NO₂ photolysis rate [s⁻¹]"]
-        k_O_O2_M = 6.0e-34, [description = "O + O₂ + M rate [cm⁶/s]"]
-        k_NO_O3 = 1.8e-14, [description = "NO + O₃ rate [cm³/s]"]
-
-        # CO oxidation
-        k_CO_OH = 2.4e-13, [description = "CO + OH rate [cm³/s]"]
-        k_HO2_NO = 8.1e-12, [description = "HO₂ + NO rate [cm³/s]"]
-        k_HO2_HO2 = 2.9e-12, [description = "HO₂ + HO₂ rate [cm³/s]"]
-        k_OH_NO2 = 1.0e-11, [description = "OH + NO₂ rate [cm³/s]"]
-        k_HO2_O3 = 2.0e-15, [description = "HO₂ + O₃ rate [cm³/s]"]
-        k_OH_O3 = 7.3e-14, [description = "OH + O₃ rate [cm³/s]"]
-
         # CH₄ oxidation
-        k_CH4_OH = 6.3e-15, [description = "CH₄ + OH rate [cm³/s]"]
-        k_CH3O2_NO = 7.7e-12, [description = "CH₃O₂ + NO rate [cm³/s]"]
-
-        # Air composition
-        f_N2 = 0.78, [description = "N₂ fraction"]
-        f_O2 = 0.21, [description = "O₂ fraction"]
+        k_CH4_OH = 6.3e-15, [description = "CH₄ + OH rate constant", unit = u"cm^3/molec/s"]
+        k_CH3O2_NO = 7.7e-12, [description = "CH₃O₂ + NO rate constant", unit = u"cm^3/molec/s"]
     end
 
     # =========================================================================
-    # Input Variables (species concentrations)
+    # Input Variables (species concentrations at combined level)
     # =========================================================================
     @variables begin
         # Major species
-        O3(t), [description = "Ozone [molecules/cm³]"]
-        NO(t), [description = "Nitric oxide [molecules/cm³]"]
-        NO2(t), [description = "Nitrogen dioxide [molecules/cm³]"]
-        OH(t), [description = "Hydroxyl radical [molecules/cm³]"]
-        HO2(t), [description = "Hydroperoxy radical [molecules/cm³]"]
-        CO(t), [description = "Carbon monoxide [molecules/cm³]"]
-        CH4(t), [description = "Methane [molecules/cm³]"]
-        CH3O2(t), [description = "Methylperoxy radical [molecules/cm³]"]
-        H2O(t), [description = "Water vapor [molecules/cm³]"]
-        M(t), [description = "Total air density [molecules/cm³]"]
-        O2(t), [description = "Molecular oxygen [molecules/cm³]"]
+        O3(t), [description = "Ozone", unit = u"molec/cm^3"]
+        NO(t), [description = "Nitric oxide", unit = u"molec/cm^3"]
+        NO2(t), [description = "Nitrogen dioxide", unit = u"molec/cm^3"]
+        OH(t), [description = "Hydroxyl radical", unit = u"molec/cm^3"]
+        HO2(t), [description = "Hydroperoxy radical", unit = u"molec/cm^3"]
+        CO(t), [description = "Carbon monoxide", unit = u"molec/cm^3"]
+        CH4(t), [description = "Methane", unit = u"molec/cm^3"]
+        CH3O2(t), [description = "Methylperoxy radical", unit = u"molec/cm^3"]
+        H2O(t), [description = "Water vapor", unit = u"molec/cm^3"]
+        M(t), [description = "Total air density", unit = u"molec/cm^3"]
+        O2(t), [description = "Molecular oxygen", unit = u"molec/cm^3"]
     end
 
-    # Effective O(¹D) quenching rate for air
-    k_O1D_M = f_N2 * k_O1D_N2 + f_O2 * k_O1D_O2
-
     # =========================================================================
-    # Output Variables (diagnostics)
+    # Output Variables (combined diagnostics)
     # =========================================================================
     @variables begin
-        # Intermediate species (steady-state)
-        O1D(t), [description = "O(¹D) [molecules/cm³]"]
-        O(t), [description = "O(³P) [molecules/cm³]"]
-
-        # Derived quantities from Section 6.1 (OH Production)
-        P_OH_O3(t), [description = "OH production from O₃ [molecules/cm³/s]"]
-        ε_OH(t), [description = "OH yield from O(¹D)"]
-
-        # Derived quantities from Section 6.2 (NOx)
-        O3_pss(t), [description = "Photostationary O₃ [molecules/cm³]"]
-        Φ(t), [description = "Photostationary state parameter"]
-
-        # Derived quantities from Section 6.3 (CO oxidation)
-        P_O3_CO(t), [description = "O₃ production from CO oxidation [molecules/cm³/s]"]
-        L_HOx(t), [description = "HOx loss rate [molecules/cm³/s]"]
-
         # Combined diagnostics
-        NOx(t), [description = "Total NOx [molecules/cm³]"]
-        HOx(t), [description = "Total HOx [molecules/cm³]"]
-        RO2(t), [description = "Total organic peroxy radicals [molecules/cm³]"]
-        P_O3_total(t), [description = "Total O₃ production [molecules/cm³/s]"]
-        L_O3_total(t), [description = "Total O₃ loss [molecules/cm³/s]"]
-        P_O3_net(t), [description = "Net O₃ tendency [molecules/cm³/s]"]
-        OPE(t), [description = "Ozone production efficiency"]
-        chain_length(t), [description = "HOx chain length"]
-        L_NOx(t), [description = "NOx loss rate [molecules/cm³/s]"]
+        NOx(t), [description = "Total NOx", unit = u"molec/cm^3"]
+        HOx(t), [description = "Total HOx", unit = u"molec/cm^3"]
+        RO2(t), [description = "Total organic peroxy radicals", unit = u"molec/cm^3"]
+        P_O3_total(t), [description = "Total O₃ production", unit = u"molec/cm^3/s"]
+        L_O3_total(t), [description = "Total O₃ loss", unit = u"molec/cm^3/s"]
+        P_O3_net(t), [description = "Net O₃ tendency", unit = u"molec/cm^3/s"]
+        OPE(t), [description = "Ozone production efficiency (dimensionless)", unit = u"1"]
+        chain_length(t), [description = "HOx chain length (dimensionless)", unit = u"1"]
+        L_NOx(t), [description = "NOx loss rate", unit = u"molec/cm^3/s"]
     end
 
     # =========================================================================
-    # Equations
+    # Coupling Equations
     # =========================================================================
+    # Connect shared species from the combined level to subsystem inputs.
+    # Subsystem variables are accessed via dot notation (e.g., oh_sys.O3).
     eqs = [
-        # --- Section 6.1: OH Production ---
+        # --- Coupling: Feed shared species into OH Production subsystem ---
+        oh_sys.O3 ~ O3,
+        oh_sys.H2O ~ H2O,
+        oh_sys.M ~ M,
 
-        # Eq. 6.1: O(¹D) steady-state
-        O1D ~ j_O3 * O3 / (k_O1D_M * M + k_O1D_H2O * H2O),
+        # --- Coupling: Feed shared species into NOx Photochemistry subsystem ---
+        nox_sys.NO ~ NO,
+        nox_sys.NO2 ~ NO2,
+        nox_sys.O3 ~ O3,
+        nox_sys.O2 ~ O2,
+        nox_sys.M ~ M,
 
-        # Eq. 6.4: OH yield
-        ε_OH ~ k_O1D_H2O * H2O / (k_O1D_M * M + k_O1D_H2O * H2O),
-
-        # Eq. 6.3: OH production from O₃ photolysis
-        P_OH_O3 ~ 2 * j_O3 * O3 * ε_OH,
-
-        # --- Section 6.2: NOx Photochemistry ---
-
-        # Eq. 6.5: O atom steady-state
-        O ~ j_NO2 * NO2 / (k_O_O2_M * O2 * M),
-
-        # Eq. 6.6: Photostationary state O₃
-        O3_pss ~ j_NO2 * NO2 / (k_NO_O3 * NO),
-
-        # Eq. 6.7: Photostationary state parameter
-        Φ ~ j_NO2 * NO2 / (k_NO_O3 * NO * O3),
-
-        # --- Section 6.3: CO/HOx Chemistry ---
-
-        # O₃ production from HO₂ + NO (main pathway)
-        P_O3_CO ~ k_HO2_NO * HO2 * NO,
-
-        # HOx termination (OH + NO₂ and HO₂ + HO₂)
-        L_HOx ~ k_OH_NO2 * OH * NO2 + 2 * k_HO2_HO2 * HO2^2,
-
-        # HOx chain length
-        chain_length ~ P_O3_CO / L_HOx,
+        # --- Coupling: Feed shared species into CO Oxidation subsystem ---
+        co_sys.CO ~ CO,
+        co_sys.OH ~ OH,
+        co_sys.HO2 ~ HO2,
+        co_sys.NO ~ NO,
+        co_sys.NO2 ~ NO2,
+        co_sys.O3 ~ O3,
 
         # --- Combined Diagnostics ---
 
@@ -177,22 +134,26 @@ function TroposphericChemistrySystem(; name=:TroposphericChemistrySystem)
         RO2 ~ CH3O2,
 
         # Total O₃ production (from all peroxy + NO reactions)
-        P_O3_total ~ k_HO2_NO * HO2 * NO + k_CH3O2_NO * CH3O2 * NO,
+        # Uses co_sys rate constants for HO₂ + NO and adds CH₃O₂ + NO contribution
+        P_O3_total ~ co_sys.k_HO2_NO * HO2 * NO + k_CH3O2_NO * CH3O2 * NO,
 
         # Total O₃ loss
-        L_O3_total ~ k_NO_O3 * NO * O3 + k_OH_O3 * OH * O3 + k_HO2_O3 * HO2 * O3,
+        L_O3_total ~ nox_sys.k_NO_O3 * NO * O3 + co_sys.k_OH_O3 * OH * O3 + co_sys.k_HO2_O3 * HO2 * O3,
 
         # Net O₃ production
         P_O3_net ~ P_O3_total - L_O3_total,
 
         # NOx loss (mainly HNO₃ formation)
-        L_NOx ~ k_OH_NO2 * OH * NO2,
+        L_NOx ~ co_sys.k_OH_NO2 * OH * NO2,
 
         # Ozone Production Efficiency
         OPE ~ P_O3_total / L_NOx,
+
+        # HOx chain length (from CO oxidation subsystem diagnostic, re-expressed at combined level)
+        chain_length ~ co_sys.chain_length,
     ]
 
-    return ODESystem(eqs, t; name=name)
+    return System(eqs, t; systems=[oh_sys, nox_sys, co_sys], name, checks=false)
 end
 
 """

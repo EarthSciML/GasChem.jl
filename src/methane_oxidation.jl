@@ -20,9 +20,7 @@ Each step can produce ozone when NOx is present through peroxy + NO reactions.
 Reference: Seinfeld & Pandis (2006), Section 6.4, Table 6.1, pp. 219-227
 """
 
-using ModelingToolkit
-using Unitful
-using ModelingToolkit: t_nounits as t, D_nounits as D
+using ModelingToolkit: t, D
 
 # ============================================================================
 # Table 6.1: Complete Methane Oxidation Mechanism
@@ -71,76 +69,76 @@ This system computes individual reaction rates and diagnostic production/loss te
 # Rate Constants
 All rate constants from Table 6.1 at 298 K are implemented as parameters.
 """
-function MethaneOxidation(; name=:MethaneOxidation)
+@component function MethaneOxidation(; name=:MethaneOxidation)
     # Parameters - Rate constants at 298 K from Table 6.1
     @parameters begin
         # Bimolecular reactions (cm³ molecule⁻¹ s⁻¹)
-        k1 = 6.3e-15, [description = "CH₄ + OH rate [cm³/s]"]
-        k3 = 7.7e-12, [description = "CH₃O₂ + NO rate [cm³/s]"]
-        k4 = 5.2e-12, [description = "CH₃O₂ + HO₂ rate [cm³/s]"]
-        k5 = 3.5e-13, [description = "CH₃O₂ + CH₃O₂ rate [cm³/s]"]
-        k6 = 1.9e-15, [description = "CH₃O + O₂ rate [cm³/s]"]
-        k7 = 3.8e-12, [description = "CH₃OOH + OH → CH₃O₂ rate [cm³/s]"]
-        k8 = 1.9e-12, [description = "CH₃OOH + OH → HCHO rate [cm³/s]"]
-        k10 = 8.5e-12, [description = "HCHO + OH rate [cm³/s]"]
-        k13 = 5.2e-12, [description = "HCO + O₂ rate [cm³/s]"]
-        k15 = 8.1e-12, [description = "HO₂ + NO rate [cm³/s]"]
+        k1 = 6.3e-15, [description = "CH₄ + OH rate", unit = u"cm^3/molec/s"]
+        k3 = 7.7e-12, [description = "CH₃O₂ + NO rate", unit = u"cm^3/molec/s"]
+        k4 = 5.2e-12, [description = "CH₃O₂ + HO₂ rate", unit = u"cm^3/molec/s"]
+        k5 = 3.5e-13, [description = "CH₃O₂ + CH₃O₂ rate", unit = u"cm^3/molec/s"]
+        k6 = 1.9e-15, [description = "CH₃O + O₂ rate", unit = u"cm^3/molec/s"]
+        k7 = 3.8e-12, [description = "CH₃OOH + OH → CH₃O₂ rate", unit = u"cm^3/molec/s"]
+        k8 = 1.9e-12, [description = "CH₃OOH + OH → HCHO rate", unit = u"cm^3/molec/s"]
+        k10 = 8.5e-12, [description = "HCHO + OH rate", unit = u"cm^3/molec/s"]
+        k13 = 5.2e-12, [description = "HCO + O₂ rate", unit = u"cm^3/molec/s"]
+        k15 = 8.1e-12, [description = "HO₂ + NO rate", unit = u"cm^3/molec/s"]
 
         # Termolecular reactions (cm⁶ molecule⁻² s⁻¹, multiply by [M])
-        k2_0 = 1.0e-30, [description = "CH₃ + O₂ + M rate [cm⁶/s]"]
-        k14_0 = 5.7e-32, [description = "H + O₂ + M rate [cm⁶/s]"]
-        k17_0 = 6.0e-34, [description = "O + O₂ + M rate [cm⁶/s]"]
+        k2_0 = 1.0e-30, [description = "CH₃ + O₂ + M rate", unit = u"cm^6/molec^2/s"]
+        k14_0 = 5.7e-32, [description = "H + O₂ + M rate", unit = u"cm^6/molec^2/s"]
+        k17_0 = 6.0e-34, [description = "O + O₂ + M rate", unit = u"cm^6/molec^2/s"]
 
         # Photolysis rates (s⁻¹)
-        j9 = 5e-6, [description = "CH₃OOH photolysis rate [s⁻¹]"]
-        j11 = 3e-5, [description = "HCHO → HCO + H photolysis rate [s⁻¹]"]
-        j12 = 5e-5, [description = "HCHO → H₂ + CO photolysis rate [s⁻¹]"]
-        j16 = 8e-3, [description = "NO₂ photolysis rate [s⁻¹]"]
+        j9 = 5e-6, [description = "CH₃OOH photolysis rate", unit = u"s^-1"]
+        j11 = 3e-5, [description = "HCHO → HCO + H photolysis rate", unit = u"s^-1"]
+        j12 = 5e-5, [description = "HCHO → H₂ + CO photolysis rate", unit = u"s^-1"]
+        j16 = 8e-3, [description = "NO₂ photolysis rate", unit = u"s^-1"]
     end
 
     # Species concentrations (input)
     @variables begin
-        CH4(t), [description = "Methane [molecules/cm³]"]
-        CH3(t), [description = "Methyl radical [molecules/cm³]"]
-        CH3O2(t), [description = "Methylperoxy radical [molecules/cm³]"]
-        CH3O(t), [description = "Methoxy radical [molecules/cm³]"]
-        CH3OOH(t), [description = "Methyl hydroperoxide [molecules/cm³]"]
-        HCHO(t), [description = "Formaldehyde [molecules/cm³]"]
-        HCO(t), [description = "Formyl radical [molecules/cm³]"]
-        CO(t), [description = "Carbon monoxide [molecules/cm³]"]
-        OH(t), [description = "Hydroxyl radical [molecules/cm³]"]
-        HO2(t), [description = "Hydroperoxy radical [molecules/cm³]"]
-        H(t), [description = "Hydrogen atom [molecules/cm³]"]
-        NO(t), [description = "Nitric oxide [molecules/cm³]"]
-        NO2(t), [description = "Nitrogen dioxide [molecules/cm³]"]
-        O(t), [description = "Oxygen atom [molecules/cm³]"]
-        O2(t), [description = "Molecular oxygen [molecules/cm³]"]
-        O3(t), [description = "Ozone [molecules/cm³]"]
-        M(t), [description = "Total air density [molecules/cm³]"]
+        CH4(t), [description = "Methane", unit = u"molec/cm^3"]
+        CH3(t), [description = "Methyl radical", unit = u"molec/cm^3"]
+        CH3O2(t), [description = "Methylperoxy radical", unit = u"molec/cm^3"]
+        CH3O(t), [description = "Methoxy radical", unit = u"molec/cm^3"]
+        CH3OOH(t), [description = "Methyl hydroperoxide", unit = u"molec/cm^3"]
+        HCHO(t), [description = "Formaldehyde", unit = u"molec/cm^3"]
+        HCO(t), [description = "Formyl radical", unit = u"molec/cm^3"]
+        CO(t), [description = "Carbon monoxide", unit = u"molec/cm^3"]
+        OH(t), [description = "Hydroxyl radical", unit = u"molec/cm^3"]
+        HO2(t), [description = "Hydroperoxy radical", unit = u"molec/cm^3"]
+        H(t), [description = "Hydrogen atom", unit = u"molec/cm^3"]
+        NO(t), [description = "Nitric oxide", unit = u"molec/cm^3"]
+        NO2(t), [description = "Nitrogen dioxide", unit = u"molec/cm^3"]
+        O(t), [description = "Oxygen atom", unit = u"molec/cm^3"]
+        O2(t), [description = "Molecular oxygen", unit = u"molec/cm^3"]
+        O3(t), [description = "Ozone", unit = u"molec/cm^3"]
+        M(t), [description = "Total air density", unit = u"molec/cm^3"]
     end
 
     # Reaction rates (output)
     @variables begin
-        R1(t), [description = "CH₄ + OH rate [molecules/cm³/s]"]
-        R2(t), [description = "CH₃ + O₂ rate [molecules/cm³/s]"]
-        R3(t), [description = "CH₃O₂ + NO rate [molecules/cm³/s]"]
-        R4(t), [description = "CH₃O₂ + HO₂ rate [molecules/cm³/s]"]
-        R5(t), [description = "CH₃O₂ + CH₃O₂ rate [molecules/cm³/s]"]
-        R6(t), [description = "CH₃O + O₂ rate [molecules/cm³/s]"]
-        R7(t), [description = "CH₃OOH + OH → CH₃O₂ rate [molecules/cm³/s]"]
-        R8(t), [description = "CH₃OOH + OH → HCHO rate [molecules/cm³/s]"]
-        R9(t), [description = "CH₃OOH photolysis rate [molecules/cm³/s]"]
-        R10(t), [description = "HCHO + OH rate [molecules/cm³/s]"]
-        R11(t), [description = "HCHO → HCO + H rate [molecules/cm³/s]"]
-        R12(t), [description = "HCHO → H₂ + CO rate [molecules/cm³/s]"]
-        R13(t), [description = "HCO + O₂ rate [molecules/cm³/s]"]
-        R14(t), [description = "H + O₂ rate [molecules/cm³/s]"]
-        R15(t), [description = "HO₂ + NO rate [molecules/cm³/s]"]
-        R16(t), [description = "NO₂ photolysis rate [molecules/cm³/s]"]
-        R17(t), [description = "O + O₂ rate [molecules/cm³/s]"]
-        P_O3_net(t), [description = "Net O₃ production [molecules/cm³/s]"]
-        P_HCHO(t), [description = "HCHO production [molecules/cm³/s]"]
-        L_CH4(t), [description = "CH₄ loss rate [molecules/cm³/s]"]
+        R1(t), [description = "CH₄ + OH rate", unit = u"molec/cm^3/s"]
+        R2(t), [description = "CH₃ + O₂ rate", unit = u"molec/cm^3/s"]
+        R3(t), [description = "CH₃O₂ + NO rate", unit = u"molec/cm^3/s"]
+        R4(t), [description = "CH₃O₂ + HO₂ rate", unit = u"molec/cm^3/s"]
+        R5(t), [description = "CH₃O₂ + CH₃O₂ rate", unit = u"molec/cm^3/s"]
+        R6(t), [description = "CH₃O + O₂ rate", unit = u"molec/cm^3/s"]
+        R7(t), [description = "CH₃OOH + OH → CH₃O₂ rate", unit = u"molec/cm^3/s"]
+        R8(t), [description = "CH₃OOH + OH → HCHO rate", unit = u"molec/cm^3/s"]
+        R9(t), [description = "CH₃OOH photolysis rate", unit = u"molec/cm^3/s"]
+        R10(t), [description = "HCHO + OH rate", unit = u"molec/cm^3/s"]
+        R11(t), [description = "HCHO → HCO + H rate", unit = u"molec/cm^3/s"]
+        R12(t), [description = "HCHO → H₂ + CO rate", unit = u"molec/cm^3/s"]
+        R13(t), [description = "HCO + O₂ rate", unit = u"molec/cm^3/s"]
+        R14(t), [description = "H + O₂ rate", unit = u"molec/cm^3/s"]
+        R15(t), [description = "HO₂ + NO rate", unit = u"molec/cm^3/s"]
+        R16(t), [description = "NO₂ photolysis rate", unit = u"molec/cm^3/s"]
+        R17(t), [description = "O + O₂ rate", unit = u"molec/cm^3/s"]
+        P_O3_net(t), [description = "Net O₃ production", unit = u"molec/cm^3/s"]
+        P_HCHO(t), [description = "HCHO production", unit = u"molec/cm^3/s"]
+        L_CH4(t), [description = "CH₄ loss rate", unit = u"molec/cm^3/s"]
     end
 
     # Equations
@@ -170,7 +168,7 @@ function MethaneOxidation(; name=:MethaneOxidation)
         P_O3_net ~ R17 - R3,                   # Simplified net O₃ (production - titration)
     ]
 
-    return ODESystem(eqs, t; name=name)
+    return System(eqs, t; name, checks=false)
 end
 
 """
@@ -178,130 +176,156 @@ end
 
 Full ODE system for methane oxidation with species time derivatives.
 
-This extends MethaneOxidation to include the actual differential equations
-for time evolution of all species. This can be used to simulate the time
-evolution of the methane oxidation mechanism.
+This uses Catalyst.jl's reaction network DSL to define the 17 reactions from
+Table 6.1 plus auxiliary reactions (CO+OH, OH+NO₂, HO₂+HO₂, NO+O₃) and an
+external OH source. The reaction network is converted to an ODE system.
 
 Note: This is a stiff system due to the wide range of timescales (radicals
 have lifetimes of seconds, while CH₄ has a lifetime of years).
+
+O₂ and M (total air density) are treated as constants folded into effective
+rate parameters for termolecular reactions (reactions 2, 6, 13, 14, 17).
 """
-function MethaneOxidationODE(; name=:MethaneOxidationODE)
-    # Parameters - Rate constants at 298 K from Table 6.1
-    @parameters begin
-        k1 = 6.3e-15, [description = "CH₄ + OH rate [cm³/s]"]
-        k3 = 7.7e-12, [description = "CH₃O₂ + NO rate [cm³/s]"]
-        k4 = 5.2e-12, [description = "CH₃O₂ + HO₂ rate [cm³/s]"]
-        k5 = 3.5e-13, [description = "CH₃O₂ + CH₃O₂ rate [cm³/s]"]
-        k6 = 1.9e-15, [description = "CH₃O + O₂ rate [cm³/s]"]
-        k7 = 3.8e-12, [description = "CH₃OOH + OH → CH₃O₂ rate [cm³/s]"]
-        k8 = 1.9e-12, [description = "CH₃OOH + OH → HCHO rate [cm³/s]"]
-        k10 = 8.5e-12, [description = "HCHO + OH rate [cm³/s]"]
-        k13 = 5.2e-12, [description = "HCO + O₂ rate [cm³/s]"]
-        k15 = 8.1e-12, [description = "HO₂ + NO rate [cm³/s]"]
-        k_CO_OH = 2.4e-13, [description = "CO + OH rate [cm³/s]"]
-        k_OH_NO2 = 1.0e-11, [description = "OH + NO₂ rate [cm³/s]"]
-        k_HO2_HO2 = 2.9e-12, [description = "HO₂ + HO₂ rate [cm³/s]"]
-        k_NO_O3 = 1.8e-14, [description = "NO + O₃ rate [cm³/s]"]
+@component function MethaneOxidationODE(; name=:MethaneOxidationODE)
+    # Fixed concentrations (effectively constant on CH4 oxidation timescale).
+    # These are plain Julia values rather than @constants because @constants
+    # defined outside @network_component are not resolved by Catalyst's ODE conversion.
+    M_fixed = 2.5e19    # Total air density [molec/cm^3]
+    O2_fixed = 5.25e18  # O₂ concentration [molec/cm^3]
 
-        k2_0 = 1.0e-30, [description = "CH₃ + O₂ + M rate [cm⁶/s]"]
-        k14_0 = 5.7e-32, [description = "H + O₂ + M rate [cm⁶/s]"]
-        k17_0 = 6.0e-34, [description = "O + O₂ + M rate [cm⁶/s]"]
+    rn = @network_component MethaneOxidationRxns begin
+        @ivs t [unit = u"s"]
 
-        j9 = 5e-6, [description = "CH₃OOH photolysis rate [s⁻¹]"]
-        j11 = 3e-5, [description = "HCHO → HCO + H rate [s⁻¹]"]
-        j12 = 5e-5, [description = "HCHO → H₂ + CO rate [s⁻¹]"]
-        j16 = 8e-3, [description = "NO₂ photolysis rate [s⁻¹]"]
+        @parameters begin
+            # Bimolecular reactions (cm³ molecule⁻¹ s⁻¹)
+            k1 = 6.3e-15, [description = "CH₄ + OH rate", unit = u"cm^3/molec/s"]
+            k3 = 7.7e-12, [description = "CH₃O₂ + NO rate", unit = u"cm^3/molec/s"]
+            k4 = 5.2e-12, [description = "CH₃O₂ + HO₂ rate", unit = u"cm^3/molec/s"]
+            k5 = 3.5e-13, [description = "CH₃O₂ + CH₃O₂ rate", unit = u"cm^3/molec/s"]
+            k6 = 1.9e-15, [description = "CH₃O + O₂ rate", unit = u"cm^3/molec/s"]
+            k7 = 3.8e-12, [description = "CH₃OOH + OH → CH₃O₂ rate", unit = u"cm^3/molec/s"]
+            k8 = 1.9e-12, [description = "CH₃OOH + OH → HCHO rate", unit = u"cm^3/molec/s"]
+            k10 = 8.5e-12, [description = "HCHO + OH rate", unit = u"cm^3/molec/s"]
+            k13 = 5.2e-12, [description = "HCO + O₂ rate", unit = u"cm^3/molec/s"]
+            k15 = 8.1e-12, [description = "HO₂ + NO rate", unit = u"cm^3/molec/s"]
+            k_CO_OH = 2.4e-13, [description = "CO + OH rate", unit = u"cm^3/molec/s"]
+            k_OH_NO2 = 1.0e-11, [description = "OH + NO₂ rate", unit = u"cm^3/molec/s"]
+            k_HO2_HO2 = 2.9e-12, [description = "HO₂ + HO₂ rate", unit = u"cm^3/molec/s"]
+            k_NO_O3 = 1.8e-14, [description = "NO + O₃ rate", unit = u"cm^3/molec/s"]
 
-        # External source for OH production (e.g., from O₃ photolysis)
-        P_OH_ext = 1e6, [description = "External OH production [molecules/cm³/s]"]
+            # Termolecular reactions (cm⁶ molecule⁻² s⁻¹, multiply by [M])
+            k2_0 = 1.0e-30, [description = "CH₃ + O₂ + M rate", unit = u"cm^6/molec^2/s"]
+            k14_0 = 5.7e-32, [description = "H + O₂ + M rate", unit = u"cm^6/molec^2/s"]
+            k17_0 = 6.0e-34, [description = "O + O₂ + M rate", unit = u"cm^6/molec^2/s"]
 
-        # Fixed concentrations (effectively constant on CH4 oxidation timescale)
-        M_fixed = 2.5e19, [description = "Total air density [molecules/cm³]"]
-        O2_fixed = 5.25e18, [description = "O₂ concentration [molecules/cm³]"]
+            # Photolysis rates (s⁻¹)
+            j9 = 5e-6, [description = "CH₃OOH photolysis rate", unit = u"s^-1"]
+            j11 = 3e-5, [description = "HCHO → HCO + H rate", unit = u"s^-1"]
+            j12 = 5e-5, [description = "HCHO → H₂ + CO rate", unit = u"s^-1"]
+            j16 = 8e-3, [description = "NO₂ photolysis rate", unit = u"s^-1"]
+
+            # External source for OH production (e.g., from O₃ photolysis)
+            P_OH_ext = 1e6, [description = "External OH production", unit = u"molec/cm^3/s"]
+        end
+
+        @species begin
+            CH4(t), [unit = u"molec/cm^3", description = "Methane"]
+            CH3(t), [unit = u"molec/cm^3", description = "Methyl radical"]
+            CH3O2(t), [unit = u"molec/cm^3", description = "Methylperoxy radical"]
+            CH3O(t), [unit = u"molec/cm^3", description = "Methoxy radical"]
+            CH3OOH(t), [unit = u"molec/cm^3", description = "Methyl hydroperoxide"]
+            HCHO(t), [unit = u"molec/cm^3", description = "Formaldehyde"]
+            HCO(t), [unit = u"molec/cm^3", description = "Formyl radical"]
+            CO(t), [unit = u"molec/cm^3", description = "Carbon monoxide"]
+            H2(t), [unit = u"molec/cm^3", description = "Molecular hydrogen"]
+            OH(t), [unit = u"molec/cm^3", description = "Hydroxyl radical"]
+            HO2(t), [unit = u"molec/cm^3", description = "Hydroperoxy radical"]
+            H(t), [unit = u"molec/cm^3", description = "Hydrogen atom"]
+            NO(t), [unit = u"molec/cm^3", description = "Nitric oxide"]
+            NO2(t), [unit = u"molec/cm^3", description = "Nitrogen dioxide"]
+            O(t), [unit = u"molec/cm^3", description = "Oxygen atom"]
+            O3(t), [unit = u"molec/cm^3", description = "Ozone"]
+            HNO3(t), [unit = u"molec/cm^3", description = "Nitric acid"]
+            H2O2(t), [unit = u"molec/cm^3", description = "Hydrogen peroxide"]
+        end
+
+        # =====================================================================
+        # Table 6.1: Methane Oxidation Mechanism (17 reactions)
+        # =====================================================================
+
+        # R1:  CH₄ + OH → CH₃ + H₂O
+        k1, CH4 + OH --> CH3
+
+        # R2:  CH₃ + O₂ + M → CH₃O₂ + M  (effective rate = k2_0 * [M] * [O₂])
+        k2_0 * $M_fixed * $O2_fixed, CH3 --> CH3O2
+
+        # R3:  CH₃O₂ + NO → CH₃O + NO₂
+        k3, CH3O2 + NO --> CH3O + NO2
+
+        # R4:  CH₃O₂ + HO₂ → CH₃OOH + O₂
+        k4, CH3O2 + HO2 --> CH3OOH
+
+        # R5:  CH₃O₂ + CH₃O₂ → products  (products leave system)
+        k5, 2CH3O2 --> 0
+
+        # R6:  CH₃O + O₂ → HCHO + HO₂  (effective rate = k6 * [O₂])
+        k6 * $O2_fixed, CH3O --> HCHO + HO2
+
+        # R7:  CH₃OOH + OH → CH₃O₂ + H₂O
+        k7, CH3OOH + OH --> CH3O2
+
+        # R8:  CH₃OOH + OH → HCHO + H₂O  (OH consumed, not regenerated per ODE)
+        k8, CH3OOH + OH --> HCHO
+
+        # R9:  CH₃OOH + hν → CH₃O + OH
+        j9, CH3OOH --> CH3O + OH
+
+        # R10: HCHO + OH → HCO + H₂O
+        k10, HCHO + OH --> HCO
+
+        # R11: HCHO + hν → HCO + H
+        j11, HCHO --> HCO + H
+
+        # R12: HCHO + hν → H₂ + CO
+        j12, HCHO --> H2 + CO
+
+        # R13: HCO + O₂ → CO + HO₂  (effective rate = k13 * [O₂])
+        k13 * $O2_fixed, HCO --> CO + HO2
+
+        # R14: H + O₂ + M → HO₂ + M  (effective rate = k14_0 * [M] * [O₂])
+        k14_0 * $M_fixed * $O2_fixed, H --> HO2
+
+        # R15: HO₂ + NO → OH + NO₂
+        k15, HO2 + NO --> OH + NO2
+
+        # R16: NO₂ + hν → NO + O
+        j16, NO2 --> NO + O
+
+        # R17: O + O₂ + M → O₃ + M  (effective rate = k17_0 * [M] * [O₂])
+        k17_0 * $M_fixed * $O2_fixed, O --> O3
+
+        # =====================================================================
+        # Auxiliary reactions (beyond Table 6.1)
+        # =====================================================================
+
+        # R18: CO + OH → HO₂  (+ CO₂, not tracked)
+        k_CO_OH, CO + OH --> HO2
+
+        # R19: OH + NO₂ → HNO₃
+        k_OH_NO2, OH + NO2 --> HNO3
+
+        # R20: HO₂ + HO₂ → H₂O₂  (+ O₂, not tracked)
+        k_HO2_HO2, 2HO2 --> H2O2
+
+        # R21: NO + O₃ → NO₂  (+ O₂, not tracked)
+        k_NO_O3, NO + O3 --> NO2
+
+        # R22: External OH production (zero-order source, e.g., from O₃ photolysis)
+        P_OH_ext, 0 --> OH
     end
 
-    # State variables (species that evolve in time)
-    @variables begin
-        CH4(t), [description = "Methane [molecules/cm³]"]
-        CH3(t), [description = "Methyl radical [molecules/cm³]"]
-        CH3O2(t), [description = "Methylperoxy radical [molecules/cm³]"]
-        CH3O(t), [description = "Methoxy radical [molecules/cm³]"]
-        CH3OOH(t), [description = "Methyl hydroperoxide [molecules/cm³]"]
-        HCHO(t), [description = "Formaldehyde [molecules/cm³]"]
-        HCO(t), [description = "Formyl radical [molecules/cm³]"]
-        CO(t), [description = "Carbon monoxide [molecules/cm³]"]
-        H2(t), [description = "Molecular hydrogen [molecules/cm³]"]
-        OH(t), [description = "Hydroxyl radical [molecules/cm³]"]
-        HO2(t), [description = "Hydroperoxy radical [molecules/cm³]"]
-        H(t), [description = "Hydrogen atom [molecules/cm³]"]
-        NO(t), [description = "Nitric oxide [molecules/cm³]"]
-        NO2(t), [description = "Nitrogen dioxide [molecules/cm³]"]
-        O(t), [description = "Oxygen atom [molecules/cm³]"]
-        O3(t), [description = "Ozone [molecules/cm³]"]
-        HNO3(t), [description = "Nitric acid [molecules/cm³]"]
-        H2O2(t), [description = "Hydrogen peroxide [molecules/cm³]"]
-    end
-
-    # Build the ODE system
-    eqs = [
-        # d[CH₄]/dt = -k1[CH₄][OH]
-        D(CH4) ~ -k1 * CH4 * OH,
-
-        # d[CH₃]/dt = k1[CH₄][OH] - k2[CH₃][O₂][M]
-        D(CH3) ~ k1 * CH4 * OH - k2_0 * M_fixed * CH3 * O2_fixed,
-
-        # d[CH₃O₂]/dt = k2[CH₃][O₂] - k3[CH₃O₂][NO] - k4[CH₃O₂][HO₂]
-        #               - 2k5[CH₃O₂]² + k7[CH₃OOH][OH]
-        D(CH3O2) ~ k2_0 * M_fixed * CH3 * O2_fixed - k3 * CH3O2 * NO - k4 * CH3O2 * HO2 - 2 * k5 * CH3O2^2 + k7 * CH3OOH * OH,
-
-        # d[CH₃O]/dt = k3[CH₃O₂][NO] + j9[CH₃OOH] - k6[CH₃O][O₂]
-        D(CH3O) ~ k3 * CH3O2 * NO + j9 * CH3OOH - k6 * CH3O * O2_fixed,
-
-        # d[CH₃OOH]/dt = k4[CH₃O₂][HO₂] - k7[CH₃OOH][OH] - k8[CH₃OOH][OH] - j9[CH₃OOH]
-        D(CH3OOH) ~ k4 * CH3O2 * HO2 - k7 * CH3OOH * OH - k8 * CH3OOH * OH - j9 * CH3OOH,
-
-        # d[HCHO]/dt = k6[CH₃O][O₂] + k8[CH₃OOH][OH] - k10[HCHO][OH] - j11[HCHO] - j12[HCHO]
-        D(HCHO) ~ k6 * CH3O * O2_fixed + k8 * CH3OOH * OH - k10 * HCHO * OH - j11 * HCHO - j12 * HCHO,
-
-        # d[HCO]/dt = k10[HCHO][OH] + j11[HCHO] - k13[HCO][O₂]
-        D(HCO) ~ k10 * HCHO * OH + j11 * HCHO - k13 * HCO * O2_fixed,
-
-        # d[CO]/dt = k13[HCO][O₂] + j12[HCHO] - k_CO_OH[CO][OH]
-        D(CO) ~ k13 * HCO * O2_fixed + j12 * HCHO - k_CO_OH * CO * OH,
-
-        # d[H₂]/dt = j12[HCHO]
-        D(H2) ~ j12 * HCHO,
-
-        # d[H]/dt = j11[HCHO] - k14[H][O₂]
-        D(H) ~ j11 * HCHO - k14_0 * M_fixed * H * O2_fixed,
-
-        # d[OH]/dt = P_OH_ext + k15[HO₂][NO] + j9[CH₃OOH]
-        #            - k1[CH₄][OH] - k7[CH₃OOH][OH] - k10[HCHO][OH]
-        #            - k_CO_OH[CO][OH] - k_OH_NO2[OH][NO₂]
-        D(OH) ~ P_OH_ext + k15 * HO2 * NO + j9 * CH3OOH - k1 * CH4 * OH - k7 * CH3OOH * OH - k8 * CH3OOH * OH - k10 * HCHO * OH - k_CO_OH * CO * OH - k_OH_NO2 * OH * NO2,
-
-        # d[HO₂]/dt = k6[CH₃O][O₂] + k13[HCO][O₂] + k14[H][O₂] + k_CO_OH[CO][OH]
-        #             - k4[CH₃O₂][HO₂] - k15[HO₂][NO] - 2k_HO2_HO2[HO₂]²
-        D(HO2) ~ k6 * CH3O * O2_fixed + k13 * HCO * O2_fixed + k14_0 * M_fixed * H * O2_fixed + k_CO_OH * CO * OH - k4 * CH3O2 * HO2 - k15 * HO2 * NO - 2 * k_HO2_HO2 * HO2^2,
-
-        # d[NO]/dt = j16[NO₂] - k3[CH₃O₂][NO] - k15[HO₂][NO] - k_NO_O3[NO][O₃]
-        D(NO) ~ j16 * NO2 - k3 * CH3O2 * NO - k15 * HO2 * NO - k_NO_O3 * NO * O3,
-
-        # d[NO₂]/dt = k3[CH₃O₂][NO] + k15[HO₂][NO] + k_NO_O3[NO][O₃] - j16[NO₂] - k_OH_NO2[OH][NO₂]
-        D(NO2) ~ k3 * CH3O2 * NO + k15 * HO2 * NO + k_NO_O3 * NO * O3 - j16 * NO2 - k_OH_NO2 * OH * NO2,
-
-        # d[O]/dt = j16[NO₂] - k17[O][O₂]
-        D(O) ~ j16 * NO2 - k17_0 * M_fixed * O * O2_fixed,
-
-        # d[O₃]/dt = k17[O][O₂] - k_NO_O3[NO][O₃]
-        D(O3) ~ k17_0 * M_fixed * O * O2_fixed - k_NO_O3 * NO * O3,
-
-        # d[HNO₃]/dt = k_OH_NO2[OH][NO₂]
-        D(HNO3) ~ k_OH_NO2 * OH * NO2,
-
-        # d[H₂O₂]/dt = k_HO2_HO2[HO₂]²
-        D(H2O2) ~ k_HO2_HO2 * HO2^2,
-    ]
-
-    return ODESystem(eqs, t; name=name)
+    # Convert the reaction network to an ODE system.
+    # combinatoric_ratelaws=false: use macroscopic rate laws (rate = k*[A]*[B])
+    # rather than microscopic (rate = k*[A]*[B]/2 for A+A reactions).
+    Catalyst.make_rre_ode(complete(rn); combinatoric_ratelaws=false, name=name)
 end

@@ -15,9 +15,7 @@ relationship between O₃, NO, and NO₂.
 Reference: Seinfeld & Pandis (2006), Section 6.2, pp. 207-212
 """
 
-using ModelingToolkit
-using Unitful
-using ModelingToolkit: t_nounits as t, D_nounits as D
+using ModelingToolkit: t, D
 
 # ============================================================================
 # Equation 6.5: Ground-State Oxygen Atom Steady-State
@@ -83,29 +81,29 @@ Seinfeld & Pandis Chapter 6.
 - k_O_O2_M = 6.0 × 10⁻³⁴ cm⁶ molecule⁻² s⁻¹
 - k_NO_O3 = 1.8 × 10⁻¹⁴ cm³ molecule⁻¹ s⁻¹
 """
-function NOxPhotochemistry(; name=:NOxPhotochemistry)
+@component function NOxPhotochemistry(; name=:NOxPhotochemistry)
     # Parameters
     @parameters begin
-        j_NO2 = 8e-3, [description = "NO₂ photolysis rate [s⁻¹]"]
-        k_O_O2_M = 6.0e-34, [description = "O + O₂ + M → O₃ rate [cm⁶/s]"]
-        k_NO_O3 = 1.8e-14, [description = "NO + O₃ → NO₂ rate [cm³/s]"]
+        j_NO2 = 8e-3, [description = "NO₂ photolysis rate", unit = u"s^-1"]
+        k_O_O2_M = 6.0e-34, [description = "O + O₂ + M → O₃ rate", unit = u"cm^6/molec^2/s"]
+        k_NO_O3 = 1.8e-14, [description = "NO + O₃ → NO₂ rate", unit = u"cm^3/molec/s"]
     end
 
     # Input variables
     @variables begin
-        NO(t), [description = "NO concentration [molecules/cm³]"]
-        NO2(t), [description = "NO₂ concentration [molecules/cm³]"]
-        O3(t), [description = "O₃ concentration [molecules/cm³]"]
-        O2(t), [description = "O₂ concentration [molecules/cm³]"]
-        M(t), [description = "Total air number density [molecules/cm³]"]
+        NO(t), [description = "NO concentration", unit = u"molec/cm^3"]
+        NO2(t), [description = "NO₂ concentration", unit = u"molec/cm^3"]
+        O3(t), [description = "O₃ concentration", unit = u"molec/cm^3"]
+        O2(t), [description = "O₂ concentration", unit = u"molec/cm^3"]
+        M(t), [description = "Total air number density", unit = u"molec/cm^3"]
     end
 
     # Output variables
     @variables begin
-        O(t), [description = "O atom concentration [molecules/cm³]"]
-        O3_pss(t), [description = "Photostationary state O₃ [molecules/cm³]"]
-        Φ(t), [description = "Photostationary state parameter"]
-        P_O3(t), [description = "Net O₃ production rate [molecules/cm³/s]"]
+        O(t), [description = "O atom concentration", unit = u"molec/cm^3"]
+        O3_pss(t), [description = "Photostationary state O₃", unit = u"molec/cm^3"]
+        Φ(t), [description = "Photostationary state parameter (dimensionless)", unit = u"1"]
+        P_O3(t), [description = "Net O₃ production rate", unit = u"molec/cm^3/s"]
     end
 
     # Equations
@@ -123,7 +121,7 @@ function NOxPhotochemistry(; name=:NOxPhotochemistry)
         P_O3 ~ j_NO2 * NO2 - k_NO_O3 * NO * O3,
     ]
 
-    return ODESystem(eqs, t; name=name)
+    return System(eqs, t; name, checks=false)
 end
 
 """
@@ -138,24 +136,24 @@ When Φ > 1: Additional oxidants (HO₂, RO₂) are converting NO to NO₂
 When Φ < 1: Additional reductants are present
 When Φ = 1: Pure photostationary state (no net ozone production)
 """
-function PhotostationaryState(; name=:PhotostationaryState)
+@component function PhotostationaryState(; name=:PhotostationaryState)
     # Parameters
     @parameters begin
-        j_NO2 = 8e-3, [description = "NO₂ photolysis rate [s⁻¹]"]
-        k_NO_O3 = 1.8e-14, [description = "NO + O₃ → NO₂ rate [cm³/s]"]
+        j_NO2 = 8e-3, [description = "NO₂ photolysis rate", unit = u"s^-1"]
+        k_NO_O3 = 1.8e-14, [description = "NO + O₃ → NO₂ rate", unit = u"cm^3/molec/s"]
     end
 
     # Input variables
     @variables begin
-        NO(t), [description = "NO concentration [molecules/cm³]"]
-        NO2(t), [description = "NO₂ concentration [molecules/cm³]"]
-        O3(t), [description = "O₃ concentration [molecules/cm³]"]
+        NO(t), [description = "NO concentration", unit = u"molec/cm^3"]
+        NO2(t), [description = "NO₂ concentration", unit = u"molec/cm^3"]
+        O3(t), [description = "O₃ concentration", unit = u"molec/cm^3"]
     end
 
     # Output variables
     @variables begin
-        Φ(t), [description = "Photostationary state parameter"]
-        Φ_deviation(t), [description = "Deviation from photostationary state"]
+        Φ(t), [description = "Photostationary state parameter (dimensionless)", unit = u"1"]
+        Φ_deviation(t), [description = "Deviation from photostationary state (dimensionless)", unit = u"1"]
     end
 
     eqs = [
@@ -163,5 +161,5 @@ function PhotostationaryState(; name=:PhotostationaryState)
         Φ_deviation ~ Φ - 1,
     ]
 
-    return ODESystem(eqs, t; name=name)
+    return System(eqs, t; name, checks=false)
 end
