@@ -7,7 +7,7 @@ using Dates
 using DynamicQuantities
 using StaticArrays
 using Interpolations
-using ModelingToolkit: t
+using ModelingToolkit: t, D
 using BSON
 using DocStringExtensions
 

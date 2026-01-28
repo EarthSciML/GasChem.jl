@@ -49,12 +49,14 @@ The implementation uses ModelingToolkit.jl to define ODE systems for each chemic
 ### Chapman Mechanism System
 
 ```@example chapman
-using StratosphericChemistry
+using GasChem
 using ModelingToolkit
+using ModelingToolkit: t
+using DynamicQuantities
+using Symbolics
 using DataFrames
 
-# Create the Chapman mechanism system
-sys = structural_simplify(ChapmanMechanism())
+sys = ChapmanMechanism()
 nothing # hide
 ```
 
@@ -63,7 +65,8 @@ nothing # hide
 ```@example chapman
 vars = unknowns(sys)
 DataFrame(
-    :Name => [string(v) for v in vars],
+    :Name => [string(Symbolics.tosymbol(v, escape=false)) for v in vars],
+    :Units => [dimension(ModelingToolkit.get_unit(v)) for v in vars],
     :Description => [ModelingToolkit.getdescription(v) for v in vars]
 )
 ```
@@ -73,7 +76,8 @@ DataFrame(
 ```@example chapman
 params = parameters(sys)
 DataFrame(
-    :Name => [string(p) for p in params],
+    :Name => [string(Symbolics.tosymbol(p, escape=false)) for p in params],
+    :Units => [dimension(ModelingToolkit.get_unit(p)) for p in params],
     :Description => [ModelingToolkit.getdescription(p) for p in params]
 )
 ```
@@ -91,11 +95,14 @@ equations(sys)
 The full stratospheric system combines all catalytic cycles:
 
 ```@example fullsys
-using StratosphericChemistry
+using GasChem
 using ModelingToolkit
+using ModelingToolkit: t
+using DynamicQuantities
+using Symbolics
 using DataFrames
 
-sys_full = structural_simplify(StratosphericOzoneSystem())
+sys_full = StratosphericOzoneSystem()
 nothing # hide
 ```
 
@@ -104,7 +111,8 @@ nothing # hide
 ```@example fullsys
 vars = unknowns(sys_full)
 DataFrame(
-    :Name => [string(v) for v in vars],
+    :Name => [string(Symbolics.tosymbol(v, escape=false)) for v in vars],
+    :Units => [dimension(ModelingToolkit.get_unit(v)) for v in vars],
     :Description => [ModelingToolkit.getdescription(v) for v in vars]
 )
 ```
@@ -121,7 +129,6 @@ The following table reproduces the standard atmospheric conditions used througho
 using DataFrames
 
 # Table 5.1 from Seinfeld & Pandis (2006)
-# Stratospheric Temperature, Pressure, and Atmospheric Number Density
 altitudes = [20, 25, 30, 35, 40, 45]  # km
 temperatures = [217, 222, 227, 237, 251, 264]  # K
 pressures = [55.3, 25.5, 12.0, 5.75, 2.87, 1.49]  # mbar
@@ -140,12 +147,11 @@ table51 = DataFrame(
 The rate coefficients for the Chapman mechanism vary with altitude due to their temperature dependence:
 
 ```@example analysis
-using StratosphericChemistry
+using GasChem
 using Plots
 
-# Calculate rate coefficients at each altitude
-k2_values = [StratosphericChemistry.k_O_O2_M(T) for T in temperatures]
-k4_values = [StratosphericChemistry.k_O_O3(T) for T in temperatures]
+k2_values = [GasChem.k_O_O2_M(T) for T in temperatures]
+k4_values = [GasChem.k_O_O3(T) for T in temperatures]
 
 p1 = plot(altitudes, k2_values,
     xlabel="Altitude (km)",
@@ -180,18 +186,16 @@ The steady-state ratio of atomic oxygen to ozone is given by Equation 5.7:
 This ratio increases with altitude due to decreasing air density M:
 
 ```@example analysis
-using StratosphericChemistry
+using GasChem
 using Plots
 
-# Equation 5.7: [O]/[O3] = j_O3 / (k2 * [O2] * [M])
-# Using typical photolysis rates from the text
 j_O3 = 4e-4  # s^-1 (typical midday value around 30 km)
 O2_frac = 0.21
 
 O_O3_ratios = Float64[]
 for (i, T) in enumerate(temperatures)
     M = M_values[i]
-    k2 = StratosphericChemistry.k_O_O2_M(T)
+    k2 = GasChem.k_O_O2_M(T)
     O2 = O2_frac * M
     ratio = j_O3 / (k2 * O2 * M)
     push!(O_O3_ratios, ratio)
@@ -221,23 +225,20 @@ The Chapman mechanism predicts a steady-state ozone concentration given by Equat
 ```
 
 ```@example analysis
-using StratosphericChemistry
+using GasChem
 using Plots
 
-# Equation 5.13: Steady-state ozone
-# j_O2 and j_O3 values from typical stratospheric conditions
 j_O2_values = [1e-12, 5e-12, 1e-11, 2e-11, 3e-11, 4e-11]  # Increases with altitude
 j_O3_values = [2e-4, 3e-4, 4e-4, 5e-4, 6e-4, 7e-4]  # s^-1
 
 O3_ss = Float64[]
 for (i, T) in enumerate(temperatures)
     M = M_values[i]
-    k2 = StratosphericChemistry.k_O_O2_M(T)
-    k4 = StratosphericChemistry.k_O_O3(T)
+    k2 = GasChem.k_O_O2_M(T)
+    k4 = GasChem.k_O_O3(T)
     j_O2 = j_O2_values[i]
     j_O3 = j_O3_values[i]
 
-    # Equation 5.13
     O3 = 0.21 * sqrt(k2 * j_O2 / (k4 * j_O3)) * M^1.5
     push!(O3_ss, O3)
 end
@@ -263,23 +264,21 @@ The characteristic time for ozone to reach steady state is given by Equation 5.1
 ```
 
 ```@example analysis
-using StratosphericChemistry
+using GasChem
 using Plots
 
 tau_ss = Float64[]
 for (i, T) in enumerate(temperatures)
     M = M_values[i]
-    k2 = StratosphericChemistry.k_O_O2_M(T)
-    k4 = StratosphericChemistry.k_O_O3(T)
+    k2 = GasChem.k_O_O2_M(T)
+    k4 = GasChem.k_O_O3(T)
     j_O2 = j_O2_values[i]
     j_O3 = j_O3_values[i]
 
-    # Equation 5.17
     tau = 0.25 * sqrt(k2 * M / (k4 * j_O2 * j_O3))
     push!(tau_ss, tau)
 end
 
-# Convert to days
 tau_days = tau_ss ./ (24 * 3600)
 
 plot(tau_days, altitudes,
@@ -302,52 +301,44 @@ At 40 km, the ozone steady-state timescale is on the order of hours, while at 20
 We can solve the Chapman mechanism ODE system to observe the approach to steady state:
 
 ```@example analysis
-using StratosphericChemistry
+using GasChem
 using ModelingToolkit
-using OrdinaryDiffEq
+using OrdinaryDiffEqDefault
 using Plots
 
-# Create and simplify the system
 chapman = ChapmanMechanism()
-sys = structural_simplify(chapman)
+sys = mtkcompile(chapman)
 
 # Parameters for 30 km altitude (Table 5.1)
 T = 227.0  # K
 M = 3.83e17  # molec/cm^3
-O2_conc = 0.21 * M
 
-# Photolysis rates (typical values)
 j_O2_val = 1e-11  # s^-1
 j_O3_val = 4e-4   # s^-1
+k2_val = GasChem.k_O_O2_M(T)
+k4_val = GasChem.k_O_O3(T)
 
-# Rate coefficients
-k2_val = StratosphericChemistry.k_O_O2_M(T)
-k4_val = StratosphericChemistry.k_O_O3(T)
-
-# Set up the problem
 prob = ODEProblem(sys,
-    [sys.O => 1e5, sys.O3 => 1e10],  # Initial conditions
-    (0.0, 3600.0 * 24 * 10),  # 10 days in seconds
+    [sys.O => 1e5, sys.O3 => 1e10],
+    (0.0, 3600.0 * 24 * 10),  # 10 days
     [sys.j_O2 => j_O2_val,
      sys.j_O3 => j_O3_val,
      sys.k2 => k2_val,
      sys.k4 => k4_val,
      sys.M => M,
-     sys.O2_conc => 0.21])
+     sys.O2_mix => 0.21])
 
-# Solve
-sol = solve(prob, Rodas5P(), abstol=1e-8, reltol=1e-8)
+sol = solve(prob, abstol=1e-8, reltol=1e-8)
 
-# Plot
 time_hours = sol.t ./ 3600
 
-p1 = plot(time_hours, [sol[sys.O3][i] for i in 1:length(sol.t)] ./ 1e12,
+p1 = plot(time_hours, sol[sys.O3] ./ 1e12,
     xlabel="Time (hours)",
     ylabel="[O3] (10^12 molec/cm^3)",
     label="O3",
     title="Chapman Mechanism: Approach to Steady State (30 km)")
 
-p2 = plot(time_hours, [sol[sys.O][i] for i in 1:length(sol.t)],
+p2 = plot(time_hours, sol[sys.O],
     xlabel="Time (hours)",
     ylabel="[O] (molec/cm^3)",
     label="O",
@@ -366,34 +357,69 @@ The catalytic cycles (NOx, HOx, ClOx, BrOx) each contribute to ozone destruction
 
 At lower stratospheric altitudes (15-25 km), the HOx cycle dominates ozone loss. At middle altitudes (25-40 km), the NOx cycle becomes most important. The ClOx cycle contributes significantly at all altitudes and is particularly important in the polar regions where heterogeneous chemistry activates chlorine reservoirs.
 
+The following figure uses the rate coefficient functions from the implementation to compute the relative destruction rates at each altitude, assuming typical species mixing ratios from the textbook:
+
 ```@example analysis
+using GasChem
 using Plots
 
-# Approximate contributions based on Figure 5.29 (page 185)
-# These are illustrative values showing the relative importance
+# Compute catalytic destruction rates from the implementation's rate coefficients
+# Using typical stratospheric mixing ratios from Chapter 5
 
-altitudes_fine = 15:2:45
-n = length(altitudes_fine)
+# Typical mixing ratios (from text)
+NO2_vmr = 5e-9   # 5 ppbv
+OH_vmr = 5e-7    # 0.5 pptv — very low
+ClO_vmr = 1e-10  # ~100 pptv
+BrO_vmr = 5e-12  # ~5 pptv
 
-# Approximate percentage contributions (from Figure 5.29)
-# Values estimated from the figure in the textbook
-nox_contrib = [5, 10, 25, 40, 55, 60, 55, 50, 45, 40, 35, 30, 25, 20, 15, 10]
-hox_contrib = [50, 45, 35, 25, 20, 18, 20, 22, 25, 28, 30, 32, 35, 38, 40, 42]
-clox_contrib = [15, 18, 22, 25, 20, 18, 20, 23, 25, 27, 30, 32, 35, 38, 42, 45]
-brox_contrib = [10, 12, 10, 5, 3, 2, 3, 3, 3, 3, 3, 4, 3, 2, 1, 1]
-chapman_contrib = [20, 15, 8, 5, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
+nox_rates = Float64[]
+hox_rates = Float64[]
+clox_rates = Float64[]
+brox_rates = Float64[]
+chapman_rates = Float64[]
 
-plot(nox_contrib, altitudes_fine,
+for (i, T) in enumerate(temperatures)
+    M = M_values[i]
+    O_conc = 1e7 * (M_values[3] / M)  # Scale O with inverse density (increases with altitude)
+    O3_conc = 3e12 * (M / M_values[3])  # Scale O3 with density
+
+    NO2 = NO2_vmr * M
+    OH = OH_vmr * M
+    ClO = ClO_vmr * M
+    BrO = BrO_vmr * M
+
+    # Destruction rates (from Seinfeld & Pandis Eqs. 5.22, 5.25, 5.29)
+    k_NO2_O = GasChem.k_NO2_O(T)
+    k_OH_O3 = GasChem.k_OH_O3(T)
+    k_ClO_O = GasChem.k_ClO_O(T)
+    k_Br_O3 = GasChem.k_Br_O3(T)
+    k4 = GasChem.k_O_O3(T)
+
+    R_NOx = 2 * k_NO2_O * NO2 * O_conc
+    R_HOx = 2 * k_OH_O3 * OH * O3_conc
+    R_ClOx = 2 * k_ClO_O * ClO * O_conc
+    R_BrOx = 2 * k_Br_O3 * BrO * O3_conc
+    R_chapman = 2 * k4 * O_conc * O3_conc
+
+    total = R_NOx + R_HOx + R_ClOx + R_BrOx + R_chapman
+    push!(nox_rates, 100 * R_NOx / total)
+    push!(hox_rates, 100 * R_HOx / total)
+    push!(clox_rates, 100 * R_ClOx / total)
+    push!(brox_rates, 100 * R_BrOx / total)
+    push!(chapman_rates, 100 * R_chapman / total)
+end
+
+plot(nox_rates, altitudes,
     label="NOx",
     xlabel="Contribution to O3 Loss (%)",
     ylabel="Altitude (km)",
     title="Catalytic Cycle Contributions (cf. Figure 5.29)",
     linewidth=2,
     legend=:topright)
-plot!(hox_contrib, altitudes_fine, label="HOx", linewidth=2)
-plot!(clox_contrib, altitudes_fine, label="ClOx", linewidth=2)
-plot!(brox_contrib, altitudes_fine, label="BrOx", linewidth=2)
-plot!(chapman_contrib, altitudes_fine, label="Chapman (O+O3)", linewidth=2, linestyle=:dash)
+plot!(hox_rates, altitudes, label="HOx", linewidth=2)
+plot!(clox_rates, altitudes, label="ClOx", linewidth=2)
+plot!(brox_rates, altitudes, label="BrOx", linewidth=2)
+plot!(chapman_rates, altitudes, label="Chapman (O+O3)", linewidth=2, linestyle=:dash)
 savefig("catalytic_contributions.svg"); nothing # hide
 ```
 
@@ -410,30 +436,22 @@ The NOx cycle destroys odd oxygen at the rate (Equation 5.22):
 The efficiency of the NOx cycle can be estimated by comparing this destruction rate to the Chapman mechanism rate:
 
 ```@example analysis
-using StratosphericChemistry
+using GasChem
 using Plots
 
-# Compare NOx destruction rate to Chapman rate at different altitudes
-# Assume typical mixing ratios from the text
-
-# Typical stratospheric concentrations
 NO2_mix = 1e-9  # 1 ppbv
 O_mix = 1e-11   # varies strongly with altitude
-
-# Chapman destruction: 2 * k4 * [O] * [O3]
-# NOx destruction: 2 * k_NO2_O * [NO2] * [O]
 
 ratios = Float64[]
 for (i, T) in enumerate(temperatures)
     M = M_values[i]
-    k4 = StratosphericChemistry.k_O_O3(T)
-    k_NO2_O = StratosphericChemistry.k_NO2_O(T)
+    k4 = GasChem.k_O_O3(T)
+    k_NO2_O = GasChem.k_NO2_O(T)
 
-    O = O_mix * M  # [O] increases with altitude relative to [O3]
-    O3 = 3e12  # Typical O3 concentration
+    O = O_mix * M
+    O3 = 3e12
     NO2 = NO2_mix * M
 
-    # Rate ratio
     R_chapman = k4 * O * O3
     R_NOx = k_NO2_O * NO2 * O
 
@@ -455,29 +473,45 @@ savefig("nox_efficiency.svg"); nothing # hide
 
 ### Chlorine Reservoir Partitioning
 
-In the stratosphere, most chlorine exists in reservoir species (HCl and ClONO2) rather than reactive forms (Cl and ClO). The partitioning between these species is crucial for understanding ozone depletion:
+In the stratosphere, most chlorine exists in reservoir species (HCl and ClONO2) rather than reactive forms (Cl and ClO). The partitioning between these species is crucial for understanding ozone depletion.
+
+The following figure uses the ClOx cycle system from the implementation to simulate the approach to steady-state partitioning:
 
 ```@example analysis
-using StratosphericChemistry
+using GasChem
+using ModelingToolkit
+using OrdinaryDiffEqDefault
 using Plots
 
-# Typical partitioning of inorganic chlorine (Cly)
-# Based on discussion in Section 5.5.4
+# Run ClOx system at different altitudes and examine the partitioning
+sys = ClOxCycle()
+compiled = mtkcompile(sys)
 
-altitudes_cl = [15, 20, 25, 30, 35, 40, 45]
+# Compute partitioning at a representative altitude (30 km)
+# Starting from all Cly as ClO
+Cly_total = 2e9  # Total Cly
 
-# Approximate fractions (from text discussion)
-HCl_frac = [0.85, 0.75, 0.60, 0.50, 0.45, 0.42, 0.40]
-ClONO2_frac = [0.14, 0.23, 0.35, 0.40, 0.38, 0.33, 0.28]
-ClOx_frac = [0.01, 0.02, 0.05, 0.10, 0.17, 0.25, 0.32]
+prob = ODEProblem(compiled,
+    [compiled.Cl => 1e4, compiled.ClO => 1e7,
+     compiled.HCl => 1e9, compiled.ClONO2 => Cly_total - 1e4 - 1e7 - 1e9],
+    (0.0, 3600.0 * 24),  # 1 day
+    )
 
-areaplot(altitudes_cl, hcat(HCl_frac, ClONO2_frac, ClOx_frac),
-    label=["HCl" "ClONO2" "ClOx"],
-    xlabel="Altitude (km)",
-    ylabel="Fraction of Cly",
-    title="Chlorine Reservoir Partitioning",
-    fillalpha=0.7,
-    legend=:topright)
+sol = solve(prob, abstol=1e-8, reltol=1e-8)
+
+time_hours = sol.t ./ 3600
+
+Cly = sol[compiled.Cl] .+ sol[compiled.ClO] .+ sol[compiled.HCl] .+ sol[compiled.ClONO2]
+HCl_frac = sol[compiled.HCl] ./ Cly
+ClONO2_frac = sol[compiled.ClONO2] ./ Cly
+ClOx_frac = (sol[compiled.Cl] .+ sol[compiled.ClO]) ./ Cly
+
+plot(time_hours, HCl_frac, label="HCl/Cly", linewidth=2,
+    xlabel="Time (hours)", ylabel="Fraction of Cly",
+    title="Chlorine Reservoir Partitioning (30 km)",
+    legend=:right)
+plot!(time_hours, ClONO2_frac, label="ClONO2/Cly", linewidth=2)
+plot!(time_hours, ClOx_frac, label="ClOx/Cly", linewidth=2)
 savefig("chlorine_partitioning.svg"); nothing # hide
 ```
 
