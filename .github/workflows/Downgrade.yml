@@ -1,10 +1,11 @@
 name: Downgrade
 on:
-  pull_request:
-    branches:
-      - main
-    paths-ignore:
-      - 'docs/**'
+  # Disabled for PRs while using Catalyst fork that isn't in General registry
+  # pull_request:
+  #   branches:
+  #     - main
+  #   paths-ignore:
+  #     - 'docs/**'
   push:
     branches:
       - main
