@@ -9,12 +9,14 @@ using StaticArrays
 using Interpolations
 using ModelingToolkit: t
 using BSON
+using DocStringExtensions
 
 @register_unit molec 1
 @register_unit mol_air 1u"mol"
 @register_unit ppb 1u"mol/mol_air"
-#TODO if @register_unit ppb 1e-9u"mol/mol_air" if @register_unit ppb 1e-9u"mol/mol_air", though it's physically correct, but this will result ModelingToolkit.ValidationError when coupling different models.
+#TODO if @register_unit ppb 1e-9u"mol/mol_air", though it's physically correct, but this will result ModelingToolkit.ValidationError when coupling different models.
 
+include("AtmosphericLifetime.jl")
 include("SuperFast.jl")
 include("Pollu.jl")
 include("geoschem_ratelaws.jl")

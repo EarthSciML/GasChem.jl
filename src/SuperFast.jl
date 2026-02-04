@@ -6,23 +6,20 @@ Convert reaction rate value in unit of cm^3/molec/s to (s*ppb)^-1
 function rate_toppb(t, T, P, a0; name = :rateconvert)
     T = ParentScope(T)
     P = ParentScope(P)
-    @constants(A=6.02e23,
-        [unit=u"molec/mol", description="Avogadro's number"],
-        R=8.314e6,
-        [unit=u"(Pa*cm^3)/(K*mol)", description="universal gas constant"],
-        ppb_unit=1e-9,
-        [unit=u"ppb", description="Convert from mol/mol_air to ppb"],
-        num_density_unit_inv=1,
-        [
-            unit=u"cm^3/molec",
-            description="multiply by num_density to obtain the unitless value of num_density"
-        ],
-        a0=a0,
-        [unit=u"cm^3/molec/s"],)
-    air_volume = R*T/P #unit in cm^3/mol
+    consts = @constants begin
+        A = 6.02e23, [unit = u"molec/mol", description = "Avogadro's number"]
+        R = 8.314e6, [unit = u"(Pa*cm^3)/(K*mol)", description = "universal gas constant"]
+        ppb_unit = 1e-9, [unit = u"ppb", description = "Convert from mol/mol_air to ppb"]
+        num_density_unit_inv = 1,
+        [unit = u"cm^3/molec",
+            description = "multiply by num_density to obtain the unitless value of num_density"
+        ]
+        a0 = a0, [unit = u"cm^3/molec/s"]
+    end
+    air_volume = R * T / P #unit in cm^3/mol
     c = A / air_volume * ppb_unit #Convert the second reaction rate value, which corresponds to species with units of molec/cm³, to ppb.
     @variables k(t) [unit = u"(s*ppb)^-1"]
-    ODESystem([k ~ a0 * c], t, [k], []; name = name)
+    ODESystem([k ~ a0 * c], t, [k], consts; name = name)
 end
 
 """
@@ -36,28 +33,22 @@ function arrh(t, T, P, a0, b0, c0; name = :arrhenius)
     T = ParentScope(T)
     t = ParentScope(t)
     P = ParentScope(P)
-    @constants(A=6.02e23,
-        [unit=u"molec/mol", description="Avogadro's number"],
-        R=8.314e6,
-        [unit=u"(Pa*cm^3)/(K*mol)", description="universal gas constant"],
-        ppb_unit=1e-9,
-        [unit=u"ppb", description="Convert from mol/mol_air to ppb"],
-        num_density_unit_inv=1,
-        [
-            unit=u"cm^3/molec",
-            description="multiply by num_density to obtain the unitless value of num_density"
-        ],
-        K_300=300,
-        [unit=u"K"],
-        a0=a0,
-        [unit=u"cm^3/molec/s"],
-        b0=b0,
-        c0=c0,
-        [unit=u"K"],)
+    consts = @constants begin
+        A = 6.02e23, [unit = u"molec/mol", description = "Avogadro's number"]
+        R = 8.314e6, [unit = u"(Pa*cm^3)/(K*mol)", description = "universal gas constant"]
+        ppb_unit = 1e-9, [unit = u"ppb", description = "Convert from mol/mol_air to ppb"]
+        num_density_unit_inv = 1,
+        [unit = u"cm^3/molec",
+            description = "multiply by num_density to obtain the unitless value of num_density"]
+        K_300 = 300, [unit = u"K"]
+        a0 = a0, [unit = u"cm^3/molec/s"]
+        b0 = b0
+        c0 = c0, [unit = u"K"]
+    end
     @variables k(t) [unit = u"(s*ppb)^-1"]
-    air_volume = R*T/P #unit in cm^3/mol
+    air_volume = R * T / P #unit in cm^3/mol
     c = A / air_volume * ppb_unit #Convert the second reaction rate value, which corresponds to species with units of molec/cm³, to ppb.
-    ODESystem([k ~ a0 * exp(c0 / T) * (K_300 / T)^b0 * c], t, [k], []; name = name)
+    ODESystem([k ~ a0 * exp(c0 / T) * (K_300 / T)^b0 * c], t, [k], consts; name = name)
 end
 
 """
@@ -71,18 +62,15 @@ function arr_3rd(t, T, P, a1, b1, c1, a2, b2, c2, fv; name = :arr_3rdbody)
     t = ParentScope(t)
     T = ParentScope(T)
     P = ParentScope(P)
-    @constants(A=6.02e23,
-        [unit=u"molec/mol", description="Avogadro's number"],
-        R=8.314e6,
-        [unit=u"(Pa*cm^3)/(K*mol)", description="universal gas constant"],
-        ppb_unit=1e-9,
-        [unit=u"ppb", description="Convert from mol/mol_air to ppb"],
-        num_density_unit_inv=1,
-        [
-            unit=u"cm^3/molec",
-            description="multiply by num_density to obtain the unitless value of num_density"
-        ],)
-    num_density_unitless = A*P/(R*T)*num_density_unit_inv
+    consts = @constants begin
+        A = 6.02e23, [unit = u"molec/mol", description = "Avogadro's number"]
+        R = 8.314e6, [unit = u"(Pa*cm^3)/(K*mol)", description = "universal gas constant"]
+        ppb_unit = 1e-9, [unit = u"ppb", description = "Convert from mol/mol_air to ppb"]
+        num_density_unit_inv = 1,
+        [unit = u"cm^3/molec",
+            description = "multiply by num_density to obtain the unitless value of num_density"]
+    end
+    num_density_unitless = A * P / (R * T) * num_density_unit_inv
 
     @named alow = arrh(t, T, P, a1, b1, c1)
     @named ahigh = arrh(t, T, P, a2, b2, c2)
@@ -96,7 +84,7 @@ function arr_3rd(t, T, P, a1, b1, c1, a2, b2, c2, fv; name = :arr_3rdbody)
         [k ~ rlow * (fv^fexp) / (1.0 + xyrat)],
         t,
         [k],
-        [];
+        consts;
         systems = [alow, ahigh],
         name = name
     )
@@ -110,36 +98,28 @@ function rate_2HO2(t, T, P, H2O, a0, c0, a1, c1; name = :rate_HO2HO2)
     T = ParentScope(T)
     P = ParentScope(P)
     H2O = ParentScope(H2O)
-    @constants(T_0=2200.0,
-        [unit=u"K"],
-        A=6.02e23,
-        [unit=u"molec/mol", description="Avogadro's number"],
-        R=8.314e6,
-        [unit=u"(Pa*cm^3)/(K*mol)", description="universal gas constant"],
-        ppb_unit=1e-9,
-        [unit=u"ppb", description="Convert from mol/mol_air to ppb"],
-        num_density_unit_inv=1,
-        [
-            unit=u"cm^3/molec",
-            description="multiply by num_density to obtain the unitless value of num_density"
-        ],
-        ppb_inv=1,
-        [unit=u"ppb^-1"],)
-    num_density_unitless = A*P/(R*T)*num_density_unit_inv
-    H2O_ppb_molec_cm3 = H2O*ppb_inv*1e-9*num_density_unitless # convert value of H2O concentration in unit of ppb to unit of molec/cm3, but here is unitless
+    consts = @constants begin
+        T_0 = 2200.0, [unit = u"K"]
+        A = 6.02e23, [unit = u"molec/mol", description = "Avogadro's number"]
+        R = 8.314e6, [unit = u"(Pa*cm^3)/(K*mol)", description = "universal gas constant"]
+        ppb_unit = 1e-9, [unit = u"ppb", description = "Convert from mol/mol_air to ppb"]
+        num_density_unit_inv = 1, [unit = u"cm^3/molec", description = "multiply by num_density to obtain the unitless value of num_density"]
+        ppb_inv = 1, [unit = u"ppb^-1"]
+    end
+    num_density_unitless = A * P / (R * T) * num_density_unit_inv
+    H2O_ppb_molec_cm3 = H2O * ppb_inv * 1e-9 * num_density_unitless # convert value of H2O concentration in unit of ppb to unit of molec/cm3, but here is unitless
     @named k0 = arrh(t, T, P, a0, 0.0, c0)
     @named k1 = arrh(t, T, P, a1, 0.0, c1)
 
     @variables k(t) [unit = u"(s*ppb)^-1"]
     ODESystem(
         [
-            k ~
-            (k0.k + k1.k * num_density_unitless) *
-            (1.0 + 1.4e-21 * H2O * H2O_ppb_molec_cm3 * exp(T_0 / T)),
+            k ~ (k0.k + k1.k * num_density_unitless) *
+                (1.0 + 1.4e-21 * H2O * H2O_ppb_molec_cm3 * exp(T_0 / T))
         ],
         t,
         [k],
-        [];
+        consts;
         systems = [k0, k1],
         name = name
     )
@@ -152,20 +132,14 @@ OH + CO = HO2 + CO2 (cf. JPL 15-10)
 function rate_OH_CO(t, T, P; name = :rate_OHCO)
     T = ParentScope(T)
     P = ParentScope(P)
-    @constants(A=6.02e23,
-        [unit=u"molec/mol", description="Avogadro's number"],
-        R=8.314e6,
-        [unit=u"(Pa*cm^3)/(K*mol)", description="universal gas constant"],
-        ppb_unit=1e-9,
-        [unit=u"ppb", description="Convert from mol/mol_air to ppb"],
-        num_density_unit_inv=1,
-        [
-            unit=u"cm^3/molec",
-            description="multiply by num_density to obtain the unitless value of num_density"
-        ],
-        ppb_inv=1,
-        [unit=u"ppb^-1"],)
-    num_density_unitless = A*P/(R*T)*num_density_unit_inv
+    consts = @constants begin
+        A = 6.02e23, [unit = u"molec/mol", description = "Avogadro's number"]
+        R = 8.314e6, [unit = u"(Pa*cm^3)/(K*mol)", description = "universal gas constant"]
+        ppb_unit = 1e-9, [unit = u"ppb", description = "Convert from mol/mol_air to ppb"]
+        num_density_unit_inv = 1, [unit = u"cm^3/molec", description = "multiply by num_density to obtain the unitless value of num_density"]
+        ppb_inv = 1, [unit = u"ppb^-1"]
+    end
+    num_density_unitless = A * P / (R * T) * num_density_unit_inv
     @named klo1 = arrh(t, T, P, 5.9e-33, 1, 0)
     @named khi1 = arrh(t, T, P, 1.1e-12, -1.3, 0)
     xyrat1 = klo1.k * num_density_unitless / khi1.k
@@ -183,7 +157,7 @@ function rate_OH_CO(t, T, P; name = :rate_OHCO)
         [k ~ kco1 + kco2],
         t,
         [k],
-        [];
+        consts;
         systems = [klo1, khi1, klo2, khi2],
         name = name
     )
@@ -220,94 +194,68 @@ function SuperFast(; name = :SuperFast, rxn_sys = false)
     i = 1
     function cons(c, T, P)
         sys = rate_toppb(t, T, P, c, name = Symbol(:rateconvert, i))
-        i+=1
+        i += 1
         push!(rate_systems, sys)
         return sys.k
     end
     function arr(T, P, a0, b0, c0)
         sys = arrh(t, T, P, a0, b0, c0, name = Symbol(:arrhenius, i))
-        i+=1
+        i += 1
         push!(rate_systems, sys)
         return sys.k
     end
     function arr3(T, P, a1, b1, c1, a2, b2, c2, fv)
         sys = arr_3rd(t, T, P, a1, b1, c1, a2, b2, c2, fv; name = Symbol(:arr_3rdbody, i))
-        i+=1
+        i += 1
         push!(rate_systems, sys)
         return sys.k
     end
     function rHO2HO2(T, P, H2O, a0, c0, a1, c1)
         sys = rate_2HO2(t, T, P, H2O, a0, c0, a1, c1, name = Symbol(:rate_HO2HO2, i))
-        i+=1
+        i += 1
         push!(rate_systems, sys)
         return sys.k
     end
     function rOHCO(T, P)
         sys = rate_OH_CO(t, T, P; name = Symbol(:rate_OHCO, i))
-        i+=1
+        i += 1
         push!(rate_systems, sys)
         return sys.k
     end
 
-    rx_sys = @reaction_network SuperFast begin
+    rx_sys = @network_component SuperFast begin
         @ivs t [unit = u"s"]
-        @parameters(jO32OH=2.27e-4,
-            [unit=u"s^-1"],
-            jH2O2=1.0097e-5,
-            [unit=u"s^-1"],
-            jNO2=0.0149,
-            [unit=u"s^-1"],
-            jH2COa=0.00014,
-            [unit=u"s^-1"],
-            jH2COb=0.00014,
-            [unit=u"s^-1"],
-            jCH3OOH=8.9573e-6,
-            [unit=u"s^-1"],
-            jA = 1.0,
-            [unit=u"s^-1"],
-            jB = 1.0,
-            [unit=u"s^-1"],
-            T=280.0,
-            [unit=u"K", description="Temperature"],
-            P=101325,
-            [unit=u"Pa", description="Pressure"],
-            O2=2.095e8,
-            [isconstantspecies=true, unit=u"ppb"],
-            CH4=1700.0,
-            [isconstantspecies=true, unit=u"ppb"],
-            H2O=1.839e7,
-            [isconstantspecies=true, unit=u"ppb"],)
+        
+        @parameters begin
+            jO32OH = 2.27e-4, [unit = u"s^-1"]
+            jH2O2 = 1.0097e-5, [unit = u"s^-1"]
+            jNO2 = 0.0149, [unit = u"s^-1"]
+            jH2COa = 0.00014, [unit = u"s^-1"]
+            jH2COb = 0.00014, [unit = u"s^-1"]
+            jCH3OOH = 8.9573e-6, [unit = u"s^-1"]
+            T = 280.0, [unit = u"K", description = "Temperature"]
+            P = 101325, [unit = u"Pa", description = "Pressure"]
+            O2 = 2.095e8, [isconstantspecies = true, unit = u"ppb"]
+            CH4 = 1700.0, [isconstantspecies = true, unit = u"ppb"]
+            H2O = 1.839e7, [isconstantspecies = true, unit = u"ppb"]
+        end
 
-        @species(O3(t)=40.0,
-            [unit=u"ppb"],
-            OH(t)=4e-6,
-            [unit=u"ppb"],
-            HO2(t)=4e-6,
-            [unit=u"ppb"],
-            NO(t)=4e-4,
-            [unit=u"ppb"],
-            NO2(t)=4e-4,
-            [unit=u"ppb"],
-            CH3O2(t)=4e-6,
-            [unit=u"ppb"],
-            CH2O(t)=4e-6,
-            [unit=u"ppb"],
-            CO(t)=100,
-            [unit=u"ppb"],
-            CH3OOH(t)=4e-6,
-            [unit=u"ppb"],
-            #DMS(t) = 50.0, [unit = u"ppb"],
-            #SO2(t) = 2.0, [unit = u"ppb"],
-            ISOP(t)=1e-11,
-            [unit=u"ppb"],
-            H2O2(t)=4e-6,
-            [unit=u"ppb"],
-            HNO3(t)=4e-6,
-            [unit=u"ppb"],
-            A(t)=40.0,
-            [unit=u"ppb"],
-            B(t)=40.0,
-            [unit=u"ppb"],)
+        @species begin
+            O3(t) = 40.0, [unit = u"ppb"]
+            OH(t) = 4e-6, [unit = u"ppb"]
+            HO2(t) = 4e-6, [unit = u"ppb"]
+            NO(t) = 4e-4, [unit = u"ppb"]
+            NO2(t) = 4e-4, [unit = u"ppb"]
+            CH3O2(t) = 4e-6, [unit = u"ppb"]
+            CH2O(t) = 4e-6, [unit = u"ppb"]
+            CO(t) = 100, [unit = u"ppb"]
+            CH3OOH(t) = 4e-6, [unit = u"ppb"]
+            #DMS(t) = 50.0, [unit = u"ppb"]
+            #SO2(t) = 2.0, [unit = u"ppb"]
+            ISOP(t) = 1e-11, [unit = u"ppb"]
+            H2O2(t) = 4e-6, [unit = u"ppb"]
+            HNO3(t) = 4e-6, [unit = u"ppb"]
+        end
 
         #Gas-phase reactions
         arr(T, P, 1.7e-12, 0.0, -940.0), O3 + OH --> HO2 + O2
@@ -327,11 +275,11 @@ function SuperFast(; name = :SuperFast, rxn_sys = false)
         arr(T, P, 2.80e-12, 0.0, 300.0), CH3O2 + NO --> CH2O + HO2 + NO2
         arr(T, P, 9.50e-14, 0.0, 390.0), CH3O2 + CH3O2 --> 2.000CH2O + 0.800HO2  #{two different reactions simplified into one}
         cons(4.00e-24, T, P), H2O + NO2 --> 0.5HNO3
-        arr(T, P, 2.7e-11, 0.0, 390.0), ISOP + OH --> CH3O2 + CH3O2 #{Isoprene chemistry parametrized from UCI for ISOP + OH}
-        arr(T, P, 2.7e-11, 0.0, 390.0), ISOP + OH --> ISOP   #{Isoprene chemistry parametrized from UCI for ISOP + OH}
-        arr(T, P, 2.7e-11, 0.0, 390.0), ISOP + OH --> ISOP + 0.500OH #{Isoprene chemistry parametrized from UCI for ISOP + OH}
+        arr(T, P, 2.7e-11, 0.0, 390.0), ISOP + OH --> CH3O2 + CH3O2 #{Isoprene chemistry parameterized from UCI for ISOP + OH}
+        arr(T, P, 2.7e-11, 0.0, 390.0), ISOP + OH --> ISOP   #{Isoprene chemistry parameterized from UCI for ISOP + OH}
+        arr(T, P, 2.7e-11, 0.0, 390.0), ISOP + OH --> ISOP + 0.500OH #{Isoprene chemistry parameterized from UCI for ISOP + OH}
         arr(T, P, 5.59e-15, 0.0, -1814.0),
-        ISOP + O3 --> 0.870CH2O + 1.860CH3O2 + 0.060HO2 + 0.050CO   #{Isoprene chemistry parametrized from LLNL-IMPACT for ISOP + O3}
+        ISOP + O3 --> 0.870CH2O + 1.860CH3O2 + 0.060HO2 + 0.050CO   #{Isoprene chemistry parameterized from LLNL-IMPACT for ISOP + O3}
 
         #photolysis reactions
         jO32OH, O3 --> 2OH #simplified reaction of: O3 --> O2 + O1d; O1d + H2O --> 2OH
@@ -349,14 +297,14 @@ function SuperFast(; name = :SuperFast, rxn_sys = false)
     if rxn_sys
         return rxns
     end
-    # We set `combinatoric_ratelaws=false` because we are modeling macroscopic rather than microscopic behavior. 
-    # See [here](https://docs.juliahub.com/ModelingToolkit/Qmdqu/3.14.0/systems/ReactionSystem/#ModelingToolkit.oderatelaw) 
+    # We set `combinatoric_ratelaws=false` because we are modeling macroscopic rather than microscopic behavior.
+    # See [here](https://docs.juliahub.com/ModelingToolkit/Qmdqu/3.14.0/systems/ReactionSystem/#ModelingToolkit.oderatelaw)
     # and [here](https://github.com/SciML/Catalyst.jl/issues/311).
     convert(
-        ODESystem,
+        Catalyst.ReactionRateSystem,
         complete(rxns);
         combinatoric_ratelaws = false,
         name = name,
-        metadata = Dict(:coupletype => SuperFastCoupler)
+        metadata = Dict(CoupleType => SuperFastCoupler)
     )
 end

@@ -1,14 +1,11 @@
-using GasChem
-using OrdinaryDiffEqRosenbrock, ModelingToolkit, DynamicQuantities
-
-tspan = (0.0, 360.0)
-
-@testset "Base case" begin
+@testitem "Base case" begin
+    using OrdinaryDiffEqRosenbrock, ModelingToolkit
+    tspan = (0.0, 360.0)
     answer = 23.400804629407062
 
-    rs = structural_simplify(SuperFast())
+    rs = mtkcompile(SuperFast())
     sol = solve(
-        ODEProblem(rs, [], tspan, []),
+        ODEProblem(rs, [], tspan),
         Rosenbrock23(),
         saveat = 10.0,
         abstol = 1e-12,
@@ -18,20 +15,22 @@ tspan = (0.0, 360.0)
     @test sol[rs.O3][end] ≈ answer
 end
 
-@testset "ISOP sensitivity" begin
+@testitem "ISOP sensitivity" begin
+    using OrdinaryDiffEqRosenbrock, ModelingToolkit
+    tspan = (0.0, 360.0)
     u_isop = 1.3266279542331567
 
-    rs1 = structural_simplify(SuperFast())
+    rs1 = mtkcompile(SuperFast())
     o1 = solve(
-        ODEProblem(rs1, [rs1.ISOP => 0.54], tspan, []),
+        ODEProblem(rs1, [rs1.ISOP => 0.54], tspan),
         Rosenbrock23(),
         saveat = 10.0,
         abstol = 1e-12,
         reltol = 1e-12
     )
-    rs2 = structural_simplify(SuperFast())
+    rs2 = mtkcompile(SuperFast())
     o2 = solve(
-        ODEProblem(rs2, [rs2.ISOP => 0.13], tspan, []),
+        ODEProblem(rs2, [rs2.ISOP => 0.13], tspan),
         Rosenbrock23(),
         saveat = 10.0,
         abstol = 1e-12,
@@ -42,20 +41,22 @@ end
     @test test2 ≈ u_isop
 end
 
-@testset "NO2 sensitivity" begin
+@testitem "NO2 sensitivity" begin
+        using OrdinaryDiffEqRosenbrock, ModelingToolkit
+    tspan = (0.0, 360.0)
     u_no2 = 28.430159226086346
 
-    rs1 = structural_simplify(SuperFast())
+    rs1 = mtkcompile(SuperFast())
     o1 = solve(
-        ODEProblem(rs1, [rs1.NO2 => 100.0], tspan, [], combinatoric_ratelaws = false),
+        ODEProblem(rs1, [rs1.NO2 => 100.0], tspan),
         Rosenbrock23(),
         saveat = 10.0,
         abstol = 1e-12,
         reltol = 1e-12
     )
-    rs2 = structural_simplify(SuperFast())
+    rs2 = mtkcompile(SuperFast())
     o2 = solve(
-        ODEProblem(rs2, [], tspan, []),
+        ODEProblem(rs2, [], tspan),
         Rosenbrock23(),
         saveat = 10.0,
         abstol = 1e-12,
@@ -66,20 +67,22 @@ end
     @test test3 ≈ u_no2
 end
 
-@testset "CO sensitivity" begin
+@testitem "CO sensitivity" begin
+    using OrdinaryDiffEqRosenbrock, ModelingToolkit
+    tspan = (0.0, 360.0)
     u_co = -3.2610697264494846
 
-    rs1 = structural_simplify(SuperFast())
+    rs1 = mtkcompile(SuperFast())
     o1 = solve(
-        ODEProblem(rs1, [rs1.CO => 50.0], tspan, []),
+        ODEProblem(rs1, [rs1.CO => 50.0], tspan),
         Rosenbrock23(),
         saveat = 10.0,
         abstol = 1e-12,
         reltol = 1e-12
     )
-    rs2 = structural_simplify(SuperFast())
+    rs2 = mtkcompile(SuperFast())
     o2 = solve(
-        ODEProblem(rs2, [rs2.CO => 500.0], tspan, []),
+        ODEProblem(rs2, [rs2.CO => 500.0], tspan),
         Rosenbrock23(),
         saveat = 10.0,
         abstol = 1e-12,
@@ -90,20 +93,22 @@ end
     @test test4 ≈ u_co
 end
 
-@testset "CH4 sensitivity" begin
+@testitem "CH4 sensitivity" begin
+    using OrdinaryDiffEqRosenbrock, ModelingToolkit
+    tspan = (0.0, 360.0)
     u_ch4 = 0.08634138773470212
 
-    rs1 = structural_simplify(SuperFast())
+    rs1 = mtkcompile(SuperFast())
     o1 = solve(
-        ODEProblem(rs1, [rs1.CH4 => 1900.0], tspan, []),
+        ODEProblem(rs1, [rs1.CH4 => 1900.0], tspan),
         Rosenbrock23(),
         saveat = 10.0,
         abstol = 1e-12,
         reltol = 1e-12
     )
-    rs2 = structural_simplify(SuperFast())
+    rs2 = mtkcompile(SuperFast())
     o2 = solve(
-        ODEProblem(rs2, [rs2.CH4 => 1600.0], tspan, []),
+        ODEProblem(rs2, [rs2.CH4 => 1600.0], tspan),
         Rosenbrock23(),
         saveat = 10.0,
         abstol = 1e-12,

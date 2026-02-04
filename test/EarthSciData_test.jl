@@ -1,7 +1,6 @@
-using GasChem, EarthSciData
-using Test, Dates, ModelingToolkit, EarthSciMLBase
-
-@testset "NEI2016Extension3way" begin
+@testitem "NEI2016Extension3way" begin
+    using EarthSciData
+    using Dates, ModelingToolkit, EarthSciMLBase
     domain = DomainInfo(
         DateTime(2016, 5, 1),
         DateTime(2016, 5, 4);
@@ -16,7 +15,7 @@ using Test, Dates, ModelingToolkit, EarthSciMLBase
         NEI2016MonthlyEmis("mrggrid_withbeis_withrwc", domain)
     )
 
-    sys = convert(ODESystem, model_3way)
+    sys = convert(System, model_3way)
     @test length(unknowns(sys)) ≈ 12
 
     eqs = string(equations(sys))
@@ -25,7 +24,9 @@ using Test, Dates, ModelingToolkit, EarthSciMLBase
     @test contains(string(eqs), wanteq)
 end
 
-@testset "GEOS-FP" begin
+@testitem "GEOS-FP" begin
+    using EarthSciData
+    using Dates, ModelingToolkit, EarthSciMLBase
     domain = DomainInfo(
         DateTime(2016, 5, 1),
         DateTime(2016, 5, 4);
@@ -35,12 +36,12 @@ end
     )
 
     model_3way = couple(
-        FastJX(get_tref(domain)),
+        FastJX(domain),
         SuperFast(),
         GEOSFP("4x5", domain)
     )
 
-    sys = convert(ODESystem, model_3way)
+    sys = convert(System, model_3way)
 
     @test length(unknowns(sys)) ≈ 12
 
@@ -59,7 +60,9 @@ end
     @test contains(eqs, wanteq)
 end
 
-@testset "GEOSChemGasPhase couplings" begin
+@testitem "GEOSChemGasPhase couplings" begin
+    using EarthSciData
+    using Dates, ModelingToolkit, EarthSciMLBase
     domain = DomainInfo(
         DateTime(2016, 5, 1),
         DateTime(2016, 5, 2);
@@ -75,7 +78,7 @@ end
         FastJX(get_tref(domain)),
         domain
     )
-    sys = convert(ODESystem, csys)
+    sys = convert(System, csys)
     eqs = string(observed(sys))
     @test contains(eqs, "GEOSChemGasPhase₊T(t) ~ GEOSFP₊I3₊T(t)") ||
           contains(eqs, "GEOSChemGasPhase₊T(t) ~ FastJX₊T(t)")
