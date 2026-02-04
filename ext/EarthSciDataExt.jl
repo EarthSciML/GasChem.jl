@@ -1,7 +1,18 @@
 module EarthSciDataExt
 using GasChem, EarthSciData, ModelingToolkit, EarthSciMLBase, DynamicQuantities
 
-# Note: The custom units (molec, mol_air, ppb) are registered by GasChem.
+# Register custom units if not already registered by GasChem.
+# This is needed because extension precompilation may occur before GasChem's
+# unit registration takes effect.
+if !haskey(DynamicQuantities.Units.UNIT_SYMBOLS, :molec)
+    @register_unit molec 1
+end
+if !haskey(DynamicQuantities.Units.UNIT_SYMBOLS, :mol_air)
+    @register_unit mol_air 1u"mol"
+end
+if !haskey(DynamicQuantities.Units.UNIT_SYMBOLS, :ppb)
+    @register_unit ppb 1u"mol/mol_air"
+end
 
 function EarthSciMLBase.couple2(
         c::GasChem.SuperFastCoupler,
