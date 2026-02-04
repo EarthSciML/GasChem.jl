@@ -15,6 +15,44 @@ concurrency:
 
 jobs:
   build-and-deploy-docs:
-    name: "Documentation"
-    uses: "EarthSciML/.github/.github/workflows/documentation.yml@main"
-    secrets: "inherit"
+    name: "Build and Deploy Documentation"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: "Setup Julia"
+        uses: julia-actions/setup-julia@v2
+        with:
+          version: "1"
+
+      - uses: julia-actions/cache@v2
+        with:
+          token: "${{ secrets.GITHUB_TOKEN }}"
+
+      - name: "Install Dependencies"
+        run: |
+          julia --project=docs/ -e '
+            using Pkg
+            Pkg.add(url="https://github.com/ctessum/Catalyst.jl", rev="mtkv10-v2")
+            Pkg.develop(PackageSpec(path=pwd()))
+            Pkg.instantiate()
+          '
+
+      - name: "Build and Deploy Documentation"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
+          JULIA_NO_VERIFY_HOSTS: 'gaftp.epa.gov'
+        run: julia --project=docs/ --code-coverage=user docs/make.jl
+
+      - uses: julia-actions/julia-processcoverage@v1
+        with:
+          directories: "src,ext"
+
+      - name: "Report Coverage with Codecov"
+        uses: codecov/codecov-action@v5
+        with:
+          files: lcov.info
+          flags: "docs"
+          token: "${{ secrets.CODECOV_TOKEN }}"
+          fail_ci_if_error: true
