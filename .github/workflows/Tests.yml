@@ -21,15 +21,50 @@ concurrency:
 
 jobs:
   tests:
-    name: "Tests"
+    name: "Tests - Julia ${{ matrix.version }}"
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         version:
           - "1"
           - "lts"
-          #- "pre"
-    uses: "EarthSciML/.github/.github/workflows/tests.yml@main"
-    with:
-      julia-version: "${{ matrix.version }}"
-    secrets: "inherit"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: "Setup Julia ${{ matrix.version }}"
+        uses: julia-actions/setup-julia@v2
+        with:
+          version: "${{ matrix.version }}"
+
+      - uses: julia-actions/cache@v2
+        with:
+          token: "${{ secrets.GITHUB_TOKEN }}"
+
+      - name: "Install Catalyst.jl fork"
+        run: |
+          julia --project=. -e '
+            using Pkg
+            Pkg.add(url="https://github.com/ctessum/Catalyst.jl", rev="mtkv10-v2")
+          '
+
+      - uses: julia-actions/julia-buildpkg@v1
+
+      - name: "Run tests"
+        uses: julia-actions/julia-runtest@v1
+        with:
+          depwarn: "yes"
+          coverage: true
+        env:
+          JULIA_NO_VERIFY_HOSTS: 'gaftp.epa.gov'
+
+      - uses: julia-actions/julia-processcoverage@v1
+        with:
+          directories: "src,ext"
+
+      - name: "Report Coverage with Codecov"
+        uses: codecov/codecov-action@v5
+        with:
+          files: lcov.info
+          token: "${{ secrets.CODECOV_TOKEN }}"
+          fail_ci_if_error: true
