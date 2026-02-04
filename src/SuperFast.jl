@@ -55,7 +55,7 @@ end
 Third body effect for pressure dependence of rate coefficients.
 a1, b1, c1 are the Arrhenius parameters for the lower-limit rate.
 a2, b2, c2 are the Arrhenius parameters for the upper-limit rate.
-fv         is the falloff curve paramter, (see ATKINSON ET. AL (1992)
+fv         is the falloff curve parameter, (see ATKINSON ET. AL (1992)
 J. Phys. Chem. Ref. Data 21, P. 1145). Usually fv = 0.6.
 """
 function arr_3rd(t, T, P, a1, b1, c1, a2, b2, c2, fv; name = :arr_3rdbody)
@@ -103,7 +103,9 @@ function rate_2HO2(t, T, P, H2O, a0, c0, a1, c1; name = :rate_HO2HO2)
         A = 6.02e23, [unit = u"molec/mol", description = "Avogadro's number"]
         R = 8.314e6, [unit = u"(Pa*cm^3)/(K*mol)", description = "universal gas constant"]
         ppb_unit = 1e-9, [unit = u"ppb", description = "Convert from mol/mol_air to ppb"]
-        num_density_unit_inv = 1, [unit = u"cm^3/molec", description = "multiply by num_density to obtain the unitless value of num_density"]
+        num_density_unit_inv = 1,
+        [unit = u"cm^3/molec",
+            description = "multiply by num_density to obtain the unitless value of num_density"]
         ppb_inv = 1, [unit = u"ppb^-1"]
     end
     num_density_unitless = A * P / (R * T) * num_density_unit_inv
@@ -114,8 +116,9 @@ function rate_2HO2(t, T, P, H2O, a0, c0, a1, c1; name = :rate_HO2HO2)
     @variables k(t) [unit = u"(s*ppb)^-1"]
     ODESystem(
         [
-            k ~ (k0.k + k1.k * num_density_unitless) *
-                (1.0 + 1.4e-21 * H2O * H2O_ppb_molec_cm3 * exp(T_0 / T))
+            k ~
+            (k0.k + k1.k * num_density_unitless) *
+            (1.0 + 1.4e-21 * H2O * H2O_ppb_molec_cm3 * exp(T_0 / T))
         ],
         t,
         [k],
@@ -136,7 +139,9 @@ function rate_OH_CO(t, T, P; name = :rate_OHCO)
         A = 6.02e23, [unit = u"molec/mol", description = "Avogadro's number"]
         R = 8.314e6, [unit = u"(Pa*cm^3)/(K*mol)", description = "universal gas constant"]
         ppb_unit = 1e-9, [unit = u"ppb", description = "Convert from mol/mol_air to ppb"]
-        num_density_unit_inv = 1, [unit = u"cm^3/molec", description = "multiply by num_density to obtain the unitless value of num_density"]
+        num_density_unit_inv = 1,
+        [unit = u"cm^3/molec",
+            description = "multiply by num_density to obtain the unitless value of num_density"]
         ppb_inv = 1, [unit = u"ppb^-1"]
     end
     num_density_unitless = A * P / (R * T) * num_density_unit_inv

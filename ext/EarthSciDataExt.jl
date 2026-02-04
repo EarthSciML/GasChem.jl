@@ -1,8 +1,7 @@
 module EarthSciDataExt
 using GasChem, EarthSciData, ModelingToolkit, EarthSciMLBase, DynamicQuantities
-@register_unit molec 1
-@register_unit mol_air 1u"mol"
-@register_unit ppb 1u"mol/mol_air"
+
+# Note: The custom units (molec, mol_air, ppb) are registered by GasChem.
 
 function EarthSciMLBase.couple2(
         c::GasChem.SuperFastCoupler,
@@ -75,8 +74,7 @@ function EarthSciMLBase.couple2(
         MW_SO2=64.0638e-3,
         [unit=u"kg/mol", description="Sulfur dioxide molar mass"],
         MW_ISOP=68.12e-3,
-        [unit=u"kg/mol", description="Isoprene molar mass"],
-        )
+        [unit=u"kg/mol", description="Isoprene molar mass"],)
 
     # Emissions are in units of "kg/m3/s" and need to be converted to "ppb/s" or "nmol/mol/s".
     # To do this we need to convert kg of emissions to nmol of emissions,
@@ -142,12 +140,11 @@ function EarthSciMLBase.couple2(
 
     #TODO(CT): Add missing couplings.
     c = param_to_var(c, :T, :num_density)
-    @constants(
-        R=8.31446261815324, [unit=u"m^3*Pa/mol/K", description="Ideal gas constant"],
-    )
+    @constants(R=8.31446261815324,
+        [unit=u"m^3*Pa/mol/K", description="Ideal gas constant"],)
     ConnectorSystem([
-        c.T ~ gfp.I3₊T, 
-        c.num_density  ~ (gfp.P / R / gfp.I3₊T)
+            c.T ~ gfp.I3₊T,
+            c.num_density ~ (gfp.P / R / gfp.I3₊T)
         ], c, gfp)
 end
 
