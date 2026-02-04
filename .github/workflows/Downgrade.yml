@@ -41,7 +41,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
       - name: Install Catalyst.jl fork
         run: |
-          julia -e '
+          julia --project=. -e '
             using Pkg
             Pkg.add(url="https://github.com/ctessum/Catalyst.jl", rev="mtkv10-v2")
           '
