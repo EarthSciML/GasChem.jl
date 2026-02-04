@@ -59,8 +59,8 @@ jobs:
         run: |
           julia --project=docs -e '
             using Pkg
-            Pkg.add(url="https://github.com/ctessum/Catalyst.jl", rev="mtkv10-v2")
             Pkg.develop(PackageSpec(path=pwd()))
+            Pkg.add(url="https://github.com/ctessum/Catalyst.jl", rev="mtkv10-v2")
             Pkg.instantiate()'
       - name: Documentation test
         run: |
