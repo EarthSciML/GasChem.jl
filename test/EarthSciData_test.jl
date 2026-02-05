@@ -1,6 +1,7 @@
 @testitem "NEI2016Extension3way" begin
     using EarthSciData
     using Dates, ModelingToolkit, EarthSciMLBase
+
     domain = DomainInfo(
         DateTime(2016, 5, 1),
         DateTime(2016, 5, 4);
@@ -19,14 +20,17 @@
     @test length(unknowns(sys)) ≈ 12
 
     eqs = string(equations(sys))
-
-    wanteq = "Differential(t)(SuperFast₊CH2O(t)) ~ SuperFast₊NEI2016MonthlyEmis_FORM(t)"
-    @test contains(string(eqs), wanteq)
+    # Use regex pattern that handles both ₊ and . namespace separators
+    ns = "[₊.]"  # namespace separator pattern
+    @test occursin(
+        Regex("Differential\\(t\\)\\(SuperFast$(ns)CH2O\\(t\\)\\) ~ SuperFast$(ns)NEI2016MonthlyEmis_FORM\\(t\\)"),
+        eqs)
 end
 
 @testitem "GEOS-FP" begin
     using EarthSciData
     using Dates, ModelingToolkit, EarthSciMLBase
+
     domain = DomainInfo(
         DateTime(2016, 5, 1),
         DateTime(2016, 5, 4);
@@ -46,23 +50,25 @@ end
     @test length(unknowns(sys)) ≈ 12
 
     eqs = string(observed(sys))
-    wanteq = "SuperFast₊T(t) ~ GEOSFP₊I3₊T(t)"
-    @test contains(eqs, wanteq) || contains(eqs, "SuperFast₊T(t) ~ FastJX₊T(t)")
-    wanteq = "FastJX₊T(t) ~ GEOSFP₊I3₊T(t)"
-    @test contains(eqs, wanteq) || contains(eqs, "FastJX₊T(t) ~ SuperFast₊T(t)")
-    wanteq = "SuperFast₊jH2O2(t) ~ FastJX₊j_H2O2(t)"
-    @test contains(eqs, wanteq)
-    wanteq = "FastJX₊lat(t) ~ rad2deg(GEOSFP₊lat)"
-    @test contains(eqs, wanteq)
-    wanteq = "SuperFast₊P(t) ~ FastJX₊P(t)"
-    @test contains(eqs, wanteq)
-    wanteq = "FastJX₊P(t) ~ GEOSFP₊P(t)"
-    @test contains(eqs, wanteq)
+    # Use regex patterns that handle both ₊ and . namespace separators
+    ns = "[₊.]"  # namespace separator pattern
+    # Test temperature coupling: SuperFast.T should be coupled to either GEOSFP.I3.T or FastJX.T
+    @test occursin(Regex("SuperFast$(ns)T\\(t\\) ~ (GEOSFP$(ns)I3$(ns)T|FastJX$(ns)T)\\(t\\)"), eqs)
+    # Test FastJX.T coupling to either GEOSFP.I3.T or SuperFast.T
+    @test occursin(Regex("FastJX$(ns)T\\(t\\) ~ (GEOSFP$(ns)I3$(ns)T|SuperFast$(ns)T)\\(t\\)"), eqs)
+    # Test jH2O2 coupling
+    @test occursin(Regex("SuperFast$(ns)jH2O2\\(t\\) ~ FastJX$(ns)j_H2O2\\(t\\)"), eqs)
+    # Test latitude coupling - note GEOSFP.lat may not have (t)
+    @test occursin(Regex("FastJX$(ns)lat\\(t\\) ~ rad2deg\\(GEOSFP$(ns)lat"), eqs)
+    # Test pressure couplings
+    @test occursin(Regex("SuperFast$(ns)P\\(t\\) ~ FastJX$(ns)P\\(t\\)"), eqs)
+    @test occursin(Regex("FastJX$(ns)P\\(t\\) ~ GEOSFP$(ns)P\\(t\\)"), eqs)
 end
 
 @testitem "GEOSChemGasPhase couplings" begin
     using EarthSciData
     using Dates, ModelingToolkit, EarthSciMLBase
+
     domain = DomainInfo(
         DateTime(2016, 5, 1),
         DateTime(2016, 5, 2);
@@ -80,9 +86,9 @@ end
     )
     sys = convert(System, csys)
     eqs = string(observed(sys))
-    @test contains(eqs, "GEOSChemGasPhase₊T(t) ~ GEOSFP₊I3₊T(t)") ||
-          contains(eqs, "GEOSChemGasPhase₊T(t) ~ FastJX₊T(t)")
-    @test contains(eqs, "FastJX₊T(t) ~ GEOSFP₊I3₊T(t)") ||
-          contains(eqs, "FastJX₊T(t) ~ GEOSChemGasPhase₊T(t)")
-    @test contains(eqs, "GEOSChemGasPhase₊j_11(t) ~ FastJX₊j_NO2(t)")
+    # Use regex patterns that handle both ₊ and . namespace separators
+    ns = "[₊.]"  # namespace separator pattern
+    @test occursin(Regex("GEOSChemGasPhase$(ns)T\\(t\\) ~ (GEOSFP$(ns)I3$(ns)T|FastJX$(ns)T)\\(t\\)"), eqs)
+    @test occursin(Regex("FastJX$(ns)T\\(t\\) ~ (GEOSFP$(ns)I3$(ns)T|GEOSChemGasPhase$(ns)T)\\(t\\)"), eqs)
+    @test occursin(Regex("GEOSChemGasPhase$(ns)j_11\\(t\\) ~ FastJX$(ns)j_NO2\\(t\\)"), eqs)
 end
