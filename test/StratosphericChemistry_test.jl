@@ -149,6 +149,78 @@ end
     @test all(sol[compiled_sys.O3] .> 0)
 end
 
+@testitem "NOx Cycle Integration" setup=[StratSetup] tags=[:stratospheric] begin
+    sys=NOxCycle()
+    compiled_sys=mtkcompile(sys)
+
+    u0=[compiled_sys.NO=>1e15, compiled_sys.NO2=>1e15]
+    tspan=(0.0, 3600.0)  # 1 hour
+
+    prob=ODEProblem(compiled_sys, u0, tspan)
+    sol=solve(prob, abstol = 1e-8, reltol = 1e-8)
+
+    @test sol.retcode == ReturnCode.Success
+    @test all(sol[compiled_sys.NO] .> 0)
+    @test all(sol[compiled_sys.NO2] .> 0)
+end
+
+@testitem "HOx Cycle Integration" setup=[StratSetup] tags=[:stratospheric] begin
+    sys=HOxCycle()
+    compiled_sys=mtkcompile(sys)
+
+    u0=[compiled_sys.OH=>1e12, compiled_sys.HO2=>1e13]
+    tspan=(0.0, 3600.0)  # 1 hour
+
+    prob=ODEProblem(compiled_sys, u0, tspan)
+    sol=solve(prob, abstol = 1e-8, reltol = 1e-8)
+
+    @test sol.retcode == ReturnCode.Success
+    @test all(sol[compiled_sys.OH] .> 0)
+    @test all(sol[compiled_sys.HO2] .> 0)
+end
+
+@testitem "ClOx Cycle Integration" setup=[StratSetup] tags=[:stratospheric] begin
+    sys=ClOxCycle()
+    compiled_sys=mtkcompile(sys)
+
+    u0=[
+        compiled_sys.Cl=>1e10,
+        compiled_sys.ClO=>1e13,
+        compiled_sys.HCl=>1e15,
+        compiled_sys.ClONO2=>1e15
+    ]
+    tspan=(0.0, 3600.0)  # 1 hour
+
+    prob=ODEProblem(compiled_sys, u0, tspan)
+    sol=solve(prob, abstol = 1e-8, reltol = 1e-8)
+
+    @test sol.retcode == ReturnCode.Success
+    @test all(sol[compiled_sys.Cl] .>= 0)
+    @test all(sol[compiled_sys.ClO] .>= 0)
+    @test all(sol[compiled_sys.HCl] .>= 0)
+    @test all(sol[compiled_sys.ClONO2] .>= 0)
+end
+
+@testitem "BrOx Cycle Integration" setup=[StratSetup] tags=[:stratospheric] begin
+    sys=BrOxCycle()
+    compiled_sys=mtkcompile(sys)
+
+    u0=[
+        compiled_sys.Br=>1e11,
+        compiled_sys.BrO=>1e12,
+        compiled_sys.HOBr=>1e12
+    ]
+    tspan=(0.0, 3600.0)  # 1 hour
+
+    prob=ODEProblem(compiled_sys, u0, tspan)
+    sol=solve(prob, abstol = 1e-8, reltol = 1e-8)
+
+    @test sol.retcode == ReturnCode.Success
+    @test all(sol[compiled_sys.Br] .>= 0)
+    @test all(sol[compiled_sys.BrO] .>= 0)
+    @test all(sol[compiled_sys.HOBr] .>= 0)
+end
+
 # =============================================================================
 # Positivity Preservation Tests
 # =============================================================================
@@ -683,4 +755,45 @@ end
     # Reference: tau_Cl ≈ 0.2 s, tau_ClO ≈ 53 s (Page 163)
     @test isapprox(tau_Cl, 0.2, rtol = 0.3)
     @test isapprox(tau_ClO, 53.0, rtol = 0.3)
+end
+
+@testitem "HO2/OH Ratio (Eq. 5.28)" setup=[StratSetup] tags=[:stratospheric] begin
+    # Equation 5.28: [HO2]/[OH] = k_{OH+O3}[O3] / (k_{HO2+NO}[NO])
+    # At 30 km (T=227K): k_{OH+O3} = 1.7e-12 exp(-940/T), k_{HO2+NO} = 3.5e-12 exp(250/T)
+    # With [O3] ≈ 2e12 cm^-3 and NO mixing ratio of 3 ppb at 30 km (Page 161)
+
+    T=227.0
+    k_OH_O3=1.7e-12*exp(-940.0/T)  # cm^3/molec/s
+    k_HO2_NO=3.5e-12*exp(250.0/T)  # cm^3/molec/s
+
+    O3_cgs=2e12  # molec/cm^3
+    M_cgs=3.1e17  # molec/cm^3
+    NO_cgs=3e-9*M_cgs  # 3 ppb → molec/cm^3 ≈ 9.3e8
+
+    ratio=k_OH_O3*O3_cgs/(k_HO2_NO*NO_cgs)
+
+    # Reference: ~4.4 at 30 km (Page 161)
+    @test ratio > 1.0
+    @test ratio < 20.0
+end
+
+@testitem "Cl/ClO Steady-State Ratio (Eq. 5.30)" setup=[StratSetup] tags=[:stratospheric] begin
+    # Equation 5.30: [Cl]/[ClO] = (k_{ClO+O}[O] + k_{ClO+NO}[NO]) / (k_{Cl+O3}[O3])
+    # At 40 km (T=251K): [Cl]/[ClO] ≈ 0.008 (Page 164)
+
+    T=251.0
+    O3_cgs=0.5e12  # cm^-3
+    O_O3_ratio=9.4e-4
+    O_cgs=O_O3_ratio*O3_cgs  # ≈ 4.7e8 cm^-3
+    NO_cgs=1e9  # cm^-3 (Page 164)
+
+    k_Cl_O3=2.3e-11*exp(-200.0/T)  # cm^3/molec/s
+    k_ClO_O=3.0e-11*exp(70.0/T)    # cm^3/molec/s
+    k_ClO_NO=6.4e-12*exp(290.0/T)  # cm^3/molec/s
+
+    Cl_ClO_ratio=(k_ClO_O*O_cgs+k_ClO_NO*NO_cgs)/(k_Cl_O3*O3_cgs)
+
+    # Reference: ≈ 0.008 at 40 km (Page 164)
+    @test Cl_ClO_ratio > 0.001
+    @test Cl_ClO_ratio < 0.1
 end
