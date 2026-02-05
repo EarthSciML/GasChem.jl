@@ -28,6 +28,17 @@ Net: O3 + O -> 2 O2
 
 where X represents the catalyst (NO, OH, Cl, Br). These cycles are highly efficient because the catalyst is regenerated and can destroy many ozone molecules before being removed.
 
+### N2O as the Primary NOx Source
+
+Nitrous oxide (N2O) transported from the troposphere is the primary source of stratospheric NOx through its reaction with excited atomic oxygen O(1D) (Section 5.3.1):
+
+```
+N2O + O(1D) -> NO + NO    (k = 6.7 × 10⁻¹¹ cm³/molec/s)
+N2O + O(1D) -> N2 + O2    (k = 4.9 × 10⁻¹¹ cm³/molec/s)
+```
+
+The NO yield is approximately 58% (6.7/(6.7+4.9)), consistent with Equation 5.18.
+
 **Reference**: Seinfeld, J.H. and Pandis, S.N. (2006). *Atmospheric Chemistry and Physics: From Air Pollution to Climate Change*, 2nd Edition. John Wiley & Sons, Chapter 5, pp. 138-203.
 
 ### Exported Functions
@@ -56,13 +67,9 @@ BrOxCycle
 StratosphericOzoneSystem
 ```
 
-```@docs
-stratospheric_rate_coefficients
-```
-
 ## Implementation
 
-The implementation uses ModelingToolkit.jl to define ODE systems for each chemical cycle. This allows for symbolic manipulation of the equations, automatic Jacobian generation, and efficient numerical integration.
+The implementation uses ModelingToolkit.jl to define ODE systems for each chemical cycle. All rate coefficients are embedded as `@constants` with Arrhenius parameters within each component, ensuring that temperature-dependent rate computation is handled symbolically by ModelingToolkit. This allows for symbolic manipulation of the equations, automatic Jacobian generation, and efficient numerical integration.
 
 ### Chapman Mechanism System
 
@@ -148,7 +155,7 @@ DataFrame(
 
 #### Equations
 
-The full stratospheric system consists of 14 ODEs and 5 algebraic family definitions:
+The full stratospheric system consists of 15 ODEs and 5 algebraic family definitions:
 
 ```@example fullsys
 equations(sys_full)
@@ -174,6 +181,18 @@ M_values = [1.4e18, 6.4e17, 3.1e17, 1.4e17, 7.1e16, 3.6e16]  # molec/cm^3
 
 # SI number densities for use in later analysis sections
 M_SI = M_values .* 1e6  # molec/cm^3 → molec/m^3
+
+# CGS to SI conversion factors
+CGS_TO_SI_K2 = 1e-12  # cm^6/molec^2/s → m^6/s
+CGS_TO_SI_K = 1e-6    # cm^3/molec/s → m^3/s
+
+# Inline rate coefficient functions (matching @constants in source)
+k_O_O2_M_si(T) = 6.0e-34 * (T / 300.0)^(-2.4) * CGS_TO_SI_K2
+k_O_O3_si(T) = 8.0e-12 * exp(-2060.0 / T) * CGS_TO_SI_K
+k_NO2_O_si(T) = 5.6e-12 * exp(180.0 / T) * CGS_TO_SI_K
+k_OH_O3_si(T) = 1.7e-12 * exp(-940.0 / T) * CGS_TO_SI_K
+k_ClO_O_si(T) = 3.0e-11 * exp(70.0 / T) * CGS_TO_SI_K
+k_Br_O3_si(T) = 1.7e-11 * exp(-800.0 / T) * CGS_TO_SI_K
 
 table51 = DataFrame(
     Symbol("z (km)") => altitudes,
@@ -211,11 +230,10 @@ table52 = DataFrame(
 The rate coefficients for the Chapman mechanism vary with altitude due to their temperature dependence:
 
 ```@example analysis
-using GasChem
 using Plots
 
-k2_values = [GasChem.k_O_O2_M(T) for T in temperatures]
-k4_values = [GasChem.k_O_O3(T) for T in temperatures]
+k2_values = [k_O_O2_M_si(T) for T in temperatures]
+k4_values = [k_O_O3_si(T) for T in temperatures]
 
 p1 = plot(altitudes, k2_values,
     xlabel = "Altitude (km)",
@@ -251,7 +269,6 @@ The steady-state ratio of atomic oxygen to ozone is given by Equation 5.7:
 This ratio increases with altitude due to decreasing air density M:
 
 ```@example analysis
-using GasChem
 using Plots
 
 j_O3 = 4e-4  # s^-1 (typical midday value around 30 km)
@@ -260,7 +277,7 @@ O2_frac = 0.21
 O_O3_ratios = Float64[]
 for (i, T) in enumerate(temperatures)
     M = M_SI[i]
-    k2 = GasChem.k_O_O2_M(T)  # m^6/s (SI)
+    k2 = k_O_O2_M_si(T)  # m^6/s (SI)
     O2 = O2_frac * M
     ratio = j_O3 / (k2 * O2 * M)
     push!(O_O3_ratios, ratio)
@@ -291,7 +308,6 @@ The Chapman mechanism predicts a steady-state ozone concentration given by Equat
 ```
 
 ```@example analysis
-using GasChem
 using Plots
 
 j_O2_values = [1e-12, 5e-12, 1e-11, 2e-11, 3e-11, 4e-11]  # Increases with altitude
@@ -300,8 +316,8 @@ j_O3_values = [2e-4, 3e-4, 4e-4, 5e-4, 6e-4, 7e-4]  # s^-1
 O3_ss = Float64[]
 for (i, T) in enumerate(temperatures)
     M = M_SI[i]  # SI: m^-3
-    k2 = GasChem.k_O_O2_M(T)  # SI: m^6/s
-    k4 = GasChem.k_O_O3(T)    # SI: m^3/s
+    k2 = k_O_O2_M_si(T)  # SI: m^6/s
+    k4 = k_O_O3_si(T)    # SI: m^3/s
     j_O2 = j_O2_values[i]
     j_O3 = j_O3_values[i]
 
@@ -332,14 +348,13 @@ The characteristic time for ozone to reach steady state is given by Equation 5.1
 ```
 
 ```@example analysis
-using GasChem
 using Plots
 
 tau_ss = Float64[]
 for (i, T) in enumerate(temperatures)
     M = M_SI[i]  # SI: m^-3
-    k2 = GasChem.k_O_O2_M(T)  # SI: m^6/s
-    k4 = GasChem.k_O_O3(T)    # SI: m^3/s
+    k2 = k_O_O2_M_si(T)  # SI: m^6/s
+    k4 = k_O_O3_si(T)    # SI: m^3/s
     j_O2 = j_O2_values[i]
     j_O3 = j_O3_values[i]
 
@@ -379,20 +394,17 @@ chapman = ChapmanMechanism()
 sys = mtkcompile(chapman)
 
 # Parameters for 30 km altitude (Table 5.1)
-T = 227.0  # K
+T_val = 227.0  # K
 M_30km = 3.1e23  # m^-3 (3.1e17 molec/cm^3 × 1e6)
 
 j_O2_val = 1e-11  # s^-1
 j_O3_val = 4e-4   # s^-1
-k2_val = GasChem.k_O_O2_M(T)  # m^6/s (already SI)
-k4_val = GasChem.k_O_O3(T)    # m^3/s (already SI)
 
 prob = ODEProblem(sys,
     [sys.O => 1e11, sys.O3 => 1e16,  # SI: m^-3
         sys.j_O2 => j_O2_val,
         sys.j_O3 => j_O3_val,
-        sys.k2 => k2_val,
-        sys.k4 => k4_val,
+        sys.T => T_val,
         sys.M => M_30km,
         sys.O2_mix => 0.21],
     (0.0, 3600.0 * 24 * 10))  # 10 days
@@ -428,15 +440,14 @@ The catalytic cycles (NOx, HOx, ClOx, BrOx) each contribute to ozone destruction
 
 At lower stratospheric altitudes (15-25 km), the HOx cycle dominates ozone loss. At middle altitudes (25-40 km), the NOx cycle becomes most important. The ClOx cycle contributes significantly at all altitudes and is particularly important in the polar regions where heterogeneous chemistry activates chlorine reservoirs.
 
-The following figure uses the rate coefficient functions from the implementation to compute the relative destruction rates at each altitude, assuming typical species mixing ratios from the textbook:
+The following figure computes the relative destruction rates at each altitude, assuming typical species mixing ratios from the textbook:
 
 ```@example analysis
-using GasChem
 using Plots
 
-# Compute catalytic destruction rates from the implementation's rate coefficients
+# Compute catalytic destruction rates
 # Using typical stratospheric mixing ratios from Chapter 5
-# All concentrations in SI (m^-3), rate coefficients return SI
+# All concentrations in SI (m^-3)
 
 # Typical mixing ratios (from text)
 NO2_vmr = 5e-9   # 5 ppbv
@@ -464,16 +475,16 @@ for (i, T) in enumerate(temperatures)
     BrO = BrO_vmr * M
 
     # Destruction rates (from Seinfeld & Pandis Eqs. 5.22, 5.25, 5.29)
-    k_NO2_O = GasChem.k_NO2_O(T)   # SI: m^3/s
-    k_OH_O3 = GasChem.k_OH_O3(T)
-    k_ClO_O = GasChem.k_ClO_O(T)
-    k_Br_O3 = GasChem.k_Br_O3(T)
-    k4 = GasChem.k_O_O3(T)
+    k_NO2_O_val = k_NO2_O_si(T)   # SI: m^3/s
+    k_OH_O3_val = k_OH_O3_si(T)
+    k_ClO_O_val = k_ClO_O_si(T)
+    k_Br_O3_val = k_Br_O3_si(T)
+    k4 = k_O_O3_si(T)
 
-    R_NOx = 2 * k_NO2_O * NO2 * O_conc
-    R_HOx = 2 * k_OH_O3 * OH * O3_conc
-    R_ClOx = 2 * k_ClO_O * ClO * O_conc
-    R_BrOx = 2 * k_Br_O3 * BrO * O3_conc
+    R_NOx = 2 * k_NO2_O_val * NO2 * O_conc
+    R_HOx = 2 * k_OH_O3_val * OH * O3_conc
+    R_ClOx = 2 * k_ClO_O_val * ClO * O_conc
+    R_BrOx = 2 * k_Br_O3_val * BrO * O3_conc
     R_chapman = 2 * k4 * O_conc * O3_conc
 
     total = R_NOx + R_HOx + R_ClOx + R_BrOx + R_chapman
@@ -512,7 +523,6 @@ The NOx cycle destroys odd oxygen at the rate (Equation 5.22):
 The efficiency of the NOx cycle can be estimated by comparing this destruction rate to the Chapman mechanism rate:
 
 ```@example analysis
-using GasChem
 using Plots
 
 NO2_mix = 1e-9  # 1 ppbv
@@ -521,15 +531,15 @@ O_mix = 1e-11   # varies strongly with altitude
 ratios = Float64[]
 for (i, T) in enumerate(temperatures)
     M = M_SI[i]  # SI: m^-3
-    k4 = GasChem.k_O_O3(T)      # SI: m^3/s
-    k_NO2_O = GasChem.k_NO2_O(T)  # SI: m^3/s
+    k4 = k_O_O3_si(T)      # SI: m^3/s
+    k_NO2_O_val = k_NO2_O_si(T)  # SI: m^3/s
 
     O = O_mix * M
     O3 = 3e18  # SI: m^-3 (3e12 molec/cm^3 × 1e6)
     NO2 = NO2_mix * M
 
     R_chapman = k4 * O * O3
-    R_NOx = k_NO2_O * NO2 * O
+    R_NOx = k_NO2_O_val * NO2 * O
 
     push!(ratios, R_NOx / R_chapman)
 end
@@ -604,11 +614,6 @@ This module provides a comprehensive implementation of stratospheric ozone chemi
  1. **Chapman Mechanism**: Fundamental O2/O3 photochemistry with temperature-dependent rate coefficients
  2. **Catalytic Cycles**: NOx, HOx, ClOx, and BrOx destruction mechanisms
  3. **Chemical Families**: Tracking of Ox, NOx, HOx, ClOx, and BrOx families
- 4. **Rate Coefficients**: All rate coefficients based on recommended values from the literature
-
-The implementation allows users to:
-
-  - Study the steady-state behavior of stratospheric ozone
-  - Investigate the relative importance of different catalytic cycles
-  - Explore the sensitivity of the ozone layer to perturbations
-  - Understand the chemistry underlying the Antarctic ozone hole
+ 4. **N2O Source Chemistry**: N2O + O(1D) as the primary source of stratospheric NOx (Section 5.3.1)
+ 5. **O(1D) Photochemistry**: Including reactions with H2O, CH4, and N2O
+ 6. **Rate Coefficients**: All Arrhenius parameters embedded as `@constants` within ModelingToolkit components
