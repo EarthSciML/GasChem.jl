@@ -155,7 +155,7 @@ end
 Third body effect for pressure dependence of rate coefficients.
 a1, b1, c1 are the Arrhenius parameters for the lower-limit rate.
 a2, b2, c2 are the Arrhenius parameters for the upper-limit rate.
-fv         is the falloff curve paramter, (see ATKINSON ET. AL (1992)
+fv         is the falloff curve parameter, (see ATKINSON ET. AL (1992)
 J. Phys. Chem. Ref. Data 21, P. 1145). Usually fv = 0.6.
 """
 function arr_3rdbody(t, T, num_density, a1, b1, c1, a2, b2, c2, fv; unit = u"ppb^-1*s^-1",
@@ -192,7 +192,7 @@ end
 Third body effect for pressure dependence of first-order rate coefficients.
 a1, b1, c1 are the Arrhenius parameters for the lower-limit rate.
 a2, b2, c2 are the Arrhenius parameters for the upper-limit rate.
-fv         is the falloff curve paramter, (see ATKINSON ET. AL (1992)
+fv         is the falloff curve parameter, (see ATKINSON ET. AL (1992)
 J. Phys. Chem. Ref. Data 21, P. 1145). Usually fv = 0.6.
 """
 function arr_3rdbody_1(t, T, num_density, a1, b1, c1, a2, b2, c2, fv;

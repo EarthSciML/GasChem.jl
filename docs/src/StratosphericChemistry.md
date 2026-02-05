@@ -8,10 +8,10 @@ The stratosphere, extending from approximately 10-50 km altitude, contains the o
 
 The Chapman mechanism (Chapman, 1930) describes the basic photochemical production and destruction of ozone in the stratosphere through four key reactions:
 
-1. **O2 Photolysis**: O2 + hv -> O + O (j_O2)
-2. **Ozone Formation**: O + O2 + M -> O3 + M (k2)
-3. **Ozone Photolysis**: O3 + hv -> O + O2 (j_O3)
-4. **Ozone Destruction**: O + O3 -> O2 + O2 (k4)
+ 1. **O2 Photolysis**: O2 + hv -> O + O (j_O2)
+ 2. **Ozone Formation**: O + O2 + M -> O3 + M (k2)
+ 3. **Ozone Photolysis**: O3 + hv -> O + O2 (j_O3)
+ 4. **Ozone Destruction**: O + O3 -> O2 + O2 (k4)
 
 While the Chapman mechanism predicts the qualitative features of the ozone layer, it overestimates ozone concentrations by roughly a factor of two. This discrepancy is resolved by including catalytic destruction cycles involving NOx, HOx, ClOx, and BrOx species.
 
@@ -65,7 +65,7 @@ nothing # hide
 ```@example chapman
 vars = unknowns(sys)
 DataFrame(
-    :Name => [string(Symbolics.tosymbol(v, escape=false)) for v in vars],
+    :Name => [string(Symbolics.tosymbol(v, escape = false)) for v in vars],
     :Units => [dimension(ModelingToolkit.get_unit(v)) for v in vars],
     :Description => [ModelingToolkit.getdescription(v) for v in vars]
 )
@@ -76,7 +76,7 @@ DataFrame(
 ```@example chapman
 params = parameters(sys)
 DataFrame(
-    :Name => [string(Symbolics.tosymbol(p, escape=false)) for p in params],
+    :Name => [string(Symbolics.tosymbol(p, escape = false)) for p in params],
     :Units => [dimension(ModelingToolkit.get_unit(p)) for p in params],
     :Description => [ModelingToolkit.getdescription(p) for p in params]
 )
@@ -111,7 +111,7 @@ nothing # hide
 ```@example fullsys
 vars = unknowns(sys_full)
 DataFrame(
-    :Name => [string(Symbolics.tosymbol(v, escape=false)) for v in vars],
+    :Name => [string(Symbolics.tosymbol(v, escape = false)) for v in vars],
     :Units => [dimension(ModelingToolkit.get_unit(v)) for v in vars],
     :Description => [ModelingToolkit.getdescription(v) for v in vars]
 )
@@ -154,23 +154,24 @@ k2_values = [GasChem.k_O_O2_M(T) for T in temperatures]
 k4_values = [GasChem.k_O_O3(T) for T in temperatures]
 
 p1 = plot(altitudes, k2_values,
-    xlabel="Altitude (km)",
-    ylabel="k2 (cm^6 molec^-2 s^-1)",
-    label="k2: O + O2 + M",
-    marker=:circle,
-    title="Temperature Dependence of Rate Coefficients",
-    legend=:topright)
+    xlabel = "Altitude (km)",
+    ylabel = "k2 (cm^6 molec^-2 s^-1)",
+    label = "k2: O + O2 + M",
+    marker = :circle,
+    title = "Temperature Dependence of Rate Coefficients",
+    legend = :topright)
 
 p2 = plot(altitudes, k4_values,
-    xlabel="Altitude (km)",
-    ylabel="k4 (cm^3 molec^-1 s^-1)",
-    label="k4: O + O3",
-    marker=:square,
-    color=:red,
-    legend=:topleft)
+    xlabel = "Altitude (km)",
+    ylabel = "k4 (cm^3 molec^-1 s^-1)",
+    label = "k4: O + O3",
+    marker = :square,
+    color = :red,
+    legend = :topleft)
 
-plot(p1, p2, layout=(1,2), size=(800, 350))
-savefig("rate_coefficients.svg"); nothing # hide
+plot(p1, p2, layout = (1, 2), size = (800, 350))
+savefig("rate_coefficients.svg");
+nothing # hide
 ```
 
 ![Rate coefficients vs altitude](rate_coefficients.svg)
@@ -202,14 +203,15 @@ for (i, T) in enumerate(temperatures)
 end
 
 plot(altitudes, O_O3_ratios,
-    xlabel="Altitude (km)",
-    ylabel="[O]/[O3]",
-    label="Equation 5.7",
-    marker=:circle,
-    yscale=:log10,
-    title="Steady-State [O]/[O3] Ratio vs Altitude",
-    legend=:bottomright)
-savefig("O_O3_ratio.svg"); nothing # hide
+    xlabel = "Altitude (km)",
+    ylabel = "[O]/[O3]",
+    label = "Equation 5.7",
+    marker = :circle,
+    yscale = :log10,
+    title = "Steady-State [O]/[O3] Ratio vs Altitude",
+    legend = :bottomright)
+savefig("O_O3_ratio.svg");
+nothing # hide
 ```
 
 ![O/O3 ratio vs altitude](O_O3_ratio.svg)
@@ -244,13 +246,14 @@ for (i, T) in enumerate(temperatures)
 end
 
 plot(O3_ss ./ 1e12, altitudes,
-    ylabel="Altitude (km)",
-    xlabel="[O3] (10^12 molec/cm^3)",
-    label="Chapman prediction (Eq. 5.13)",
-    marker=:circle,
-    title="Steady-State Ozone Profile",
-    legend=:topright)
-savefig("ozone_profile.svg"); nothing # hide
+    ylabel = "Altitude (km)",
+    xlabel = "[O3] (10^12 molec/cm^3)",
+    label = "Chapman prediction (Eq. 5.13)",
+    marker = :circle,
+    title = "Steady-State Ozone Profile",
+    legend = :topright)
+savefig("ozone_profile.svg");
+nothing # hide
 ```
 
 ![Steady-state ozone profile](ozone_profile.svg)
@@ -282,14 +285,15 @@ end
 tau_days = tau_ss ./ (24 * 3600)
 
 plot(tau_days, altitudes,
-    ylabel="Altitude (km)",
-    xlabel="Time to steady state (days)",
-    label="Equation 5.17",
-    marker=:circle,
-    xscale=:log10,
-    title="Ozone Steady-State Timescale",
-    legend=:topright)
-savefig("tau_steadystate.svg"); nothing # hide
+    ylabel = "Altitude (km)",
+    xlabel = "Time to steady state (days)",
+    label = "Equation 5.17",
+    marker = :circle,
+    xscale = :log10,
+    title = "Ozone Steady-State Timescale",
+    legend = :topright)
+savefig("tau_steadystate.svg");
+nothing # hide
 ```
 
 ![Time to steady state](tau_steadystate.svg)
@@ -310,43 +314,48 @@ chapman = ChapmanMechanism()
 sys = mtkcompile(chapman)
 
 # Parameters for 30 km altitude (Table 5.1)
+# CGS→SI conversion: 1 cm^-3 = 1e6 m^-3
+# Rate coefficient conversions: cm^6/(molec^2·s) × 1e-12 → m^6/s
+#                                cm^3/(molec·s)   × 1e-6  → m^3/s
 T = 227.0  # K
-M = 3.83e17  # molec/cm^3
+M_SI = 3.83e23  # m^-3  (3.83e17 molec/cm^3 × 1e6)
 
 j_O2_val = 1e-11  # s^-1
 j_O3_val = 4e-4   # s^-1
-k2_val = GasChem.k_O_O2_M(T)
-k4_val = GasChem.k_O_O3(T)
+k2_val = GasChem.k_O_O2_M(T) * 1e-12  # CGS → SI (m^6/s)
+k4_val = GasChem.k_O_O3(T) * 1e-6     # CGS → SI (m^3/s)
 
 prob = ODEProblem(sys,
-    [sys.O => 1e5, sys.O3 => 1e10],
+    [sys.O => 1e11, sys.O3 => 1e16],  # SI: m^-3 (1e5 and 1e10 cm^-3 × 1e6)
     (0.0, 3600.0 * 24 * 10),  # 10 days
     [sys.j_O2 => j_O2_val,
-     sys.j_O3 => j_O3_val,
-     sys.k2 => k2_val,
-     sys.k4 => k4_val,
-     sys.M => M,
-     sys.O2_mix => 0.21])
+        sys.j_O3 => j_O3_val,
+        sys.k2 => k2_val,
+        sys.k4 => k4_val,
+        sys.M => M_SI,
+        sys.O2_mix => 0.21])
 
-sol = solve(prob, abstol=1e-8, reltol=1e-8)
+sol = solve(prob, abstol = 1e-8, reltol = 1e-8)
 
 time_hours = sol.t ./ 3600
 
-p1 = plot(time_hours, sol[sys.O3] ./ 1e12,
-    xlabel="Time (hours)",
-    ylabel="[O3] (10^12 molec/cm^3)",
-    label="O3",
-    title="Chapman Mechanism: Approach to Steady State (30 km)")
+# Convert SI m^-3 back to CGS molec/cm^3 for display (÷ 1e6)
+p1 = plot(time_hours, sol[sys.O3] ./ 1e6 ./ 1e12,
+    xlabel = "Time (hours)",
+    ylabel = "[O3] (10^12 molec/cm^3)",
+    label = "O3",
+    title = "Chapman Mechanism: Approach to Steady State (30 km)")
 
-p2 = plot(time_hours, sol[sys.O],
-    xlabel="Time (hours)",
-    ylabel="[O] (molec/cm^3)",
-    label="O",
-    color=:red,
-    title="Atomic Oxygen")
+p2 = plot(time_hours, sol[sys.O] ./ 1e6,
+    xlabel = "Time (hours)",
+    ylabel = "[O] (molec/cm^3)",
+    label = "O",
+    color = :red,
+    title = "Atomic Oxygen")
 
-plot(p1, p2, layout=(2,1), size=(700, 500))
-savefig("chapman_simulation.svg"); nothing # hide
+plot(p1, p2, layout = (2, 1), size = (700, 500))
+savefig("chapman_simulation.svg");
+nothing # hide
 ```
 
 ![Chapman mechanism simulation](chapman_simulation.svg)
@@ -410,17 +419,18 @@ for (i, T) in enumerate(temperatures)
 end
 
 plot(nox_rates, altitudes,
-    label="NOx",
-    xlabel="Contribution to O3 Loss (%)",
-    ylabel="Altitude (km)",
-    title="Catalytic Cycle Contributions (cf. Figure 5.29)",
-    linewidth=2,
-    legend=:topright)
-plot!(hox_rates, altitudes, label="HOx", linewidth=2)
-plot!(clox_rates, altitudes, label="ClOx", linewidth=2)
-plot!(brox_rates, altitudes, label="BrOx", linewidth=2)
-plot!(chapman_rates, altitudes, label="Chapman (O+O3)", linewidth=2, linestyle=:dash)
-savefig("catalytic_contributions.svg"); nothing # hide
+    label = "NOx",
+    xlabel = "Contribution to O3 Loss (%)",
+    ylabel = "Altitude (km)",
+    title = "Catalytic Cycle Contributions (cf. Figure 5.29)",
+    linewidth = 2,
+    legend = :topright)
+plot!(hox_rates, altitudes, label = "HOx", linewidth = 2)
+plot!(clox_rates, altitudes, label = "ClOx", linewidth = 2)
+plot!(brox_rates, altitudes, label = "BrOx", linewidth = 2)
+plot!(chapman_rates, altitudes, label = "Chapman (O+O3)", linewidth = 2, linestyle = :dash)
+savefig("catalytic_contributions.svg");
+nothing # hide
 ```
 
 ![Catalytic cycle contributions](catalytic_contributions.svg)
@@ -459,14 +469,15 @@ for (i, T) in enumerate(temperatures)
 end
 
 plot(altitudes, ratios,
-    xlabel="Altitude (km)",
-    ylabel="NOx/Chapman Rate Ratio",
-    label="Rate ratio",
-    marker=:circle,
-    title="NOx Cycle Efficiency Relative to Chapman",
-    legend=:topleft,
-    yscale=:log10)
-savefig("nox_efficiency.svg"); nothing # hide
+    xlabel = "Altitude (km)",
+    ylabel = "NOx/Chapman Rate Ratio",
+    label = "Rate ratio",
+    marker = :circle,
+    title = "NOx Cycle Efficiency Relative to Chapman",
+    legend = :topleft,
+    yscale = :log10)
+savefig("nox_efficiency.svg");
+nothing # hide
 ```
 
 ![NOx cycle efficiency](nox_efficiency.svg)
@@ -488,16 +499,16 @@ sys = ClOxCycle()
 compiled = mtkcompile(sys)
 
 # Compute partitioning at a representative altitude (30 km)
-# Starting from all Cly as ClO
-Cly_total = 2e9  # Total Cly
+# CGS→SI: 1 cm^-3 = 1e6 m^-3
+Cly_total = 2e15  # Total Cly in SI m^-3 (2e9 molec/cm^3 × 1e6)
 
 prob = ODEProblem(compiled,
-    [compiled.Cl => 1e4, compiled.ClO => 1e7,
-     compiled.HCl => 1e9, compiled.ClONO2 => Cly_total - 1e4 - 1e7 - 1e9],
-    (0.0, 3600.0 * 24),  # 1 day
-    )
+    [compiled.Cl => 1e10, compiled.ClO => 1e13,
+        compiled.HCl => 1e15, compiled.ClONO2 => Cly_total - 1e10 - 1e13 - 1e15],
+    (0.0, 3600.0 * 24)  # 1 day
+)
 
-sol = solve(prob, abstol=1e-8, reltol=1e-8)
+sol = solve(prob, abstol = 1e-8, reltol = 1e-8)
 
 time_hours = sol.t ./ 3600
 
@@ -506,13 +517,14 @@ HCl_frac = sol[compiled.HCl] ./ Cly
 ClONO2_frac = sol[compiled.ClONO2] ./ Cly
 ClOx_frac = (sol[compiled.Cl] .+ sol[compiled.ClO]) ./ Cly
 
-plot(time_hours, HCl_frac, label="HCl/Cly", linewidth=2,
-    xlabel="Time (hours)", ylabel="Fraction of Cly",
-    title="Chlorine Reservoir Partitioning (30 km)",
-    legend=:right)
-plot!(time_hours, ClONO2_frac, label="ClONO2/Cly", linewidth=2)
-plot!(time_hours, ClOx_frac, label="ClOx/Cly", linewidth=2)
-savefig("chlorine_partitioning.svg"); nothing # hide
+plot(time_hours, HCl_frac, label = "HCl/Cly", linewidth = 2,
+    xlabel = "Time (hours)", ylabel = "Fraction of Cly",
+    title = "Chlorine Reservoir Partitioning (30 km)",
+    legend = :right)
+plot!(time_hours, ClONO2_frac, label = "ClONO2/Cly", linewidth = 2)
+plot!(time_hours, ClOx_frac, label = "ClOx/Cly", linewidth = 2)
+savefig("chlorine_partitioning.svg");
+nothing # hide
 ```
 
 ![Chlorine reservoir partitioning](chlorine_partitioning.svg)
@@ -523,13 +535,14 @@ The reactive chlorine species (ClOx = Cl + ClO) constitute only a small fraction
 
 This module provides a comprehensive implementation of stratospheric ozone chemistry based on the well-established theory presented in Seinfeld & Pandis (2006). The key features include:
 
-1. **Chapman Mechanism**: Fundamental O2/O3 photochemistry with temperature-dependent rate coefficients
-2. **Catalytic Cycles**: NOx, HOx, ClOx, and BrOx destruction mechanisms
-3. **Chemical Families**: Tracking of Ox, NOx, HOx, ClOx, and BrOx families
-4. **Rate Coefficients**: All rate coefficients based on recommended values from the literature
+ 1. **Chapman Mechanism**: Fundamental O2/O3 photochemistry with temperature-dependent rate coefficients
+ 2. **Catalytic Cycles**: NOx, HOx, ClOx, and BrOx destruction mechanisms
+ 3. **Chemical Families**: Tracking of Ox, NOx, HOx, ClOx, and BrOx families
+ 4. **Rate Coefficients**: All rate coefficients based on recommended values from the literature
 
 The implementation allows users to:
-- Study the steady-state behavior of stratospheric ozone
-- Investigate the relative importance of different catalytic cycles
-- Explore the sensitivity of the ozone layer to perturbations
-- Understand the chemistry underlying the Antarctic ozone hole
+
+  - Study the steady-state behavior of stratospheric ozone
+  - Investigate the relative importance of different catalytic cycles
+  - Explore the sensitivity of the ozone layer to perturbations
+  - Understand the chemistry underlying the Antarctic ozone hole

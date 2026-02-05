@@ -1,0 +1,15 @@
+[default.extend-identifiers]
+# Chemical species names used in GEOS-Chem mechanism
+ONO = "ONO"
+ETO = "ETO"
+TRO = "TRO"
+MEK = "MEK"
+alow = "alow"
+kinf = "kinf"
+
+[default.extend-words]
+# Abbreviation for "stratospheric"
+Strat = "Strat"
+strat = "strat"
+# Author surname
+Jenkin = "Jenkin"
