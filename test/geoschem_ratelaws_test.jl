@@ -73,7 +73,9 @@ end
     a2, b2, c2 = 2.6e-11, 0.0, 0.0
     fv = 0.6
     @named base_sys = System(Equation[], t, [], [T, num_density])
-    sys = mtkcompile(extend(GasChem.arr_3rdbody(t, T, num_density, a1, b1, c1, a2, b2, c2, fv), base_sys))
+    sys = mtkcompile(extend(
+        GasChem.arr_3rdbody(
+            t, T, num_density, a1, b1, c1, a2, b2, c2, fv), base_sys))
     prob = ODEProblem(sys, [], (0.0, 3600.0))
     k_val = getsym(prob, sys.k)(prob)
     @test k_val ≈ 0.17987080444910986
@@ -84,7 +86,9 @@ end
     a2, b2, c2 = 2.6e-11, 0.0, 0.0
     fv = 0.6
     @named base_sys = System(Equation[], t, [], [T, num_density])
-    sys = mtkcompile(extend(GasChem.arr_3rdbody_1(t, T, num_density, a1, b1, c1, a2, b2, c2, fv), base_sys))
+    sys = mtkcompile(extend(
+        GasChem.arr_3rdbody_1(
+            t, T, num_density, a1, b1, c1, a2, b2, c2, fv), base_sys))
     prob = ODEProblem(sys, [], (0.0, 3600.0))
     k_val = getsym(prob, sys.k)(prob)
     @test k_val ≈ 6.661881646263327e-12
@@ -172,7 +176,9 @@ end
     a2, b2 = 9.3e-12, 1.5
     fv = 0.6
     @named base_sys = System(Equation[], t, [], [T, num_density])
-    sys = mtkcompile(extend(GasChem.eq_const(t, T, num_density, a0, c0, a1, b1, a2, b2, fv), base_sys))
+    sys = mtkcompile(extend(
+        GasChem.eq_const(
+            t, T, num_density, a0, c0, a1, b1, a2, b2, fv), base_sys))
     prob = ODEProblem(sys, [], (0.0, 3600.0))
     k_val = getsym(prob, sys.k)(prob)
     @test k_val ≈ 2.1206340759025532e-27
@@ -184,7 +190,9 @@ end
     a2, b2 = 9.3e-12, 1.5
     fv = 0.6
     @named base_sys = System(Equation[], t, [], [T, num_density])
-    sys = mtkcompile(extend(GasChem.eq_const_1(t, T, num_density, a0, c0, a1, b1, a2, b2, fv), base_sys))
+    sys = mtkcompile(extend(
+        GasChem.eq_const_1(
+            t, T, num_density, a0, c0, a1, b1, a2, b2, fv), base_sys))
     prob = ODEProblem(sys, [], (0.0, 3600.0))
     k_val = getsym(prob, sys.k)(prob)
     @test k_val ≈ 2.1206340759025532e-27
@@ -293,7 +301,9 @@ end
 @testitem "rate_ISO1" setup=[RateLawSetup] begin
     a0, b0, c0, d0, e0, f0, g0 = 1.0e-11, 390.0, 0.3, 1.0, 380.0, 1.0, 380.0
     @named base_sys = System(Equation[], t, [], [T, num_density])
-    sys = mtkcompile(extend(GasChem.rate_ISO1(t, T, num_density, a0, b0, c0, d0, e0, f0, g0), base_sys))
+    sys = mtkcompile(extend(
+        GasChem.rate_ISO1(
+            t, T, num_density, a0, b0, c0, d0, e0, f0, g0), base_sys))
     prob = ODEProblem(sys, [], (0.0, 3600.0))
     k_val = getsym(prob, sys.k)(prob)
     @test k_val ≈ 0.7210220267414859
@@ -302,7 +312,9 @@ end
 @testitem "rate_ISO2" setup=[RateLawSetup] begin
     a0, b0, c0, d0, e0, f0, g0 = 1.0e-11, 390.0, 0.3, 1.0, 380.0, 1.0, 380.0
     @named base_sys = System(Equation[], t, [], [T, num_density])
-    sys = mtkcompile(extend(GasChem.rate_ISO2(t, T, num_density, a0, b0, c0, d0, e0, f0, g0), base_sys))
+    sys = mtkcompile(extend(
+        GasChem.rate_ISO2(
+            t, T, num_density, a0, b0, c0, d0, e0, f0, g0), base_sys))
     prob = ODEProblem(sys, [], (0.0, 3600.0))
     k_val = getsym(prob, sys.k)(prob)
     @test k_val ≈ 0.3009403732544113

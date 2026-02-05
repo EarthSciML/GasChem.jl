@@ -19,7 +19,7 @@ start = Dates.datetime2unix(Dates.DateTime(2024, 2, 29))
 composed_ode = couple(SuperFast(), FastJX(start)) # Compose two models use the "couple" function
 
 tspan = (0.0, 3600.0*24*3)
-sys = convert(ODESystem, composed_ode) # Define the coupled system  
+sys = convert(System, composed_ode) # Define the coupled system  
 sol = solve(ODEProblem(sys, [], tspan, []), AutoTsit5(Rosenbrock23()), saveat = 10.0) # Solve the coupled system
 ```
 
@@ -70,8 +70,8 @@ emis = NEI2016MonthlyEmis("mrggrid_withbeis_withrwc", domain)
 model_noemis = couple(SuperFast(), FastJX(get_tref(domain))) # A model with chemistry and photolysis, but no emissions.
 model_withemis = couple(SuperFast(), FastJX(get_tref(domain)), emis) # The same model with emissions.
 
-sys_noemis = convert(ODESystem, model_noemis)
-sys_withemis = convert(ODESystem, model_withemis)
+sys_noemis = convert(System, model_noemis)
+sys_withemis = convert(System, model_withemis)
 
 tspan = EarthSciMLBase.get_tspan(domain)
 sol_noemis = solve(ODEProblem(sys_noemis, [], tspan, []), AutoTsit5(Rosenbrock23()))
