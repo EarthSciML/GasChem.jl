@@ -186,7 +186,7 @@ M_SI = M_values .* 1e6  # molec/cm^3 → molec/m^3
 CGS_TO_SI_K2 = 1e-12  # cm^6/molec^2/s → m^6/s
 CGS_TO_SI_K = 1e-6    # cm^3/molec/s → m^3/s
 
-# Inline rate coefficient functions (matching @constants in source)
+# Analytical rate coefficient functions from textbook Tables B.1/B.2 (CGS → SI)
 k_O_O2_M_si(T) = 6.0e-34 * (T / 300.0)^(-2.4) * CGS_TO_SI_K2
 k_O_O3_si(T) = 8.0e-12 * exp(-2060.0 / T) * CGS_TO_SI_K
 k_NO2_O_si(T) = 5.6e-12 * exp(180.0 / T) * CGS_TO_SI_K
@@ -211,8 +211,8 @@ Table 5.2 from Seinfeld & Pandis (2006) summarizes the chemical families that ar
 table52 = DataFrame(
     :Symbol => ["Oₓ", "NOₓ", "NOᵧ", "HOₓ", "Clᵧ", "ClOₓ", "Brᵧ"],
     :Name => ["Odd oxygen", "Nitrogen oxides", "Oxidized nitrogen",
-              "Hydrogen radicals", "Inorganic chlorine", "Reactive chlorine",
-              "Inorganic bromine"],
+        "Hydrogen radicals", "Inorganic chlorine", "Reactive chlorine",
+        "Inorganic bromine"],
     :Components => [
         "O + O3",
         "NO + NO2",
@@ -252,11 +252,7 @@ p2 = plot(altitudes, k4_values,
     legend = :topleft)
 
 plot(p1, p2, layout = (1, 2), size = (800, 350))
-savefig("rate_coefficients.svg");
-nothing # hide
 ```
-
-![Rate coefficients vs altitude](rate_coefficients.svg)
 
 ### [O]/[O3] Ratio (Equation 5.7)
 
@@ -291,11 +287,7 @@ plot(altitudes, O_O3_ratios,
     yscale = :log10,
     title = "Steady-State [O]/[O3] Ratio vs Altitude",
     legend = :bottomright)
-savefig("O_O3_ratio.svg");
-nothing # hide
 ```
-
-![O/O3 ratio vs altitude](O_O3_ratio.svg)
 
 The [O]/[O3] ratio increases from approximately 10^-7 at 20 km to 10^-5 at 45 km, consistent with the discussion on page 144 of Seinfeld & Pandis.
 
@@ -333,11 +325,7 @@ plot(O3_ss ./ 1e6 ./ 1e12, altitudes,
     marker = :circle,
     title = "Steady-State Ozone Profile",
     legend = :topright)
-savefig("ozone_profile.svg");
-nothing # hide
 ```
-
-![Steady-state ozone profile](ozone_profile.svg)
 
 ### Time to Steady State (Equation 5.17)
 
@@ -372,11 +360,7 @@ plot(tau_days, altitudes,
     xscale = :log10,
     title = "Ozone Steady-State Timescale",
     legend = :topright)
-savefig("tau_steadystate.svg");
-nothing # hide
 ```
-
-![Time to steady state](tau_steadystate.svg)
 
 At 40 km, the ozone steady-state timescale is on the order of hours, while at 20 km it can take months to years. This explains why the ozone layer responds quickly to perturbations at higher altitudes but slowly at lower altitudes.
 
@@ -428,11 +412,7 @@ p2 = plot(time_hours, sol[sys.O] ./ 1e6,
     title = "Atomic Oxygen")
 
 plot(p1, p2, layout = (2, 1), size = (700, 500))
-savefig("chapman_simulation.svg");
-nothing # hide
 ```
-
-![Chapman mechanism simulation](chapman_simulation.svg)
 
 ### Catalytic Cycle Contributions to Ozone Loss
 
@@ -506,11 +486,7 @@ plot!(hox_rates, altitudes, label = "HOx", linewidth = 2)
 plot!(clox_rates, altitudes, label = "ClOx", linewidth = 2)
 plot!(brox_rates, altitudes, label = "BrOx", linewidth = 2)
 plot!(chapman_rates, altitudes, label = "Chapman (O+O3)", linewidth = 2, linestyle = :dash)
-savefig("catalytic_contributions.svg");
-nothing # hide
 ```
-
-![Catalytic cycle contributions](catalytic_contributions.svg)
 
 ### NOx Catalytic Efficiency
 
@@ -552,11 +528,7 @@ plot(altitudes, ratios,
     title = "NOx Cycle Efficiency Relative to Chapman",
     legend = :topleft,
     yscale = :log10)
-savefig("nox_efficiency.svg");
-nothing # hide
 ```
-
-![NOx cycle efficiency](nox_efficiency.svg)
 
 ### Chlorine Reservoir Partitioning
 
@@ -599,11 +571,7 @@ plot(time_hours, HCl_frac, label = "HCl/Cly", linewidth = 2,
     legend = :right)
 plot!(time_hours, ClONO2_frac, label = "ClONO2/Cly", linewidth = 2)
 plot!(time_hours, ClOx_frac, label = "ClOx/Cly", linewidth = 2)
-savefig("chlorine_partitioning.svg");
-nothing # hide
 ```
-
-![Chlorine reservoir partitioning](chlorine_partitioning.svg)
 
 The reactive chlorine species (ClOx = Cl + ClO) constitute only a small fraction of total inorganic chlorine (Cly) under normal conditions. However, heterogeneous reactions on polar stratospheric clouds can rapidly convert HCl and ClONO2 to reactive forms, leading to severe ozone depletion in polar regions (the "ozone hole").
 

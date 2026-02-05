@@ -66,7 +66,8 @@ d[O3]/dt = k2[O][O2][M] - j_O3[O3] - k4[O][O3]
         j_O2 = 1e-10, [unit = u"s^-1", description = "O2 photolysis rate"]
         j_O3 = 1e-3, [unit = u"s^-1", description = "O3 photolysis rate"]
         T = 227.0, [unit = u"K", description = "Temperature"]
-        M = 3e23, [unit = u"m^-3", description = "Air number density (3e17 molec/cm^3 × 1e6)"]
+        M = 3e23,
+        [unit = u"m^-3", description = "Air number density (3e17 molec/cm^3 × 1e6)"]
         O2_mix = 0.21, [unit = u"1", description = "O2 mixing ratio (dimensionless)"]
     end
 
@@ -131,7 +132,8 @@ d[Ox]/dt = -2 k2[NO2][O]
     end
 
     @variables begin
-        NO(t) = 1e15, [unit = u"m^-3", description = "NO concentration (1e9 molec/cm^3 × 1e6)"]
+        NO(t) = 1e15,
+        [unit = u"m^-3", description = "NO concentration (1e9 molec/cm^3 × 1e6)"]
         NO2(t) = 1e15,
         [unit = u"m^-3", description = "NO2 concentration (1e9 molec/cm^3 × 1e6)"]
         NOx(t), [unit = u"m^-3", description = "NOx = NO + NO2"]
@@ -184,7 +186,8 @@ d[Ox]/dt = -2 k_HO2+O3[HO2][O3] - 2 k_HO2+O[HO2][O]
         k_HO2_O3_A = 1.0e-20,
         [unit = u"m^3/s",
             description = "Pre-factor: HO2 + O3 (1e-14 cm^3/molec/s × 1e-6, Table B.1)"]
-        C_HO2_O3 = -490.0, [unit = u"K", description = "Activation temperature for HO2 + O3"]
+        C_HO2_O3 = -490.0,
+        [unit = u"K", description = "Activation temperature for HO2 + O3"]
         k_HO2_O_A = 3.0e-17,
         [unit = u"m^3/s",
             description = "Pre-factor: HO2 + O (3e-11 cm^3/molec/s × 1e-6, Page 161)"]
@@ -268,16 +271,19 @@ d[Ox]/dt = -2 k2[ClO][O]
         k_Cl_CH4_A = 9.6e-18,
         [unit = u"m^3/s",
             description = "Pre-factor: Cl + CH4 (9.6e-12 cm^3/molec/s × 1e-6, Table B.1)"]
-        C_Cl_CH4 = -1360.0, [unit = u"K", description = "Activation temperature for Cl + CH4"]
+        C_Cl_CH4 = -1360.0,
+        [unit = u"K", description = "Activation temperature for Cl + CH4"]
         k_OH_HCl_A = 2.6e-18,
         [unit = u"m^3/s",
             description = "Pre-factor: OH + HCl (2.6e-12 cm^3/molec/s × 1e-6, Page 168)"]
-        C_OH_HCl = -350.0, [unit = u"K", description = "Activation temperature for OH + HCl"]
+        C_OH_HCl = -350.0,
+        [unit = u"K", description = "Activation temperature for OH + HCl"]
         # CGS→SI: cm^6/molec^2/s × 1e-12 → m^6/s
         k_ClO_NO2_M_A = 1.8e-43,
         [unit = u"m^6/s",
             description = "Pre-factor: ClO + NO2 + M → ClONO2 (1.8e-31 cm^6/molec^2/s × 1e-12, Page 165)"]
-        T_ref_ClO = 300.0, [unit = u"K", description = "Reference temperature for ClO + NO2 + M"]
+        T_ref_ClO = 300.0,
+        [unit = u"K", description = "Reference temperature for ClO + NO2 + M"]
     end
 
     @parameters begin
@@ -286,7 +292,8 @@ d[Ox]/dt = -2 k2[ClO][O]
         CH4 = 1e19,
         [unit = u"m^-3", description = "Methane concentration (1e13 molec/cm^3 × 1e6)"]
         M = 3.1e23,
-        [unit = u"m^-3", description = "Air number density at 30 km (3.1e17 molec/cm^3 × 1e6)"]
+        [
+            unit = u"m^-3", description = "Air number density at 30 km (3.1e17 molec/cm^3 × 1e6)"]
         O = 1e13, [unit = u"m^-3", description = "Atomic oxygen (1e7 molec/cm^3 × 1e6)"]
         O3 = 3e18, [unit = u"m^-3", description = "Ozone (3e12 molec/cm^3 × 1e6)"]
         NO = 1e15, [unit = u"m^-3", description = "NO (1e9 molec/cm^3 × 1e6)"]
@@ -318,8 +325,9 @@ d[Ox]/dt = -2 k2[ClO][O]
         D(Cl) ~
         -k_Cl_O3 * Cl * O3 + k_ClO_O * ClO * O + k_ClO_NO * ClO * NO -
         k_Cl_CH4 * Cl * CH4 + k_OH_HCl * OH * HCl + j_ClONO2 * ClONO2,
-        D(ClO) ~ k_Cl_O3 * Cl * O3 - k_ClO_O * ClO * O - k_ClO_NO * ClO * NO -
-                 k_ClO_NO2_M * ClO * NO2 * M,  # ClO + NO2 + M → ClONO2 (Page 167)
+        D(ClO) ~
+        k_Cl_O3 * Cl * O3 - k_ClO_O * ClO * O - k_ClO_NO * ClO * NO -
+        k_ClO_NO2_M * ClO * NO2 * M,  # ClO + NO2 + M → ClONO2 (Page 167)
         D(HCl) ~ k_Cl_CH4 * Cl * CH4 - k_OH_HCl * OH * HCl,
         D(ClONO2) ~ k_ClO_NO2_M * ClO * NO2 * M -  # ClO + NO2 + M → ClONO2 (formation)
                     j_ClONO2 * ClONO2,               # ClONO2 + hν → Cl + NO3 (photolysis)
@@ -463,74 +471,94 @@ N2O + O(¹D) → N2 + O2 (k = 4.9 × 10⁻¹¹ cm³/molec/s)
         [
             unit = u"m^6/s", description = "Pre-factor: O + O2 + M → O3 + M (6e-34 cm^6/molec^2/s × 1e-12, Table B.2)"]
         k4_A = 8.0e-18,
-        [unit = u"m^3/s", description = "Pre-factor: O + O3 → 2O2 (8e-12 cm^3/molec/s × 1e-6, Table B.1)"]
+        [unit = u"m^3/s",
+            description = "Pre-factor: O + O3 → 2O2 (8e-12 cm^3/molec/s × 1e-6, Table B.1)"]
         C_k4 = -2060.0, [unit = u"K", description = "exp(C/T) factor: O + O3"]
 
         # O(1D) quenching (Page 143)
         k_O1D_O2_A = 3.2e-17,
-        [unit = u"m^3/s", description = "Pre-factor: O(1D) + O2 (3.2e-11 cm^3/molec/s × 1e-6, Page 143)"]
+        [unit = u"m^3/s",
+            description = "Pre-factor: O(1D) + O2 (3.2e-11 cm^3/molec/s × 1e-6, Page 143)"]
         C_O1D_O2 = 70.0, [unit = u"K", description = "exp(C/T) factor: O(1D) + O2"]
         k_O1D_N2_A = 1.8e-17,
-        [unit = u"m^3/s", description = "Pre-factor: O(1D) + N2 (1.8e-11 cm^3/molec/s × 1e-6, Page 143)"]
+        [unit = u"m^3/s",
+            description = "Pre-factor: O(1D) + N2 (1.8e-11 cm^3/molec/s × 1e-6, Page 143)"]
         C_O1D_N2 = 110.0, [unit = u"K", description = "exp(C/T) factor: O(1D) + N2"]
         k_O1D_H2O_c = 2.2e-16,
-        [unit = u"m^3/s", description = "O(1D) + H2O → 2OH (2.2e-10 cm^3/molec/s × 1e-6, Page 156)"]
+        [unit = u"m^3/s",
+            description = "O(1D) + H2O → 2OH (2.2e-10 cm^3/molec/s × 1e-6, Page 156)"]
         k_O1D_CH4_c = 1.5e-16,
-        [unit = u"m^3/s", description = "O(1D) + CH4 → OH + CH3 (1.5e-10 cm^3/molec/s × 1e-6, Page 156)"]
+        [unit = u"m^3/s",
+            description = "O(1D) + CH4 → OH + CH3 (1.5e-10 cm^3/molec/s × 1e-6, Page 156)"]
 
         # N2O + O(1D) channels (Section 5.3.1, Page 151)
         k_N2O_O1D_NO_c = 6.7e-17,
-        [unit = u"m^3/s", description = "N2O + O(1D) → NO + NO (6.7e-11 cm^3/molec/s × 1e-6, Page 151)"]
+        [unit = u"m^3/s",
+            description = "N2O + O(1D) → NO + NO (6.7e-11 cm^3/molec/s × 1e-6, Page 151)"]
         k_N2O_O1D_N2_c = 4.9e-17,
-        [unit = u"m^3/s", description = "N2O + O(1D) → N2 + O2 (4.9e-11 cm^3/molec/s × 1e-6, Page 151)"]
+        [unit = u"m^3/s",
+            description = "N2O + O(1D) → N2 + O2 (4.9e-11 cm^3/molec/s × 1e-6, Page 151)"]
 
         # NOx (Page 154)
         k_NO_O3_A = 3.0e-18,
-        [unit = u"m^3/s", description = "Pre-factor: NO + O3 (3e-12 cm^3/molec/s × 1e-6, Page 154)"]
+        [unit = u"m^3/s",
+            description = "Pre-factor: NO + O3 (3e-12 cm^3/molec/s × 1e-6, Page 154)"]
         C_NO_O3 = -1500.0, [unit = u"K", description = "exp(C/T) factor: NO + O3"]
         k_NO2_O_A = 5.6e-18,
-        [unit = u"m^3/s", description = "Pre-factor: NO2 + O (5.6e-12 cm^3/molec/s × 1e-6, Page 154)"]
+        [unit = u"m^3/s",
+            description = "Pre-factor: NO2 + O (5.6e-12 cm^3/molec/s × 1e-6, Page 154)"]
         C_NO2_O = 180.0, [unit = u"K", description = "exp(C/T) factor: NO2 + O"]
 
         # HOx (Pages 156-161)
         k_OH_O3_A = 1.7e-18,
-        [unit = u"m^3/s", description = "Pre-factor: OH + O3 (1.7e-12 cm^3/molec/s × 1e-6, Page 161)"]
+        [unit = u"m^3/s",
+            description = "Pre-factor: OH + O3 (1.7e-12 cm^3/molec/s × 1e-6, Page 161)"]
         C_OH_O3 = -940.0, [unit = u"K", description = "exp(C/T) factor: OH + O3"]
         k_HO2_O3_A = 1.0e-20,
-        [unit = u"m^3/s", description = "Pre-factor: HO2 + O3 (1e-14 cm^3/molec/s × 1e-6, Table B.1)"]
+        [unit = u"m^3/s",
+            description = "Pre-factor: HO2 + O3 (1e-14 cm^3/molec/s × 1e-6, Table B.1)"]
         C_HO2_O3 = -490.0, [unit = u"K", description = "exp(C/T) factor: HO2 + O3"]
         k_HO2_O_A = 3.0e-17,
-        [unit = u"m^3/s", description = "Pre-factor: HO2 + O (3e-11 cm^3/molec/s × 1e-6, Page 161)"]
+        [unit = u"m^3/s",
+            description = "Pre-factor: HO2 + O (3e-11 cm^3/molec/s × 1e-6, Page 161)"]
         C_HO2_O = 200.0, [unit = u"K", description = "exp(C/T) factor: HO2 + O"]
         k_HO2_NO_A = 3.5e-18,
-        [unit = u"m^3/s", description = "Pre-factor: HO2 + NO (3.5e-12 cm^3/molec/s × 1e-6, Page 158)"]
+        [unit = u"m^3/s",
+            description = "Pre-factor: HO2 + NO (3.5e-12 cm^3/molec/s × 1e-6, Page 158)"]
         C_HO2_NO = 250.0, [unit = u"K", description = "exp(C/T) factor: HO2 + NO"]
 
         # ClOx (Pages 162-169)
         k_Cl_O3_A = 2.3e-17,
-        [unit = u"m^3/s", description = "Pre-factor: Cl + O3 (2.3e-11 cm^3/molec/s × 1e-6, Page 162)"]
+        [unit = u"m^3/s",
+            description = "Pre-factor: Cl + O3 (2.3e-11 cm^3/molec/s × 1e-6, Page 162)"]
         C_Cl_O3 = -200.0, [unit = u"K", description = "exp(C/T) factor: Cl + O3"]
         k_ClO_O_A = 3.0e-17,
-        [unit = u"m^3/s", description = "Pre-factor: ClO + O (3e-11 cm^3/molec/s × 1e-6, Page 162)"]
+        [unit = u"m^3/s",
+            description = "Pre-factor: ClO + O (3e-11 cm^3/molec/s × 1e-6, Page 162)"]
         C_ClO_O = 70.0, [unit = u"K", description = "exp(C/T) factor: ClO + O"]
         k_ClO_NO_A = 6.4e-18,
-        [unit = u"m^3/s", description = "Pre-factor: ClO + NO (6.4e-12 cm^3/molec/s × 1e-6, Page 163)"]
+        [unit = u"m^3/s",
+            description = "Pre-factor: ClO + NO (6.4e-12 cm^3/molec/s × 1e-6, Page 163)"]
         C_ClO_NO = 290.0, [unit = u"K", description = "exp(C/T) factor: ClO + NO"]
         k_Cl_CH4_A = 9.6e-18,
-        [unit = u"m^3/s", description = "Pre-factor: Cl + CH4 (9.6e-12 cm^3/molec/s × 1e-6, Table B.1)"]
+        [unit = u"m^3/s",
+            description = "Pre-factor: Cl + CH4 (9.6e-12 cm^3/molec/s × 1e-6, Table B.1)"]
         C_Cl_CH4 = -1360.0, [unit = u"K", description = "exp(C/T) factor: Cl + CH4"]
         k_OH_HCl_A = 2.6e-18,
-        [unit = u"m^3/s", description = "Pre-factor: OH + HCl (2.6e-12 cm^3/molec/s × 1e-6, Page 168)"]
+        [unit = u"m^3/s",
+            description = "Pre-factor: OH + HCl (2.6e-12 cm^3/molec/s × 1e-6, Page 168)"]
         C_OH_HCl = -350.0, [unit = u"K", description = "exp(C/T) factor: OH + HCl"]
 
         # ClO + NO2 + M → ClONO2 + M (Page 165, termolecular)
         # k ≈ 1.8e-31 (T/300)^(-3.4) cm^6/molec^2/s (JPL recommendation)
         k_ClO_NO2_M_A = 1.8e-43,
-        [unit = u"m^6/s", description = "Pre-factor: ClO + NO2 + M → ClONO2 (1.8e-31 cm^6/molec^2/s × 1e-12, Page 165)"]
+        [unit = u"m^6/s",
+            description = "Pre-factor: ClO + NO2 + M → ClONO2 (1.8e-31 cm^6/molec^2/s × 1e-12, Page 165)"]
 
         # BrOx (Pages 166-169)
         k_Br_O3_A = 1.7e-17,
-        [unit = u"m^3/s", description = "Pre-factor: Br + O3 (1.7e-11 cm^3/molec/s × 1e-6, Table B.1)"]
+        [unit = u"m^3/s",
+            description = "Pre-factor: Br + O3 (1.7e-11 cm^3/molec/s × 1e-6, Table B.1)"]
         C_Br_O3 = -800.0, [unit = u"K", description = "exp(C/T) factor: Br + O3"]
         k_BrO_O_c = 5.0e-17,
         [unit = u"m^3/s", description = "BrO + O rate (5e-11 cm^3/molec/s × 1e-6)"]
@@ -554,12 +582,15 @@ N2O + O(¹D) → N2 + O2 (k = 4.9 × 10⁻¹¹ cm³/molec/s)
         # Environmental parameters
         T = 227.0, [unit = u"K", description = "Temperature"]
         M = 3.1e23,
-        [unit = u"m^-3", description = "Air number density at 30 km (3.1e17 molec/cm^3 × 1e6)"]
+        [
+            unit = u"m^-3", description = "Air number density at 30 km (3.1e17 molec/cm^3 × 1e6)"]
         O2_mix = 0.21, [unit = u"1", description = "O2 mixing ratio (dimensionless)"]
         N2_mix = 0.79, [unit = u"1", description = "N2 mixing ratio (dimensionless)"]
         CH4_mix = 1.6e-6, [unit = u"1", description = "CH4 mixing ratio (dimensionless)"]
         H2O_mix = 5e-6, [unit = u"1", description = "H2O mixing ratio (dimensionless)"]
-        N2O_mix = 3e-7, [unit = u"1", description = "N2O mixing ratio (~300 ppb, Section 5.3.1, dimensionless)"]
+        N2O_mix = 3e-7,
+        [
+            unit = u"1", description = "N2O mixing ratio (~300 ppb, Section 5.3.1, dimensionless)"]
     end
 
     # Derived concentrations
@@ -571,30 +602,38 @@ N2O + O(¹D) → N2 + O2 (k = 4.9 × 10⁻¹¹ cm³/molec/s)
 
     @variables begin
         # Odd oxygen family
-        O(t) = 1e13, [unit = u"m^-3", description = "Atomic oxygen O(3P) (1e7 molec/cm^3 × 1e6)"]
-        O1D(t) = 5e7, [unit = u"m^-3", description = "Excited oxygen O(1D) (50 molec/cm^3 × 1e6)"]
+        O(t) = 1e13,
+        [unit = u"m^-3", description = "Atomic oxygen O(3P) (1e7 molec/cm^3 × 1e6)"]
+        O1D(t) = 5e7,
+        [unit = u"m^-3", description = "Excited oxygen O(1D) (50 molec/cm^3 × 1e6)"]
         O3(t) = 3e18, [unit = u"m^-3", description = "Ozone (3e12 molec/cm^3 × 1e6)"]
 
         # Nitrogen oxides
         NO(t) = 1e15, [unit = u"m^-3", description = "Nitric oxide (1e9 molec/cm^3 × 1e6)"]
-        NO2(t) = 1e15, [unit = u"m^-3", description = "Nitrogen dioxide (1e9 molec/cm^3 × 1e6)"]
+        NO2(t) = 1e15,
+        [unit = u"m^-3", description = "Nitrogen dioxide (1e9 molec/cm^3 × 1e6)"]
 
         # Hydrogen radicals
-        OH(t) = 1e12, [unit = u"m^-3", description = "Hydroxyl radical (1e6 molec/cm^3 × 1e6)"]
+        OH(t) = 1e12,
+        [unit = u"m^-3", description = "Hydroxyl radical (1e6 molec/cm^3 × 1e6)"]
         HO2(t) = 1e13,
         [unit = u"m^-3", description = "Hydroperoxyl radical (1e7 molec/cm^3 × 1e6)"]
 
         # Chlorine species
         Cl(t) = 1e10, [unit = u"m^-3", description = "Chlorine atom (1e4 molec/cm^3 × 1e6)"]
-        ClO(t) = 1e13, [unit = u"m^-3", description = "Chlorine monoxide (1e7 molec/cm^3 × 1e6)"]
-        HCl(t) = 1e15, [unit = u"m^-3", description = "Hydrogen chloride (1e9 molec/cm^3 × 1e6)"]
+        ClO(t) = 1e13,
+        [unit = u"m^-3", description = "Chlorine monoxide (1e7 molec/cm^3 × 1e6)"]
+        HCl(t) = 1e15,
+        [unit = u"m^-3", description = "Hydrogen chloride (1e9 molec/cm^3 × 1e6)"]
         ClONO2(t) = 1e15,
         [unit = u"m^-3", description = "Chlorine nitrate (1e9 molec/cm^3 × 1e6)"]
 
         # Bromine species
         Br(t) = 1e11, [unit = u"m^-3", description = "Bromine atom (1e5 molec/cm^3 × 1e6)"]
-        BrO(t) = 1e12, [unit = u"m^-3", description = "Bromine monoxide (1e6 molec/cm^3 × 1e6)"]
-        HOBr(t) = 1e12, [unit = u"m^-3", description = "Hypobromous acid (1e6 molec/cm^3 × 1e6)"]
+        BrO(t) = 1e12,
+        [unit = u"m^-3", description = "Bromine monoxide (1e6 molec/cm^3 × 1e6)"]
+        HOBr(t) = 1e12,
+        [unit = u"m^-3", description = "Hypobromous acid (1e6 molec/cm^3 × 1e6)"]
 
         # N2O (tracked as variable for source chemistry)
         N2O(t) = 9.3e16, [unit = u"m^-3", description = "Nitrous oxide (~300 ppb at 30 km)"]
@@ -672,13 +711,14 @@ N2O + O(¹D) → N2 + O2 (k = 4.9 × 10⁻¹¹ cm³/molec/s)
         k_HO2_O * HO2 * O,                 # HO2 + O → OH + O2 (sink)
 
         # Excited oxygen O(1D)
-        D(O1D) ~ j_O3_O1D * O3 +                  # O3 + hν → O(1D) + O2 (source)
-                 j_N2O * N2O -                    # N2O + hν → N2 + O(1D) (source, Section 5.3.1)
-                 k_O1D_M * O1D * M -              # O(1D) + M → O(3P) (sink)
-                 k_O1D_H2O * O1D * H2O_conc -     # O(1D) + H2O → 2OH (sink)
-                 k_O1D_CH4 * O1D * CH4_conc -     # O(1D) + CH4 → OH + CH3 (sink, Page 156)
-                 k_N2O_O1D_NO * O1D * N2O -       # N2O + O(1D) → 2NO (sink, Section 5.3.1)
-                 k_N2O_O1D_N2 * O1D * N2O,        # N2O + O(1D) → N2 + O2 (sink, Section 5.3.1)
+        D(O1D) ~
+        j_O3_O1D * O3 +                  # O3 + hν → O(1D) + O2 (source)
+        j_N2O * N2O -                    # N2O + hν → N2 + O(1D) (source, Section 5.3.1)
+        k_O1D_M * O1D * M -              # O(1D) + M → O(3P) (sink)
+        k_O1D_H2O * O1D * H2O_conc -     # O(1D) + H2O → 2OH (sink)
+        k_O1D_CH4 * O1D * CH4_conc -     # O(1D) + CH4 → OH + CH3 (sink, Page 156)
+        k_N2O_O1D_NO * O1D * N2O -       # N2O + O(1D) → 2NO (sink, Section 5.3.1)
+        k_N2O_O1D_N2 * O1D * N2O,        # N2O + O(1D) → N2 + O2 (sink, Section 5.3.1)
 
         # Ozone — Eq. 5.2
         D(O3) ~
@@ -696,8 +736,8 @@ N2O + O(¹D) → N2 + O2 (k = 4.9 × 10⁻¹¹ cm³/molec/s)
         # =================================================================
 
         D(N2O) ~ -j_N2O * N2O -                    # N2O + hν → N2 + O(1D) (photolysis)
-                  k_N2O_O1D_NO * O1D * N2O -       # N2O + O(1D) → 2NO
-                  k_N2O_O1D_N2 * O1D * N2O,        # N2O + O(1D) → N2 + O2
+                 k_N2O_O1D_NO * O1D * N2O -       # N2O + O(1D) → 2NO
+                 k_N2O_O1D_N2 * O1D * N2O,        # N2O + O(1D) → N2 + O2
 
         # =================================================================
         # Nitrogen Oxide Species
