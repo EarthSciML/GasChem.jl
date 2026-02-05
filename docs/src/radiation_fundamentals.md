@@ -380,7 +380,7 @@ DataFrame(
 
 This section demonstrates the physics captured by the radiation fundamentals equations through numerical examples and visualizations that reproduce key results from Seinfeld and Pandis (2006).
 
-### Blackbody Radiation Spectra (Figure 4.2-4.3)
+### Blackbody Radiation Spectra (cf. Figures 4.2-4.3)
 
 The Planck function describes the spectral distribution of radiation emitted by a blackbody. The following plot shows blackbody spectra at different temperatures, demonstrating how the peak wavelength shifts according to Wien's law and total power increases with temperature according to the Stefan-Boltzmann law.
 
@@ -441,7 +441,7 @@ savefig(p1, "blackbody_spectra.svg")
 p1
 ```
 
-**Figure 1**: Blackbody radiation spectra at different temperatures. The dots mark the peak wavelength given by Wien's displacement law (Eq. 4.3). The Sun at 5800 K peaks in the visible range (~500 nm), while Earth at ~300 K peaks in the thermal infrared (~10 um).
+**Figure 1**: Blackbody radiation spectra at different temperatures (cf. S&P Figures 4.2-4.3). The dots mark the peak wavelength given by Wien's displacement law (Eq. 4.3). The Sun at 5800 K peaks in the visible range (~500 nm), while Earth at ~300 K peaks in the thermal infrared (~10 um). Note: These are ideal blackbody curves; Figure 4.2 in S&P also shows the observed solar spectrum with Fraunhofer absorption lines.
 
 ### Wien's Displacement Law Demonstration (Eq. 4.3)
 
@@ -577,7 +577,7 @@ savefig(p3, "climate_sensitivity.svg")
 p3
 ```
 
-**Figure 3**: Temperature change as a function of radiative forcing for the no-feedback case. The climate sensitivity lambda_0 = 0.27 K/(W/m^2) gives a temperature increase of about 1.1 K for a CO2 doubling (4 W/m^2 forcing). Note: Real climate sensitivity is higher due to positive feedbacks (water vapor, ice-albedo, etc.).
+**Figure 3**: Temperature change as a function of radiative forcing for the no-feedback case. The climate sensitivity lambda_0 = 1/(4*sigma*T_e^3) = 0.266 K/(W/m^2) at T_e = 255 K (S&P approximate this as ~0.3). For a CO2 doubling forcing of ~4.6 W/m^2 (S&P p. 105), this gives ΔT_e ≈ 1.2 K with the exact lambda_0 (S&P report ~1.4 K using the rounded value). Note: Real climate sensitivity is higher due to positive feedbacks (water vapor, ice-albedo, etc.).
 
 ### Stefan-Boltzmann Law: Total Emissive Power
 

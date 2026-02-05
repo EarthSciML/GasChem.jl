@@ -140,19 +140,20 @@ end
     @named sensitivity = ClimateSensitivity()
     sys=mtkcompile(sensitivity)
 
-    # S&P p. 103: λ_0 ≈ 0.27 K/(W/m²) at T_e = 255 K
+    # S&P p. 105: λ_0 ≈ 0.3 K/(W/m²) at T_e = 255 K (exact: 1/(4σT³) ≈ 0.266)
     prob=NonlinearProblem(sys, Dict(); build_initializeprob = false)
     sol=solve(prob)
 
     @test isapprox(sol[sensitivity.λ_0], 0.27, rtol = 0.05)
 
-    # S&P p. 104: CO2 doubling (ΔF = 4.0 W/m²) gives ΔT_e ≈ 1.1 K (no-feedback)
+    # Default ΔF_S = 4.0 W/m² gives ΔT_e ≈ 1.1 K (no-feedback, using exact λ_0)
     @test isapprox(sol[sensitivity.ΔT_e], 1.1, rtol = 0.1)
 
-    # S&P: CO2 doubling at ΔF = 4.6 W/m² gives ΔT_e ≈ 1.2 K
+    # S&P p. 105: CO2 doubling forcing of 4.6 W/m² gives ΔT_e ≈ 1.4 K (with rounded λ_0 ≈ 0.3)
+    # With exact λ_0 ≈ 0.266: ΔT_e = 0.266 × 4.6 ≈ 1.22 K
     prob2=remake(prob, p = [sys.ΔF_S=>4.6])
     sol2=solve(prob2)
-    @test isapprox(sol2[sensitivity.ΔT_e], 1.2, rtol = 0.1)
+    @test isapprox(sol2[sensitivity.ΔT_e], 1.22, rtol = 0.05)
 end
 
 @testitem "Equation: TOARadiativeForcing (Eq. 4.11)" setup=[RadiationSetup] tags=[:radiation] begin
