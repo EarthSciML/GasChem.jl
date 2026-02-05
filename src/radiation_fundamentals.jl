@@ -29,17 +29,20 @@ The energy of a photon is related to its frequency (ν) or wavelength (λ)
 through Planck's constant (h) and the speed of light (c).
 
 # Outputs (Variables)
-- `Δε`: Photon energy (J)
-- `ν`: Frequency (Hz = s⁻¹)
+
+  - `Δε`: Photon energy (J)
+  - `ν`: Frequency (Hz = s⁻¹)
 
 # Inputs (Parameters)
-- `λ`: Wavelength (m) - input parameter
+
+  - `λ`: Wavelength (m) - input parameter
 
 # Constants
-- `h`: Planck's constant = 6.626 × 10⁻³⁴ J·s
-- `c`: Speed of light = 2.9979 × 10⁸ m/s
+
+  - `h`: Planck's constant = 6.626 × 10⁻³⁴ J·s
+  - `c`: Speed of light = 2.9979 × 10⁸ m/s
 """
-@component function PhotonEnergy(; name=:PhotonEnergy)
+@component function PhotonEnergy(; name = :PhotonEnergy)
     @constants begin
         h = 6.626e-34, [description = "Planck's constant", unit = u"J*s"]
         c = 2.9979e8, [description = "Speed of light", unit = u"m/s"]
@@ -56,7 +59,7 @@ through Planck's constant (h) and the speed of light (c).
 
     eqs = [
         ν ~ c / λ,            # Eq. 4.1b - Frequency-wavelength relation
-        Δε ~ h * ν,           # Eq. 4.1a - Energy from frequency
+        Δε ~ h * ν           # Eq. 4.1a - Energy from frequency
     ]
 
     return System(eqs, t; name)
@@ -73,18 +76,21 @@ This equation gives the monochromatic emissive power of a blackbody at
 temperature T for a given wavelength λ.
 
 # Outputs (Variables)
-- `F_B_λ`: Monochromatic emissive power (W m⁻³)
+
+  - `F_B_λ`: Monochromatic emissive power (W m⁻³)
 
 # Inputs (Parameters)
-- `T`: Temperature (K)
-- `λ`: Wavelength (m)
+
+  - `T`: Temperature (K)
+  - `λ`: Wavelength (m)
 
 # Constants
-- `h`: Planck's constant = 6.626 × 10⁻³⁴ J·s
-- `c`: Speed of light = 2.9979 × 10⁸ m/s
-- `k`: Boltzmann constant = 1.381 × 10⁻²³ J/K
+
+  - `h`: Planck's constant = 6.626 × 10⁻³⁴ J·s
+  - `c`: Speed of light = 2.9979 × 10⁸ m/s
+  - `k`: Boltzmann constant = 1.381 × 10⁻²³ J/K
 """
-@component function BlackbodyRadiation(; name=:BlackbodyRadiation)
+@component function BlackbodyRadiation(; name = :BlackbodyRadiation)
     @constants begin
         h = 6.626e-34, [description = "Planck's constant", unit = u"J*s"]
         c = 2.9979e8, [description = "Speed of light", unit = u"m/s"]
@@ -102,7 +108,7 @@ temperature T for a given wavelength λ.
     end
 
     eqs = [
-        # Eq. 4.2 - Planck's law for blackbody radiation
+    # Eq. 4.2 - Planck's law for blackbody radiation
         F_B_λ ~ 2 * π_val * c^2 * h * λ^(-5) / (exp(c * h / (k_B * λ * T)) - 1),
     ]
 
@@ -121,15 +127,18 @@ Or equivalently: λ_max = 2.897 × 10⁻³ / T (with λ_max in m, T in K)
 This gives the wavelength at which the blackbody emission spectrum peaks.
 
 # Outputs (Variables)
-- `λ_max`: Peak wavelength (m)
+
+  - `λ_max`: Peak wavelength (m)
 
 # Inputs (Parameters)
-- `T`: Temperature (K)
+
+  - `T`: Temperature (K)
 
 # Constants
-- `b`: Wien's displacement constant = 2.897 × 10⁻³ m·K
+
+  - `b`: Wien's displacement constant = 2.897 × 10⁻³ m·K
 """
-@component function WienDisplacement(; name=:WienDisplacement)
+@component function WienDisplacement(; name = :WienDisplacement)
     @constants begin
         # Wien's displacement constant in SI units (m·K)
         b = 2.897e-3, [description = "Wien's displacement constant", unit = u"m*K"]
@@ -144,7 +153,7 @@ This gives the wavelength at which the blackbody emission spectrum peaks.
     end
 
     eqs = [
-        # Eq. 4.3 - Wien's displacement law (SI units)
+    # Eq. 4.3 - Wien's displacement law (SI units)
         λ_max ~ b / T,
     ]
 
@@ -161,15 +170,18 @@ Implements the Stefan-Boltzmann law (Eq. 4.4) from Seinfeld & Pandis.
 The total emissive power of a blackbody integrated over all wavelengths.
 
 # Outputs (Variables)
-- `F_B`: Total blackbody emissive power (W/m²)
+
+  - `F_B`: Total blackbody emissive power (W/m²)
 
 # Inputs (Parameters)
-- `T`: Temperature (K)
+
+  - `T`: Temperature (K)
 
 # Constants
-- `σ`: Stefan-Boltzmann constant = 5.671 × 10⁻⁸ W m⁻² K⁻⁴
+
+  - `σ`: Stefan-Boltzmann constant = 5.671 × 10⁻⁸ W m⁻² K⁻⁴
 """
-@component function StefanBoltzmann(; name=:StefanBoltzmann)
+@component function StefanBoltzmann(; name = :StefanBoltzmann)
     @constants begin
         σ = 5.671e-8, [description = "Stefan-Boltzmann constant", unit = u"W/(m^2*K^4)"]
     end
@@ -183,7 +195,7 @@ The total emissive power of a blackbody integrated over all wavelengths.
     end
 
     eqs = [
-        # Eq. 4.4 - Stefan-Boltzmann law
+    # Eq. 4.4 - Stefan-Boltzmann law
         F_B ~ σ * T^4,
     ]
 
@@ -202,18 +214,21 @@ Implements the planetary energy balance equations (Eqs. 4.5-4.7) from Seinfeld &
 At equilibrium: F_S = F_L
 
 # Outputs (Variables)
-- `F_S`: Absorbed solar flux (W/m²)
-- `F_L`: Emitted longwave flux (W/m²)
-- `T_e`: Planetary equilibrium temperature (K)
+
+  - `F_S`: Absorbed solar flux (W/m²)
+  - `F_L`: Emitted longwave flux (W/m²)
+  - `T_e`: Planetary equilibrium temperature (K)
 
 # Inputs (Parameters)
-- `S_0`: Solar constant = 1370 W/m² (can be varied)
-- `R_p`: Planetary albedo ~ 0.3 (can be varied)
+
+  - `S_0`: Solar constant = 1370 W/m² (can be varied)
+  - `R_p`: Planetary albedo ~ 0.3 (can be varied)
 
 # Constants
-- `σ`: Stefan-Boltzmann constant = 5.671 × 10⁻⁸ W m⁻² K⁻⁴
+
+  - `σ`: Stefan-Boltzmann constant = 5.671 × 10⁻⁸ W m⁻² K⁻⁴
 """
-@component function PlanetaryEnergyBalance(; name=:PlanetaryEnergyBalance)
+@component function PlanetaryEnergyBalance(; name = :PlanetaryEnergyBalance)
     @constants begin
         σ = 5.671e-8, [description = "Stefan-Boltzmann constant", unit = u"W/(m^2*K^4)"]
     end
@@ -238,7 +253,7 @@ At equilibrium: F_S = F_L
 
         # At equilibrium, absorbed = emitted
         # Eq. 4.7 can be derived from F_S = F_L, solving for T_e
-        F_S ~ F_L,
+        F_S ~ F_L
     ]
 
     return System(eqs, t; name)
@@ -254,28 +269,33 @@ Implements the climate sensitivity equations (Eqs. 4.8-4.10) from Seinfeld & Pan
     λ₀ = 1/(4σT_e³) = T_e/(4F_L) (Eq. 4.10 - Climate sensitivity factor)
 
 # Outputs (Variables)
-- `ΔF_net`: Net radiative forcing (W/m²)
-- `ΔT_e`: Change in equilibrium temperature (K)
-- `λ_0`: Climate sensitivity factor (K m²/W)
-- `F_L`: Reference emitted longwave flux (W/m²)
+
+  - `ΔF_net`: Net radiative forcing (W/m²)
+  - `ΔT_e`: Change in equilibrium temperature (K)
+  - `λ_0`: Climate sensitivity factor (K m²/W)
+  - `F_L`: Reference emitted longwave flux (W/m²)
 
 # Inputs (Parameters)
-- `T_e`: Reference equilibrium temperature (K)
-- `ΔF_S`: Change in absorbed solar flux (W/m²)
-- `ΔF_L`: Change in emitted longwave flux (W/m²)
+
+  - `T_e`: Reference equilibrium temperature (K)
+  - `ΔF_S`: Change in absorbed solar flux (W/m²)
+  - `ΔF_L`: Change in emitted longwave flux (W/m²)
 
 # Constants
-- `σ`: Stefan-Boltzmann constant = 5.671 × 10⁻⁸ W m⁻² K⁻⁴
+
+  - `σ`: Stefan-Boltzmann constant = 5.671 × 10⁻⁸ W m⁻² K⁻⁴
 """
-@component function ClimateSensitivity(; name=:ClimateSensitivity)
+@component function ClimateSensitivity(; name = :ClimateSensitivity)
     @constants begin
         σ = 5.671e-8, [description = "Stefan-Boltzmann constant", unit = u"W/(m^2*K^4)"]
     end
 
     @parameters begin
-        T_e = 255.0, [description = "Reference equilibrium temperature (input)", unit = u"K"]
+        T_e = 255.0,
+        [description = "Reference equilibrium temperature (input)", unit = u"K"]
         ΔF_S = 4.0, [description = "Change in absorbed solar flux (input)", unit = u"W/m^2"]
-        ΔF_L = 0.0, [description = "Change in emitted longwave flux (input)", unit = u"W/m^2"]
+        ΔF_L = 0.0,
+        [description = "Change in emitted longwave flux (input)", unit = u"W/m^2"]
     end
 
     @variables begin
@@ -296,7 +316,7 @@ Implements the climate sensitivity equations (Eqs. 4.8-4.10) from Seinfeld & Pan
         ΔT_e ~ λ_0 * ΔF_net,
 
         # Reference state: F_L from Stefan-Boltzmann
-        F_L ~ σ * T_e^4,
+        F_L ~ σ * T_e^4
     ]
 
     return System(eqs, t; name)
@@ -305,23 +325,26 @@ end
 """
     TOARadiativeForcing(; name=:TOARadiativeForcing)
 
-Implements the top of atmosphere radiative forcing (Eq. 4.11) from Seinfeld & Pandis.
+Implements the top of atmosphere radiative forcing based on Eq. 4.11 from Seinfeld & Pandis.
 
-    -F_net = S₀/4 × (1 - R_p) - F_L
+    F_net = S₀/4 × (1 - R_p) - F_L
 
-This equation represents the energy balance at the top of the atmosphere.
-Positive F_net indicates the planet is gaining energy (warming).
+Note: Seinfeld & Pandis define Eq. 4.11 as -F_net = S₀/4(1-R_p) - F_L, using the convention
+that -F_net represents net downward flux. Here we define F_net as net incoming flux directly,
+so positive F_net indicates the planet is gaining energy (warming).
 
 # Outputs (Variables)
-- `F_net`: Net radiative flux at TOA (W/m²) - positive = energy gain
-- `F_S`: Absorbed solar flux (W/m²)
+
+  - `F_net`: Net radiative flux at TOA (W/m²) - positive = energy gain
+  - `F_S`: Absorbed solar flux (W/m²)
 
 # Inputs (Parameters)
-- `S_0`: Solar constant = 1370 W/m² (can be varied)
-- `R_p`: Planetary albedo ~ 0.3 (can be varied)
-- `F_L`: Emitted longwave flux (W/m²) - input parameter
+
+  - `S_0`: Solar constant = 1370 W/m² (can be varied)
+  - `R_p`: Planetary albedo ~ 0.3 (can be varied)
+  - `F_L`: Emitted longwave flux (W/m²) - input parameter
 """
-@component function TOARadiativeForcing(; name=:TOARadiativeForcing)
+@component function TOARadiativeForcing(; name = :TOARadiativeForcing)
     @parameters begin
         S_0 = 1370.0, [description = "Solar constant", unit = u"W/m^2"]
         R_p = 0.3, [description = "Planetary albedo (dimensionless)", unit = u"1"]
@@ -339,7 +362,7 @@ Positive F_net indicates the planet is gaining energy (warming).
 
         # Eq. 4.11 - TOA energy balance
         # F_net positive means energy gain (warming)
-        F_net ~ F_S - F_L,
+        F_net ~ F_S - F_L
     ]
 
     return System(eqs, t; name)
@@ -352,15 +375,16 @@ Combined system implementing all radiation fundamentals equations from
 Seinfeld & Pandis Chapter 4 (Eqs. 4.1-4.11).
 
 This is a composed system that includes:
-- PhotonEnergy: Energy-frequency-wavelength relations (Eq. 4.1)
-- BlackbodyRadiation: Planck's law (Eq. 4.2)
-- WienDisplacement: Peak emission wavelength (Eq. 4.3)
-- StefanBoltzmann: Total emissive power (Eq. 4.4)
-- PlanetaryEnergyBalance: Earth's energy balance (Eqs. 4.5-4.7)
-- ClimateSensitivity: Temperature response to forcing (Eqs. 4.8-4.10)
-- TOARadiativeForcing: Net flux at top of atmosphere (Eq. 4.11)
+
+  - PhotonEnergy: Energy-frequency-wavelength relations (Eq. 4.1)
+  - BlackbodyRadiation: Planck's law (Eq. 4.2)
+  - WienDisplacement: Peak emission wavelength (Eq. 4.3)
+  - StefanBoltzmann: Total emissive power (Eq. 4.4)
+  - PlanetaryEnergyBalance: Earth's energy balance (Eqs. 4.5-4.7)
+  - ClimateSensitivity: Temperature response to forcing (Eqs. 4.8-4.10)
+  - TOARadiativeForcing: Net flux at top of atmosphere (Eq. 4.11)
 """
-@component function RadiationFundamentals(; name=:RadiationFundamentals)
+@component function RadiationFundamentals(; name = :RadiationFundamentals)
     @named photon = PhotonEnergy()
     @named blackbody = BlackbodyRadiation()
     @named wien = WienDisplacement()
@@ -375,7 +399,7 @@ This is a composed system that includes:
     return System(
         eqs, t;
         systems = [photon, blackbody, wien, stefan_boltzmann,
-                   energy_balance, climate_sensitivity, toa_forcing],
+            energy_balance, climate_sensitivity, toa_forcing],
         name
     )
 end
