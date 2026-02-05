@@ -1,24 +1,4 @@
 """
-    Radiation Fundamentals Equations from Seinfeld & Pandis Chapter 4
-
-This module implements the fundamental radiation equations from Chapter 4
-"Atmospheric Radiation and Photochemistry" of Seinfeld & Pandis (2006)
-"Atmospheric Chemistry and Physics", 2nd Edition, pages 98-105.
-
-The equations describe:
-- Photon energy relationships (Eq. 4.1)
-- Planck's blackbody radiation law (Eq. 4.2)
-- Wien's displacement law (Eq. 4.3)
-- Stefan-Boltzmann law (Eq. 4.4)
-- Planetary energy balance and equilibrium temperature (Eqs. 4.5-4.7)
-- Climate sensitivity and radiative forcing (Eqs. 4.8-4.11)
-"""
-
-using ModelingToolkit
-using ModelingToolkit: t, D
-using DynamicQuantities
-
-"""
     PhotonEnergy(; name=:PhotonEnergy)
 
 Implements the photon energy equation (Eq. 4.1) from Seinfeld & Pandis.

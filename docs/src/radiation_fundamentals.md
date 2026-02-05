@@ -99,6 +99,12 @@ DataFrame(
 )
 ```
 
+**Equations:**
+
+```@example radiation
+equations(photon)
+```
+
 ### BlackbodyRadiation System
 
 Implements Planck's blackbody radiation law (Eq. 4.2):
@@ -133,6 +139,12 @@ DataFrame(
 )
 ```
 
+**Equations:**
+
+```@example radiation
+equations(blackbody)
+```
+
 ### WienDisplacement System
 
 Implements Wien's displacement law (Eq. 4.3):
@@ -155,6 +167,12 @@ DataFrame(
 )
 ```
 
+**Equations:**
+
+```@example radiation
+equations(wien)
+```
+
 ### StefanBoltzmann System
 
 Implements the Stefan-Boltzmann law (Eq. 4.4):
@@ -175,6 +193,12 @@ DataFrame(
     :Units => [dimension(ModelingToolkit.get_unit(v)) for v in vars_sb],
     :Description => [ModelingToolkit.getdescription(v) for v in vars_sb]
 )
+```
+
+**Equations:**
+
+```@example radiation
+equations(sb)
 ```
 
 ### PlanetaryEnergyBalance System
@@ -219,6 +243,12 @@ DataFrame(
 )
 ```
 
+**Equations:**
+
+```@example radiation
+equations(balance)
+```
+
 ### ClimateSensitivity System
 
 Implements the climate sensitivity equations (Eqs. 4.8-4.10):
@@ -247,6 +277,12 @@ DataFrame(
 )
 ```
 
+**Equations:**
+
+```@example radiation
+equations(sensitivity)
+```
+
 ### TOARadiativeForcing System
 
 Implements the top of atmosphere radiative forcing based on Eq. 4.11 from Seinfeld & Pandis:
@@ -267,6 +303,12 @@ DataFrame(
     :Units => [dimension(ModelingToolkit.get_unit(v)) for v in vars_toa],
     :Description => [ModelingToolkit.getdescription(v) for v in vars_toa]
 )
+```
+
+**Equations:**
+
+```@example radiation
+equations(toa)
 ```
 
 ### RadiationFundamentals Composed System
