@@ -19,9 +19,9 @@ using DocStringExtensions
 include("AtmosphericLifetime.jl")
 # Re-export AtmosphericLifetime components for documentation
 using .AtmosphericLifetime: AtmosphericBudget, SpeciesLifetime, MultipleRemovalLifetime,
-    OHReactionLifetime, TroposphericBudget
+                            OHReactionLifetime, TroposphericBudget
 export AtmosphericBudget, SpeciesLifetime, MultipleRemovalLifetime,
-    OHReactionLifetime, TroposphericBudget
+       OHReactionLifetime, TroposphericBudget
 
 include("SuperFast.jl")
 include("geoschem_ratelaws.jl")
