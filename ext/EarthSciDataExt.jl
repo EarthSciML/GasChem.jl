@@ -4,13 +4,13 @@ using GasChem, EarthSciData, ModelingToolkit, EarthSciMLBase, DynamicQuantities
 # Register custom units if not already registered by GasChem.
 # This is needed because extension precompilation may occur before GasChem's
 # unit registration takes effect.
-if !haskey(DynamicQuantities.Units.UNIT_SYMBOLS, :molec)
+if !(:molec in DynamicQuantities.Units.UNIT_SYMBOLS)
     @register_unit molec 1
 end
-if !haskey(DynamicQuantities.Units.UNIT_SYMBOLS, :mol_air)
+if !(:mol_air in DynamicQuantities.Units.UNIT_SYMBOLS)
     @register_unit mol_air 1u"mol"
 end
-if !haskey(DynamicQuantities.Units.UNIT_SYMBOLS, :ppb)
+if !(:ppb in DynamicQuantities.Units.UNIT_SYMBOLS)
     @register_unit ppb 1u"mol/mol_air"
 end
 
@@ -47,7 +47,7 @@ function EarthSciMLBase.couple2(
     # nmol_emissions / mol_air = (kg_emissions / MW_emission * nmolpermol) / (m3_air / R / T * P)
     uconv = nmolpermol * R * c.T / c.P # Conversion factor with MW factored out.
     operator_compose(
-        convert(ODESystem, c),
+        convert(System, c),
         e,
         Dict(
             c.NO2 => e.NO2 => uconv / MW_NO2,
@@ -97,7 +97,7 @@ function EarthSciMLBase.couple2(
     uconv = 1e9 / c.num_density
     #TODO(CT): Add missing couplings.
     operator_compose(
-        convert(ODESystem, c),
+        convert(System, c),
         e,
         Dict(
             c.ACET => e.ACET => uconv / MW_ACET,
