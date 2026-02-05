@@ -474,6 +474,38 @@ p1
 
 **Figure 1**: Blackbody radiation spectra at different temperatures (cf. S&P Figures 4.2-4.3). The dots mark the peak wavelength given by Wien's displacement law (Eq. 4.3). The Sun at 5800 K peaks in the visible range (~500 nm), while Earth at ~300 K peaks in the thermal infrared (~10 um). Note: These are ideal blackbody curves; Figure 4.2 in S&P also shows the observed solar spectrum with Fraunhofer absorption lines.
 
+### Spectral Irradiance of a Blackbody at 300 K (cf. Figure 4.3)
+
+Figure 4.3 in S&P shows the spectral irradiance of a blackbody at 300 K, representative of Earth's thermal emission, plotted with linear axes and wavelength in micrometers.
+
+```@example radiation
+# Reproduce S&P Figure 4.3: 300 K blackbody spectrum (linear axes, wavelength in μm)
+lambda_um_range = range(1.0, 70.0, length = 500)  # 1-70 μm
+
+F_300K = Float64[]
+for λ_um in lambda_um_range
+    λ_m = λ_um * 1e-6  # Convert μm to m
+    prob_i = remake(bb_prob, p = [compiled_bb.T => 300.0, compiled_bb.λ => λ_m])
+    sol_i = solve(prob_i)
+    # Convert W/m³ to W m⁻² μm⁻¹ by multiplying by 1e-6 (dλ_m/dλ_μm)
+    push!(F_300K, sol_i[compiled_bb.F_B_λ] * 1e-6)
+end
+
+p1b = plot(lambda_um_range, F_300K,
+    xlabel = "Wavelength, μm",
+    ylabel = "F_B, W m⁻² μm⁻¹",
+    title = "Spectral irradiance of a blackbody at 300 K (cf. S&P Figure 4.3)",
+    label = "300 K Blackbody",
+    linewidth = 2, color = :black,
+    xlims = (0, 70), ylims = (0, maximum(F_300K) * 1.1),
+    legend = :topright, size = (600, 400))
+
+savefig(p1b, "blackbody_300K.svg")
+p1b
+```
+
+**Figure 1b**: Spectral irradiance of a blackbody at 300 K (cf. S&P Figure 4.3). The peak emission occurs at approximately 10 μm in the thermal infrared, as predicted by Wien's displacement law. This spectrum is representative of the longwave radiation emitted by Earth's surface.
+
 ### Wien's Displacement Law Demonstration (Eq. 4.3)
 
 ```@example radiation
@@ -685,6 +717,43 @@ DataFrame(
 ```
 
 This table demonstrates the inverse relationship between wavelength and photon energy (Eq. 4.1). UV and visible photons have sufficient energy to break chemical bonds and drive photochemistry, while infrared photons primarily contribute to thermal processes.
+
+### Photon Energy in kJ/mol for Atmospheric Photochemistry (cf. S&P p. 114)
+
+In atmospheric photochemistry, photon energies are often expressed per mole using Avogadro's number: ε = N_A × hc/λ (S&P Eq. 4.34). For wavelength λ in nm, this gives ε = 1.19625 × 10⁵ / λ kJ mol⁻¹ (Eq. 4.35). The following table reproduces the wavelength-energy ranges from S&P Table on p. 114.
+
+```@example radiation
+# Reproduce S&P p.114 wavelength-energy table using Eq. 4.34: ε = N_A * hc/λ
+N_A = 6.022e23  # Avogadro's number, mol⁻¹
+
+# Representative wavelengths from S&P p. 114 table
+vis_wavelengths_nm = [700, 620, 580, 530, 470, 420]
+vis_labels = ["Red", "Orange", "Yellow", "Green", "Blue", "Violet"]
+
+uv_wavelengths_nm = [300, 125]
+uv_labels = ["Near ultraviolet (center)", "Vacuum ultraviolet (center)"]
+
+all_labels = vcat(vis_labels, uv_labels)
+all_wavelengths_nm = vcat(vis_wavelengths_nm, uv_wavelengths_nm)
+
+energies_kJ_mol = Float64[]
+for λ_nm in all_wavelengths_nm
+    λ_m = λ_nm * 1e-9
+    prob_e = NonlinearProblem(compiled_photon, Dict(); build_initializeprob = false)
+    prob_e = remake(prob_e, p = [compiled_photon.λ => λ_m])
+    sol_e = solve(prob_e)
+    ε_per_mol = sol_e[compiled_photon.Δε] * N_A / 1000  # J/mol → kJ/mol
+    push!(energies_kJ_mol, ε_per_mol)
+end
+
+DataFrame(
+    :Region => all_labels,
+    :Wavelength_nm => all_wavelengths_nm,
+    :Energy_kJ_per_mol => round.(energies_kJ_mol, digits = 0)
+)
+```
+
+The visible range (400-700 nm) corresponds to photon energies of approximately 170-300 kJ/mol, which are comparable to chemical bond energies. For example, the O-O bond in ozone has a dissociation energy of about 105 kJ/mol, and the O-NO bond in NO₂ has a dissociation energy of about 300 kJ/mol (corresponding to a wavelength of about 400 nm). This explains why visible and UV photons can drive atmospheric photodissociation reactions.
 
 * * *
 
