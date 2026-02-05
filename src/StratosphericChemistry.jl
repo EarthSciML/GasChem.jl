@@ -28,229 +28,286 @@ export stratospheric_rate_coefficients
 """
     k_O_O2_M(T)
 
-Rate coefficient for O + O2 + M → O3 + M (Reaction 2 in Chapman mechanism)
-k2 = 6.0 × 10⁻³⁴ (T/300)⁻²·⁴ cm⁶ molecule⁻² s⁻¹
+Rate coefficient for O + O2 + M → O3 + M (Reaction 2 in Chapman mechanism).
+Returns value in SI units: m⁶ s⁻¹.
+
+k2 = 6.0 × 10⁻³⁴ (T/300)⁻²·⁴ cm⁶ molecule⁻² s⁻¹ (CGS)
+   = 6.0 × 10⁻⁴⁶ (T/300)⁻²·⁴ m⁶ s⁻¹ (SI, ×1e-12)
 
 Reference: Table B.2, Seinfeld & Pandis (2006)
 """
 function k_O_O2_M(T)
-    return 6.0e-34 * (T / 300.0)^(-2.4)
+    return 6.0e-34 * (T / 300.0)^(-2.4) * 1e-12
 end
 
 """
     k_O_O3(T)
 
-Rate coefficient for O + O3 → O2 + O2 (Reaction 4 in Chapman mechanism)
-k4 = 8.0 × 10⁻¹² exp(-2060/T) cm³ molecule⁻¹ s⁻¹
+Rate coefficient for O + O3 → O2 + O2 (Reaction 4 in Chapman mechanism).
+Returns value in SI units: m³ s⁻¹.
+
+k4 = 8.0 × 10⁻¹² exp(-2060/T) cm³ molecule⁻¹ s⁻¹ (CGS)
+   = 8.0 × 10⁻¹⁸ exp(-2060/T) m³ s⁻¹ (SI, ×1e-6)
 
 Reference: Table B.1, Seinfeld & Pandis (2006)
 """
 function k_O_O3(T)
-    return 8.0e-12 * exp(-2060.0 / T)
+    return 8.0e-12 * exp(-2060.0 / T) * 1e-6
 end
 
 """
     k_O1D_M(T, M_type)
 
-Rate coefficient for O(¹D) + M → O + M (quenching)
-For M = O2: k = 3.2 × 10⁻¹¹ exp(70/T) cm³ molecule⁻¹ s⁻¹
-For M = N2: k = 1.8 × 10⁻¹¹ exp(110/T) cm³ molecule⁻¹ s⁻¹
+Rate coefficient for O(¹D) + M → O + M (quenching).
+Returns value in SI units: m³ s⁻¹.
+
+For M = O2: k = 3.2 × 10⁻¹¹ exp(70/T) cm³ molecule⁻¹ s⁻¹ (CGS)
+For M = N2: k = 1.8 × 10⁻¹¹ exp(110/T) cm³ molecule⁻¹ s⁻¹ (CGS)
 
 Reference: Page 143, Seinfeld & Pandis (2006)
 """
 function k_O1D_M(T, M_type::Symbol)
     if M_type == :O2
-        return 3.2e-11 * exp(70.0 / T)
+        return 3.2e-11 * exp(70.0 / T) * 1e-6
     elseif M_type == :N2
-        return 1.8e-11 * exp(110.0 / T)
+        return 1.8e-11 * exp(110.0 / T) * 1e-6
     else
         # Weighted average for air (0.21 O2 + 0.79 N2)
         k_O2 = 3.2e-11 * exp(70.0 / T)
         k_N2 = 1.8e-11 * exp(110.0 / T)
-        return 0.21 * k_O2 + 0.79 * k_N2
+        return (0.21 * k_O2 + 0.79 * k_N2) * 1e-6
     end
 end
 
 """
     k_NO_O3(T)
 
-Rate coefficient for NO + O3 → NO2 + O2
-k = 3.0 × 10⁻¹² exp(-1500/T) cm³ molecule⁻¹ s⁻¹
+Rate coefficient for NO + O3 → NO2 + O2.
+Returns value in SI units: m³ s⁻¹.
+
+k = 3.0 × 10⁻¹² exp(-1500/T) cm³ molecule⁻¹ s⁻¹ (CGS)
+  = 3.0 × 10⁻¹⁸ exp(-1500/T) m³ s⁻¹ (SI, ×1e-6)
 
 Reference: Page 154, Seinfeld & Pandis (2006)
 """
 function k_NO_O3(T)
-    return 3.0e-12 * exp(-1500.0 / T)
+    return 3.0e-12 * exp(-1500.0 / T) * 1e-6
 end
 
 """
     k_NO2_O(T)
 
-Rate coefficient for NO2 + O → NO + O2
-k = 5.6 × 10⁻¹² exp(180/T) cm³ molecule⁻¹ s⁻¹
+Rate coefficient for NO2 + O → NO + O2.
+Returns value in SI units: m³ s⁻¹.
+
+k = 5.6 × 10⁻¹² exp(180/T) cm³ molecule⁻¹ s⁻¹ (CGS)
+  = 5.6 × 10⁻¹⁸ exp(180/T) m³ s⁻¹ (SI, ×1e-6)
 
 Reference: Page 154, Seinfeld & Pandis (2006)
 """
 function k_NO2_O(T)
-    return 5.6e-12 * exp(180.0 / T)
+    return 5.6e-12 * exp(180.0 / T) * 1e-6
 end
 
 """
     k_OH_O3(T)
 
-Rate coefficient for OH + O3 → HO2 + O2
-k = 1.7 × 10⁻¹² exp(-940/T) cm³ molecule⁻¹ s⁻¹
+Rate coefficient for OH + O3 → HO2 + O2.
+Returns value in SI units: m³ s⁻¹.
+
+k = 1.7 × 10⁻¹² exp(-940/T) cm³ molecule⁻¹ s⁻¹ (CGS)
+  = 1.7 × 10⁻¹⁸ exp(-940/T) m³ s⁻¹ (SI, ×1e-6)
 
 Reference: Page 161, Seinfeld & Pandis (2006)
 """
 function k_OH_O3(T)
-    return 1.7e-12 * exp(-940.0 / T)
+    return 1.7e-12 * exp(-940.0 / T) * 1e-6
 end
 
 """
     k_HO2_O3(T)
 
-Rate coefficient for HO2 + O3 → OH + O2 + O2
-k = 1.0 × 10⁻¹⁴ exp(-490/T) cm³ molecule⁻¹ s⁻¹
+Rate coefficient for HO2 + O3 → OH + O2 + O2.
+Returns value in SI units: m³ s⁻¹.
+
+k = 1.0 × 10⁻¹⁴ exp(-490/T) cm³ molecule⁻¹ s⁻¹ (CGS)
+  = 1.0 × 10⁻²⁰ exp(-490/T) m³ s⁻¹ (SI, ×1e-6)
 
 Reference: Table B.1, Seinfeld & Pandis (2006)
 """
 function k_HO2_O3(T)
-    return 1.0e-14 * exp(-490.0 / T)
+    return 1.0e-14 * exp(-490.0 / T) * 1e-6
 end
 
 """
     k_HO2_O(T)
 
-Rate coefficient for HO2 + O → OH + O2
-k ≈ 3.0 × 10⁻¹¹ exp(200/T) cm³ molecule⁻¹ s⁻¹
+Rate coefficient for HO2 + O → OH + O2.
+Returns value in SI units: m³ s⁻¹.
+
+k = 3.0 × 10⁻¹¹ exp(200/T) cm³ molecule⁻¹ s⁻¹ (CGS)
+  = 3.0 × 10⁻¹⁷ exp(200/T) m³ s⁻¹ (SI, ×1e-6)
 
 Reference: Page 161, Seinfeld & Pandis (2006)
 """
 function k_HO2_O(T)
-    return 3.0e-11 * exp(200.0 / T)
+    return 3.0e-11 * exp(200.0 / T) * 1e-6
 end
 
 """
     k_HO2_NO(T)
 
-Rate coefficient for HO2 + NO → NO2 + OH
-k = 3.5 × 10⁻¹² exp(250/T) cm³ molecule⁻¹ s⁻¹
+Rate coefficient for HO2 + NO → NO2 + OH.
+Returns value in SI units: m³ s⁻¹.
+
+k = 3.5 × 10⁻¹² exp(250/T) cm³ molecule⁻¹ s⁻¹ (CGS)
+  = 3.5 × 10⁻¹⁸ exp(250/T) m³ s⁻¹ (SI, ×1e-6)
 
 Reference: Page 158, Seinfeld & Pandis (2006)
 """
 function k_HO2_NO(T)
-    return 3.5e-12 * exp(250.0 / T)
+    return 3.5e-12 * exp(250.0 / T) * 1e-6
 end
 
 """
     k_Cl_O3(T)
 
-Rate coefficient for Cl + O3 → ClO + O2
-k = 2.3 × 10⁻¹¹ exp(-200/T) cm³ molecule⁻¹ s⁻¹
+Rate coefficient for Cl + O3 → ClO + O2.
+Returns value in SI units: m³ s⁻¹.
+
+k = 2.3 × 10⁻¹¹ exp(-200/T) cm³ molecule⁻¹ s⁻¹ (CGS)
+  = 2.3 × 10⁻¹⁷ exp(-200/T) m³ s⁻¹ (SI, ×1e-6)
 
 Reference: Page 162, Seinfeld & Pandis (2006)
 """
 function k_Cl_O3(T)
-    return 2.3e-11 * exp(-200.0 / T)
+    return 2.3e-11 * exp(-200.0 / T) * 1e-6
 end
 
 """
     k_ClO_O(T)
 
-Rate coefficient for ClO + O → Cl + O2
-k = 3.0 × 10⁻¹¹ exp(70/T) cm³ molecule⁻¹ s⁻¹
+Rate coefficient for ClO + O → Cl + O2.
+Returns value in SI units: m³ s⁻¹.
+
+k = 3.0 × 10⁻¹¹ exp(70/T) cm³ molecule⁻¹ s⁻¹ (CGS)
+  = 3.0 × 10⁻¹⁷ exp(70/T) m³ s⁻¹ (SI, ×1e-6)
 
 Reference: Page 162, Seinfeld & Pandis (2006)
 """
 function k_ClO_O(T)
-    return 3.0e-11 * exp(70.0 / T)
+    return 3.0e-11 * exp(70.0 / T) * 1e-6
 end
 
 """
     k_ClO_NO(T)
 
-Rate coefficient for ClO + NO → Cl + NO2
-k = 6.4 × 10⁻¹² exp(290/T) cm³ molecule⁻¹ s⁻¹
+Rate coefficient for ClO + NO → Cl + NO2.
+Returns value in SI units: m³ s⁻¹.
+
+k = 6.4 × 10⁻¹² exp(290/T) cm³ molecule⁻¹ s⁻¹ (CGS)
+  = 6.4 × 10⁻¹⁸ exp(290/T) m³ s⁻¹ (SI, ×1e-6)
 
 Reference: Page 163, Seinfeld & Pandis (2006)
 """
 function k_ClO_NO(T)
-    return 6.4e-12 * exp(290.0 / T)
+    return 6.4e-12 * exp(290.0 / T) * 1e-6
 end
 
 """
     k_Cl_CH4(T)
 
-Rate coefficient for Cl + CH4 → HCl + CH3
-k = 9.6 × 10⁻¹² exp(-1360/T) cm³ molecule⁻¹ s⁻¹
+Rate coefficient for Cl + CH4 → HCl + CH3.
+Returns value in SI units: m³ s⁻¹.
+
+k = 9.6 × 10⁻¹² exp(-1360/T) cm³ molecule⁻¹ s⁻¹ (CGS)
+  = 9.6 × 10⁻¹⁸ exp(-1360/T) m³ s⁻¹ (SI, ×1e-6)
 
 Reference: Table B.1, Seinfeld & Pandis (2006)
 """
 function k_Cl_CH4(T)
-    return 9.6e-12 * exp(-1360.0 / T)
+    return 9.6e-12 * exp(-1360.0 / T) * 1e-6
 end
 
 """
     k_OH_HCl(T)
 
-Rate coefficient for OH + HCl → H2O + Cl
-k = 2.6 × 10⁻¹² exp(-350/T) cm³ molecule⁻¹ s⁻¹
+Rate coefficient for OH + HCl → H2O + Cl.
+Returns value in SI units: m³ s⁻¹.
+
+k = 2.6 × 10⁻¹² exp(-350/T) cm³ molecule⁻¹ s⁻¹ (CGS)
+  = 2.6 × 10⁻¹⁸ exp(-350/T) m³ s⁻¹ (SI, ×1e-6)
 
 Reference: Page 168, Seinfeld & Pandis (2006)
 """
 function k_OH_HCl(T)
-    return 2.6e-12 * exp(-350.0 / T)
+    return 2.6e-12 * exp(-350.0 / T) * 1e-6
 end
 
 """
     k_Br_O3(T)
 
-Rate coefficient for Br + O3 → BrO + O2
-k = 1.7 × 10⁻¹¹ exp(-800/T) cm³ molecule⁻¹ s⁻¹
+Rate coefficient for Br + O3 → BrO + O2.
+Returns value in SI units: m³ s⁻¹.
+
+k = 1.7 × 10⁻¹¹ exp(-800/T) cm³ molecule⁻¹ s⁻¹ (CGS)
+  = 1.7 × 10⁻¹⁷ exp(-800/T) m³ s⁻¹ (SI, ×1e-6)
 
 Reference: Table B.1, Seinfeld & Pandis (2006)
 """
 function k_Br_O3(T)
-    return 1.7e-11 * exp(-800.0 / T)
+    return 1.7e-11 * exp(-800.0 / T) * 1e-6
 end
 
 """
-    k_BrO_ClO(T)
+    k_BrO_ClO_BrCl(T), k_BrO_ClO_ClOO(T)
 
-Rate coefficient for BrO + ClO → products
-Multiple channels with different products
+Rate coefficients for BrO + ClO → products. Multiple channels with different products.
+Returns values in SI units: m³ s⁻¹.
 
-Reference: Page 166, Seinfeld & Pandis (2006)
+BrCl channel: k = 5.8 × 10⁻¹³ exp(170/T) cm³ molecule⁻¹ s⁻¹ (CGS)
+ClOO channel: k = 2.3 × 10⁻¹² exp(260/T) cm³ molecule⁻¹ s⁻¹ (CGS)
+
+Reference: Table B.1, Seinfeld & Pandis (2006)
 """
 function k_BrO_ClO_BrCl(T)
-    return 5.8e-13 * exp(170.0 / T)  # → BrCl + O2 (Table B.1)
+    return 5.8e-13 * exp(170.0 / T) * 1e-6  # → BrCl + O2
 end
 
 function k_BrO_ClO_ClOO(T)
-    return 2.3e-12 * exp(260.0 / T)  # → ClOO + Br (Table B.1)
+    return 2.3e-12 * exp(260.0 / T) * 1e-6  # → ClOO + Br
 end
 
 """
     k_ClO_ClO_M(T, M)
 
-Rate coefficient for ClO + ClO + M → Cl2O2 + M
-Termolecular reaction forming the ClO dimer
+Rate coefficient for ClO + ClO + M → Cl2O2 + M.
+Termolecular reaction forming the ClO dimer.
+`M` should be in SI units (m⁻³). Returns effective bimolecular rate in SI units: m³ s⁻¹.
+
+CGS low-pressure limit: k0 = 1.6 × 10⁻³² (T/300)⁻⁴·⁵ cm⁶ molecule⁻² s⁻¹
+CGS high-pressure limit: kinf = 2.0 × 10⁻¹² (T/300)⁻²·⁴ cm³ molecule⁻¹ s⁻¹
 
 Reference: Page 172, Seinfeld & Pandis (2006)
 """
 function k_ClO_ClO_M(T, M)
-    # Troe formula approximation
-    k0 = 1.6e-32 * (T / 300.0)^(-4.5)
-    kinf = 2.0e-12 * (T / 300.0)^(-2.4)
+    # Troe formula approximation in SI
+    # k0: cm^6/molec^2/s × 1e-12 → m^6/s
+    k0 = 1.6e-32 * (T / 300.0)^(-4.5) * 1e-12
+    # kinf: cm^3/molec/s × 1e-6 → m^3/s
+    kinf = 2.0e-12 * (T / 300.0)^(-2.4) * 1e-6
+    # Returns effective bimolecular rate: m^3/s
     return k0 * M / (1.0 + k0 * M / kinf)
 end
 
 """
     k_N2O5_H2O_het(gamma, T, Ap)
 
-First-order rate coefficient for heterogeneous hydrolysis of N2O5
+First-order rate coefficient for heterogeneous hydrolysis of N2O5.
 N2O5 + H2O(s) → 2 HNO3
+
+`Ap` is the aerosol surface area per unit volume in SI units (m² m⁻³ = m⁻¹).
+Returns k in s⁻¹.
 
 k = (γ/4) × (8kT/πm)^(1/2) × Ap
 
@@ -261,8 +318,7 @@ function k_N2O5_H2O_het(gamma, T, Ap)
     m_N2O5 = 108.0 * 1.66054e-27  # kg per molecule
     k_B = 1.38065e-23  # J/K
     mean_speed = sqrt(8.0 * k_B * T / (π * m_N2O5))  # m/s
-    mean_speed_cm = mean_speed * 100.0  # cm/s
-    return (gamma / 4.0) * mean_speed_cm * Ap
+    return (gamma / 4.0) * mean_speed * Ap  # s^-1 (all SI: m/s × m^-1 = s^-1)
 end
 
 # ============================================================================
@@ -272,8 +328,9 @@ end
 """
     stratospheric_rate_coefficients(T, M)
 
-Return a dictionary of all stratospheric rate coefficients at temperature T
-and total number density M.
+Return a dictionary of all stratospheric rate coefficients at temperature T (K)
+and total number density M (m⁻³). All returned values are in SI units:
+bimolecular rates in m³ s⁻¹, termolecular rates in m⁶ s⁻¹.
 """
 function stratospheric_rate_coefficients(T, M)
     return Dict(
@@ -827,7 +884,8 @@ d[Ox]/dt = 2j_O2[O2] - 2k4[O][O3]
         D(O) ~
         2 * j_O2 * O2_conc +              # O2 + hν → 2O (source)
         (j_O3 - j_O3_O1D) * O3 +           # O3 + hν → O(3P) + O2 (source)
-        k_O1D_M * O1D * M -                # O(1D) + M → O(3P) + M (source)
+        k_O1D_M * O1D * M +                # O(1D) + M → O(3P) + M (source)
+        j_NO2 * NO2 -                      # NO2 + hν → NO + O (source)
         k2 * O * O2_conc * M -             # O + O2 + M → O3 (sink)
         k4 * O * O3 -                      # O + O3 → 2O2 (sink)
         k_NO2_O * NO2 * O -                # NO2 + O → NO + O2 (sink)

@@ -172,6 +172,9 @@ pressures_hPa = [55, 25, 12, 5.6, 2.8, 1.4]  # hPa
 p_over_p0 = [0.054, 0.025, 0.012, 0.0055, 0.0028, 0.0014]
 M_values = [1.4e18, 6.4e17, 3.1e17, 1.4e17, 7.1e16, 3.6e16]  # molec/cm^3
 
+# SI number densities for use in later analysis sections
+M_SI = M_values .* 1e6  # molec/cm^3 → molec/m^3
+
 table51 = DataFrame(
     Symbol("z (km)") => altitudes,
     Symbol("T (K)") => temperatures,
@@ -216,7 +219,7 @@ k4_values = [GasChem.k_O_O3(T) for T in temperatures]
 
 p1 = plot(altitudes, k2_values,
     xlabel = "Altitude (km)",
-    ylabel = "k2 (cm^6 molec^-2 s^-1)",
+    ylabel = "k₂ (m⁶ s⁻¹)",
     label = "k2: O + O2 + M",
     marker = :circle,
     title = "Temperature Dependence of Rate Coefficients",
@@ -224,7 +227,7 @@ p1 = plot(altitudes, k2_values,
 
 p2 = plot(altitudes, k4_values,
     xlabel = "Altitude (km)",
-    ylabel = "k4 (cm^3 molec^-1 s^-1)",
+    ylabel = "k₄ (m³ s⁻¹)",
     label = "k4: O + O3",
     marker = :square,
     color = :red,
@@ -256,8 +259,8 @@ O2_frac = 0.21
 
 O_O3_ratios = Float64[]
 for (i, T) in enumerate(temperatures)
-    M = M_values[i]
-    k2 = GasChem.k_O_O2_M(T)
+    M = M_SI[i]
+    k2 = GasChem.k_O_O2_M(T)  # m^6/s (SI)
     O2 = O2_frac * M
     ratio = j_O3 / (k2 * O2 * M)
     push!(O_O3_ratios, ratio)
@@ -296,19 +299,20 @@ j_O3_values = [2e-4, 3e-4, 4e-4, 5e-4, 6e-4, 7e-4]  # s^-1
 
 O3_ss = Float64[]
 for (i, T) in enumerate(temperatures)
-    M = M_values[i]
-    k2 = GasChem.k_O_O2_M(T)
-    k4 = GasChem.k_O_O3(T)
+    M = M_SI[i]  # SI: m^-3
+    k2 = GasChem.k_O_O2_M(T)  # SI: m^6/s
+    k4 = GasChem.k_O_O3(T)    # SI: m^3/s
     j_O2 = j_O2_values[i]
     j_O3 = j_O3_values[i]
 
-    O3 = 0.21 * sqrt(k2 * j_O2 / (k4 * j_O3)) * M^1.5
+    O3 = 0.21 * sqrt(k2 * j_O2 / (k4 * j_O3)) * M^1.5  # SI: m^-3
     push!(O3_ss, O3)
 end
 
-plot(O3_ss ./ 1e12, altitudes,
+# Convert SI m^-3 to CGS molec/cm^3 for display (÷ 1e6)
+plot(O3_ss ./ 1e6 ./ 1e12, altitudes,
     ylabel = "Altitude (km)",
-    xlabel = "[O3] (10^12 molec/cm^3)",
+    xlabel = "[O3] (10¹² molec/cm³)",
     label = "Chapman prediction (Eq. 5.13)",
     marker = :circle,
     title = "Steady-State Ozone Profile",
@@ -333,9 +337,9 @@ using Plots
 
 tau_ss = Float64[]
 for (i, T) in enumerate(temperatures)
-    M = M_values[i]
-    k2 = GasChem.k_O_O2_M(T)
-    k4 = GasChem.k_O_O3(T)
+    M = M_SI[i]  # SI: m^-3
+    k2 = GasChem.k_O_O2_M(T)  # SI: m^6/s
+    k4 = GasChem.k_O_O3(T)    # SI: m^3/s
     j_O2 = j_O2_values[i]
     j_O3 = j_O3_values[i]
 
@@ -375,24 +379,21 @@ chapman = ChapmanMechanism()
 sys = mtkcompile(chapman)
 
 # Parameters for 30 km altitude (Table 5.1)
-# CGS→SI conversion: 1 cm^-3 = 1e6 m^-3
-# Rate coefficient conversions: cm^6/(molec^2·s) × 1e-12 → m^6/s
-#                                cm^3/(molec·s)   × 1e-6  → m^3/s
 T = 227.0  # K
-M_SI = 3.1e23  # m^-3  (3.1e17 molec/cm^3 × 1e6)
+M_30km = 3.1e23  # m^-3 (3.1e17 molec/cm^3 × 1e6)
 
 j_O2_val = 1e-11  # s^-1
 j_O3_val = 4e-4   # s^-1
-k2_val = GasChem.k_O_O2_M(T) * 1e-12  # CGS → SI (m^6/s)
-k4_val = GasChem.k_O_O3(T) * 1e-6     # CGS → SI (m^3/s)
+k2_val = GasChem.k_O_O2_M(T)  # m^6/s (already SI)
+k4_val = GasChem.k_O_O3(T)    # m^3/s (already SI)
 
 prob = ODEProblem(sys,
-    [sys.O => 1e11, sys.O3 => 1e16,  # SI: m^-3 (1e5 and 1e10 cm^-3 × 1e6)
+    [sys.O => 1e11, sys.O3 => 1e16,  # SI: m^-3
         sys.j_O2 => j_O2_val,
         sys.j_O3 => j_O3_val,
         sys.k2 => k2_val,
         sys.k4 => k4_val,
-        sys.M => M_SI,
+        sys.M => M_30km,
         sys.O2_mix => 0.21],
     (0.0, 3600.0 * 24 * 10))  # 10 days
 
@@ -403,13 +404,13 @@ time_hours = sol.t ./ 3600
 # Convert SI m^-3 back to CGS molec/cm^3 for display (÷ 1e6)
 p1 = plot(time_hours, sol[sys.O3] ./ 1e6 ./ 1e12,
     xlabel = "Time (hours)",
-    ylabel = "[O3] (10^12 molec/cm^3)",
+    ylabel = "[O3] (10¹² molec/cm³)",
     label = "O3",
     title = "Chapman Mechanism: Approach to Steady State (30 km)")
 
 p2 = plot(time_hours, sol[sys.O] ./ 1e6,
     xlabel = "Time (hours)",
-    ylabel = "[O] (molec/cm^3)",
+    ylabel = "[O] (molec/cm³)",
     label = "O",
     color = :red,
     title = "Atomic Oxygen")
@@ -435,12 +436,16 @@ using Plots
 
 # Compute catalytic destruction rates from the implementation's rate coefficients
 # Using typical stratospheric mixing ratios from Chapter 5
+# All concentrations in SI (m^-3), rate coefficients return SI
 
 # Typical mixing ratios (from text)
 NO2_vmr = 5e-9   # 5 ppbv
 OH_vmr = 5e-7    # 0.5 pptv — very low
 ClO_vmr = 1e-10  # ~100 pptv
 BrO_vmr = 5e-12  # ~5 pptv
+
+# Reference values in SI for scaling (30 km)
+M_ref_si = M_SI[3]
 
 nox_rates = Float64[]
 hox_rates = Float64[]
@@ -449,9 +454,9 @@ brox_rates = Float64[]
 chapman_rates = Float64[]
 
 for (i, T) in enumerate(temperatures)
-    M = M_values[i]
-    O_conc = 1e7 * (M_values[3] / M)  # Scale O with inverse density (increases with altitude)
-    O3_conc = 3e12 * (M / M_values[3])  # Scale O3 with density
+    M = M_SI[i]  # SI: m^-3
+    O_conc = 1e13 * (M_ref_si / M)     # Scale O with inverse density (SI: m^-3)
+    O3_conc = 3e18 * (M / M_ref_si)    # Scale O3 with density (SI: m^-3)
 
     NO2 = NO2_vmr * M
     OH = OH_vmr * M
@@ -459,7 +464,7 @@ for (i, T) in enumerate(temperatures)
     BrO = BrO_vmr * M
 
     # Destruction rates (from Seinfeld & Pandis Eqs. 5.22, 5.25, 5.29)
-    k_NO2_O = GasChem.k_NO2_O(T)
+    k_NO2_O = GasChem.k_NO2_O(T)   # SI: m^3/s
     k_OH_O3 = GasChem.k_OH_O3(T)
     k_ClO_O = GasChem.k_ClO_O(T)
     k_Br_O3 = GasChem.k_Br_O3(T)
@@ -515,12 +520,12 @@ O_mix = 1e-11   # varies strongly with altitude
 
 ratios = Float64[]
 for (i, T) in enumerate(temperatures)
-    M = M_values[i]
-    k4 = GasChem.k_O_O3(T)
-    k_NO2_O = GasChem.k_NO2_O(T)
+    M = M_SI[i]  # SI: m^-3
+    k4 = GasChem.k_O_O3(T)      # SI: m^3/s
+    k_NO2_O = GasChem.k_NO2_O(T)  # SI: m^3/s
 
     O = O_mix * M
-    O3 = 3e12
+    O3 = 3e18  # SI: m^-3 (3e12 molec/cm^3 × 1e6)
     NO2 = NO2_mix * M
 
     R_chapman = k4 * O * O3

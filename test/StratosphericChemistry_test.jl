@@ -13,136 +13,137 @@ Physics: From Air Pollution to Climate Change", 2nd Edition.
     using OrdinaryDiffEqRosenbrock
     using GasChem
 
-    # CGS to SI conversion factor: 1 cm = 0.01 m, so 1 cm^-3 = 1e6 m^-3
+    # CGS to SI conversion factors
     const CGS_TO_SI_CONC = 1e6  # molec/cm^3 → molec/m^3
-    const CGS_TO_SI_K2 = 1e-12  # cm^6/molec^2/s → m^6/s (= (1e-2)^6 / 1^2)
-    const CGS_TO_SI_K = 1e-6    # cm^3/molec/s → m^3/s (= (1e-2)^3 / 1)
+    const CGS_TO_SI_K2 = 1e-12  # cm^6/molec^2/s → m^6/s
+    const CGS_TO_SI_K = 1e-6    # cm^3/molec/s → m^3/s
 end
 
 # =============================================================================
-# Rate Coefficient Functions (Tables B.1 and B.2) — CGS values
+# Rate Coefficient Functions — now returning SI values
 # =============================================================================
 
 @testitem "Rate Coefficient k_O_O2_M" setup=[StratSetup] tags=[:stratospheric] begin
-    # Reference: Table B.2, k = 6.0 x 10^-34 (T/300)^-2.4 cm^6 molecule^-2 s^-1
+    # Reference: Table B.2, k = 6.0 x 10^-34 (T/300)^-2.4 cm^6/molec^2/s
+    # Function now returns SI: × 1e-12
 
-    T=300.0
-    @test isapprox(GasChem.k_O_O2_M(T), 6.0e-34, rtol = 1e-10)
+    T = 300.0
+    @test isapprox(GasChem.k_O_O2_M(T), 6.0e-34 * CGS_TO_SI_K2, rtol = 1e-10)
 
-    T=227.0
-    @test isapprox(GasChem.k_O_O2_M(T), 6.0e-34 * (227.0 / 300.0)^(-2.4), rtol = 1e-10)
+    T = 227.0
+    @test isapprox(GasChem.k_O_O2_M(T), 6.0e-34 * (227.0 / 300.0)^(-2.4) * CGS_TO_SI_K2, rtol = 1e-10)
 
     # Rate increases at lower temperatures (negative exponent)
     @test GasChem.k_O_O2_M(200.0) > GasChem.k_O_O2_M(300.0)
 end
 
 @testitem "Rate Coefficient k_O_O3" setup=[StratSetup] tags=[:stratospheric] begin
-    # Reference: Table B.1, k = 8.0 x 10^-12 exp(-2060/T) cm^3 molecule^-1 s^-1
+    # Reference: Table B.1, k = 8.0 x 10^-12 exp(-2060/T) cm^3/molec/s
+    # Function now returns SI: × 1e-6
 
-    T=227.0
-    @test isapprox(GasChem.k_O_O3(T), 8.0e-12 * exp(-2060.0 / T), rtol = 1e-10)
+    T = 227.0
+    @test isapprox(GasChem.k_O_O3(T), 8.0e-12 * exp(-2060.0 / T) * CGS_TO_SI_K, rtol = 1e-10)
 
-    T=300.0
-    @test isapprox(GasChem.k_O_O3(T), 8.0e-12 * exp(-2060.0 / T), rtol = 1e-10)
+    T = 300.0
+    @test isapprox(GasChem.k_O_O3(T), 8.0e-12 * exp(-2060.0 / T) * CGS_TO_SI_K, rtol = 1e-10)
 
     # Rate increases with temperature (Arrhenius behavior)
     @test GasChem.k_O_O3(300.0) > GasChem.k_O_O3(200.0)
 end
 
 @testitem "Rate Coefficient k_NO_O3" setup=[StratSetup] tags=[:stratospheric] begin
-    # Reference: Page 154, k = 3.0 × 10⁻¹² exp(-1500/T) cm³ molecule⁻¹ s⁻¹
-    T=222.0
-    @test isapprox(GasChem.k_NO_O3(T), 3.0e-12 * exp(-1500.0 / T), rtol = 1e-10)
+    # Reference: Page 154, k = 3.0 × 10⁻¹² exp(-1500/T) cm³/molec/s
+    T = 222.0
+    @test isapprox(GasChem.k_NO_O3(T), 3.0e-12 * exp(-1500.0 / T) * CGS_TO_SI_K, rtol = 1e-10)
     @test GasChem.k_NO_O3(300.0) > GasChem.k_NO_O3(200.0)
 end
 
 @testitem "Rate Coefficient k_NO2_O" setup=[StratSetup] tags=[:stratospheric] begin
-    # Reference: Page 154, k = 5.6 × 10⁻¹² exp(180/T) cm³ molecule⁻¹ s⁻¹
-    T=237.0
-    @test isapprox(GasChem.k_NO2_O(T), 5.6e-12 * exp(180.0 / T), rtol = 1e-10)
+    # Reference: Page 154, k = 5.6 × 10⁻¹² exp(180/T) cm³/molec/s
+    T = 237.0
+    @test isapprox(GasChem.k_NO2_O(T), 5.6e-12 * exp(180.0 / T) * CGS_TO_SI_K, rtol = 1e-10)
 end
 
 @testitem "Rate Coefficient k_OH_O3" setup=[StratSetup] tags=[:stratospheric] begin
-    # Reference: Page 161, k = 1.7 × 10⁻¹² exp(-940/T) cm³ molecule⁻¹ s⁻¹
-    T=227.0
-    @test isapprox(GasChem.k_OH_O3(T), 1.7e-12 * exp(-940.0 / T), rtol = 1e-10)
+    # Reference: Page 161, k = 1.7 × 10⁻¹² exp(-940/T) cm³/molec/s
+    T = 227.0
+    @test isapprox(GasChem.k_OH_O3(T), 1.7e-12 * exp(-940.0 / T) * CGS_TO_SI_K, rtol = 1e-10)
 end
 
 @testitem "Rate Coefficient k_Cl_O3" setup=[StratSetup] tags=[:stratospheric] begin
-    # Reference: Page 162, k = 2.3 × 10⁻¹¹ exp(-200/T) cm³ molecule⁻¹ s⁻¹
-    T=251.0
-    @test isapprox(GasChem.k_Cl_O3(T), 2.3e-11 * exp(-200.0 / T), rtol = 1e-10)
+    # Reference: Page 162, k = 2.3 × 10⁻¹¹ exp(-200/T) cm³/molec/s
+    T = 251.0
+    @test isapprox(GasChem.k_Cl_O3(T), 2.3e-11 * exp(-200.0 / T) * CGS_TO_SI_K, rtol = 1e-10)
 end
 
 @testitem "Rate Coefficient k_ClO_O" setup=[StratSetup] tags=[:stratospheric] begin
-    # Reference: Page 162, k = 3.0 × 10⁻¹¹ exp(70/T) cm³ molecule⁻¹ s⁻¹
-    T=251.0
-    @test isapprox(GasChem.k_ClO_O(T), 3.0e-11 * exp(70.0 / T), rtol = 1e-10)
+    # Reference: Page 162, k = 3.0 × 10⁻¹¹ exp(70/T) cm³/molec/s
+    T = 251.0
+    @test isapprox(GasChem.k_ClO_O(T), 3.0e-11 * exp(70.0 / T) * CGS_TO_SI_K, rtol = 1e-10)
 end
 
 @testitem "Rate Coefficient k_OH_HCl" setup=[StratSetup] tags=[:stratospheric] begin
-    # Reference: Page 168, k = 2.6 × 10⁻¹² exp(-350/T) cm³ molecule⁻¹ s⁻¹
-    T=237.0
-    @test isapprox(GasChem.k_OH_HCl(T), 2.6e-12 * exp(-350.0 / T), rtol = 1e-10)
+    # Reference: Page 168, k = 2.6 × 10⁻¹² exp(-350/T) cm³/molec/s
+    T = 237.0
+    @test isapprox(GasChem.k_OH_HCl(T), 2.6e-12 * exp(-350.0 / T) * CGS_TO_SI_K, rtol = 1e-10)
 end
 
 @testitem "Rate Coefficient k_HO2_O3" setup=[StratSetup] tags=[:stratospheric] begin
-    # Reference: Table B.1, k = 1.0 × 10⁻¹⁴ exp(-490/T) cm³ molecule⁻¹ s⁻¹
-    T=227.0
-    @test isapprox(GasChem.k_HO2_O3(T), 1.0e-14 * exp(-490.0 / T), rtol = 1e-10)
-    # Rate increases with temperature (Arrhenius behavior)
+    # Reference: Table B.1, k = 1.0 × 10⁻¹⁴ exp(-490/T) cm³/molec/s
+    T = 227.0
+    @test isapprox(GasChem.k_HO2_O3(T), 1.0e-14 * exp(-490.0 / T) * CGS_TO_SI_K, rtol = 1e-10)
     @test GasChem.k_HO2_O3(300.0) > GasChem.k_HO2_O3(200.0)
 end
 
 @testitem "Rate Coefficient k_Cl_CH4" setup=[StratSetup] tags=[:stratospheric] begin
-    # Reference: Table B.1, k = 9.6 × 10⁻¹² exp(-1360/T) cm³ molecule⁻¹ s⁻¹
-    T=227.0
-    @test isapprox(GasChem.k_Cl_CH4(T), 9.6e-12 * exp(-1360.0 / T), rtol = 1e-10)
+    # Reference: Table B.1, k = 9.6 × 10⁻¹² exp(-1360/T) cm³/molec/s
+    T = 227.0
+    @test isapprox(GasChem.k_Cl_CH4(T), 9.6e-12 * exp(-1360.0 / T) * CGS_TO_SI_K, rtol = 1e-10)
     @test GasChem.k_Cl_CH4(300.0) > GasChem.k_Cl_CH4(200.0)
 end
 
 @testitem "Rate Coefficient k_Br_O3" setup=[StratSetup] tags=[:stratospheric] begin
-    # Reference: Table B.1, k = 1.7 × 10⁻¹¹ exp(-800/T) cm³ molecule⁻¹ s⁻¹
-    T=227.0
-    @test isapprox(GasChem.k_Br_O3(T), 1.7e-11 * exp(-800.0 / T), rtol = 1e-10)
+    # Reference: Table B.1, k = 1.7 × 10⁻¹¹ exp(-800/T) cm³/molec/s
+    T = 227.0
+    @test isapprox(GasChem.k_Br_O3(T), 1.7e-11 * exp(-800.0 / T) * CGS_TO_SI_K, rtol = 1e-10)
     @test GasChem.k_Br_O3(300.0) > GasChem.k_Br_O3(200.0)
 end
 
 @testitem "Rate Coefficient k_HO2_O" setup=[StratSetup] tags=[:stratospheric] begin
-    # Reference: Page 161, k = 3.0 × 10⁻¹¹ exp(200/T) cm³ molecule⁻¹ s⁻¹
-    T=227.0
-    @test isapprox(GasChem.k_HO2_O(T), 3.0e-11 * exp(200.0 / T), rtol = 1e-10)
+    # Reference: Page 161, k = 3.0 × 10⁻¹¹ exp(200/T) cm³/molec/s
+    T = 227.0
+    @test isapprox(GasChem.k_HO2_O(T), 3.0e-11 * exp(200.0 / T) * CGS_TO_SI_K, rtol = 1e-10)
 end
 
 @testitem "Rate Coefficient k_HO2_NO" setup=[StratSetup] tags=[:stratospheric] begin
-    # Reference: Page 158, k = 3.5 × 10⁻¹² exp(250/T) cm³ molecule⁻¹ s⁻¹
-    T=227.0
-    @test isapprox(GasChem.k_HO2_NO(T), 3.5e-12 * exp(250.0 / T), rtol = 1e-10)
+    # Reference: Page 158, k = 3.5 × 10⁻¹² exp(250/T) cm³/molec/s
+    T = 227.0
+    @test isapprox(GasChem.k_HO2_NO(T), 3.5e-12 * exp(250.0 / T) * CGS_TO_SI_K, rtol = 1e-10)
 end
 
 @testitem "Rate Coefficient k_ClO_NO" setup=[StratSetup] tags=[:stratospheric] begin
-    # Reference: Page 163, k = 6.4 × 10⁻¹² exp(290/T) cm³ molecule⁻¹ s⁻¹
-    T=227.0
-    @test isapprox(GasChem.k_ClO_NO(T), 6.4e-12 * exp(290.0 / T), rtol = 1e-10)
+    # Reference: Page 163, k = 6.4 × 10⁻¹² exp(290/T) cm³/molec/s
+    T = 227.0
+    @test isapprox(GasChem.k_ClO_NO(T), 6.4e-12 * exp(290.0 / T) * CGS_TO_SI_K, rtol = 1e-10)
 end
 
 @testitem "Rate Coefficient k_BrO_ClO" setup=[StratSetup] tags=[:stratospheric] begin
     # Reference: Table B.1, BrO + ClO channels
-    T=227.0
-    @test isapprox(GasChem.k_BrO_ClO_BrCl(T), 5.8e-13 * exp(170.0 / T), rtol = 1e-10)
-    @test isapprox(GasChem.k_BrO_ClO_ClOO(T), 2.3e-12 * exp(260.0 / T), rtol = 1e-10)
-    # Temperature dependence
+    T = 227.0
+    @test isapprox(GasChem.k_BrO_ClO_BrCl(T), 5.8e-13 * exp(170.0 / T) * CGS_TO_SI_K, rtol = 1e-10)
+    @test isapprox(GasChem.k_BrO_ClO_ClOO(T), 2.3e-12 * exp(260.0 / T) * CGS_TO_SI_K, rtol = 1e-10)
+    # Temperature dependence (positive activation → rate decreases with T)
     @test GasChem.k_BrO_ClO_BrCl(300.0) < GasChem.k_BrO_ClO_BrCl(200.0)
     @test GasChem.k_BrO_ClO_ClOO(300.0) < GasChem.k_BrO_ClO_ClOO(200.0)
 end
 
 @testitem "Rate Coefficient k_O1D_M" setup=[StratSetup] tags=[:stratospheric] begin
     # Reference: Page 143
-    T=227.0
-    @test isapprox(GasChem.k_O1D_M(T, :O2), 3.2e-11 * exp(70.0 / T), rtol = 1e-10)
-    @test isapprox(GasChem.k_O1D_M(T, :N2), 1.8e-11 * exp(110.0 / T), rtol = 1e-10)
+    T = 227.0
+    @test isapprox(GasChem.k_O1D_M(T, :O2), 3.2e-11 * exp(70.0 / T) * CGS_TO_SI_K, rtol = 1e-10)
+    @test isapprox(GasChem.k_O1D_M(T, :N2), 1.8e-11 * exp(110.0 / T) * CGS_TO_SI_K, rtol = 1e-10)
     # Air weighted average
-    k_air=0.21*3.2e-11*exp(70.0/T)+0.79*1.8e-11*exp(110.0/T)
+    k_air = (0.21 * 3.2e-11 * exp(70.0 / T) + 0.79 * 1.8e-11 * exp(110.0 / T)) * CGS_TO_SI_K
     @test isapprox(GasChem.k_O1D_M(T, :air), k_air, rtol = 1e-10)
 end
 
@@ -151,44 +152,44 @@ end
 # =============================================================================
 
 @testitem "Chapman Mechanism Structure" setup=[StratSetup] tags=[:stratospheric] begin
-    sys=ChapmanMechanism()
+    sys = ChapmanMechanism()
 
     # 2 ODEs (O, O3) + 1 algebraic (Ox)
     @test length(equations(sys)) == 3
 
-    states=unknowns(sys)
-    state_names=[string(s) for s in states]
+    states = unknowns(sys)
+    state_names = [string(s) for s in states]
     @test any(occursin("O(t)", n) for n in state_names)
     @test any(occursin("O3(t)", n) for n in state_names)
     @test any(occursin("Ox(t)", n) for n in state_names)
 end
 
 @testitem "NOx Cycle Structure" setup=[StratSetup] tags=[:stratospheric] begin
-    sys=NOxCycle()
+    sys = NOxCycle()
     @test length(equations(sys)) == 3
-    states=unknowns(sys)
-    state_names=[string(s) for s in states]
+    states = unknowns(sys)
+    state_names = [string(s) for s in states]
     @test any(occursin("NO(t)", n) for n in state_names)
     @test any(occursin("NO2(t)", n) for n in state_names)
     @test any(occursin("NOx(t)", n) for n in state_names)
 end
 
 @testitem "HOx Cycle Structure" setup=[StratSetup] tags=[:stratospheric] begin
-    sys=HOxCycle()
+    sys = HOxCycle()
     @test length(equations(sys)) == 3
-    states=unknowns(sys)
-    state_names=[string(s) for s in states]
+    states = unknowns(sys)
+    state_names = [string(s) for s in states]
     @test any(occursin("OH(t)", n) for n in state_names)
     @test any(occursin("HO2(t)", n) for n in state_names)
     @test any(occursin("HOx(t)", n) for n in state_names)
 end
 
 @testitem "ClOx Cycle Structure" setup=[StratSetup] tags=[:stratospheric] begin
-    sys=ClOxCycle()
+    sys = ClOxCycle()
     # 4 ODEs (Cl, ClO, HCl, ClONO2) + 2 algebraic (ClOx, Cly)
     @test length(equations(sys)) == 6
-    states=unknowns(sys)
-    state_names=[string(s) for s in states]
+    states = unknowns(sys)
+    state_names = [string(s) for s in states]
     @test any(occursin("Cl(t)", n) for n in state_names)
     @test any(occursin("ClO(t)", n) for n in state_names)
     @test any(occursin("ClONO2(t)", n) for n in state_names)
@@ -196,24 +197,24 @@ end
 end
 
 @testitem "BrOx Cycle Structure" setup=[StratSetup] tags=[:stratospheric] begin
-    sys=BrOxCycle()
+    sys = BrOxCycle()
     # 3 ODEs (Br, BrO, HOBr) + 2 algebraic (BrOx, Bry)
     @test length(equations(sys)) == 5
-    states=unknowns(sys)
-    state_names=[string(s) for s in states]
+    states = unknowns(sys)
+    state_names = [string(s) for s in states]
     @test any(occursin("Br(t)", n) for n in state_names)
     @test any(occursin("BrO(t)", n) for n in state_names)
     @test any(occursin("BrOx(t)", n) for n in state_names)
 end
 
 @testitem "Comprehensive System Structure" setup=[StratSetup] tags=[:stratospheric] begin
-    sys=StratosphericOzoneSystem()
+    sys = StratosphericOzoneSystem()
 
     # 14 ODEs + 5 algebraic = 19 equations, 19 unknowns
     @test length(equations(sys)) == 19
 
-    states=unknowns(sys)
-    state_names=[string(s) for s in states]
+    states = unknowns(sys)
+    state_names = [string(s) for s in states]
 
     # Odd oxygen
     @test any(occursin("O(t)", n) for n in state_names)
@@ -238,15 +239,15 @@ end
 # =============================================================================
 
 @testitem "Chapman Mechanism Integration" setup=[StratSetup] tags=[:stratospheric] begin
-    sys=ChapmanMechanism()
-    compiled_sys=mtkcompile(sys)
+    sys = ChapmanMechanism()
+    compiled_sys = mtkcompile(sys)
 
-    # Initial conditions in SI units (m^-3): 1e7 molec/cm^3 = 1e13 m^-3
-    u0=[compiled_sys.O=>1e13, compiled_sys.O3=>3e18]
-    tspan=(0.0, 86400.0)  # 1 day
+    # Initial conditions in SI units (m^-3)
+    u0 = [compiled_sys.O => 1e13, compiled_sys.O3 => 3e18]
+    tspan = (0.0, 86400.0)  # 1 day
 
-    prob=ODEProblem(compiled_sys, u0, tspan)
-    sol=solve(prob, abstol = 1e-8, reltol = 1e-8)
+    prob = ODEProblem(compiled_sys, u0, tspan)
+    sol = solve(prob, abstol = 1e-8, reltol = 1e-8)
 
     @test sol.retcode == ReturnCode.Success
     @test all(sol[compiled_sys.O] .> 0)
@@ -258,15 +259,15 @@ end
 # =============================================================================
 
 @testitem "Positivity Preservation" setup=[StratSetup] tags=[:stratospheric] begin
-    sys=ChapmanMechanism()
-    compiled_sys=mtkcompile(sys)
+    sys = ChapmanMechanism()
+    compiled_sys = mtkcompile(sys)
 
     # SI units (m^-3)
-    u0=[compiled_sys.O=>1e13, compiled_sys.O3=>3e18]
-    tspan=(0.0, 3600.0)  # 1 hour
+    u0 = [compiled_sys.O => 1e13, compiled_sys.O3 => 3e18]
+    tspan = (0.0, 3600.0)  # 1 hour
 
-    prob=ODEProblem(compiled_sys, u0, tspan)
-    sol=solve(prob, abstol = 1e-10, reltol = 1e-10)
+    prob = ODEProblem(compiled_sys, u0, tspan)
+    sol = solve(prob, abstol = 1e-10, reltol = 1e-10)
 
     @test sol.retcode == ReturnCode.Success
     @test all(sol[compiled_sys.O] .>= 0)
@@ -278,47 +279,46 @@ end
 # =============================================================================
 
 @testitem "Odd Oxygen Conservation (Chapman)" setup=[StratSetup] tags=[:stratospheric] begin
-    sys=ChapmanMechanism()
-    compiled_sys=mtkcompile(sys)
+    sys = ChapmanMechanism()
+    compiled_sys = mtkcompile(sys)
 
     # SI units (m^-3)
-    u0=[compiled_sys.O=>1e13, compiled_sys.O3=>3e18]
-    tspan=(0.0, 10.0)  # Very short time
+    u0 = [compiled_sys.O => 1e13, compiled_sys.O3 => 3e18]
+    tspan = (0.0, 10.0)  # Very short time
 
-    prob=ODEProblem(compiled_sys, u0, tspan)
-    sol=solve(prob, abstol = 1e-12, reltol = 1e-12)
+    prob = ODEProblem(compiled_sys, u0, tspan)
+    sol = solve(prob, abstol = 1e-12, reltol = 1e-12)
 
     @test sol.retcode == ReturnCode.Success
 
-    Ox_initial=sol[compiled_sys.O][1]+sol[compiled_sys.O3][1]
-    Ox_final=sol[compiled_sys.O][end]+sol[compiled_sys.O3][end]
+    Ox_initial = sol[compiled_sys.O][1] + sol[compiled_sys.O3][1]
+    Ox_final = sol[compiled_sys.O][end] + sol[compiled_sys.O3][end]
     @test isapprox(Ox_initial, Ox_final, rtol = 1e-4)
 end
 
 @testitem "Cly Conservation (ClOx Cycle)" setup=[StratSetup] tags=[:stratospheric] begin
-    sys=ClOxCycle()
-    compiled_sys=mtkcompile(sys)
+    sys = ClOxCycle()
+    compiled_sys = mtkcompile(sys)
 
-    # SI units (m^-3): 1e4 cm^-3 = 1e10 m^-3, etc.
-    u0=[
-        compiled_sys.Cl=>1e10,
-        compiled_sys.ClO=>1e13,
-        compiled_sys.HCl=>1e15,
-        compiled_sys.ClONO2=>1e15
+    # SI units (m^-3)
+    u0 = [
+        compiled_sys.Cl => 1e10,
+        compiled_sys.ClO => 1e13,
+        compiled_sys.HCl => 1e15,
+        compiled_sys.ClONO2 => 1e15
     ]
-    tspan=(0.0, 1.0)  # Very short time
+    tspan = (0.0, 1.0)  # Very short time
 
-    prob=ODEProblem(compiled_sys, u0, tspan)
-    sol=solve(prob, abstol = 1e-12, reltol = 1e-12)
+    prob = ODEProblem(compiled_sys, u0, tspan)
+    sol = solve(prob, abstol = 1e-12, reltol = 1e-12)
 
     @test sol.retcode == ReturnCode.Success
 
-    Cly_init=sol[compiled_sys.Cl][1]+sol[compiled_sys.ClO][1]+
-             sol[compiled_sys.HCl][1]+sol[compiled_sys.ClONO2][1]
-    Cly_final=sol[compiled_sys.Cl][end]+sol[compiled_sys.ClO][end]+
-              sol[compiled_sys.HCl][end]+sol[compiled_sys.ClONO2][end]
+    Cly_init = sol[compiled_sys.Cl][1] + sol[compiled_sys.ClO][1] +
+               sol[compiled_sys.HCl][1] + sol[compiled_sys.ClONO2][1]
+    Cly_final = sol[compiled_sys.Cl][end] + sol[compiled_sys.ClO][end] +
+                sol[compiled_sys.HCl][end] + sol[compiled_sys.ClONO2][end]
 
-    # Cly is conserved because ClO → ClONO2 conversion preserves total Cl atoms
     @test isapprox(Cly_init, Cly_final, rtol = 1e-6)
 end
 
@@ -330,39 +330,34 @@ end
     # At steady state, [O]/[O3] = j_O3 / (k2 * [O2] * [M]) = j_O3 / (k2 * 0.21 * M^2)
     # Eq. 5.7 from Seinfeld & Pandis (2006)
 
-    sys=ChapmanMechanism()
-    compiled_sys=mtkcompile(sys)
+    sys = ChapmanMechanism()
+    compiled_sys = mtkcompile(sys)
 
-    j_O3_val=4e-4  # s^-1
-    T_val=227.0  # K
-    # k2 in SI: 6e-34 cm^6/molec^2/s * 1e-12 = CGS * CGS_TO_SI_K2
-    k2_cgs=GasChem.k_O_O2_M(T_val)
-    k2_si=k2_cgs*CGS_TO_SI_K2
-    k4_cgs=GasChem.k_O_O3(T_val)
-    k4_si=k4_cgs*CGS_TO_SI_K
-    # M in SI: 3.1e17 cm^-3 * 1e6 = 3.1e23 m^-3
-    M_cgs=3.1e17
-    M_si=M_cgs*CGS_TO_SI_CONC
-    O2_val=0.21
+    j_O3_val = 4e-4  # s^-1
+    T_val = 227.0  # K
+    # Rate coefficients now returned in SI directly
+    k2_si = GasChem.k_O_O2_M(T_val)
+    k4_si = GasChem.k_O_O3(T_val)
+    M_si = 3.1e23  # m^-3 (3.1e17 cm^-3 × 1e6)
+    O2_val = 0.21
 
-    tspan=(0.0, 3600.0*24*30)  # 30 days
+    tspan = (0.0, 3600.0 * 24 * 30)  # 30 days
 
-    prob=ODEProblem(compiled_sys,
-        [compiled_sys.O=>1e11, compiled_sys.O3=>1e16,
-            compiled_sys.j_O2=>1e-11, compiled_sys.j_O3=>j_O3_val,
-            compiled_sys.k2=>k2_si, compiled_sys.k4=>k4_si,
-            compiled_sys.M=>M_si, compiled_sys.O2_mix=>O2_val],
+    prob = ODEProblem(compiled_sys,
+        [compiled_sys.O => 1e11, compiled_sys.O3 => 1e16,
+            compiled_sys.j_O2 => 1e-11, compiled_sys.j_O3 => j_O3_val,
+            compiled_sys.k2 => k2_si, compiled_sys.k4 => k4_si,
+            compiled_sys.M => M_si, compiled_sys.O2_mix => O2_val],
         tspan)
-    sol=solve(prob, abstol = 1e-8, reltol = 1e-8)
+    sol = solve(prob, abstol = 1e-8, reltol = 1e-8)
 
     @test sol.retcode == ReturnCode.Success
 
     # Check steady-state ratio (Eq. 5.7): [O]/[O3] = j_O3 / (k2 * O2 * M^2)
-    # where k2 and M are in SI
-    O_ss=sol[compiled_sys.O][end]
-    O3_ss=sol[compiled_sys.O3][end]
-    expected_ratio=j_O3_val/(k2_si*O2_val*M_si*M_si)
-    actual_ratio=O_ss/O3_ss
+    O_ss = sol[compiled_sys.O][end]
+    O3_ss = sol[compiled_sys.O3][end]
+    expected_ratio = j_O3_val / (k2_si * O2_val * M_si * M_si)
+    actual_ratio = O_ss / O3_ss
 
     @test isapprox(actual_ratio, expected_ratio, rtol = 0.1)
 end
@@ -373,36 +368,36 @@ end
 
 @testitem "Chapman Steady-State Ozone (Eq. 5.13)" setup=[StratSetup] tags=[:stratospheric] begin
     # Equation 5.13: [O3]_ss = 0.21 * sqrt(k2 * j_O2 / (k4 * j_O3)) * [M]^(3/2)
-    # This equation applies in CGS (all k, j, M in CGS)
+    # Using SI units throughout
 
-    T=227.0
-    M_cgs=3.1e17  # molec/cm^3
-    k2_cgs=GasChem.k_O_O2_M(T)  # cm^6/molec^2/s
-    k4_cgs=GasChem.k_O_O3(T)    # cm^3/molec/s
-    j_O2=1e-11  # s^-1
-    j_O3=4e-4   # s^-1
+    T = 227.0
+    M_si = 3.1e23  # m^-3
+    k2_si = GasChem.k_O_O2_M(T)  # m^6/s (SI)
+    k4_si = GasChem.k_O_O3(T)    # m^3/s (SI)
+    j_O2 = 1e-11  # s^-1
+    j_O3 = 4e-4   # s^-1
 
-    O3_cgs=0.21*sqrt(k2_cgs*j_O2/(k4_cgs*j_O3))*M_cgs^1.5
+    O3_si = 0.21 * sqrt(k2_si * j_O2 / (k4_si * j_O3)) * M_si^1.5
 
-    # The steady-state O3 should be on the order of 10^12 molec/cm^3 at 30 km
-    @test O3_cgs > 1e10
-    @test O3_cgs < 1e14
+    # The steady-state O3 should be on the order of 10^18 m^-3 at 30 km
+    # (equivalent to ~10^12 molec/cm^3 × 1e6)
+    @test O3_si > 1e16
+    @test O3_si < 1e20
 end
 
 @testitem "Time to Steady State (Eq. 5.17)" setup=[StratSetup] tags=[:stratospheric] begin
     # Equation 5.17: tau_O3_ss = (1/4) * sqrt(k2*[M] / (k4 * j_O2 * j_O3))
-    # Reference: Table on page 147 of Seinfeld & Pandis (2006)
-    # At 40 km (T=251K): tau ~ 40 hours; at 30 km (T=227K): tau ~ 160 hours
+    # Using SI units: k2 in m^6/s, M in m^-3, k4 in m^3/s
 
     # 30 km conditions
-    T=227.0
-    M_cgs=3.1e17
-    k2=GasChem.k_O_O2_M(T)
-    k4=GasChem.k_O_O3(T)
-    j_O2=6e-11
-    j_O3=1.2e-3
+    T = 227.0
+    M_si = 3.1e23  # m^-3
+    k2 = GasChem.k_O_O2_M(T)  # m^6/s
+    k4 = GasChem.k_O_O3(T)    # m^3/s
+    j_O2 = 6e-11
+    j_O3 = 1.2e-3
 
-    tau = 0.25 * sqrt(k2 * M_cgs / (k4 * j_O2 * j_O3))
+    tau = 0.25 * sqrt(k2 * M_si / (k4 * j_O2 * j_O3))
     tau_hours = tau / 3600.0
 
     # At 30 km, the reference value is ~160 hours
@@ -410,14 +405,14 @@ end
     @test tau_hours < 500
 
     # 40 km conditions
-    T40=251.0
-    M40=7.1e16
-    k2_40=GasChem.k_O_O2_M(T40)
-    k4_40=GasChem.k_O_O3(T40)
-    j_O2_40=5e-10
-    j_O3_40=1.9e-3
+    T40 = 251.0
+    M40_si = 7.1e22  # m^-3 (7.1e16 cm^-3 × 1e6)
+    k2_40 = GasChem.k_O_O2_M(T40)
+    k4_40 = GasChem.k_O_O3(T40)
+    j_O2_40 = 5e-10
+    j_O3_40 = 1.9e-3
 
-    tau_40 = 0.25 * sqrt(k2_40 * M40 / (k4_40 * j_O2_40 * j_O3_40))
+    tau_40 = 0.25 * sqrt(k2_40 * M40_si / (k4_40 * j_O2_40 * j_O3_40))
     tau_hours_40 = tau_40 / 3600.0
 
     # At 40 km, the reference value is ~12-40 hours
@@ -433,26 +428,28 @@ end
     # At z=30km: [O]/[O3] = 3.0 × 10^-5
     # At z=40km: [O]/[O3] = 9.4 × 10^-4
 
-    # These ratios use Eq. 5.7: [O]/[O3] = j_O3 / (k2 * [O2] * [M])
-    # Using j_O3 values from the table on page 144
+    # Using Eq. 5.7: [O]/[O3] = j_O3 / (k2 * [O2] * [M])
+    # All in SI: k2 in m^6/s, M in m^-3
 
-    # 30 km: j_O3 ~ 7e-4 + 5e-4 = 1.2e-3 s^-1 (total = j_O3->O + j_O3->O1D)
-    T30=227.0; M30=3.1e17
-    k2_30=GasChem.k_O_O2_M(T30)
-    j_O3_30=1.2e-3  # Total O3 photolysis rate at 30 km
+    # 30 km
+    T30 = 227.0
+    M30_si = 3.1e23  # m^-3
+    k2_30 = GasChem.k_O_O2_M(T30)
+    j_O3_30 = 1.2e-3  # Total O3 photolysis rate at 30 km
 
-    ratio_30 = j_O3_30 / (k2_30 * 0.21 * M30 * M30)
+    ratio_30 = j_O3_30 / (k2_30 * 0.21 * M30_si * M30_si)
 
     # Should be on the order of 10^-5
     @test ratio_30 > 1e-6
     @test ratio_30 < 1e-3
 
-    # 40 km: j_O3 ~ 9e-4 + 1e-3 = 1.9e-3 s^-1
-    T40=251.0; M40=7.1e16
-    k2_40=GasChem.k_O_O2_M(T40)
-    j_O3_40=1.9e-3
+    # 40 km
+    T40 = 251.0
+    M40_si = 7.1e22  # m^-3
+    k2_40 = GasChem.k_O_O2_M(T40)
+    j_O3_40 = 1.9e-3
 
-    ratio_40 = j_O3_40 / (k2_40 * 0.21 * M40 * M40)
+    ratio_40 = j_O3_40 / (k2_40 * 0.21 * M40_si * M40_si)
 
     # Should be larger than at 30 km (lower M means higher ratio)
     @test ratio_40 > ratio_30
@@ -465,17 +462,17 @@ end
 # =============================================================================
 
 @testitem "Zero Photolysis Rates" setup=[StratSetup] tags=[:stratospheric] begin
-    sys=ChapmanMechanism()
-    compiled_sys=mtkcompile(sys)
+    sys = ChapmanMechanism()
+    compiled_sys = mtkcompile(sys)
 
     # SI units (m^-3)
-    tspan=(0.0, 3600.0)
+    tspan = (0.0, 3600.0)
 
-    prob=ODEProblem(compiled_sys,
-        [compiled_sys.O=>1e13, compiled_sys.O3=>3e18,
-            compiled_sys.j_O2=>0.0, compiled_sys.j_O3=>0.0],
+    prob = ODEProblem(compiled_sys,
+        [compiled_sys.O => 1e13, compiled_sys.O3 => 3e18,
+            compiled_sys.j_O2 => 0.0, compiled_sys.j_O3 => 0.0],
         tspan)
-    sol=solve(prob, abstol = 1e-10, reltol = 1e-10)
+    sol = solve(prob, abstol = 1e-10, reltol = 1e-10)
 
     @test sol.retcode == ReturnCode.Success
 
@@ -488,12 +485,12 @@ end
 # =============================================================================
 
 @testitem "Stratospheric Rate Coefficients Dictionary" setup=[StratSetup] tags=[:stratospheric] begin
-    T=227.0
-    M=3.1e17
+    T = 227.0
+    M_si = 3.1e23  # m^-3
 
-    coeffs=stratospheric_rate_coefficients(T, M)
+    coeffs = stratospheric_rate_coefficients(T, M_si)
 
-    expected_keys=[
+    expected_keys = [
         :k_O_O2_M, :k_O_O3, :k_O1D_M, :k_NO_O3, :k_NO2_O,
         :k_OH_O3, :k_HO2_O3, :k_HO2_O, :k_HO2_NO,
         :k_Cl_O3, :k_ClO_O, :k_ClO_NO, :k_Cl_CH4, :k_OH_HCl,
@@ -514,11 +511,11 @@ end
 # =============================================================================
 
 @testitem "Comprehensive System Integration" setup=[StratSetup] tags=[:stratospheric] begin
-    sys=StratosphericOzoneSystem()
-    compiled_sys=mtkcompile(sys)
+    sys = StratosphericOzoneSystem()
+    compiled_sys = mtkcompile(sys)
 
-    prob=ODEProblem(compiled_sys, [], (0.0, 3600.0))  # 1 hour with defaults
-    sol=solve(prob, Rodas5P(), abstol = 1e-8, reltol = 1e-8)  # Stiff system requires implicit solver
+    prob = ODEProblem(compiled_sys, [], (0.0, 3600.0))  # 1 hour with defaults
+    sol = solve(prob, Rodas5P(), abstol = 1e-8, reltol = 1e-8)
 
     @test sol.retcode == ReturnCode.Success
 
@@ -534,26 +531,26 @@ end
 # =============================================================================
 
 @testitem "Bry Conservation (BrOx Cycle)" setup=[StratSetup] tags=[:stratospheric] begin
-    sys=BrOxCycle()
-    compiled_sys=mtkcompile(sys)
+    sys = BrOxCycle()
+    compiled_sys = mtkcompile(sys)
 
     # SI units (m^-3)
-    u0=[
-        compiled_sys.Br=>1e11,
-        compiled_sys.BrO=>1e12,
-        compiled_sys.HOBr=>1e12
+    u0 = [
+        compiled_sys.Br => 1e11,
+        compiled_sys.BrO => 1e12,
+        compiled_sys.HOBr => 1e12
     ]
-    tspan=(0.0, 1.0)  # Very short time
+    tspan = (0.0, 1.0)  # Very short time
 
-    prob=ODEProblem(compiled_sys, u0, tspan)
-    sol=solve(prob, abstol = 1e-12, reltol = 1e-12)
+    prob = ODEProblem(compiled_sys, u0, tspan)
+    sol = solve(prob, abstol = 1e-12, reltol = 1e-12)
 
     @test sol.retcode == ReturnCode.Success
 
-    Bry_init=sol[compiled_sys.Br][1]+sol[compiled_sys.BrO][1]+
-             sol[compiled_sys.HOBr][1]
-    Bry_final=sol[compiled_sys.Br][end]+sol[compiled_sys.BrO][end]+
-              sol[compiled_sys.HOBr][end]
+    Bry_init = sol[compiled_sys.Br][1] + sol[compiled_sys.BrO][1] +
+               sol[compiled_sys.HOBr][1]
+    Bry_final = sol[compiled_sys.Br][end] + sol[compiled_sys.BrO][end] +
+                sol[compiled_sys.HOBr][end]
 
     @test isapprox(Bry_init, Bry_final, rtol = 1e-6)
 end
@@ -563,23 +560,23 @@ end
 # =============================================================================
 
 @testitem "HOx Conservation (HOx Cycle)" setup=[StratSetup] tags=[:stratospheric] begin
-    sys=HOxCycle()
-    compiled_sys=mtkcompile(sys)
+    sys = HOxCycle()
+    compiled_sys = mtkcompile(sys)
 
     # SI units (m^-3)
-    u0=[
-        compiled_sys.OH=>1e12,
-        compiled_sys.HO2=>1e13
+    u0 = [
+        compiled_sys.OH => 1e12,
+        compiled_sys.HO2 => 1e13
     ]
-    tspan=(0.0, 1.0)  # Very short time
+    tspan = (0.0, 1.0)  # Very short time
 
-    prob=ODEProblem(compiled_sys, u0, tspan)
-    sol=solve(prob, abstol = 1e-12, reltol = 1e-12)
+    prob = ODEProblem(compiled_sys, u0, tspan)
+    sol = solve(prob, abstol = 1e-12, reltol = 1e-12)
 
     @test sol.retcode == ReturnCode.Success
 
-    HOx_init=sol[compiled_sys.OH][1]+sol[compiled_sys.HO2][1]
-    HOx_final=sol[compiled_sys.OH][end]+sol[compiled_sys.HO2][end]
+    HOx_init = sol[compiled_sys.OH][1] + sol[compiled_sys.HO2][1]
+    HOx_final = sol[compiled_sys.OH][end] + sol[compiled_sys.HO2][end]
 
     @test isapprox(HOx_init, HOx_final, rtol = 1e-6)
 end
@@ -589,43 +586,45 @@ end
 # =============================================================================
 
 @testitem "NOx Conservation (NOx Cycle)" setup=[StratSetup] tags=[:stratospheric] begin
-    sys=NOxCycle()
-    compiled_sys=mtkcompile(sys)
+    sys = NOxCycle()
+    compiled_sys = mtkcompile(sys)
 
     # SI units (m^-3)
-    u0=[
-        compiled_sys.NO=>1e15,
-        compiled_sys.NO2=>1e15
+    u0 = [
+        compiled_sys.NO => 1e15,
+        compiled_sys.NO2 => 1e15
     ]
-    tspan=(0.0, 1.0)  # Very short time
+    tspan = (0.0, 1.0)  # Very short time
 
-    prob=ODEProblem(compiled_sys, u0, tspan)
-    sol=solve(prob, abstol = 1e-12, reltol = 1e-12)
+    prob = ODEProblem(compiled_sys, u0, tspan)
+    sol = solve(prob, abstol = 1e-12, reltol = 1e-12)
 
     @test sol.retcode == ReturnCode.Success
 
-    NOx_init=sol[compiled_sys.NO][1]+sol[compiled_sys.NO2][1]
-    NOx_final=sol[compiled_sys.NO][end]+sol[compiled_sys.NO2][end]
+    NOx_init = sol[compiled_sys.NO][1] + sol[compiled_sys.NO2][1]
+    NOx_final = sol[compiled_sys.NO][end] + sol[compiled_sys.NO2][end]
 
     @test isapprox(NOx_init, NOx_final, rtol = 1e-4)
 end
 
 # =============================================================================
-# Heterogeneous N2O5 Rate Coefficient (Eq. 5.31)
+# Heterogeneous N2O5 Rate Coefficient (Eq. 5.31) — now fully SI
 # =============================================================================
 
 @testitem "N2O5 Heterogeneous Rate (Eq. 5.31)" setup=[StratSetup] tags=[:stratospheric] begin
     # Reference: Eq. 5.31, Page 180
     # k = (gamma/4) * mean_speed * Ap
-    # At T=220K, gamma=0.06, Ap=1e-8 cm^2/cm^3
-    # Expected: k ≈ 3.1e-6 s^-1 (Page 184)
+    # At T=220K, gamma=0.06, Ap=1e-8 cm^2/cm^3 = 1e-8 * 1e-4 m^2 / 1e-6 m^3 = 1e-6 m^-1
+    # (Ap in CGS: cm^2/cm^3 = 1e-4 m^2 / 1e-6 m^3 = 100 m^-1 per unit of cm^2/cm^3)
+    # So Ap = 1e-8 cm^2/cm^3 = 1e-8 * 100 m^-1 = 1e-6 m^-1
 
-    gamma=0.06
-    T=220.0
-    Ap=1e-8  # cm^2/cm^3
+    gamma = 0.06
+    T = 220.0
+    Ap_si = 1e-6  # m^-1 (converted from 1e-8 cm^2/cm^3)
 
-    k=GasChem.k_N2O5_H2O_het(gamma, T, Ap)
+    k = GasChem.k_N2O5_H2O_het(gamma, T, Ap_si)
 
     @test k > 0
+    # Expected: ~3.1e-6 s^-1 (from page 184)
     @test isapprox(k, 3.1e-6, rtol = 0.1)
 end
