@@ -307,7 +307,8 @@ DataFrame(
 ```@example radiation
 all_vars = vcat([ModelingToolkit.get_unknowns(s) for s in subsystems]...)
 DataFrame(
-    :Subsystem => vcat([[string(nameof(s)) for _ in ModelingToolkit.get_unknowns(s)] for s in subsystems]...),
+    :Subsystem => vcat([[string(nameof(s)) for _ in ModelingToolkit.get_unknowns(s)]
+                        for s in subsystems]...),
     :Name => [string(Symbolics.tosymbol(v, escape = false)) for v in all_vars],
     :Units => [dimension(ModelingToolkit.get_unit(v)) for v in all_vars],
     :Description => [ModelingToolkit.getdescription(v) for v in all_vars]

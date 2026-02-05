@@ -424,27 +424,27 @@ end
     # Verify that BlackbodyRadiation peaks at the wavelength predicted by WienDisplacement
     @named bb = BlackbodyRadiation()
     @named wien = WienDisplacement()
-    sys_bb = mtkcompile(bb)
-    sys_wien = mtkcompile(wien)
+    sys_bb=mtkcompile(bb)
+    sys_wien=mtkcompile(wien)
 
     for T in [300.0, 1000.0, 5800.0]
         # Get Wien peak wavelength
-        prob_wien = NonlinearProblem(sys_wien, Dict(); build_initializeprob = false)
-        prob_wien = remake(prob_wien, p = [sys_wien.T => T])
-        sol_wien = solve(prob_wien)
-        λ_peak = sol_wien[wien.λ_max]
+        prob_wien=NonlinearProblem(sys_wien, Dict(); build_initializeprob = false)
+        prob_wien=remake(prob_wien, p = [sys_wien.T=>T])
+        sol_wien=solve(prob_wien)
+        λ_peak=sol_wien[wien.λ_max]
 
         # Compute Planck function at peak and at wavelengths slightly below and above
-        prob_bb = NonlinearProblem(sys_bb, Dict(); build_initializeprob = false)
+        prob_bb=NonlinearProblem(sys_bb, Dict(); build_initializeprob = false)
 
-        prob_at_peak = remake(prob_bb, p = [sys_bb.T => T, sys_bb.λ => λ_peak])
-        F_peak = solve(prob_at_peak)[bb.F_B_λ]
+        prob_at_peak=remake(prob_bb, p = [sys_bb.T=>T, sys_bb.λ=>λ_peak])
+        F_peak=solve(prob_at_peak)[bb.F_B_λ]
 
-        prob_below = remake(prob_bb, p = [sys_bb.T => T, sys_bb.λ => 0.9 * λ_peak])
-        F_below = solve(prob_below)[bb.F_B_λ]
+        prob_below=remake(prob_bb, p = [sys_bb.T=>T, sys_bb.λ=>0.9*λ_peak])
+        F_below=solve(prob_below)[bb.F_B_λ]
 
-        prob_above = remake(prob_bb, p = [sys_bb.T => T, sys_bb.λ => 1.1 * λ_peak])
-        F_above = solve(prob_above)[bb.F_B_λ]
+        prob_above=remake(prob_bb, p = [sys_bb.T=>T, sys_bb.λ=>1.1*λ_peak])
+        F_above=solve(prob_above)[bb.F_B_λ]
 
         # The value at the Wien peak should be greater than at nearby wavelengths
         @test F_peak > F_below
@@ -456,15 +456,15 @@ end
     # Eq. 4.10: λ₀ = 1/(4σT_e³) = T_e/(4F_L)
     # Verify the equivalence of both forms using the ClimateSensitivity component
     @named cs = ClimateSensitivity()
-    sys = mtkcompile(cs)
+    sys=mtkcompile(cs)
 
     for T_e in [200.0, 255.0, 300.0]
-        prob = NonlinearProblem(sys, Dict(); build_initializeprob = false)
-        prob = remake(prob, p = [sys.T_e => T_e])
-        sol = solve(prob)
+        prob=NonlinearProblem(sys, Dict(); build_initializeprob = false)
+        prob=remake(prob, p = [sys.T_e=>T_e])
+        sol=solve(prob)
 
-        λ_0 = sol[cs.λ_0]
-        F_L = sol[cs.F_L]
+        λ_0=sol[cs.λ_0]
+        F_L=sol[cs.F_L]
         # Check that λ₀ = T_e / (4 * F_L)
         @test isapprox(λ_0, T_e / (4 * F_L), rtol = 1e-10)
     end
@@ -477,7 +477,7 @@ end
     # Pre-compiled system has 14 equations across 7 subsystems
     @test length(equations(radiation)) == 14
 
-    sys = mtkcompile(radiation)
+    sys=mtkcompile(radiation)
     @test sys !== nothing
 
     # After compilation, most algebraic subsystems reduce to observables.
@@ -485,9 +485,9 @@ end
     @test length(unknowns(sys)) >= 1
 
     # Solve and verify key results from subsystems
-    prob = NonlinearProblem(sys, Dict(radiation.energy_balance.T_e => 250.0);
+    prob=NonlinearProblem(sys, Dict(radiation.energy_balance.T_e=>250.0);
         build_initializeprob = false)
-    sol = solve(prob)
+    sol=solve(prob)
 
     # Verify energy balance T_e ~ 255 K (Eq. 4.7, S&P p. 101)
     @test isapprox(sol[radiation.energy_balance.T_e], 255.0, rtol = 1e-2)
