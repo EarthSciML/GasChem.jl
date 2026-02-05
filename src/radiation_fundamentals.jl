@@ -100,9 +100,9 @@ end
 
 Implements Wien's displacement law (Eq. 4.3) from Seinfeld & Pandis.
 
-    λ_max = 2.897 × 10⁶ / T  (with λ_max in nm, T in K)
+    λ_max = 2.897 × 10⁻³ / T  (SI: λ_max in m, T in K)
 
-Or equivalently: λ_max = 2.897 × 10⁻³ / T (with λ_max in m, T in K)
+Note: S&P express this as λ_max = 2.897 × 10⁶ / T when λ_max is in nm.
 
 This gives the wavelength at which the blackbody emission spectrum peaks.
 

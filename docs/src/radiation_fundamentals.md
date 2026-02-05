@@ -14,7 +14,7 @@ The equations describe:
   - **Climate sensitivity** (Eqs. 4.8-4.10): Temperature response to radiative forcing
   - **Top-of-atmosphere radiative forcing** (Eq. 4.11): Net energy flux at TOA
 
-**Reference**: Seinfeld, J.H. and Pandis, S.N. (2006). *Atmospheric Chemistry and Physics: From Air Pollution to Climate Change*, 2nd Edition. John Wiley & Sons, Inc., Hoboken, New Jersey. Chapter 4, pp. 98-105.
+**Reference**: Seinfeld, J.H. and Pandis, S.N. (2006). *Atmospheric Chemistry and Physics: From Air Pollution to Climate Change*, 2nd Edition. John Wiley & Sons, Inc., Hoboken, New Jersey. Chapter 4, pp. 98-106.
 
 ```@docs
 PhotonEnergy
@@ -76,27 +76,33 @@ using GasChem: PhotonEnergy, BlackbodyRadiation, WienDisplacement, StefanBoltzma
 using GasChem: PlanetaryEnergyBalance, ClimateSensitivity, TOARadiativeForcing,
                RadiationFundamentals
 
-@named photon = PhotonEnergy()
-sys = mtkcompile(photon)
+# Helper to display variable/parameter tables from pre-compiled systems
+function vars_table(sys)
+    vars = ModelingToolkit.get_unknowns(sys)
+    DataFrame(
+        :Name => [string(Symbolics.tosymbol(v, escape = false)) for v in vars],
+        :Units => [dimension(ModelingToolkit.get_unit(v)) for v in vars],
+        :Description => [ModelingToolkit.getdescription(v) for v in vars]
+    )
+end
+function params_table(sys)
+    ps = ModelingToolkit.get_ps(sys)
+    DataFrame(
+        :Name => [string(Symbolics.tosymbol(p, escape = false)) for p in ps],
+        :Default => [ModelingToolkit.getdefault(p) for p in ps],
+        :Units => [dimension(ModelingToolkit.get_unit(p)) for p in ps],
+        :Description => [ModelingToolkit.getdescription(p) for p in ps]
+    )
+end
 
-vars = unknowns(sys)
-DataFrame(
-    :Name => [string(Symbolics.tosymbol(v, escape = false)) for v in vars],
-    :Units => [dimension(ModelingToolkit.get_unit(v)) for v in vars],
-    :Description => [ModelingToolkit.getdescription(v) for v in vars]
-)
+@named photon = PhotonEnergy()
+vars_table(photon)
 ```
 
 **Parameters:**
 
 ```@example radiation
-params = parameters(sys)
-DataFrame(
-    :Name => [string(Symbolics.tosymbol(p, escape = false)) for p in params],
-    :Default => [ModelingToolkit.getdefault(p) for p in params],
-    :Units => [dimension(ModelingToolkit.get_unit(p)) for p in params],
-    :Description => [ModelingToolkit.getdescription(p) for p in params]
-)
+params_table(photon)
 ```
 
 **Equations:**
@@ -117,26 +123,13 @@ This equation gives the monochromatic emissive power of a blackbody at temperatu
 
 ```@example radiation
 @named blackbody = BlackbodyRadiation()
-sys_bb = mtkcompile(blackbody)
-
-vars_bb = unknowns(sys_bb)
-DataFrame(
-    :Name => [string(Symbolics.tosymbol(v, escape = false)) for v in vars_bb],
-    :Units => [dimension(ModelingToolkit.get_unit(v)) for v in vars_bb],
-    :Description => [ModelingToolkit.getdescription(v) for v in vars_bb]
-)
+vars_table(blackbody)
 ```
 
 **Parameters:**
 
 ```@example radiation
-params_bb = parameters(sys_bb)
-DataFrame(
-    :Name => [string(Symbolics.tosymbol(p, escape = false)) for p in params_bb],
-    :Default => [ModelingToolkit.getdefault(p) for p in params_bb],
-    :Units => [dimension(ModelingToolkit.get_unit(p)) for p in params_bb],
-    :Description => [ModelingToolkit.getdescription(p) for p in params_bb]
-)
+params_table(blackbody)
 ```
 
 **Equations:**
@@ -157,26 +150,13 @@ This gives the wavelength at which the blackbody emission spectrum peaks for a g
 
 ```@example radiation
 @named wien = WienDisplacement()
-sys_wien = mtkcompile(wien)
-
-vars_wien = unknowns(sys_wien)
-DataFrame(
-    :Name => [string(Symbolics.tosymbol(v, escape = false)) for v in vars_wien],
-    :Units => [dimension(ModelingToolkit.get_unit(v)) for v in vars_wien],
-    :Description => [ModelingToolkit.getdescription(v) for v in vars_wien]
-)
+vars_table(wien)
 ```
 
 **Parameters:**
 
 ```@example radiation
-params_wien = parameters(sys_wien)
-DataFrame(
-    :Name => [string(Symbolics.tosymbol(p, escape = false)) for p in params_wien],
-    :Default => [ModelingToolkit.getdefault(p) for p in params_wien],
-    :Units => [dimension(ModelingToolkit.get_unit(p)) for p in params_wien],
-    :Description => [ModelingToolkit.getdescription(p) for p in params_wien]
-)
+params_table(wien)
 ```
 
 **Equations:**
@@ -197,26 +177,13 @@ The total emissive power of a blackbody integrated over all wavelengths.
 
 ```@example radiation
 @named sb = StefanBoltzmann()
-sys_sb = mtkcompile(sb)
-
-vars_sb = unknowns(sys_sb)
-DataFrame(
-    :Name => [string(Symbolics.tosymbol(v, escape = false)) for v in vars_sb],
-    :Units => [dimension(ModelingToolkit.get_unit(v)) for v in vars_sb],
-    :Description => [ModelingToolkit.getdescription(v) for v in vars_sb]
-)
+vars_table(sb)
 ```
 
 **Parameters:**
 
 ```@example radiation
-params_sb = parameters(sys_sb)
-DataFrame(
-    :Name => [string(Symbolics.tosymbol(p, escape = false)) for p in params_sb],
-    :Default => [ModelingToolkit.getdefault(p) for p in params_sb],
-    :Units => [dimension(ModelingToolkit.get_unit(p)) for p in params_sb],
-    :Description => [ModelingToolkit.getdescription(p) for p in params_sb]
-)
+params_table(sb)
 ```
 
 **Equations:**
@@ -245,26 +212,13 @@ At equilibrium, the absorbed solar flux equals the emitted longwave flux: F_S = 
 
 ```@example radiation
 @named balance = PlanetaryEnergyBalance()
-sys_balance = mtkcompile(balance)
-
-vars_balance = unknowns(sys_balance)
-DataFrame(
-    :Name => [string(Symbolics.tosymbol(v, escape = false)) for v in vars_balance],
-    :Units => [dimension(ModelingToolkit.get_unit(v)) for v in vars_balance],
-    :Description => [ModelingToolkit.getdescription(v) for v in vars_balance]
-)
+vars_table(balance)
 ```
 
 **Parameters:**
 
 ```@example radiation
-params_balance = parameters(sys_balance)
-DataFrame(
-    :Name => [string(Symbolics.tosymbol(p, escape = false)) for p in params_balance],
-    :Default => [ModelingToolkit.getdefault(p) for p in params_balance],
-    :Units => [dimension(ModelingToolkit.get_unit(p)) for p in params_balance],
-    :Description => [ModelingToolkit.getdescription(p) for p in params_balance]
-)
+params_table(balance)
 ```
 
 **Equations:**
@@ -291,26 +245,13 @@ Implements the climate sensitivity equations (Eqs. 4.8-4.10):
 
 ```@example radiation
 @named sensitivity = ClimateSensitivity()
-sys_sensitivity = mtkcompile(sensitivity)
-
-vars_sensitivity = unknowns(sys_sensitivity)
-DataFrame(
-    :Name => [string(Symbolics.tosymbol(v, escape = false)) for v in vars_sensitivity],
-    :Units => [dimension(ModelingToolkit.get_unit(v)) for v in vars_sensitivity],
-    :Description => [ModelingToolkit.getdescription(v) for v in vars_sensitivity]
-)
+vars_table(sensitivity)
 ```
 
 **Parameters:**
 
 ```@example radiation
-params_sensitivity = parameters(sys_sensitivity)
-DataFrame(
-    :Name => [string(Symbolics.tosymbol(p, escape = false)) for p in params_sensitivity],
-    :Default => [ModelingToolkit.getdefault(p) for p in params_sensitivity],
-    :Units => [dimension(ModelingToolkit.get_unit(p)) for p in params_sensitivity],
-    :Description => [ModelingToolkit.getdescription(p) for p in params_sensitivity]
-)
+params_table(sensitivity)
 ```
 
 **Equations:**
@@ -331,26 +272,13 @@ Note: Seinfeld & Pandis write Eq. 4.11 as ``-F_{net} = S_0/4(1-R_p) - F_L``, usi
 
 ```@example radiation
 @named toa = TOARadiativeForcing()
-sys_toa = mtkcompile(toa)
-
-vars_toa = unknowns(sys_toa)
-DataFrame(
-    :Name => [string(Symbolics.tosymbol(v, escape = false)) for v in vars_toa],
-    :Units => [dimension(ModelingToolkit.get_unit(v)) for v in vars_toa],
-    :Description => [ModelingToolkit.getdescription(v) for v in vars_toa]
-)
+vars_table(toa)
 ```
 
 **Parameters:**
 
 ```@example radiation
-params_toa = parameters(sys_toa)
-DataFrame(
-    :Name => [string(Symbolics.tosymbol(p, escape = false)) for p in params_toa],
-    :Default => [ModelingToolkit.getdefault(p) for p in params_toa],
-    :Units => [dimension(ModelingToolkit.get_unit(p)) for p in params_toa],
-    :Description => [ModelingToolkit.getdescription(p) for p in params_toa]
-)
+params_table(toa)
 ```
 
 **Equations:**
@@ -374,28 +302,15 @@ DataFrame(
 )
 ```
 
-**State Variables:**
+**State Variables (all subsystems):**
 
 ```@example radiation
-sys_radiation = mtkcompile(radiation)
-
-vars_radiation = unknowns(sys_radiation)
+all_vars = vcat([ModelingToolkit.get_unknowns(s) for s in subsystems]...)
 DataFrame(
-    :Name => [string(Symbolics.tosymbol(v, escape = false)) for v in vars_radiation],
-    :Units => [dimension(ModelingToolkit.get_unit(v)) for v in vars_radiation],
-    :Description => [ModelingToolkit.getdescription(v) for v in vars_radiation]
-)
-```
-
-**Parameters:**
-
-```@example radiation
-params_radiation = parameters(sys_radiation)
-DataFrame(
-    :Name => [string(Symbolics.tosymbol(p, escape = false)) for p in params_radiation],
-    :Default => [ModelingToolkit.getdefault(p) for p in params_radiation],
-    :Units => [dimension(ModelingToolkit.get_unit(p)) for p in params_radiation],
-    :Description => [ModelingToolkit.getdescription(p) for p in params_radiation]
+    :Subsystem => vcat([[string(nameof(s)) for _ in ModelingToolkit.get_unknowns(s)] for s in subsystems]...),
+    :Name => [string(Symbolics.tosymbol(v, escape = false)) for v in all_vars],
+    :Units => [dimension(ModelingToolkit.get_unit(v)) for v in all_vars],
+    :Description => [ModelingToolkit.getdescription(v) for v in all_vars]
 )
 ```
 
