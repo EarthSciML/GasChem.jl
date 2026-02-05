@@ -49,6 +49,51 @@ end
     @test sys !== nothing
 end
 
+@testitem "Structural: BlackbodyRadiation system" setup=[RadiationSetup] tags=[:radiation] begin
+    @named bb = BlackbodyRadiation()
+
+    @test length(equations(bb)) == 1
+    @test length(ModelingToolkit.get_unknowns(bb)) == 1
+    sys=mtkcompile(bb)
+    @test sys !== nothing
+end
+
+@testitem "Structural: WienDisplacement system" setup=[RadiationSetup] tags=[:radiation] begin
+    @named wien = WienDisplacement()
+
+    @test length(equations(wien)) == 1
+    @test length(ModelingToolkit.get_unknowns(wien)) == 1
+    sys=mtkcompile(wien)
+    @test sys !== nothing
+end
+
+@testitem "Structural: StefanBoltzmann system" setup=[RadiationSetup] tags=[:radiation] begin
+    @named sb = StefanBoltzmann()
+
+    @test length(equations(sb)) == 1
+    @test length(ModelingToolkit.get_unknowns(sb)) == 1
+    sys=mtkcompile(sb)
+    @test sys !== nothing
+end
+
+@testitem "Structural: ClimateSensitivity system" setup=[RadiationSetup] tags=[:radiation] begin
+    @named cs = ClimateSensitivity()
+
+    @test length(equations(cs)) == 4
+    @test length(ModelingToolkit.get_unknowns(cs)) == 4
+    sys=mtkcompile(cs)
+    @test sys !== nothing
+end
+
+@testitem "Structural: TOARadiativeForcing system" setup=[RadiationSetup] tags=[:radiation] begin
+    @named toa = TOARadiativeForcing()
+
+    @test length(equations(toa)) == 2
+    @test length(ModelingToolkit.get_unknowns(toa)) == 2
+    sys=mtkcompile(toa)
+    @test sys !== nothing
+end
+
 # ============================================================
 # Equation Verification Tests
 # ============================================================

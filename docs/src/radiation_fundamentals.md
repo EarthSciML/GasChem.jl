@@ -374,6 +374,37 @@ DataFrame(
 )
 ```
 
+**State Variables:**
+
+```@example radiation
+sys_radiation = mtkcompile(radiation)
+
+vars_radiation = unknowns(sys_radiation)
+DataFrame(
+    :Name => [string(Symbolics.tosymbol(v, escape = false)) for v in vars_radiation],
+    :Units => [dimension(ModelingToolkit.get_unit(v)) for v in vars_radiation],
+    :Description => [ModelingToolkit.getdescription(v) for v in vars_radiation]
+)
+```
+
+**Parameters:**
+
+```@example radiation
+params_radiation = parameters(sys_radiation)
+DataFrame(
+    :Name => [string(Symbolics.tosymbol(p, escape = false)) for p in params_radiation],
+    :Default => [ModelingToolkit.getdefault(p) for p in params_radiation],
+    :Units => [dimension(ModelingToolkit.get_unit(p)) for p in params_radiation],
+    :Description => [ModelingToolkit.getdescription(p) for p in params_radiation]
+)
+```
+
+**Equations:**
+
+```@example radiation
+equations(radiation)
+```
+
 * * *
 
 ## Analysis
