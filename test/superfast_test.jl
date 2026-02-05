@@ -42,7 +42,7 @@ end
 end
 
 @testitem "NO2 sensitivity" begin
-        using OrdinaryDiffEqRosenbrock, ModelingToolkit
+    using OrdinaryDiffEqRosenbrock, ModelingToolkit
     tspan = (0.0, 360.0)
     u_no2 = 28.430159226086346
 

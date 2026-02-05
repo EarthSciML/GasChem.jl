@@ -37,4 +37,9 @@ TroposphericChemistrySystem
 get_typical_conditions
 get_urban_conditions
 get_remote_conditions
+GasChem.AtmosphericLifetime
+```
+
+```@autodocs
+Modules = [GasChem]
 ```

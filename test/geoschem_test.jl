@@ -10,8 +10,8 @@ end
 
 # Unit Test 0: Base case
 @testitem "Base case" setup=[GEOSChemGasPhaseSetup] begin
-    u_0 = [19.995176711847932, 0.002380578760821661, 0.0, 9.428652108253236e-251, 
-    5.879149823894928e-6, 0.0, 1.840000000235526e7]
+    u_0 = [19.995176711847932, 0.002380578760821661, 0.0, 9.428652108253236e-251,
+        5.879149823894928e-6, 0.0, 1.840000000235526e7]
 
     vals = ModelingToolkit.get_defaults(sys)
     for k in setdiff(unknowns(sys), keys(vals))
@@ -59,7 +59,7 @@ end
 
 # Unit Test 3: NO2 sensitivity to O3
 @testitem "NO2 sensitivity to O3" setup=[GEOSChemGasPhaseSetup] begin
-    u_3 =  1.1784680253867919e-7
+    u_3 = 1.1784680253867919e-7
 
     vals = ModelingToolkit.get_defaults(sys)
     @unpack O3, NO2 = sys
