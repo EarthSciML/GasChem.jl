@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Atmospheric Lifetime · GasChem.jl</title><meta name="title" content="Atmospheric Lifetime · GasChem.jl"/><meta property="og:title" content="Atmospheric Lifetime · GasChem.jl"/><meta property="twitter:title" content="Atmospheric Lifetime · GasChem.jl"/><meta name="description" content="Documentation for GasChem.jl."/><meta property="og:description" content="Documentation for GasChem.jl."/><meta property="twitter:description" content="Documentation for GasChem.jl."/><meta property="og:url" content="https://gaschem.earthsci.dev/AtmosphericLifetime/"/><meta property="twitter:url" content="https://gaschem.earthsci.dev/AtmosphericLifetime/"/><link rel="canonical" href="https://gaschem.earthsci.dev/AtmosphericLifetime/"/><script data-outdated-warner src="../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../assets/documenter.js"></script><script src="../search_index.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../">GasChem.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../">Home</a></li><li class="is-active"><a class="tocitem" href>Atmospheric Lifetime</a><ul class="internal"><li><a class="tocitem" href="#Overview"><span>Overview</span></a></li><li><a class="tocitem" href="#Implementation"><span>Implementation</span></a></li><li><a class="tocitem" href="#Analysis"><span>Analysis</span></a></li><li><a class="tocitem" href="#Summary"><span>Summary</span></a></li><li><a class="tocitem" href="#API-Reference"><span>API Reference</span></a></li></ul></li><li><a class="tocitem" href="../superfast/">SuperFast</a></li><li><span class="tocitem">GEOS-Chem</span><ul><li><a class="tocitem" href="../geoschem/overview/">Overview</a></li><li><a class="tocitem" href="../geoschem/states/">State Variables</a></li><li><a class="tocitem" href="../geoschem/params/">Parameters</a></li></ul></li><li><a class="tocitem" href="../composing_models/">Composing models</a></li><li><a class="tocitem" href="../api/">API</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href>Atmospheric Lifetime</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Atmospheric Lifetime</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/EarthSciML/GasChem.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/EarthSciML/GasChem.jl/blob/main/docs/src/AtmosphericLifetime.md#" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Atmospheric-Lifetime"><a class="docs-heading-anchor" href="#Atmospheric-Lifetime">Atmospheric Lifetime</a><a id="Atmospheric-Lifetime-1"></a><a class="docs-heading-anchor-permalink" href="#Atmospheric-Lifetime" title="Permalink"></a></h1><h2 id="Overview"><a class="docs-heading-anchor" href="#Overview">Overview</a><a id="Overview-1"></a><a class="docs-heading-anchor-permalink" href="#Overview" title="Permalink"></a></h2><p>The AtmosphericLifetime module provides a ModelingToolkit.jl implementation of atmospheric constituent lifetime equations from Chapter 2 of Seinfeld and Pandis (2006). These equations form the foundation for understanding the fate of trace species in the atmosphere.</p><p>Atmospheric lifetime is a fundamental concept in atmospheric chemistry that characterizes how long a species remains in a given atmospheric reservoir before being removed by chemical reactions, deposition, or transport. Understanding lifetimes is essential for:</p><ul><li>Predicting the accumulation of pollutants and greenhouse gases</li><li>Assessing the response time of the atmosphere to emission changes</li><li>Understanding the spatial scale of pollution (local vs. global)</li><li>Evaluating the effectiveness of emission control strategies</li></ul><p>The module implements several key concepts:</p><table><tr><th style="text-align: left">Component</th><th style="text-align: left">Equations</th><th style="text-align: left">Description</th></tr><tr><td style="text-align: left"><a href="#GasChem.AtmosphericLifetime.AtmosphericBudget"><code>AtmosphericBudget</code></a></td><td style="text-align: left">Eq. 2.1-2.2</td><td style="text-align: left">Mass conservation and steady-state conditions</td></tr><tr><td style="text-align: left"><a href="#GasChem.AtmosphericLifetime.SpeciesLifetime"><code>SpeciesLifetime</code></a></td><td style="text-align: left">Eq. 2.3-2.6</td><td style="text-align: left">Lifetime calculations for various scenarios</td></tr><tr><td style="text-align: left"><a href="#GasChem.AtmosphericLifetime.MultipleRemovalLifetime"><code>MultipleRemovalLifetime</code></a></td><td style="text-align: left">Eq. 2.7-2.9</td><td style="text-align: left">Combined lifetime from parallel removal pathways</td></tr><tr><td style="text-align: left"><a href="#GasChem.AtmosphericLifetime.OHReactionLifetime"><code>OHReactionLifetime</code></a></td><td style="text-align: left">Eq. 2.12</td><td style="text-align: left">Lifetime due to OH radical reaction</td></tr><tr><td style="text-align: left"><a href="#GasChem.AtmosphericLifetime.TroposphericBudget"><code>TroposphericBudget</code></a></td><td style="text-align: left">Eq. 2.13-2.17</td><td style="text-align: left">Complete tropospheric budget with multiple sources and sinks</td></tr></table><h3 id="Reference"><a class="docs-heading-anchor" href="#Reference">Reference</a><a id="Reference-1"></a><a class="docs-heading-anchor-permalink" href="#Reference" title="Permalink"></a></h3><blockquote><p>Seinfeld, J. H. and Pandis, S. N.: <em>Atmospheric Chemistry and Physics: From Air Pollution to Climate Change</em>, 2nd Edition, Chapter 2: Atmospheric Trace Constituents, John Wiley &amp; Sons, Inc., Hoboken, New Jersey, 2006, ISBN: 978-0-471-72017-1.</p></blockquote><ul><li><ul><li><ul><li></li></ul></li></ul></li></ul><h2 id="Implementation"><a class="docs-heading-anchor" href="#Implementation">Implementation</a><a id="Implementation-1"></a><a class="docs-heading-anchor-permalink" href="#Implementation" title="Permalink"></a></h2><p>This section provides detailed documentation of each equation system implemented in the AtmosphericLifetime module.</p><h3 id="AtmosphericBudget-(Eq.-2.1-2.2)"><a class="docs-heading-anchor" href="#AtmosphericBudget-(Eq.-2.1-2.2)">AtmosphericBudget (Eq. 2.1-2.2)</a><a id="AtmosphericBudget-(Eq.-2.1-2.2)-1"></a><a class="docs-heading-anchor-permalink" href="#AtmosphericBudget-(Eq.-2.1-2.2)" title="Permalink"></a></h3><p>The fundamental mass conservation equation for an atmospheric species states that the rate of change of mass in a reservoir equals the sum of transport and chemistry contributions.</p><p><strong>Equation 2.1</strong> (Mass Conservation):</p><p class="math-container">\[\frac{dQ}{dt} = (F_{in} - F_{out}) + (P - R)\]</p><p>where:</p><ul><li><span>$Q$</span>: Total mass (or moles) of the species in the reservoir</li><li><span>$F_{in}$</span>: Rate of mass inflow from outside the reservoir</li><li><span>$F_{out}$</span>: Rate of mass outflow from the reservoir</li><li><span>$P$</span>: Rate of chemical production within the reservoir</li><li><span>$R$</span>: Rate of chemical removal within the reservoir</li></ul><p><strong>Equation 2.2</strong> (Steady State):</p><p>At steady state, <span>$dQ/dt = 0$</span>, implying:</p><p class="math-container">\[F_{in} + P = F_{out} + R\]</p><h4 id="State-Variables"><a class="docs-heading-anchor" href="#State-Variables">State Variables</a><a id="State-Variables-1"></a><a class="docs-heading-anchor-permalink" href="#State-Variables" title="Permalink"></a></h4><pre><code class="language-julia hljs">using DataFrames, ModelingToolkit, Symbolics, DynamicQuantities
+using GasChem.AtmosphericLifetime: AtmosphericBudget
+
+@named sys = AtmosphericBudget()
+vars = unknowns(sys)
+DataFrame(
+    :Name =&gt; [string(Symbolics.tosymbol(v, escape = false)) for v in vars],
+    :Units =&gt; [string(ModelingToolkit.get_unit(v)) for v in vars],
+    :Description =&gt; [ModelingToolkit.getdescription(v) for v in vars]
+)</code></pre><div><div style = "float: left;"><span>7×3 DataFrame</span></div><div style = "clear: both;"></div></div><div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "columnLabelRow"><th class = "stubheadLabel" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">Name</th><th style = "text-align: left;">Units</th><th style = "text-align: left;">Description</th></tr><tr class = "columnLabelRow"><th class = "stubheadLabel" style = "font-weight: bold; text-align: right;"></th><th title = "String" style = "text-align: left;">String</th><th title = "String" style = "text-align: left;">String</th><th title = "String" style = "text-align: left;">String</th></tr></thead><tbody><tr class = "dataRow"><td class = "rowLabel" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: left;">Q</td><td style = "text-align: left;">1.0 mol</td><td style = "text-align: left;">Total mass of species in reservoir</td></tr><tr class = "dataRow"><td class = "rowLabel" style = "font-weight: bold; text-align: right;">2</td><td style = "text-align: left;">R</td><td style = "text-align: left;">1.0 s⁻¹ mol</td><td style = "text-align: left;">Rate of chemical removal in reservoir</td></tr><tr class = "dataRow"><td class = "rowLabel" style = "font-weight: bold; text-align: right;">3</td><td style = "text-align: left;">P</td><td style = "text-align: left;">1.0 s⁻¹ mol</td><td style = "text-align: left;">Rate of chemical production in reservoir</td></tr><tr class = "dataRow"><td class = "rowLabel" style = "font-weight: bold; text-align: right;">4</td><td style = "text-align: left;">F_out</td><td style = "text-align: left;">1.0 s⁻¹ mol</td><td style = "text-align: left;">Rate of mass outflow from reservoir</td></tr><tr class = "dataRow"><td class = "rowLabel" style = "font-weight: bold; text-align: right;">5</td><td style = "text-align: left;">F_in</td><td style = "text-align: left;">1.0 s⁻¹ mol</td><td style = "text-align: left;">Rate of mass inflow from outside reservoir</td></tr><tr class = "dataRow"><td class = "rowLabel" style = "font-weight: bold; text-align: right;">6</td><td style = "text-align: left;">net_transport</td><td style = "text-align: left;">1.0 s⁻¹ mol</td><td style = "text-align: left;">Net transport contribution (F_in - F_out)</td></tr><tr class = "dataRow"><td class = "rowLabel" style = "font-weight: bold; text-align: right;">7</td><td style = "text-align: left;">net_chemistry</td><td style = "text-align: left;">1.0 s⁻¹ mol</td><td style = "text-align: left;">Net chemistry contribution (P - R)</td></tr></tbody></table></div><h4 id="Equations"><a class="docs-heading-anchor" href="#Equations">Equations</a><a id="Equations-1"></a><a class="docs-heading-anchor-permalink" href="#Equations" title="Permalink"></a></h4><pre><code class="language-julia hljs">equations(sys)</code></pre><p class="math-container">\[ \begin{align}
+\frac{\mathrm{d} Q\left( t \right)}{\mathrm{d}t} &amp;=  - R\left( t \right) + \mathtt{F\_in}\left( t \right) - \mathtt{F\_out}\left( t \right) + P\left( t \right) \\
+\mathtt{net\_transport}\left( t \right) &amp;= \mathtt{F\_in}\left( t \right) - \mathtt{F\_out}\left( t \right) \\
+\mathtt{net\_chemistry}\left( t \right) &amp;=  - R\left( t \right) + P\left( t \right)
+\end{align}
+ \]</p><ul><li><ul><li><ul><li></li></ul></li></ul></li></ul><h3 id="SpeciesLifetime-(Eq.-2.3-2.6)"><a class="docs-heading-anchor" href="#SpeciesLifetime-(Eq.-2.3-2.6)">SpeciesLifetime (Eq. 2.3-2.6)</a><a id="SpeciesLifetime-(Eq.-2.3-2.6)-1"></a><a class="docs-heading-anchor-permalink" href="#SpeciesLifetime-(Eq.-2.3-2.6)" title="Permalink"></a></h3><p>The SpeciesLifetime component calculates atmospheric lifetime using various formulations depending on the scenario.</p><p><strong>Equation 2.3</strong> (General Lifetime):</p><p class="math-container">\[\tau = \frac{Q}{R + F_{out}}\]</p><p>This general definition applies to any reservoir with both chemical removal and outflow.</p><p><strong>Equation 2.4</strong> (Global Atmosphere):</p><p>For the global atmosphere as a whole, there is no outflow to other reservoirs (<span>$F_{out} = 0$</span>):</p><p class="math-container">\[\tau = \frac{Q}{R}\]</p><p><strong>Equation 2.5</strong> (Steady State):</p><p>At steady state with no external transport (<span>$F_{in} = F_{out} = 0$</span>), production equals removal:</p><p class="math-container">\[\tau = \frac{Q}{R} = \frac{Q}{P}\]</p><p><strong>Equation 2.6</strong> (First-Order Removal):</p><p>When removal follows first-order kinetics (<span>$R = \lambda Q$</span>):</p><p class="math-container">\[\tau = \frac{1}{\lambda}\]</p><h4 id="State-Variables-2"><a class="docs-heading-anchor" href="#State-Variables-2">State Variables</a><a class="docs-heading-anchor-permalink" href="#State-Variables-2" title="Permalink"></a></h4><pre><code class="language-julia hljs">using DataFrames, ModelingToolkit, Symbolics, DynamicQuantities
+using GasChem.AtmosphericLifetime: SpeciesLifetime
+
+@named sys = SpeciesLifetime()
+vars = unknowns(sys)
+DataFrame(
+    :Name =&gt; [string(Symbolics.tosymbol(v, escape = false)) for v in vars],
+    :Units =&gt; [string(ModelingToolkit.get_unit(v)) for v in vars],
+    :Description =&gt; [ModelingToolkit.getdescription(v) for v in vars]
+)</code></pre><div><div style = "float: left;"><span>8×3 DataFrame</span></div><div style = "clear: both;"></div></div><div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "columnLabelRow"><th class = "stubheadLabel" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">Name</th><th style = "text-align: left;">Units</th><th style = "text-align: left;">Description</th></tr><tr class = "columnLabelRow"><th class = "stubheadLabel" style = "font-weight: bold; text-align: right;"></th><th title = "String" style = "text-align: left;">String</th><th title = "String" style = "text-align: left;">String</th><th title = "String" style = "text-align: left;">String</th></tr></thead><tbody><tr class = "dataRow"><td class = "rowLabel" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: left;">tau_general</td><td style = "text-align: left;">1.0 s</td><td style = "text-align: left;">General atmospheric lifetime (Eq. 2.3)</td></tr><tr class = "dataRow"><td class = "rowLabel" style = "font-weight: bold; text-align: right;">2</td><td style = "text-align: left;">Q</td><td style = "text-align: left;">1.0 mol</td><td style = "text-align: left;">Total mass of species in reservoir</td></tr><tr class = "dataRow"><td class = "rowLabel" style = "font-weight: bold; text-align: right;">3</td><td style = "text-align: left;">R</td><td style = "text-align: left;">1.0 s⁻¹ mol</td><td style = "text-align: left;">Rate of chemical removal</td></tr><tr class = "dataRow"><td class = "rowLabel" style = "font-weight: bold; text-align: right;">4</td><td style = "text-align: left;">F_out</td><td style = "text-align: left;">1.0 s⁻¹ mol</td><td style = "text-align: left;">Rate of mass outflow</td></tr><tr class = "dataRow"><td class = "rowLabel" style = "font-weight: bold; text-align: right;">5</td><td style = "text-align: left;">tau_removal</td><td style = "text-align: left;">1.0 s</td><td style = "text-align: left;">Lifetime from removal rate (Eq. 2.4)</td></tr><tr class = "dataRow"><td class = "rowLabel" style = "font-weight: bold; text-align: right;">6</td><td style = "text-align: left;">tau_production</td><td style = "text-align: left;">1.0 s</td><td style = "text-align: left;">Lifetime from production rate (Eq. 2.5)</td></tr><tr class = "dataRow"><td class = "rowLabel" style = "font-weight: bold; text-align: right;">7</td><td style = "text-align: left;">P</td><td style = "text-align: left;">1.0 s⁻¹ mol</td><td style = "text-align: left;">Rate of chemical production</td></tr><tr class = "dataRow"><td class = "rowLabel" style = "font-weight: bold; text-align: right;">8</td><td style = "text-align: left;">tau_first_order</td><td style = "text-align: left;">1.0 s</td><td style = "text-align: left;">Lifetime from first-order rate constant (Eq. 2.6)</td></tr></tbody></table></div><h4 id="Parameters"><a class="docs-heading-anchor" href="#Parameters">Parameters</a><a id="Parameters-1"></a><a class="docs-heading-anchor-permalink" href="#Parameters" title="Permalink"></a></h4><pre><code class="language-julia hljs">params = parameters(sys)
+DataFrame(
+    :Name =&gt; [string(Symbolics.tosymbol(p, escape = false)) for p in params],
+    :Units =&gt; [string(ModelingToolkit.get_unit(p)) for p in params],
+    :Description =&gt; [ModelingToolkit.getdescription(p) for p in params]
+)</code></pre><div><div style = "float: left;"><span>1×3 DataFrame</span></div><div style = "clear: both;"></div></div><div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "columnLabelRow"><th class = "stubheadLabel" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">Name</th><th style = "text-align: left;">Units</th><th style = "text-align: left;">Description</th></tr><tr class = "columnLabelRow"><th class = "stubheadLabel" style = "font-weight: bold; text-align: right;"></th><th title = "String" style = "text-align: left;">String</th><th title = "String" style = "text-align: left;">String</th><th title = "String" style = "text-align: left;">String</th></tr></thead><tbody><tr class = "dataRow"><td class = "rowLabel" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: left;">lambda</td><td style = "text-align: left;">1.0 s⁻¹</td><td style = "text-align: left;">First-order removal rate constant</td></tr></tbody></table></div><h4 id="Equations-2"><a class="docs-heading-anchor" href="#Equations-2">Equations</a><a class="docs-heading-anchor-permalink" href="#Equations-2" title="Permalink"></a></h4><pre><code class="language-julia hljs">equations(sys)</code></pre><p class="math-container">\[ \begin{align}
+\mathtt{tau\_general}\left( t \right) &amp;= \frac{Q\left( t \right)}{R\left( t \right) + \mathtt{F\_out}\left( t \right)} \\
+\mathtt{tau\_removal}\left( t \right) &amp;= \frac{Q\left( t \right)}{R\left( t \right)} \\
+\mathtt{tau\_production}\left( t \right) &amp;= \frac{Q\left( t \right)}{P\left( t \right)} \\
+\mathtt{tau\_first\_order}\left( t \right) &amp;= \frac{1}{\mathtt{lambda}}
+\end{align}
+ \]</p><ul><li><ul><li><ul><li></li></ul></li></ul></li></ul><h3 id="MultipleRemovalLifetime-(Eq.-2.7-2.9)"><a class="docs-heading-anchor" href="#MultipleRemovalLifetime-(Eq.-2.7-2.9)">MultipleRemovalLifetime (Eq. 2.7-2.9)</a><a id="MultipleRemovalLifetime-(Eq.-2.7-2.9)-1"></a><a class="docs-heading-anchor-permalink" href="#MultipleRemovalLifetime-(Eq.-2.7-2.9)" title="Permalink"></a></h3><p>When multiple independent removal pathways operate in parallel, the combined lifetime is calculated from the individual pathway lifetimes.</p><p><strong>Equation 2.7</strong> (Two First-Order Processes):</p><p class="math-container">\[\tau = \frac{1}{k_1 + k_2}\]</p><p><strong>Equation 2.8</strong> (Inverse Lifetime Sum):</p><p class="math-container">\[\frac{1}{\tau} = \frac{1}{\tau_1} + \frac{1}{\tau_2}\]</p><p>This shows that inverse lifetimes (removal rates) are additive for parallel processes.</p><p><strong>Equation 2.9</strong> (Combined Lifetime Formula):</p><p class="math-container">\[\tau = \frac{\tau_1 \cdot \tau_2}{\tau_1 + \tau_2}\]</p><p>This can be extended to N pathways:</p><p class="math-container">\[\frac{1}{\tau} = \sum_{i=1}^{N} \frac{1}{\tau_i}\]</p><h4 id="State-Variables-3"><a class="docs-heading-anchor" href="#State-Variables-3">State Variables</a><a class="docs-heading-anchor-permalink" href="#State-Variables-3" title="Permalink"></a></h4><pre><code class="language-julia hljs">using DataFrames, ModelingToolkit, Symbolics, DynamicQuantities
+using GasChem.AtmosphericLifetime: MultipleRemovalLifetime
+
+@named sys = MultipleRemovalLifetime()
+vars = unknowns(sys)
+DataFrame(
+    :Name =&gt; [string(Symbolics.tosymbol(v, escape = false)) for v in vars],
+    :Units =&gt; [string(ModelingToolkit.get_unit(v)) for v in vars],
+    :Description =&gt; [ModelingToolkit.getdescription(v) for v in vars]
+)</code></pre><div><div style = "float: left;"><span>4×3 DataFrame</span></div><div style = "clear: both;"></div></div><div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "columnLabelRow"><th class = "stubheadLabel" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">Name</th><th style = "text-align: left;">Units</th><th style = "text-align: left;">Description</th></tr><tr class = "columnLabelRow"><th class = "stubheadLabel" style = "font-weight: bold; text-align: right;"></th><th title = "String" style = "text-align: left;">String</th><th title = "String" style = "text-align: left;">String</th><th title = "String" style = "text-align: left;">String</th></tr></thead><tbody><tr class = "dataRow"><td class = "rowLabel" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: left;">tau_1</td><td style = "text-align: left;">1.0 s</td><td style = "text-align: left;">Lifetime for removal pathway 1</td></tr><tr class = "dataRow"><td class = "rowLabel" style = "font-weight: bold; text-align: right;">2</td><td style = "text-align: left;">tau_2</td><td style = "text-align: left;">1.0 s</td><td style = "text-align: left;">Lifetime for removal pathway 2</td></tr><tr class = "dataRow"><td class = "rowLabel" style = "font-weight: bold; text-align: right;">3</td><td style = "text-align: left;">inverse_tau</td><td style = "text-align: left;">1.0 s⁻¹</td><td style = "text-align: left;">Sum of inverse lifetimes (1/tau_1 + 1/tau_2)</td></tr><tr class = "dataRow"><td class = "rowLabel" style = "font-weight: bold; text-align: right;">4</td><td style = "text-align: left;">tau_combined</td><td style = "text-align: left;">1.0 s</td><td style = "text-align: left;">Combined lifetime from all pathways (Eq. 2.9)</td></tr></tbody></table></div><h4 id="Parameters-2"><a class="docs-heading-anchor" href="#Parameters-2">Parameters</a><a class="docs-heading-anchor-permalink" href="#Parameters-2" title="Permalink"></a></h4><pre><code class="language-julia hljs">params = parameters(sys)
+DataFrame(
+    :Name =&gt; [string(Symbolics.tosymbol(p, escape = false)) for p in params],
+    :Units =&gt; [string(ModelingToolkit.get_unit(p)) for p in params],
+    :Description =&gt; [ModelingToolkit.getdescription(p) for p in params]
+)</code></pre><div><div style = "float: left;"><span>2×3 DataFrame</span></div><div style = "clear: both;"></div></div><div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "columnLabelRow"><th class = "stubheadLabel" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">Name</th><th style = "text-align: left;">Units</th><th style = "text-align: left;">Description</th></tr><tr class = "columnLabelRow"><th class = "stubheadLabel" style = "font-weight: bold; text-align: right;"></th><th title = "String" style = "text-align: left;">String</th><th title = "String" style = "text-align: left;">String</th><th title = "String" style = "text-align: left;">String</th></tr></thead><tbody><tr class = "dataRow"><td class = "rowLabel" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: left;">k_1</td><td style = "text-align: left;">1.0 s⁻¹</td><td style = "text-align: left;">First-order rate constant for removal pathway 1</td></tr><tr class = "dataRow"><td class = "rowLabel" style = "font-weight: bold; text-align: right;">2</td><td style = "text-align: left;">k_2</td><td style = "text-align: left;">1.0 s⁻¹</td><td style = "text-align: left;">First-order rate constant for removal pathway 2</td></tr></tbody></table></div><h4 id="Equations-3"><a class="docs-heading-anchor" href="#Equations-3">Equations</a><a class="docs-heading-anchor-permalink" href="#Equations-3" title="Permalink"></a></h4><pre><code class="language-julia hljs">equations(sys)</code></pre><p class="math-container">\[ \begin{align}
+\mathtt{tau\_1}\left( t \right) &amp;= \frac{1}{\mathtt{k\_1}} \\
+\mathtt{tau\_2}\left( t \right) &amp;= \frac{1}{\mathtt{k\_2}} \\
+\mathtt{inverse\_tau}\left( t \right) &amp;= \mathtt{k\_1} + \mathtt{k\_2} \\
+\mathtt{tau\_combined}\left( t \right) &amp;= \frac{\mathtt{tau\_2}\left( t \right) \mathtt{tau\_1}\left( t \right)}{\mathtt{tau\_2}\left( t \right) + \mathtt{tau\_1}\left( t \right)}
+\end{align}
+ \]</p><ul><li><ul><li><ul><li></li></ul></li></ul></li></ul><h3 id="OHReactionLifetime-(Eq.-2.12)"><a class="docs-heading-anchor" href="#OHReactionLifetime-(Eq.-2.12)">OHReactionLifetime (Eq. 2.12)</a><a id="OHReactionLifetime-(Eq.-2.12)-1"></a><a class="docs-heading-anchor-permalink" href="#OHReactionLifetime-(Eq.-2.12)" title="Permalink"></a></h3><p>The hydroxyl radical (OH) is the primary oxidant in the troposphere for many trace species. The lifetime due to OH reaction is calculated from the second-order rate constant and the ambient OH concentration.</p><p><strong>Equation 2.12</strong>:</p><p class="math-container">\[\tau = \frac{1}{k_{OH} \cdot [OH]}\]</p><p>where:</p><ul><li><span>$k_{OH}$</span>: Second-order rate constant for reaction with OH (cm^3/(molecule s))</li><li><span>$[OH]$</span>: Concentration of OH radicals (molecule/cm^3)</li></ul><p>The product <span>$k_{OH} \cdot [OH]$</span> gives an effective first-order rate constant consistent with Eq. 2.6.</p><p><strong>Typical Values</strong>:</p><ul><li><span>$k_{OH}$</span>: varies widely, e.g., <span>$10^{-14}$</span> to <span>$10^{-10}$</span> cm^3/(molecule s)</li><li><span>$[OH]$</span>: ~<span>$10^6$</span> molecule/cm^3 (global tropospheric average)</li><li><span>$\tau$</span>: seconds to years depending on species</li></ul><h4 id="State-Variables-4"><a class="docs-heading-anchor" href="#State-Variables-4">State Variables</a><a class="docs-heading-anchor-permalink" href="#State-Variables-4" title="Permalink"></a></h4><pre><code class="language-julia hljs">using DataFrames, ModelingToolkit, Symbolics, DynamicQuantities
+using GasChem.AtmosphericLifetime: OHReactionLifetime
+
+@named sys = OHReactionLifetime()
+vars = unknowns(sys)
+DataFrame(
+    :Name =&gt; [string(Symbolics.tosymbol(v, escape = false)) for v in vars],
+    :Units =&gt; [string(ModelingToolkit.get_unit(v)) for v in vars],
+    :Description =&gt; [ModelingToolkit.getdescription(v) for v in vars]
+)</code></pre><div><div style = "float: left;"><span>3×3 DataFrame</span></div><div style = "clear: both;"></div></div><div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "columnLabelRow"><th class = "stubheadLabel" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">Name</th><th style = "text-align: left;">Units</th><th style = "text-align: left;">Description</th></tr><tr class = "columnLabelRow"><th class = "stubheadLabel" style = "font-weight: bold; text-align: right;"></th><th title = "String" style = "text-align: left;">String</th><th title = "String" style = "text-align: left;">String</th><th title = "String" style = "text-align: left;">String</th></tr></thead><tbody><tr class = "dataRow"><td class = "rowLabel" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: left;">k_eff</td><td style = "text-align: left;">1.0 s⁻¹</td><td style = "text-align: left;">Effective first-order rate constant (k_OH * [OH])</td></tr><tr class = "dataRow"><td class = "rowLabel" style = "font-weight: bold; text-align: right;">2</td><td style = "text-align: left;">OH_conc</td><td style = "text-align: left;">999999.9999999999 m⁻³</td><td style = "text-align: left;">OH radical concentration</td></tr><tr class = "dataRow"><td class = "rowLabel" style = "font-weight: bold; text-align: right;">3</td><td style = "text-align: left;">tau_OH</td><td style = "text-align: left;">1.0 s</td><td style = "text-align: left;">Lifetime due to OH reaction (Eq. 2.12)</td></tr></tbody></table></div><h4 id="Parameters-3"><a class="docs-heading-anchor" href="#Parameters-3">Parameters</a><a class="docs-heading-anchor-permalink" href="#Parameters-3" title="Permalink"></a></h4><pre><code class="language-julia hljs">params = parameters(sys)
+DataFrame(
+    :Name =&gt; [string(Symbolics.tosymbol(p, escape = false)) for p in params],
+    :Units =&gt; [string(ModelingToolkit.get_unit(p)) for p in params],
+    :Description =&gt; [ModelingToolkit.getdescription(p) for p in params]
+)</code></pre><div><div style = "float: left;"><span>1×3 DataFrame</span></div><div style = "clear: both;"></div></div><div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "columnLabelRow"><th class = "stubheadLabel" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">Name</th><th style = "text-align: left;">Units</th><th style = "text-align: left;">Description</th></tr><tr class = "columnLabelRow"><th class = "stubheadLabel" style = "font-weight: bold; text-align: right;"></th><th title = "String" style = "text-align: left;">String</th><th title = "String" style = "text-align: left;">String</th><th title = "String" style = "text-align: left;">String</th></tr></thead><tbody><tr class = "dataRow"><td class = "rowLabel" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: left;">k_OH</td><td style = "text-align: left;">1.0000000000000002e-6 m³ s⁻¹</td><td style = "text-align: left;">Second-order rate constant for OH reaction</td></tr></tbody></table></div><h4 id="Equations-4"><a class="docs-heading-anchor" href="#Equations-4">Equations</a><a class="docs-heading-anchor-permalink" href="#Equations-4" title="Permalink"></a></h4><pre><code class="language-julia hljs">equations(sys)</code></pre><p class="math-container">\[ \begin{align}
+\mathtt{k\_eff}\left( t \right) &amp;= \mathtt{k\_OH} \mathtt{OH\_conc}\left( t \right) \\
+\mathtt{tau\_OH}\left( t \right) &amp;= \frac{1}{\mathtt{k\_eff}\left( t \right)}
+\end{align}
+ \]</p><ul><li><ul><li><ul><li></li></ul></li></ul></li></ul><h3 id="TroposphericBudget-(Eq.-2.13-2.17)"><a class="docs-heading-anchor" href="#TroposphericBudget-(Eq.-2.13-2.17)">TroposphericBudget (Eq. 2.13-2.17)</a><a id="TroposphericBudget-(Eq.-2.13-2.17)-1"></a><a class="docs-heading-anchor-permalink" href="#TroposphericBudget-(Eq.-2.13-2.17)" title="Permalink"></a></h3><p>The TroposphericBudget component implements the complete mass balance for a trace species in the troposphere, including multiple source and sink terms.</p><p><strong>Equations 2.13-2.14</strong> (Tropospheric Budget):</p><p class="math-container">\[\frac{dQ_i}{dt} = P_i^n + P_i^a + P_i^c - (k_i^d + k_i^w + k_i^c + k_i^t) Q_i\]</p><p><strong>Source terms</strong> (production rates):</p><ul><li><span>$P_n$</span>: Natural emissions (biogenic, volcanic, oceanic, etc.)</li><li><span>$P_a$</span>: Anthropogenic emissions (combustion, industrial, agricultural, etc.)</li><li><span>$P_c$</span>: Chemical production within the troposphere</li></ul><p><strong>Removal terms</strong> (first-order rate constants):</p><ul><li><span>$k_d$</span>: Dry deposition (uptake by surfaces)</li><li><span>$k_w$</span>: Wet deposition (scavenging by precipitation)</li><li><span>$k_c$</span>: Chemical loss (reaction with OH, O3, NO3, etc.)</li><li><span>$k_t$</span>: Transport to stratosphere (cross-tropopause flux)</li></ul><p><strong>Equation 2.15</strong> (Lifetime from Removal):</p><p class="math-container">\[\tau_i = \frac{1}{k_d + k_w + k_c + k_t}\]</p><p><strong>Equations 2.16-2.17</strong> (Lifetime from Production at Steady State):</p><p class="math-container">\[\tau_i = \frac{Q_i}{P_n + P_a + P_c}\]</p><h4 id="State-Variables-5"><a class="docs-heading-anchor" href="#State-Variables-5">State Variables</a><a class="docs-heading-anchor-permalink" href="#State-Variables-5" title="Permalink"></a></h4><pre><code class="language-julia hljs">using DataFrames, ModelingToolkit, Symbolics, DynamicQuantities
+using GasChem.AtmosphericLifetime: TroposphericBudget
+
+@named sys = TroposphericBudget()
+vars = unknowns(sys)
+DataFrame(
+    :Name =&gt; [string(Symbolics.tosymbol(v, escape = false)) for v in vars],
+    :Units =&gt; [string(ModelingToolkit.get_unit(v)) for v in vars],
+    :Description =&gt; [ModelingToolkit.getdescription(v) for v in vars]
+)</code></pre><div><div style = "float: left;"><span>13×3 DataFrame</span></div><div style = "clear: both;"></div></div><div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "columnLabelRow"><th class = "stubheadLabel" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">Name</th><th style = "text-align: left;">Units</th><th style = "text-align: left;">Description</th></tr><tr class = "columnLabelRow"><th class = "stubheadLabel" style = "font-weight: bold; text-align: right;"></th><th title = "String" style = "text-align: left;">String</th><th title = "String" style = "text-align: left;">String</th><th title = "String" style = "text-align: left;">String</th></tr></thead><tbody><tr class = "dataRow"><td class = "rowLabel" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: left;">Q</td><td style = "text-align: left;">1.0 mol</td><td style = "text-align: left;">Total mass of species in troposphere</td></tr><tr class = "dataRow"><td class = "rowLabel" style = "font-weight: bold; text-align: right;">2</td><td style = "text-align: left;">P_total</td><td style = "text-align: left;">1.0 s⁻¹ mol</td><td style = "text-align: left;">Total production rate</td></tr><tr class = "dataRow"><td class = "rowLabel" style = "font-weight: bold; text-align: right;">3</td><td style = "text-align: left;">P_a</td><td style = "text-align: left;">1.0 s⁻¹ mol</td><td style = "text-align: left;">Anthropogenic emission rate</td></tr><tr class = "dataRow"><td class = "rowLabel" style = "font-weight: bold; text-align: right;">4</td><td style = "text-align: left;">P_n</td><td style = "text-align: left;">1.0 s⁻¹ mol</td><td style = "text-align: left;">Natural emission rate</td></tr><tr class = "dataRow"><td class = "rowLabel" style = "font-weight: bold; text-align: right;">5</td><td style = "text-align: left;">P_c</td><td style = "text-align: left;">1.0 s⁻¹ mol</td><td style = "text-align: left;">Chemical production rate</td></tr><tr class = "dataRow"><td class = "rowLabel" style = "font-weight: bold; text-align: right;">6</td><td style = "text-align: left;">k_total</td><td style = "text-align: left;">1.0 s⁻¹</td><td style = "text-align: left;">Total first-order removal rate constant</td></tr><tr class = "dataRow"><td class = "rowLabel" style = "font-weight: bold; text-align: right;">7</td><td style = "text-align: left;">R_total</td><td style = "text-align: left;">1.0 s⁻¹ mol</td><td style = "text-align: left;">Total removal rate</td></tr><tr class = "dataRow"><td class = "rowLabel" style = "font-weight: bold; text-align: right;">8</td><td style = "text-align: left;">tau_dry</td><td style = "text-align: left;">1.0 s</td><td style = "text-align: left;">Lifetime against dry deposition</td></tr><tr class = "dataRow"><td class = "rowLabel" style = "font-weight: bold; text-align: right;">9</td><td style = "text-align: left;">tau_wet</td><td style = "text-align: left;">1.0 s</td><td style = "text-align: left;">Lifetime against wet deposition</td></tr><tr class = "dataRow"><td class = "rowLabel" style = "font-weight: bold; text-align: right;">10</td><td style = "text-align: left;">tau_chem</td><td style = "text-align: left;">1.0 s</td><td style = "text-align: left;">Lifetime against chemical loss</td></tr><tr class = "dataRow"><td class = "rowLabel" style = "font-weight: bold; text-align: right;">11</td><td style = "text-align: left;">tau_transport</td><td style = "text-align: left;">1.0 s</td><td style = "text-align: left;">Lifetime against transport to stratosphere</td></tr><tr class = "dataRow"><td class = "rowLabel" style = "font-weight: bold; text-align: right;">12</td><td style = "text-align: left;">tau_total</td><td style = "text-align: left;">1.0 s</td><td style = "text-align: left;">Total atmospheric lifetime (Eq. 2.15)</td></tr><tr class = "dataRow"><td class = "rowLabel" style = "font-weight: bold; text-align: right;">13</td><td style = "text-align: left;">tau_production</td><td style = "text-align: left;">1.0 s</td><td style = "text-align: left;">Lifetime from production (Eq. 2.17)</td></tr></tbody></table></div><h4 id="Parameters-4"><a class="docs-heading-anchor" href="#Parameters-4">Parameters</a><a class="docs-heading-anchor-permalink" href="#Parameters-4" title="Permalink"></a></h4><pre><code class="language-julia hljs">params = parameters(sys)
+DataFrame(
+    :Name =&gt; [string(Symbolics.tosymbol(p, escape = false)) for p in params],
+    :Units =&gt; [string(ModelingToolkit.get_unit(p)) for p in params],
+    :Description =&gt; [ModelingToolkit.getdescription(p) for p in params]
+)</code></pre><div><div style = "float: left;"><span>4×3 DataFrame</span></div><div style = "clear: both;"></div></div><div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "columnLabelRow"><th class = "stubheadLabel" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">Name</th><th style = "text-align: left;">Units</th><th style = "text-align: left;">Description</th></tr><tr class = "columnLabelRow"><th class = "stubheadLabel" style = "font-weight: bold; text-align: right;"></th><th title = "String" style = "text-align: left;">String</th><th title = "String" style = "text-align: left;">String</th><th title = "String" style = "text-align: left;">String</th></tr></thead><tbody><tr class = "dataRow"><td class = "rowLabel" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: left;">k_c</td><td style = "text-align: left;">1.0 s⁻¹</td><td style = "text-align: left;">Chemical loss rate constant</td></tr><tr class = "dataRow"><td class = "rowLabel" style = "font-weight: bold; text-align: right;">2</td><td style = "text-align: left;">k_w</td><td style = "text-align: left;">1.0 s⁻¹</td><td style = "text-align: left;">Wet deposition rate constant</td></tr><tr class = "dataRow"><td class = "rowLabel" style = "font-weight: bold; text-align: right;">3</td><td style = "text-align: left;">k_d</td><td style = "text-align: left;">1.0 s⁻¹</td><td style = "text-align: left;">Dry deposition rate constant</td></tr><tr class = "dataRow"><td class = "rowLabel" style = "font-weight: bold; text-align: right;">4</td><td style = "text-align: left;">k_t</td><td style = "text-align: left;">1.0 s⁻¹</td><td style = "text-align: left;">Transport to stratosphere rate constant</td></tr></tbody></table></div><h4 id="Equations-5"><a class="docs-heading-anchor" href="#Equations-5">Equations</a><a class="docs-heading-anchor-permalink" href="#Equations-5" title="Permalink"></a></h4><pre><code class="language-julia hljs">equations(sys)</code></pre><p class="math-container">\[ \begin{align}
+\frac{\mathrm{d} Q\left( t \right)}{\mathrm{d}t} &amp;=  - \mathtt{R\_total}\left( t \right) + \mathtt{P\_total}\left( t \right) \\
+\mathtt{P\_total}\left( t \right) &amp;= \mathtt{P\_a}\left( t \right) + \mathtt{P\_c}\left( t \right) + \mathtt{P\_n}\left( t \right) \\
+\mathtt{k\_total}\left( t \right) &amp;= \mathtt{k\_c} + \mathtt{k\_d} + \mathtt{k\_t} + \mathtt{k\_w} \\
+\mathtt{R\_total}\left( t \right) &amp;= Q\left( t \right) \mathtt{k\_total}\left( t \right) \\
+\mathtt{tau\_dry}\left( t \right) &amp;= \frac{1}{\mathtt{k\_d}} \\
+\mathtt{tau\_wet}\left( t \right) &amp;= \frac{1}{\mathtt{k\_w}} \\
+\mathtt{tau\_chem}\left( t \right) &amp;= \frac{1}{\mathtt{k\_c}} \\
+\mathtt{tau\_transport}\left( t \right) &amp;= \frac{1}{\mathtt{k\_t}} \\
+\mathtt{tau\_total}\left( t \right) &amp;= \frac{1}{\mathtt{k\_total}\left( t \right)} \\
+\mathtt{tau\_production}\left( t \right) &amp;= \frac{Q\left( t \right)}{\mathtt{P\_total}\left( t \right)}
+\end{align}
+ \]</p><ul><li><ul><li><ul><li></li></ul></li></ul></li></ul><h2 id="Analysis"><a class="docs-heading-anchor" href="#Analysis">Analysis</a><a id="Analysis-1"></a><a class="docs-heading-anchor-permalink" href="#Analysis" title="Permalink"></a></h2><p>This section demonstrates the physical behavior of the atmospheric lifetime equations through numerical examples and visualizations.</p><h3 id="Time-Evolution-of-Species-Mass"><a class="docs-heading-anchor" href="#Time-Evolution-of-Species-Mass">Time Evolution of Species Mass</a><a id="Time-Evolution-of-Species-Mass-1"></a><a class="docs-heading-anchor-permalink" href="#Time-Evolution-of-Species-Mass" title="Permalink"></a></h3><p>The following example shows how a species mass evolves over time in the troposphere, starting from zero and approaching steady state. This demonstrates the fundamental behavior of Eq. 2.13.</p><pre><code class="language-julia hljs">using Plots
+using OrdinaryDiffEqDefault
+using ModelingToolkit
+using ModelingToolkit: t
+using GasChem.AtmosphericLifetime: TroposphericBudget
+
+# Create the tropospheric budget system
+@named trop = TroposphericBudget()
+
+# Prepare for compilation
+trop_nns = toggle_namespacing(trop, false)
+inputs = [trop_nns.P_n, trop_nns.P_a, trop_nns.P_c]
+compiled = mtkcompile(trop; inputs)
+
+# Define parameters for a hypothetical reactive species
+# Rate constants (s^-1)
+k_d_val = 1e-6    # Dry deposition (~11.6 day lifetime)
+k_w_val = 5e-7    # Wet deposition (~23.1 day lifetime)
+k_c_val = 2e-6    # Chemical loss (~5.8 day lifetime)
+k_t_val = 1e-7    # Stratospheric transport (~115.7 day lifetime)
+
+# Source rates (mol/s)
+P_n_val = 1e5     # Natural emissions
+P_a_val = 5e4     # Anthropogenic emissions
+P_c_val = 2e4     # Chemical production
+
+# Calculate expected steady state and lifetime
+P_total_val = P_n_val + P_a_val + P_c_val
+k_total_val = k_d_val + k_w_val + k_c_val + k_t_val
+Q_ss = P_total_val / k_total_val
+tau = 1 / k_total_val
+tau_days = tau / 86400
+
+# Set up and solve ODE
+Q_0 = 0.0  # Start with zero mass
+t_end = 10 * tau  # Simulate for 10 lifetimes
+
+prob = ODEProblem(
+    compiled,
+    Dict(
+        compiled.Q =&gt; Q_0,
+        compiled.k_d =&gt; k_d_val,
+        compiled.k_w =&gt; k_w_val,
+        compiled.k_c =&gt; k_c_val,
+        compiled.k_t =&gt; k_t_val,
+        compiled.P_n =&gt; P_n_val,
+        compiled.P_a =&gt; P_a_val,
+        compiled.P_c =&gt; P_c_val
+    ),
+    (0.0, t_end)
+)
+
+sol = solve(prob, saveat = tau/10)
+
+# Convert time to days for plotting
+t_days = sol.t ./ 86400
+Q_values = sol[compiled.Q]
+
+# Create the plot
+p1 = plot(
+    t_days, Q_values ./ 1e10,
+    xlabel = &quot;Time (days)&quot;,
+    ylabel = &quot;Species Mass (10^10 mol)&quot;,
+    title = &quot;Approach to Steady State in the Troposphere&quot;,
+    label = &quot;Q(t)&quot;,
+    linewidth = 2,
+    color = :blue,
+    legend = :bottomright,
+    size = (700, 450),
+    grid = true
+)
+
+# Add steady state line
+hline!(p1, [Q_ss / 1e10],
+    label = &quot;Steady State (Q_ss)&quot;,
+    linestyle = :dash,
+    color = :red,
+    linewidth = 2)
+
+# Add e-folding time markers
+vline!(p1, [tau_days],
+    label = &quot;tau = $(round(tau_days, digits=1)) days&quot;,
+    linestyle = :dot,
+    color = :green,
+    linewidth = 2)
+
+# Add annotation
+annotate!(p1, tau_days * 5, Q_ss * 0.5 / 1e10,
+    text(&quot;63% of Q_ss reached\nat t = tau&quot;, 10, :left))
+
+savefig(p1, &quot;time_evolution.png&quot;)
+p1</code></pre><img src="db0ee37e.svg" alt="Example block output"/><p><strong>Physical Interpretation</strong>: The species mass grows exponentially at first, then levels off as removal processes balance the sources. The characteristic timescale for this approach to equilibrium is the atmospheric lifetime <span>$\tau$</span>. After one lifetime, the mass reaches 63% (<span>$1 - 1/e$</span>) of its steady-state value.</p><ul><li><ul><li><ul><li></li></ul></li></ul></li></ul><h3 id="Exponential-Decay-from-Initial-Burden"><a class="docs-heading-anchor" href="#Exponential-Decay-from-Initial-Burden">Exponential Decay from Initial Burden</a><a id="Exponential-Decay-from-Initial-Burden-1"></a><a class="docs-heading-anchor-permalink" href="#Exponential-Decay-from-Initial-Burden" title="Permalink"></a></h3><p>When sources are removed, a species decays exponentially with the characteristic lifetime. This demonstrates Eq. 2.6.</p><pre><code class="language-julia hljs">using Plots
+using OrdinaryDiffEqDefault
+using ModelingToolkit
+using ModelingToolkit: t
+using GasChem.AtmosphericLifetime: TroposphericBudget
+
+@named trop = TroposphericBudget()
+
+trop_nns = toggle_namespacing(trop, false)
+inputs = [trop_nns.P_n, trop_nns.P_a, trop_nns.P_c]
+compiled = mtkcompile(trop; inputs)
+
+# Pure decay scenario (no sources)
+lambda = 1e-5  # s^-1, corresponds to tau = 10^5 s ~ 1.16 days
+Q_0 = 1e12     # Initial burden (mol)
+
+prob = ODEProblem(
+    compiled,
+    Dict(
+        compiled.Q =&gt; Q_0,
+        compiled.k_d =&gt; lambda,
+        compiled.k_w =&gt; 0.0,
+        compiled.k_c =&gt; 0.0,
+        compiled.k_t =&gt; 0.0,
+        compiled.P_n =&gt; 0.0,
+        compiled.P_a =&gt; 0.0,
+        compiled.P_c =&gt; 0.0
+    ),
+    (0.0, 5 / lambda)
+)
+
+sol = solve(prob, saveat = (1/lambda)/10)
+
+# Calculate analytical solution for comparison
+tau = 1 / lambda
+t_values = sol.t
+Q_analytical = Q_0 .* exp.(-t_values ./ tau)
+
+# Convert to normalized units
+t_normalized = t_values ./ tau
+Q_normalized = sol[compiled.Q] ./ Q_0
+
+p2 = plot(
+    t_normalized, Q_normalized,
+    xlabel = &quot;Time (t/tau)&quot;,
+    ylabel = &quot;Normalized Mass (Q/Q_0)&quot;,
+    title = &quot;Exponential Decay of Atmospheric Species&quot;,
+    label = &quot;Numerical Solution&quot;,
+    linewidth = 3,
+    color = :blue,
+    legend = :topright,
+    size = (700, 450),
+    grid = true
+)
+
+# Add analytical solution
+plot!(p2, t_normalized, Q_analytical ./ Q_0,
+    label = &quot;Analytical: exp(-t/tau)&quot;,
+    linestyle = :dash,
+    linewidth = 2,
+    color = :red)
+
+# Mark e-folding times
+for n in 1:4
+    vline!(p2, [n], label = n == 1 ? &quot;e-folding times&quot; : &quot;&quot;,
+        linestyle = :dot, color = :gray, linewidth = 1)
+    Q_at_n = exp(-n)
+    scatter!(p2, [n], [Q_at_n],
+        label = &quot;&quot;, markersize = 6, color = :green)
+    annotate!(p2, n + 0.1, Q_at_n + 0.05,
+        text(&quot;$(round(Q_at_n*100, digits=1))%&quot;, 8, :left))
+end
+
+savefig(p2, &quot;exponential_decay.png&quot;)
+p2</code></pre><img src="4de3fb4f.svg" alt="Example block output"/><p><strong>Key Results</strong>:</p><ul><li><p>After 1 lifetime: 36.8% remains (<span>$e^{-1}$</span>)</p></li><li><p>After 2 lifetimes: 13.5% remains (<span>$e^{-2}$</span>)</p></li><li><p>After 3 lifetimes: 5.0% remains (<span>$e^{-3}$</span>)</p></li><li><p>After 5 lifetimes: 0.7% remains (<span>$e^{-5}$</span>)</p></li><li><ul><li><ul><li></li></ul></li></ul></li></ul><h3 id="Effect-of-Multiple-Removal-Pathways"><a class="docs-heading-anchor" href="#Effect-of-Multiple-Removal-Pathways">Effect of Multiple Removal Pathways</a><a id="Effect-of-Multiple-Removal-Pathways-1"></a><a class="docs-heading-anchor-permalink" href="#Effect-of-Multiple-Removal-Pathways" title="Permalink"></a></h3><p>This analysis demonstrates how parallel removal pathways combine to reduce the total atmospheric lifetime (Eq. 2.7-2.9).</p><pre><code class="language-julia hljs">using Plots
+
+# Compare combined lifetime to individual pathway lifetimes
+tau_1_range = 1:1:30  # days
+tau_2_fixed = 10.0     # days
+
+# Calculate combined lifetimes using Eq. 2.9
+tau_combined = [(t1 * tau_2_fixed) / (t1 + tau_2_fixed) for t1 in tau_1_range]
+
+p3 = plot(
+    tau_1_range, tau_combined,
+    xlabel = &quot;Lifetime from Pathway 1, tau_1 (days)&quot;,
+    ylabel = &quot;Combined Lifetime, tau (days)&quot;,
+    title = &quot;Combined Lifetime from Two Removal Pathways (tau_2 = 10 days)&quot;,
+    label = &quot;tau_combined (Eq. 2.9)&quot;,
+    linewidth = 3,
+    color = :blue,
+    legend = :bottomright,
+    size = (700, 450),
+    grid = true,
+    ylims = (0, 12)
+)
+
+# Add reference lines
+hline!(p3, [tau_2_fixed], label = &quot;tau_2 = 10 days&quot;,
+    linestyle = :dash, color = :red, linewidth = 2)
+plot!(p3, tau_1_range, collect(tau_1_range), label = &quot;tau_1&quot;,
+    linestyle = :dot, color = :green, linewidth = 2)
+
+# Mark special cases
+scatter!(p3, [tau_2_fixed], [(tau_2_fixed * tau_2_fixed) / (2 * tau_2_fixed)],
+    label = &quot;Equal lifetimes: tau = tau_1/2&quot;,
+    markersize = 8, color = :orange)
+
+# Add annotation
+annotate!(p3, 20, 3,
+    text(&quot;Combined lifetime is always\nless than either individual lifetime&quot;, 10, :left))
+
+savefig(p3, &quot;multiple_pathways.png&quot;)
+p3</code></pre><img src="99acffa3.svg" alt="Example block output"/><p><strong>Physical Interpretation</strong>:</p><ul><li><p>When <span>$\tau_1 = \tau_2$</span>, the combined lifetime is exactly half of either individual lifetime</p></li><li><p>The combined lifetime is always less than the smaller of the two individual lifetimes</p></li><li><p>A fast removal pathway dominates the total lifetime even if a slow pathway exists</p></li><li><ul><li><ul><li></li></ul></li></ul></li></ul><h3 id="Contribution-of-Removal-Pathways-to-Total-Lifetime"><a class="docs-heading-anchor" href="#Contribution-of-Removal-Pathways-to-Total-Lifetime">Contribution of Removal Pathways to Total Lifetime</a><a id="Contribution-of-Removal-Pathways-to-Total-Lifetime-1"></a><a class="docs-heading-anchor-permalink" href="#Contribution-of-Removal-Pathways-to-Total-Lifetime" title="Permalink"></a></h3><p>This figure shows how each removal pathway contributes to the total inverse lifetime for a typical tropospheric species.</p><pre><code class="language-julia hljs">using Plots
+
+# Typical rate constants for a reactive species (s^-1)
+# Convert to day^-1 for visualization
+k_d = 1e-6 * 86400   # Dry deposition
+k_w = 5e-7 * 86400   # Wet deposition
+k_c = 2e-6 * 86400   # Chemical loss
+k_t = 1e-7 * 86400   # Stratospheric transport
+
+k_total = k_d + k_w + k_c + k_t
+
+# Calculate individual lifetimes (days)
+tau_dry = 1 / k_d
+tau_wet = 1 / k_w
+tau_chem = 1 / k_c
+tau_transport = 1 / k_t
+tau_total = 1 / k_total
+
+# Calculate fractional contributions to 1/tau
+frac_dry = k_d / k_total * 100
+frac_wet = k_w / k_total * 100
+frac_chem = k_c / k_total * 100
+frac_transport = k_t / k_total * 100
+
+# Create bar chart of contributions
+labels = [&quot;Dry Dep.&quot;, &quot;Wet Dep.&quot;, &quot;Chemical&quot;, &quot;Transport&quot;]
+fractions = [frac_dry, frac_wet, frac_chem, frac_transport]
+lifetimes = [tau_dry, tau_wet, tau_chem, tau_transport]
+colors = [:brown, :blue, :orange, :purple]
+
+p4 = bar(
+    labels, fractions,
+    xlabel = &quot;&quot;,
+    ylabel = &quot;Contribution to 1/tau (%)&quot;,
+    title = &quot;Removal Pathway Contributions\n(Total lifetime = $(round(tau_total, digits=1)) days)&quot;,
+    label = &quot;&quot;,
+    color = colors,
+    size = (700, 450),
+    ylims = (0, 60),
+    bar_width = 0.6
+)
+
+# Add lifetime labels on bars
+for (i, (frac, tau)) in enumerate(zip(fractions, lifetimes))
+    annotate!(p4, i, frac + 2,
+        text(&quot;tau = $(round(tau, digits=1)) d&quot;, 9, :center))
+end
+
+savefig(p4, &quot;pathway_contributions.png&quot;)
+p4</code></pre><img src="f0a57c53.svg" alt="Example block output"/><p><strong>Key Observations</strong>:</p><ul><li><p>Chemical loss typically dominates for reactive species</p></li><li><p>Dry deposition is significant for species that deposit readily to surfaces</p></li><li><p>Wet deposition is important for soluble species</p></li><li><p>Stratospheric transport is usually a minor sink for most tropospheric species</p></li><li><ul><li><ul><li></li></ul></li></ul></li></ul><h3 id="OH-Reaction-Lifetimes-for-Common-Atmospheric-Species"><a class="docs-heading-anchor" href="#OH-Reaction-Lifetimes-for-Common-Atmospheric-Species">OH Reaction Lifetimes for Common Atmospheric Species</a><a id="OH-Reaction-Lifetimes-for-Common-Atmospheric-Species-1"></a><a class="docs-heading-anchor-permalink" href="#OH-Reaction-Lifetimes-for-Common-Atmospheric-Species" title="Permalink"></a></h3><p>This analysis compares the OH-reaction lifetimes for several important atmospheric trace gases, demonstrating Eq. 2.12.</p><pre><code class="language-julia hljs">using Plots, DataFrames
+
+# OH rate constants at 298 K (cm^3 molecule^-1 s^-1) from JPL evaluation
+# and typical global mean OH concentration
+OH_conc = 1e6  # molecule/cm^3
+
+species_data = [
+    (&quot;Methane (CH4)&quot;, 6.3e-15, &quot;Years&quot;),
+    (&quot;Ethane (C2H6)&quot;, 2.4e-13, &quot;Months&quot;),
+    (&quot;Propane (C3H8)&quot;, 1.1e-12, &quot;Days&quot;),
+    (&quot;Carbon Monoxide (CO)&quot;, 2.4e-13, &quot;Months&quot;),
+    (&quot;Formaldehyde (HCHO)&quot;, 8.5e-12, &quot;Hours&quot;),
+    (&quot;Isoprene (C5H8)&quot;, 1.0e-10, &quot;Hours&quot;),
+    (&quot;Nitrogen Dioxide (NO2)&quot;, 1.2e-11, &quot;Hours&quot;)
+]
+
+# Calculate lifetimes
+species_names = String[]
+k_OH_values = Float64[]
+tau_values = Float64[]
+tau_units = String[]
+
+for (name, k_OH, unit) in species_data
+    tau = 1 / (k_OH * OH_conc)  # seconds
+    push!(species_names, name)
+    push!(k_OH_values, k_OH)
+    push!(tau_units, unit)
+
+    # Convert to appropriate units
+    if unit == &quot;Years&quot;
+        push!(tau_values, tau / (365.25 * 86400))
+    elseif unit == &quot;Months&quot;
+        push!(tau_values, tau / (30 * 86400))
+    elseif unit == &quot;Days&quot;
+        push!(tau_values, tau / 86400)
+    else  # Hours
+        push!(tau_values, tau / 3600)
+    end
+end
+
+# Create summary table
+df = DataFrame(
+    Species = species_names,
+    k_OH_cm3_molec_s = k_OH_values,
+    Lifetime = tau_values,
+    Units = tau_units
+)
+df</code></pre><div><div style = "float: left;"><span>7×4 DataFrame</span></div><div style = "clear: both;"></div></div><div class = "data-frame" style = "overflow-x: scroll;"><table class = "data-frame" style = "margin-bottom: 6px;"><thead><tr class = "columnLabelRow"><th class = "stubheadLabel" style = "font-weight: bold; text-align: right;">Row</th><th style = "text-align: left;">Species</th><th style = "text-align: left;">k_OH_cm3_molec_s</th><th style = "text-align: left;">Lifetime</th><th style = "text-align: left;">Units</th></tr><tr class = "columnLabelRow"><th class = "stubheadLabel" style = "font-weight: bold; text-align: right;"></th><th title = "String" style = "text-align: left;">String</th><th title = "Float64" style = "text-align: left;">Float64</th><th title = "Float64" style = "text-align: left;">Float64</th><th title = "String" style = "text-align: left;">String</th></tr></thead><tbody><tr class = "dataRow"><td class = "rowLabel" style = "font-weight: bold; text-align: right;">1</td><td style = "text-align: left;">Methane (CH4)</td><td style = "text-align: right;">6.3e-15</td><td style = "text-align: right;">5.02986</td><td style = "text-align: left;">Years</td></tr><tr class = "dataRow"><td class = "rowLabel" style = "font-weight: bold; text-align: right;">2</td><td style = "text-align: left;">Ethane (C2H6)</td><td style = "text-align: right;">2.4e-13</td><td style = "text-align: right;">1.60751</td><td style = "text-align: left;">Months</td></tr><tr class = "dataRow"><td class = "rowLabel" style = "font-weight: bold; text-align: right;">3</td><td style = "text-align: left;">Propane (C3H8)</td><td style = "text-align: right;">1.1e-12</td><td style = "text-align: right;">10.5219</td><td style = "text-align: left;">Days</td></tr><tr class = "dataRow"><td class = "rowLabel" style = "font-weight: bold; text-align: right;">4</td><td style = "text-align: left;">Carbon Monoxide (CO)</td><td style = "text-align: right;">2.4e-13</td><td style = "text-align: right;">1.60751</td><td style = "text-align: left;">Months</td></tr><tr class = "dataRow"><td class = "rowLabel" style = "font-weight: bold; text-align: right;">5</td><td style = "text-align: left;">Formaldehyde (HCHO)</td><td style = "text-align: right;">8.5e-12</td><td style = "text-align: right;">32.6797</td><td style = "text-align: left;">Hours</td></tr><tr class = "dataRow"><td class = "rowLabel" style = "font-weight: bold; text-align: right;">6</td><td style = "text-align: left;">Isoprene (C5H8)</td><td style = "text-align: right;">1.0e-10</td><td style = "text-align: right;">2.77778</td><td style = "text-align: left;">Hours</td></tr><tr class = "dataRow"><td class = "rowLabel" style = "font-weight: bold; text-align: right;">7</td><td style = "text-align: left;">Nitrogen Dioxide (NO2)</td><td style = "text-align: right;">1.2e-11</td><td style = "text-align: right;">23.1481</td><td style = "text-align: left;">Hours</td></tr></tbody></table></div><pre><code class="language-julia hljs"># Create bar chart of lifetimes (all converted to days for comparison)
+tau_days = Float64[]
+for (name, k_OH, _) in species_data
+    tau = 1 / (k_OH * OH_conc)  # seconds
+    push!(tau_days, tau / 86400)
+end
+
+p5 = bar(
+    1:length(species_names),
+    log10.(tau_days),
+    xlabel = &quot;&quot;,
+    ylabel = &quot;log10(Lifetime in days)&quot;,
+    title = &quot;OH Reaction Lifetimes at [OH] = 10^6 molecule/cm^3&quot;,
+    label = &quot;&quot;,
+    color = :steelblue,
+    size = (800, 500),
+    xticks = (1:length(species_names),
+        [&quot;CH4&quot;, &quot;C2H6&quot;, &quot;C3H8&quot;, &quot;CO&quot;, &quot;HCHO&quot;, &quot;Isoprene&quot;, &quot;NO2&quot;]),
+    bar_width = 0.6
+)
+
+# Add horizontal lines for reference timescales
+hline!(p5, [log10(365)], label = &quot;1 year&quot;, linestyle = :dash, color = :red, linewidth = 2)
+hline!(
+    p5, [log10(30)], label = &quot;1 month&quot;, linestyle = :dash, color = :orange, linewidth = 2)
+hline!(p5, [log10(1)], label = &quot;1 day&quot;, linestyle = :dash, color = :green, linewidth = 2)
+hline!(
+    p5, [log10(1/24)], label = &quot;1 hour&quot;, linestyle = :dash, color = :purple, linewidth = 2)
+
+savefig(p5, &quot;oh_lifetimes.png&quot;)
+p5</code></pre><img src="4d2f592f.svg" alt="Example block output"/><p><strong>Physical Interpretation</strong>:</p><ul><li><p><strong>Long-lived species</strong> (CH4, CO): Global distribution, well-mixed in the troposphere</p></li><li><p><strong>Intermediate species</strong> (C2H6, C3H8): Regional to hemispheric influence</p></li><li><p><strong>Short-lived species</strong> (HCHO, isoprene, NO2): Local influence, highly variable concentrations</p></li><li><ul><li><ul><li></li></ul></li></ul></li></ul><h3 id="Sensitivity-to-OH-Concentration"><a class="docs-heading-anchor" href="#Sensitivity-to-OH-Concentration">Sensitivity to OH Concentration</a><a id="Sensitivity-to-OH-Concentration-1"></a><a class="docs-heading-anchor-permalink" href="#Sensitivity-to-OH-Concentration" title="Permalink"></a></h3><p>The effective lifetime depends strongly on the ambient OH concentration, which varies with location, season, and time of day.</p><pre><code class="language-julia hljs">using Plots
+
+# OH concentration range (molecule/cm^3)
+OH_range = 10 .^ range(5, 7, length = 50)
+
+# k_OH for methane and CO
+k_OH_CH4 = 6.3e-15  # cm^3/(molecule s)
+k_OH_CO = 2.4e-13   # cm^3/(molecule s)
+
+# Calculate lifetimes
+tau_CH4_years = @. 1 / (k_OH_CH4 * OH_range) / (365.25 * 86400)
+tau_CO_days = @. 1 / (k_OH_CO * OH_range) / 86400
+
+p6 = plot(
+    OH_range, tau_CH4_years,
+    xlabel = &quot;[OH] (molecule/cm^3)&quot;,
+    ylabel = &quot;Methane Lifetime (years)&quot;,
+    title = &quot;Dependence of Lifetime on OH Concentration&quot;,
+    label = &quot;CH4&quot;,
+    linewidth = 2,
+    color = :blue,
+    xscale = :log10,
+    yscale = :log10,
+    legend = :topright,
+    size = (700, 500),
+    grid = true
+)
+
+# Create second y-axis plot
+p6b = twinx(p6)
+plot!(p6b, OH_range, tau_CO_days,
+    ylabel = &quot;CO Lifetime (days)&quot;,
+    label = &quot;CO&quot;,
+    linewidth = 2,
+    color = :red,
+    xscale = :log10,
+    yscale = :log10,
+    legend = :bottomleft)
+
+# Mark typical global mean OH
+vline!(p6, [1e6], label = &quot;Global mean [OH]&quot;,
+    linestyle = :dash, color = :gray, linewidth = 2)
+
+savefig(p6, &quot;oh_sensitivity.png&quot;)
+p6</code></pre><img src="940d4845.svg" alt="Example block output"/><p><strong>Physical Interpretation</strong>:</p><ul><li><p>Lifetime scales inversely with OH concentration (<span>$\tau \propto 1/[OH]$</span>)</p></li><li><p>A factor of 10 increase in OH leads to a factor of 10 decrease in lifetime</p></li><li><p>OH concentrations vary from ~10^5 molecule/cm^3 (remote marine) to ~10^7 molecule/cm^3 (polluted urban)</p></li><li><ul><li><ul><li></li></ul></li></ul></li></ul><h3 id="Methane-Lifetime-Budget"><a class="docs-heading-anchor" href="#Methane-Lifetime-Budget">Methane Lifetime Budget</a><a id="Methane-Lifetime-Budget-1"></a><a class="docs-heading-anchor-permalink" href="#Methane-Lifetime-Budget" title="Permalink"></a></h3><p>Methane has multiple removal pathways, making it a good example of applying Eq. 2.7-2.9. The total atmospheric lifetime combines:</p><ul><li>Tropospheric OH oxidation (~10 years)</li><li>Soil uptake (~150 years)</li><li>Stratospheric loss (~120 years)</li></ul><pre><code class="language-julia hljs">using Plots
+
+# Methane removal pathways (lifetimes in years)
+tau_OH = 10.0       # Tropospheric OH reaction
+tau_soil = 150.0    # Soil uptake
+tau_strat = 120.0   # Stratospheric loss
+
+# Calculate combined lifetime using Eq. 2.8
+inverse_tau_total = 1/tau_OH + 1/tau_soil + 1/tau_strat
+tau_total = 1 / inverse_tau_total
+
+# Calculate fractional contributions
+frac_OH = (1/tau_OH) / inverse_tau_total * 100
+frac_soil = (1/tau_soil) / inverse_tau_total * 100
+frac_strat = (1/tau_strat) / inverse_tau_total * 100
+
+println(&quot;Methane Atmospheric Lifetime Analysis&quot;)
+println(&quot;=&quot; ^ 40)
+println(&quot;Individual pathway lifetimes:&quot;)
+println(&quot;  OH reaction:     $(tau_OH) years&quot;)
+println(&quot;  Soil uptake:     $(tau_soil) years&quot;)
+println(&quot;  Stratospheric:   $(tau_strat) years&quot;)
+println()
+println(&quot;Combined total lifetime: $(round(tau_total, digits=1)) years&quot;)
+println()
+println(&quot;Removal pathway contributions:&quot;)
+println(&quot;  OH reaction:     $(round(frac_OH, digits=1))%&quot;)
+println(&quot;  Soil uptake:     $(round(frac_soil, digits=1))%&quot;)
+println(&quot;  Stratospheric:   $(round(frac_strat, digits=1))%&quot;)
+
+# Create pie chart of removal contributions
+labels_pie = [&quot;OH Reaction\n($(round(frac_OH, digits=1))%)&quot;,
+    &quot;Soil Uptake\n($(round(frac_soil, digits=1))%)&quot;,
+    &quot;Stratospheric\n($(round(frac_strat, digits=1))%)&quot;]
+fracs = [frac_OH, frac_soil, frac_strat]
+
+p7 = pie(
+    fracs,
+    label = labels_pie,
+    title = &quot;Methane Removal Budget\n(Total lifetime = $(round(tau_total, digits=1)) years)&quot;,
+    color = [:orange, :brown, :purple],
+    size = (600, 500)
+)
+
+savefig(p7, &quot;ch4_budget.png&quot;)
+p7</code></pre><img src="27a92ebc.svg" alt="Example block output"/><p><strong>Key Result</strong>: Despite individual pathway lifetimes ranging from 10 to 150 years, the combined atmospheric lifetime of methane is approximately 8-9 years. This is because the fastest removal process (OH oxidation) dominates the total removal rate.</p><ul><li><ul><li><ul><li></li></ul></li></ul></li></ul><h2 id="Summary"><a class="docs-heading-anchor" href="#Summary">Summary</a><a id="Summary-1"></a><a class="docs-heading-anchor-permalink" href="#Summary" title="Permalink"></a></h2><p>The AtmosphericLifetime module provides a comprehensive implementation of the fundamental atmospheric lifetime equations from Seinfeld and Pandis Chapter 2. Key takeaways:</p><ol><li><p><strong>Mass Conservation</strong> (Eq. 2.1): The rate of change of atmospheric burden equals sources minus sinks</p></li><li><p><strong>Lifetime Definition</strong> (Eq. 2.3-2.6): Lifetime characterizes the persistence of a species in the atmosphere</p></li><li><p><strong>Multiple Pathways</strong> (Eq. 2.7-2.9): Parallel removal processes combine via their inverse lifetimes; the fastest process dominates</p></li><li><p><strong>OH Oxidation</strong> (Eq. 2.12): The OH radical is the primary oxidant determining the lifetime of most reduced species</p></li><li><p><strong>Tropospheric Budget</strong> (Eq. 2.13-2.17): A complete budget includes natural and anthropogenic emissions, chemical production, and multiple removal pathways</p></li></ol><p>These concepts are essential for understanding air quality, climate forcing by greenhouse gases, and the design of emission control strategies.</p><ul><li><ul><li><ul><li></li></ul></li></ul></li></ul><h2 id="API-Reference"><a class="docs-heading-anchor" href="#API-Reference">API Reference</a><a id="API-Reference-1"></a><a class="docs-heading-anchor-permalink" href="#API-Reference" title="Permalink"></a></h2><article><details class="docstring" open="true"><summary id="GasChem.AtmosphericLifetime.AtmosphericBudget"><a class="docstring-binding" href="#GasChem.AtmosphericLifetime.AtmosphericBudget"><code>GasChem.AtmosphericLifetime.AtmosphericBudget</code></a> — <span class="docstring-category">Function</span></summary><section><div><pre><code class="language-julia hljs">AtmosphericBudget(; name=:AtmosphericBudget)</code></pre><p>Implements the fundamental mass conservation equation for an atmospheric species.</p><p>Equation 2.1: dQ/dt = (F<em>in - F</em>out) + (P - R)</p><p>where:</p><ul><li>Q: Total mass (or moles) of the species in the reservoir [mol]</li><li>F_in: Rate of mass inflow from outside the reservoir [mol/s]</li><li>F_out: Rate of mass outflow from the reservoir [mol/s]</li><li>P: Rate of chemical production within the reservoir [mol/s]</li><li>R: Rate of chemical removal within the reservoir [mol/s]</li></ul><p>The net rate of change equals the sum of transport (inflow minus outflow) and chemistry (production minus removal) contributions.</p><p>Equation 2.2 (Steady State): At steady state, dQ/dt = 0, implying: F<em>in + P = F</em>out + R</p><p>This component also computes the net transport and net chemistry terms for diagnostic purposes.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/EarthSciML/GasChem.jl/blob/dc4782ae6796058dc6e3e6008fa2841fb8fafa13/src/AtmosphericLifetime.jl#L38-L63">source</a></section></details></article><article><details class="docstring" open="true"><summary id="GasChem.AtmosphericLifetime.SpeciesLifetime"><a class="docstring-binding" href="#GasChem.AtmosphericLifetime.SpeciesLifetime"><code>GasChem.AtmosphericLifetime.SpeciesLifetime</code></a> — <span class="docstring-category">Function</span></summary><section><div><pre><code class="language-julia hljs">SpeciesLifetime(; name=:SpeciesLifetime)</code></pre><p>Calculates atmospheric lifetime for a species using various formulations.</p><p>Implements:</p><p>Equation 2.3 (General form): tau = Q / (R + F_out)</p><p>This is the general definition of atmospheric lifetime, applicable to any reservoir with both chemical removal R and outflow F_out.</p><p>Equation 2.4 (Global atmosphere, F_out = 0): tau = Q / R</p><p>For the global atmosphere as a whole, there is no outflow to other reservoirs, so the lifetime is determined solely by chemical removal.</p><p>Equation 2.5 (Steady state): tau = Q / R = Q / P</p><p>At steady state, R = P (when F<em>in = F</em>out = 0 for the global case), so the lifetime can be computed from either the removal or production rate.</p><p>Equation 2.6 (First-order removal): tau = 1 / lambda</p><p>When removal follows first-order kinetics (R = lambda * Q), the lifetime is simply the inverse of the first-order rate constant.</p><p>Notes:</p><ul><li>tau_general: General lifetime accounting for both removal and outflow</li><li>tau_removal: Lifetime based on removal only (global atmosphere)</li><li>tau_production: Lifetime based on production (steady state)</li><li>tau<em>first</em>order: Lifetime from first-order rate constant</li></ul></div><a class="docs-sourcelink" target="_blank" href="https://github.com/EarthSciML/GasChem.jl/blob/dc4782ae6796058dc6e3e6008fa2841fb8fafa13/src/AtmosphericLifetime.jl#L94-L131">source</a></section></details></article><article><details class="docstring" open="true"><summary id="GasChem.AtmosphericLifetime.MultipleRemovalLifetime"><a class="docstring-binding" href="#GasChem.AtmosphericLifetime.MultipleRemovalLifetime"><code>GasChem.AtmosphericLifetime.MultipleRemovalLifetime</code></a> — <span class="docstring-category">Function</span></summary><section><div><pre><code class="language-julia hljs">MultipleRemovalLifetime(; name=:MultipleRemovalLifetime)</code></pre><p>Calculates atmospheric lifetime when multiple removal pathways operate in parallel.</p><p>Implements:</p><p>Equation 2.7 (Two first-order processes): tau = 1 / (k<em>1 + k</em>2)</p><p>When two independent first-order removal processes operate simultaneously with rate constants k<em>1 and k</em>2, the overall lifetime is determined by their sum.</p><p>Equation 2.8 (Inverse lifetime sum): 1/tau = 1/tau<em>1 + 1/tau</em>2</p><p>This is the general form showing that inverse lifetimes (removal rates) are additive for parallel processes.</p><p>Equation 2.9 (Combined lifetime formula): tau = (tau<em>1 * tau</em>2) / (tau<em>1 + tau</em>2)</p><p>This follows directly from Eq. 2.8 and gives the combined lifetime in terms of individual pathway lifetimes.</p><p>The component takes two removal rate constants as inputs and computes:</p><ul><li>tau<em>1, tau</em>2: Individual pathway lifetimes</li><li>tau_combined: Combined lifetime from all pathways</li><li>inverse_tau: Sum of inverse lifetimes (total removal rate)</li></ul><p>This can be extended to N pathways where: 1/tau = sum(1/tau_i) for i = 1 to N</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/EarthSciML/GasChem.jl/blob/dc4782ae6796058dc6e3e6008fa2841fb8fafa13/src/AtmosphericLifetime.jl#L169-L203">source</a></section></details></article><article><details class="docstring" open="true"><summary id="GasChem.AtmosphericLifetime.OHReactionLifetime"><a class="docstring-binding" href="#GasChem.AtmosphericLifetime.OHReactionLifetime"><code>GasChem.AtmosphericLifetime.OHReactionLifetime</code></a> — <span class="docstring-category">Function</span></summary><section><div><pre><code class="language-julia hljs">OHReactionLifetime(; name=:OHReactionLifetime)</code></pre><p>Calculates atmospheric lifetime due to reaction with OH radicals.</p><p>Implements Equation 2.12: tau = 1 / (k_OH * [OH])</p><p>where:</p><ul><li>k_OH: Second-order rate constant for reaction with OH [cm^3/(molec*s)]</li><li>[OH]: Concentration of OH radicals [molec/cm^3]</li></ul><p>The OH radical is the primary oxidant in the troposphere for many trace species. The lifetime due to OH reaction depends on both the intrinsic reactivity of the species (k_OH) and the ambient OH concentration.</p><p>Typical values:</p><ul><li>k_OH: varies widely, e.g., 1e-14 to 1e-10 cm^3/(molec*s)</li><li>[OH]: ~1e6 molec/cm^3 (global tropospheric average)</li><li>tau: seconds to years depending on species</li></ul><p>Note: The product k_OH * [OH] gives an effective first-order rate constant with units of s^-1, consistent with Eq. 2.6.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/EarthSciML/GasChem.jl/blob/dc4782ae6796058dc6e3e6008fa2841fb8fafa13/src/AtmosphericLifetime.jl#L238-L263">source</a></section></details></article><article><details class="docstring" open="true"><summary id="GasChem.AtmosphericLifetime.TroposphericBudget"><a class="docstring-binding" href="#GasChem.AtmosphericLifetime.TroposphericBudget"><code>GasChem.AtmosphericLifetime.TroposphericBudget</code></a> — <span class="docstring-category">Function</span></summary><section><div><pre><code class="language-julia hljs">TroposphericBudget(; name=:TroposphericBudget)</code></pre><p>Implements the complete tropospheric budget equation for a trace species.</p><p>Equations 2.13-2.14: dQ<em>i/dt = P</em>i^n + P<em>i^a + P</em>i^c - (k<em>i^d + k</em>i^w + k<em>i^c + k</em>i^t) * Q_i</p><p>This is the full mass balance for species i in the troposphere, including:</p><p>Source terms (production rates in mol/s):</p><ul><li>P_n: Natural emissions (biogenic, volcanic, oceanic, etc.)</li><li>P_a: Anthropogenic emissions (combustion, industrial, agricultural, etc.)</li><li>P_c: Chemical production within the troposphere</li></ul><p>Removal terms (first-order rate constants in s^-1):</p><ul><li>k_d: Dry deposition (uptake by surfaces)</li><li>k_w: Wet deposition (scavenging by precipitation)</li><li>k_c: Chemical loss (reaction with OH, O3, NO3, etc.)</li><li>k_t: Transport to stratosphere (cross-tropopause flux)</li></ul><p>The total removal rate constant is: k<em>total = k</em>d + k<em>w + k</em>c + k_t</p><p>Equation 2.15 (Lifetime from removal): tau<em>i = 1 / (k</em>d + k<em>w + k</em>c + k_t)</p><p>Equation 2.16-2.17 (Lifetime from production at steady state): tau<em>i = Q</em>i / (P<em>n + P</em>a + P_c)</p><p>At steady state, the removal-based and production-based lifetimes are equal.</p><p>The component computes individual pathway lifetimes for diagnostic purposes:</p><ul><li>tau_dry: Lifetime against dry deposition only</li><li>tau_wet: Lifetime against wet deposition only</li><li>tau_chem: Lifetime against chemical loss only</li><li>tau_transport: Lifetime against stratospheric transport only</li><li>tau_total: Total lifetime (Eq. 2.15)</li><li>tau_production: Lifetime from production (Eq. 2.17)</li></ul></div><a class="docs-sourcelink" target="_blank" href="https://github.com/EarthSciML/GasChem.jl/blob/dc4782ae6796058dc6e3e6008fa2841fb8fafa13/src/AtmosphericLifetime.jl#L292-L334">source</a></section></details></article></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../">« Home</a><a class="docs-footer-nextpage" href="../superfast/">SuperFast »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.16.1 on <span class="colophon-date" title="Thursday 5 February 2026 14:49">Thursday 5 February 2026</span>. Using Julia version 1.12.4.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
