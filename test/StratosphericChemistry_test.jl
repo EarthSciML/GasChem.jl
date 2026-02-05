@@ -10,6 +10,7 @@ Physics: From Air Pollution to Climate Change", 2nd Edition.
     using Test
     using ModelingToolkit
     using OrdinaryDiffEqDefault
+    using OrdinaryDiffEqRosenbrock
     using GasChem
 
     # CGS to SI conversion factor: 1 cm = 0.01 m, so 1 cm^-3 = 1e6 m^-3
@@ -140,6 +141,7 @@ end
     state_names=[string(s) for s in states]
     @test any(occursin("Cl(t)", n) for n in state_names)
     @test any(occursin("ClO(t)", n) for n in state_names)
+    @test any(occursin("ClONO2(t)", n) for n in state_names)
     @test any(occursin("ClOx(t)", n) for n in state_names)
 end
 
@@ -266,6 +268,7 @@ end
     Cly_final=sol[compiled_sys.Cl][end]+sol[compiled_sys.ClO][end]+
               sol[compiled_sys.HCl][end]+sol[compiled_sys.ClONO2][end]
 
+    # Cly is conserved because ClO → ClONO2 conversion preserves total Cl atoms
     @test isapprox(Cly_init, Cly_final, rtol = 1e-6)
 end
 
@@ -292,13 +295,14 @@ end
     M_si=M_cgs*CGS_TO_SI_CONC
     O2_val=0.21
 
-    u0=[compiled_sys.O=>1e11, compiled_sys.O3=>1e16]
     tspan=(0.0, 3600.0*24*30)  # 30 days
 
-    prob=ODEProblem(compiled_sys, u0, tspan,
-        [compiled_sys.j_O2=>1e-11, compiled_sys.j_O3=>j_O3_val,
+    prob=ODEProblem(compiled_sys,
+        [compiled_sys.O=>1e11, compiled_sys.O3=>1e16,
+            compiled_sys.j_O2=>1e-11, compiled_sys.j_O3=>j_O3_val,
             compiled_sys.k2=>k2_si, compiled_sys.k4=>k4_si,
-            compiled_sys.M=>M_si, compiled_sys.O2_mix=>O2_val])
+            compiled_sys.M=>M_si, compiled_sys.O2_mix=>O2_val],
+        tspan)
     sol=solve(prob, abstol = 1e-8, reltol = 1e-8)
 
     @test sol.retcode == ReturnCode.Success
@@ -344,11 +348,12 @@ end
     compiled_sys=mtkcompile(sys)
 
     # SI units (m^-3)
-    u0=[compiled_sys.O=>1e13, compiled_sys.O3=>3e18]
     tspan=(0.0, 3600.0)
 
-    prob=ODEProblem(compiled_sys, u0, tspan,
-        [compiled_sys.j_O2=>0.0, compiled_sys.j_O3=>0.0])
+    prob=ODEProblem(compiled_sys,
+        [compiled_sys.O=>1e13, compiled_sys.O3=>3e18,
+            compiled_sys.j_O2=>0.0, compiled_sys.j_O3=>0.0],
+        tspan)
     sol=solve(prob, abstol = 1e-10, reltol = 1e-10)
 
     @test sol.retcode == ReturnCode.Success
@@ -392,7 +397,7 @@ end
     compiled_sys=mtkcompile(sys)
 
     prob=ODEProblem(compiled_sys, [], (0.0, 3600.0))  # 1 hour with defaults
-    sol=solve(prob, abstol = 1e-8, reltol = 1e-8)
+    sol=solve(prob, Rodas5P(), abstol = 1e-8, reltol = 1e-8)  # Stiff system requires implicit solver
 
     @test sol.retcode == ReturnCode.Success
 

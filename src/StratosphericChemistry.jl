@@ -385,13 +385,13 @@ d[Ox]/dt = -2 k2[NO2][O]
         k_NO2_O = 5.6e-18,
         [unit = u"m^3/s", description = "NO2 + O rate coefficient (5.6e-12 cm^3/molec/s)"]
         j_NO2 = 1e-2, [unit = u"s^-1", description = "NO2 photolysis rate"]
+        O = 1e13, [unit = u"m^-3", description = "Atomic oxygen (1e7 molec/cm^3)"]
+        O3 = 3e18, [unit = u"m^-3", description = "Ozone (3e12 molec/cm^3)"]
     end
 
     @variables begin
         NO(t) = 1e15, [unit = u"m^-3", description = "NO concentration (1e9 molec/cm^3)"]
         NO2(t) = 1e15, [unit = u"m^-3", description = "NO2 concentration (1e9 molec/cm^3)"]
-        O(t) = 1e13, [unit = u"m^-3", description = "Atomic oxygen (1e7 molec/cm^3)"]
-        O3(t) = 3e18, [unit = u"m^-3", description = "Ozone (3e12 molec/cm^3)"]
         NOx(t), [unit = u"m^-3", description = "NOx = NO + NO2"]
     end
 
@@ -435,14 +435,14 @@ Net: O3 + O3 → O2 + O2 + O2
         [unit = u"m^3/s", description = "HO2 + O rate coefficient (3e-11 cm^3/molec/s)"]
         k_HO2_NO = 3.5e-18,
         [unit = u"m^3/s", description = "HO2 + NO rate coefficient (3.5e-12 cm^3/molec/s)"]
+        O = 1e13, [unit = u"m^-3", description = "Atomic oxygen (1e7 molec/cm^3)"]
+        O3 = 3e18, [unit = u"m^-3", description = "Ozone (3e12 molec/cm^3)"]
+        NO = 1e15, [unit = u"m^-3", description = "NO (1e9 molec/cm^3)"]
     end
 
     @variables begin
         OH(t) = 1e12, [unit = u"m^-3", description = "OH concentration (1e6 molec/cm^3)"]
         HO2(t) = 1e13, [unit = u"m^-3", description = "HO2 concentration (1e7 molec/cm^3)"]
-        O(t) = 1e13, [unit = u"m^-3", description = "Atomic oxygen (1e7 molec/cm^3)"]
-        O3(t) = 3e18, [unit = u"m^-3", description = "Ozone (3e12 molec/cm^3)"]
-        NO(t) = 1e15, [unit = u"m^-3", description = "NO (1e9 molec/cm^3)"]
         HOx(t), [unit = u"m^-3", description = "HOx = OH + HO2"]
     end
 
@@ -493,9 +493,18 @@ d[Ox]/dt = -2 k2[ClO][O]
         [unit = u"m^3/s", description = "Cl + CH4 rate coefficient (1e-14 cm^3/molec/s)"]
         k_OH_HCl = 2.6e-18,
         [unit = u"m^3/s", description = "OH + HCl rate coefficient (2.6e-12 cm^3/molec/s)"]
+        k_ClO_NO2_M = 1.8e-43,
+        [unit = u"m^6/s", description = "ClO + NO2 + M → ClONO2 (1.8e-31 cm^6/molec^2/s)"]
         j_ClONO2 = 1e-4, [unit = u"s^-1", description = "ClONO2 photolysis rate"]
         CH4 = 1e19,
         [unit = u"m^-3", description = "Methane concentration (1e13 molec/cm^3)"]
+        M = 3.1e23,
+        [unit = u"m^-3", description = "Air number density at 30 km (3.1e17 molec/cm^3)"]
+        O = 1e13, [unit = u"m^-3", description = "Atomic oxygen (1e7 molec/cm^3)"]
+        O3 = 3e18, [unit = u"m^-3", description = "Ozone (3e12 molec/cm^3)"]
+        NO = 1e15, [unit = u"m^-3", description = "NO (1e9 molec/cm^3)"]
+        NO2 = 1e15, [unit = u"m^-3", description = "NO2 (1e9 molec/cm^3)"]
+        OH = 1e12, [unit = u"m^-3", description = "OH (1e6 molec/cm^3)"]
     end
 
     @variables begin
@@ -505,10 +514,6 @@ d[Ox]/dt = -2 k2[ClO][O]
         HCl(t) = 1e15, [unit = u"m^-3", description = "HCl reservoir (1e9 molec/cm^3)"]
         ClONO2(t) = 1e15,
         [unit = u"m^-3", description = "ClONO2 reservoir (1e9 molec/cm^3)"]
-        O(t) = 1e13, [unit = u"m^-3", description = "Atomic oxygen (1e7 molec/cm^3)"]
-        O3(t) = 3e18, [unit = u"m^-3", description = "Ozone (3e12 molec/cm^3)"]
-        NO(t) = 1e15, [unit = u"m^-3", description = "NO (1e9 molec/cm^3)"]
-        OH(t) = 1e12, [unit = u"m^-3", description = "OH (1e6 molec/cm^3)"]
         ClOx(t), [unit = u"m^-3", description = "ClOx = Cl + ClO"]
         Cly(t), [unit = u"m^-3", description = "Cly = Cl + ClO + HCl + ClONO2"]
     end
@@ -517,9 +522,11 @@ d[Ox]/dt = -2 k2[ClO][O]
         D(Cl) ~
         -k_Cl_O3 * Cl * O3 + k_ClO_O * ClO * O + k_ClO_NO * ClO * NO -
         k_Cl_CH4 * Cl * CH4 + k_OH_HCl * OH * HCl + j_ClONO2 * ClONO2,
-        D(ClO) ~ k_Cl_O3 * Cl * O3 - k_ClO_O * ClO * O - k_ClO_NO * ClO * NO,
+        D(ClO) ~ k_Cl_O3 * Cl * O3 - k_ClO_O * ClO * O - k_ClO_NO * ClO * NO -
+                 k_ClO_NO2_M * ClO * NO2 * M,  # ClO + NO2 + M → ClONO2 (Page 167)
         D(HCl) ~ k_Cl_CH4 * Cl * CH4 - k_OH_HCl * OH * HCl,
-        D(ClONO2) ~ -j_ClONO2 * ClONO2,  # Simplified: only photolysis loss
+        D(ClONO2) ~ k_ClO_NO2_M * ClO * NO2 * M -  # ClO + NO2 + M → ClONO2 (formation)
+                    j_ClONO2 * ClONO2,               # ClONO2 + hν → Cl + NO3 (photolysis)
         ClOx ~ Cl + ClO,  # ClOx family
         Cly ~ Cl + ClO + HCl + ClONO2  # Cly family (total inorganic chlorine)
     ]
@@ -557,6 +564,10 @@ Br + CH4 is endothermic and extremely slow (Page 169).
         k_BrO_HO2 = 4e-17,
         [unit = u"m^3/s", description = "BrO + HO2 rate coefficient (4e-11 cm^3/molec/s)"]
         j_HOBr = 1e-3, [unit = u"s^-1", description = "HOBr photolysis rate"]
+        O = 1e13, [unit = u"m^-3", description = "Atomic oxygen (1e7 molec/cm^3)"]
+        O3 = 3e18, [unit = u"m^-3", description = "Ozone (3e12 molec/cm^3)"]
+        ClO = 1e13, [unit = u"m^-3", description = "ClO (1e7 molec/cm^3)"]
+        HO2 = 1e13, [unit = u"m^-3", description = "HO2 (1e7 molec/cm^3)"]
     end
 
     @variables begin
@@ -565,10 +576,6 @@ Br + CH4 is endothermic and extremely slow (Page 169).
         BrO(t) = 1e12, [unit = u"m^-3", description = "BrO concentration (1e6 molec/cm^3)"]
         HOBr(t) = 1e12,
         [unit = u"m^-3", description = "HOBr concentration (1e6 molec/cm^3)"]
-        O(t) = 1e13, [unit = u"m^-3", description = "Atomic oxygen (1e7 molec/cm^3)"]
-        O3(t) = 3e18, [unit = u"m^-3", description = "Ozone (3e12 molec/cm^3)"]
-        ClO(t) = 1e13, [unit = u"m^-3", description = "ClO (1e7 molec/cm^3)"]
-        HO2(t) = 1e13, [unit = u"m^-3", description = "HO2 (1e7 molec/cm^3)"]
         BrOx(t), [unit = u"m^-3", description = "BrOx = Br + BrO"]
         Bry(t), [unit = u"m^-3", description = "Bry = Br + BrO + HOBr"]
     end
@@ -623,12 +630,6 @@ d[Ox]/dt = 2j_O2[O2] - 2k4[O][O3]
 
 τ_O3^ss = (1/4) × (k2[M] / (k4 × j_O2 × j_O3))^(1/2)
 
-!!! note "Catalyst.jl"
-
-    A future version should convert this system to use Catalyst.jl reaction    # =========================================================================
-    networks (as in SuperFast.jl), which would enable modular composition of    # Physical and kinetic constants (Arrhenius parameters)
-    the individual subsystem components and automatic ODE generation from    # Rate expressions: k = A * exp(C / T) or k = A * (T_ref / T)^n
-    reaction definitions.    # =========================================================================
 """
 @component function StratosphericOzoneSystem(; name = :StratosphericOzoneSystem)
     # =========================================================================
@@ -693,6 +694,13 @@ d[Ox]/dt = 2j_O2[O2] - 2k4[O][O3]
         k_OH_HCl_A = 2.6e-18,
         [unit = u"m^3/s", description = "Pre-factor: OH + HCl (2.6e-12 cm^3/molec/s)"]
         C_OH_HCl = -350.0, [unit = u"K", description = "exp(C/T) factor: OH + HCl"]
+
+        # ClO + NO2 + M → ClONO2 + M (Page 165, termolecular)
+        # Approximate effective bimolecular rate at stratospheric conditions
+        # k ≈ 1.8e-31 (T/300)^(-3.4) cm^6/molec^2/s (JPL recommendation)
+        # At 30 km (M=3.1e17): k_eff ≈ 1.8e-31 * 3.1e17 ≈ 5.6e-14 cm^3/molec/s
+        k_ClO_NO2_M_A = 1.8e-43,
+        [unit = u"m^6/s", description = "Pre-factor: ClO + NO2 + M → ClONO2 (1.8e-31 cm^6/molec^2/s)"]
 
         # BrOx (Pages 166-169)
         k_Br_O3_c = 7.0e-19,
@@ -797,6 +805,9 @@ d[Ox]/dt = 2j_O2[O2] - 2k4[O][O3]
     k_Cl_CH4 = k_Cl_CH4_c                   # Cl + CH4
     k_OH_HCl = k_OH_HCl_A * exp(C_OH_HCl / T)  # OH + HCl
 
+    # ClO + NO2 + M → ClONO2 (termolecular, approximate as T-dependent)
+    k_ClO_NO2_M = k_ClO_NO2_M_A * (T_ref / T)^3.4  # ClO + NO2 + M → ClONO2 + M
+
     # BrOx
     k_Br_O3 = k_Br_O3_c                     # Br + O3
     k_BrO_O = k_BrO_O_c                     # BrO + O
@@ -855,7 +866,8 @@ d[Ox]/dt = 2j_O2[O2] - 2k4[O][O3]
         k_HO2_NO * HO2 * NO +            # HO2 + NO → NO2 + OH (produces NO2)
         k_ClO_NO * ClO * NO -             # ClO + NO → Cl + NO2 (produces NO2)
         j_NO2 * NO2 -                    # NO2 + hν (consumes NO2)
-        k_NO2_O * NO2 * O,               # NO2 + O → NO + O2 (consumes NO2)
+        k_NO2_O * NO2 * O -              # NO2 + O → NO + O2 (consumes NO2)
+        k_ClO_NO2_M * ClO * NO2 * M,     # ClO + NO2 + M → ClONO2 + M (consumes NO2, Page 167)
 
         # =================================================================
         # HOx Species
@@ -898,14 +910,16 @@ d[Ox]/dt = 2j_O2[O2] - 2k4[O][O3]
         k_Cl_O3 * Cl * O3 -             # Cl + O3 → ClO + O2
         k_ClO_O * ClO * O -              # ClO + O → Cl + O2
         k_ClO_NO * ClO * NO -            # ClO + NO → Cl + NO2
-        k_BrO_ClO * BrO * ClO,           # BrO + ClO → products
+        k_BrO_ClO * BrO * ClO -          # BrO + ClO → products
+        k_ClO_NO2_M * ClO * NO2 * M,     # ClO + NO2 + M → ClONO2 + M (Page 165)
 
         # HCl reservoir
         D(HCl) ~ k_Cl_CH4 * Cl * CH4_conc -      # Cl + CH4 → HCl + CH3
                  k_OH_HCl * OH * HCl,             # OH + HCl → H2O + Cl
 
-        # ClONO2 reservoir (simplified: only photolysis loss)
-        D(ClONO2) ~ -j_ClONO2 * ClONO2,
+        # ClONO2 reservoir (Page 167-168)
+        D(ClONO2) ~ k_ClO_NO2_M * ClO * NO2 * M -  # ClO + NO2 + M → ClONO2 + M (formation)
+                    j_ClONO2 * ClONO2,               # ClONO2 + hν → Cl + NO3 (photolysis)
 
         # =================================================================
         # Bromine Species

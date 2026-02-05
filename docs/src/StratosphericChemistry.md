@@ -34,11 +34,29 @@ where X represents the catalyst (NO, OH, Cl, Br). These cycles are highly effici
 
 ```@docs
 ChapmanMechanism
+```
+
+```@docs
 NOxCycle
+```
+
+```@docs
 HOxCycle
+```
+
+```@docs
 ClOxCycle
+```
+
+```@docs
 BrOxCycle
+```
+
+```@docs
 StratosphericOzoneSystem
+```
+
+```@docs
 stratospheric_rate_coefficients
 ```
 
@@ -128,17 +146,41 @@ The following table reproduces the standard atmospheric conditions used througho
 ```@example analysis
 using DataFrames
 
-# Table 5.1 from Seinfeld & Pandis (2006)
+# Table 5.1 from Seinfeld & Pandis (2006), page 142
 altitudes = [20, 25, 30, 35, 40, 45]  # km
-temperatures = [217, 222, 227, 237, 251, 264]  # K
-pressures = [55.3, 25.5, 12.0, 5.75, 2.87, 1.49]  # mbar
-M_values = [1.85e18, 8.33e17, 3.83e17, 1.76e17, 8.31e16, 4.09e16]  # molec/cm^3
+temperatures = [217, 222, 227, 237, 251, 265]  # K
+pressures_hPa = [55, 25, 12, 5.6, 2.8, 1.4]  # hPa
+p_over_p0 = [0.054, 0.025, 0.012, 0.0055, 0.0028, 0.0014]
+M_values = [1.4e18, 6.4e17, 3.1e17, 1.4e17, 7.1e16, 3.6e16]  # molec/cm^3
 
 table51 = DataFrame(
-    Symbol("Altitude (km)") => altitudes,
-    Symbol("Temperature (K)") => temperatures,
-    Symbol("Pressure (mbar)") => pressures,
-    Symbol("M (molec/cm^3)") => M_values
+    Symbol("z (km)") => altitudes,
+    Symbol("T (K)") => temperatures,
+    Symbol("p (hPa)") => pressures_hPa,
+    Symbol("p/p₀") => p_over_p0,
+    Symbol("[M] (molec/cm³)") => M_values
+)
+```
+
+### Table 5.2: Chemical Families in Stratospheric Chemistry
+
+Table 5.2 from Seinfeld & Pandis (2006) summarizes the chemical families that are important in stratospheric chemistry:
+
+```@example analysis
+table52 = DataFrame(
+    :Symbol => ["Oₓ", "NOₓ", "NOᵧ", "HOₓ", "Clᵧ", "ClOₓ", "Brᵧ"],
+    :Name => ["Odd oxygen", "Nitrogen oxides", "Oxidized nitrogen",
+              "Hydrogen radicals", "Inorganic chlorine", "Reactive chlorine",
+              "Inorganic bromine"],
+    :Components => [
+        "O + O3",
+        "NO + NO2",
+        "NO + NO2 + HNO3 + 2N2O5 + ClONO2 + NO3 + HOONO2 + BrONO2",
+        "OH + HO2",
+        "Cl + 2Cl2 + ClO + OClO + 2Cl2O2 + HOCl + ClONO2 + HCl + BrCl",
+        "Cl + ClO",
+        "Br + BrO + HOBr + BrONO2"
+    ]
 )
 ```
 
@@ -318,7 +360,7 @@ sys = mtkcompile(chapman)
 # Rate coefficient conversions: cm^6/(molec^2·s) × 1e-12 → m^6/s
 #                                cm^3/(molec·s)   × 1e-6  → m^3/s
 T = 227.0  # K
-M_SI = 3.83e23  # m^-3  (3.83e17 molec/cm^3 × 1e6)
+M_SI = 3.1e23  # m^-3  (3.1e17 molec/cm^3 × 1e6)
 
 j_O2_val = 1e-11  # s^-1
 j_O3_val = 4e-4   # s^-1
@@ -326,14 +368,14 @@ k2_val = GasChem.k_O_O2_M(T) * 1e-12  # CGS → SI (m^6/s)
 k4_val = GasChem.k_O_O3(T) * 1e-6     # CGS → SI (m^3/s)
 
 prob = ODEProblem(sys,
-    [sys.O => 1e11, sys.O3 => 1e16],  # SI: m^-3 (1e5 and 1e10 cm^-3 × 1e6)
-    (0.0, 3600.0 * 24 * 10),  # 10 days
-    [sys.j_O2 => j_O2_val,
+    [sys.O => 1e11, sys.O3 => 1e16,  # SI: m^-3 (1e5 and 1e10 cm^-3 × 1e6)
+        sys.j_O2 => j_O2_val,
         sys.j_O3 => j_O3_val,
         sys.k2 => k2_val,
         sys.k4 => k4_val,
         sys.M => M_SI,
-        sys.O2_mix => 0.21])
+        sys.O2_mix => 0.21],
+    (0.0, 3600.0 * 24 * 10))  # 10 days
 
 sol = solve(prob, abstol = 1e-8, reltol = 1e-8)
 
