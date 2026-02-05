@@ -1,17 +1,24 @@
 name: Downgrade
 on:
-  pull_request:
-    branches:
-      - main
-    paths-ignore:
-      - 'docs/**'
-  push:
-    branches:
-      - main
-    paths-ignore:
-      - 'docs/**'
-  schedule:
-    - cron: '44 4 * * 4'
+  # TEMPORARILY DISABLED: The Downgrade workflow cannot work while using the
+  # Catalyst.jl fork (ctessum/Catalyst.jl#mtkv10-v2) because Catalyst v16 is not
+  # in the General registry. The julia-downgrade-compat action fails with a
+  # KeyError when trying to look up the Catalyst UUID, even when Catalyst is in
+  # the skip list. Re-enable this workflow once Catalyst v16 is released.
+  #
+  # pull_request:
+  #   branches:
+  #     - main
+  #   paths-ignore:
+  #     - 'docs/**'
+  # push:
+  #   branches:
+  #     - main
+  #   paths-ignore:
+  #     - 'docs/**'
+  # schedule:
+  #   - cron: '44 4 * * 4'
+  workflow_dispatch:  # Allow manual triggering for testing
 jobs:
   test:
     runs-on: ${{ matrix.os }}
@@ -29,15 +36,21 @@ jobs:
           - macos-latest
           - windows-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: julia-actions/setup-julia@v2
         with:
           version: ${{ matrix.version }}
       - uses: julia-actions/julia-downgrade-compat@v2
         with:
-          skip: Pkg,TOML,Statistics,Random
+          skip: Pkg,TOML,Statistics,Random,Catalyst
       - uses: julia-actions/cache@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Install Catalyst.jl fork
+        run: |
+          julia --project=. -e '
+            using Pkg
+            Pkg.add(url="https://github.com/ctessum/Catalyst.jl", rev="mtkv10-v2")
+          '
       - uses: julia-actions/julia-buildpkg@v1
       - uses: julia-actions/julia-runtest@v1

@@ -1,15 +1,20 @@
-[default.extend-identifiers]
-# Chemical species names used in GEOS-Chem mechanism
-ONO = "ONO"
-ETO = "ETO"
-TRO = "TRO"
-MEK = "MEK"
-alow = "alow"
-kinf = "kinf"
+# Typos configuration for GasChem.jl
+# See: https://github.com/crate-ci/typos
 
 [default.extend-words]
-# Abbreviation for "stratospheric"
-Strat = "Strat"
-strat = "strat"
-# Author surname
-Jenkin = "Jenkin"
+# Chemical species names
+ONO = "ONO"  # Organic Nitrate Oxygen / Nitrogen monoxide
+ETO = "ETO"  # Ethylene Oxide
+MEK = "MEK"  # Methyl Ethyl Ketone
+TRO = "TRO"  # Tropospheric species
+
+# Scientific code conventions
+consts = "consts"  # Short for constants (Julia convention)
+alow = "alow"      # Arrhenius low-pressure limit (variable name)
+strat = "strat"    # Stratospheric (common abbreviation)
+
+# External library functions
+setp = "setp"      # Function from SymbolicIndexingInterface.jl
+
+# Author names from referenced papers
+Jenkin = "Jenkin"  # M. E. Jenkin (atmospheric chemistry researcher)

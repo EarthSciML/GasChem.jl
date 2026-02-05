@@ -55,7 +55,8 @@ Arrhenius equation:
     k = a0 * exp( c0 / T ) * (T/300)^b0
 ```
 """
-function arrhenius_ppb(t, T, num_density, a0, b0, c0; unit = u"ppb^-1*s^-1", name = :arrhenius_ppb)
+function arrhenius_ppb(
+        t, T, num_density, a0, b0, c0; unit = u"ppb^-1*s^-1", name = :arrhenius_ppb)
     T = ParentScope(T)
     num_density = ParentScope(num_density)
     t = ParentScope(t)
@@ -165,8 +166,12 @@ function arr_3rdbody(t, T, num_density, a1, b1, c1, a2, b2, c2, fv; unit = u"ppb
     num_density = ParentScope(num_density)
     consts = @constants begin
         ppb_unit = 1e-9, [unit = u"ppb^-1", description = "Convert from mol/mol_air to ppb"]
-        num_density_unit_inv = 1.0 / cm3_m3 * N_A, [unit = u"m^3/mol", description = "multiply by num_density to obtain SI-based unitless value of num_density"]
-        k_unit_inv = 1e6, [unit = u"m^-3*molec*s", description = "multiply by k to obtain cm^3*molec^-1*s^-1-based unitless value of k"]
+        num_density_unit_inv = 1.0 / cm3_m3 * N_A,
+        [unit = u"m^3/mol",
+            description = "multiply by num_density to obtain SI-based unitless value of num_density"]
+        k_unit_inv = 1e6,
+        [unit = u"m^-3*molec*s",
+            description = "multiply by k to obtain cm^3*molec^-1*s^-1-based unitless value of k"]
         unit_conv = 1.0 / cm3_m3 * N_A, [unit = u"m^3/mol/s"]
     end
     @named alow = arrhenius_mlc_SI(t, T, a1, b1, c1)
@@ -202,8 +207,12 @@ function arr_3rdbody_1(t, T, num_density, a1, b1, c1, a2, b2, c2, fv;
     num_density = ParentScope(num_density)
     consts = @constants begin
         ppb_unit = 1e-9, [unit = u"ppb^-1", description = "Convert from mol/mol_air to ppb"]
-        k_unit_inv = 1e6, [unit = u"m^-3*molec*s", description = "multiply by k to obtain cm^3*molec^-1*s^-1-based unitless value of k"]
-        num_density_unit_inv = 1.0 / cm3_m3 * N_A, [unit = u"m^3/mol", description = "multiply by num_density to obtain SI-based unitless value of num_density"]
+        k_unit_inv = 1e6,
+        [unit = u"m^-3*molec*s",
+            description = "multiply by k to obtain cm^3*molec^-1*s^-1-based unitless value of k"]
+        num_density_unit_inv = 1.0 / cm3_m3 * N_A,
+        [unit = u"m^3/mol",
+            description = "multiply by num_density to obtain SI-based unitless value of num_density"]
         unit_conv = 1.0, [unit = u"s^-1"]
     end
     @named alow = arrhenius_mlc_SI(t, T, a1, b1, c1)
@@ -236,9 +245,13 @@ function rate_HO2HO2(t, T, num_density, H2O, a0, c0, a1, c1; name = :rate_HO2HO2
     @named k1 = arrhenius_mlc_SI(t, T, a1, 0.0, c1)
     consts = @constants begin
         T_0 = 2200.0, [unit = u"K"]
-        k_unit_inv = 1e6, [unit = u"m^-3*molec*s", description = "multiply by k to obtain cm^3*molec^-1*s^-1-based unitless value of k"]
+        k_unit_inv = 1e6,
+        [unit = u"m^-3*molec*s",
+            description = "multiply by k to obtain cm^3*molec^-1*s^-1-based unitless value of k"]
         ppb_unit = 1e-9, [unit = u"ppb^-1", description = "Convert from mol/mol_air to ppb"]
-        num_density_unit_inv = 1.0 / cm3_m3 * N_A, [unit = u"m^3/mol", description = "multiply by num_density to obtain SI-based unitless value of num_density"]
+        num_density_unit_inv = 1.0 / cm3_m3 * N_A,
+        [unit = u"m^3/mol",
+            description = "multiply by num_density to obtain SI-based unitless value of num_density"]
         unit_conv = 1.0 / cm3_m3 * N_A, [unit = u"m^3/mol/s"]
     end
     @variables k(t) [unit = u"ppb^-1*s^-1"]
@@ -246,8 +259,9 @@ function rate_HO2HO2(t, T, num_density, H2O, a0, c0, a1, c1; name = :rate_HO2HO2
     C = num_density * ppb_unit * unit_conv
     ODESystem(
         [
-            k ~ (k0.k * k_unit_inv + k1.k * k_unit_inv * num_density * num_density_unit_inv) *
-                ((1.0 + 1.4E-21 * (H2O * C_H2O) * exp(T_0 / T))) * C
+            k ~
+            (k0.k * k_unit_inv + k1.k * k_unit_inv * num_density * num_density_unit_inv) *
+            ((1.0 + 1.4E-21 * (H2O * C_H2O) * exp(T_0 / T))) * C
         ],
         t,
         [k],
@@ -266,8 +280,12 @@ function rate_OHCO(t, T, num_density; name = :rate_OHCO)
     num_density = ParentScope(num_density)
     consts = @constants begin
         ppb_unit = 1e-9, [unit = u"ppb^-1", description = "Convert from mol/mol_air to ppb"]
-        k_unit_inv = 1e6, [unit = u"m^-3*molec*s", description = "multiply by k to obtain cm^3*molec^-1*s^-1-based unitless value of k"]
-        num_density_unit_inv = 1.0 / cm3_m3 * N_A, [unit = u"m^3/mol", description = "multiply by num_density to obtain SI-based unitless value of num_density"]
+        k_unit_inv = 1e6,
+        [unit = u"m^-3*molec*s",
+            description = "multiply by k to obtain cm^3*molec^-1*s^-1-based unitless value of k"]
+        num_density_unit_inv = 1.0 / cm3_m3 * N_A,
+        [unit = u"m^3/mol",
+            description = "multiply by num_density to obtain SI-based unitless value of num_density"]
         unit_conv = 1.0 / cm3_m3 * N_A, [unit = u"m^3/mol/s"]
     end
     @named klo1 = arrhenius_mlc_SI(t, T, 5.9E-33, 1, 0)
@@ -276,13 +294,13 @@ function rate_OHCO(t, T, num_density; name = :rate_OHCO)
     blog1 = log10(xyrat1)
     fexp1 = 1.0 / (1.0 + blog1 * blog1)
     kco1 = klo1.k * k_unit_inv * num_density * num_density_unit_inv * 0.6^fexp1 /
-           (1.0 + xyrat1) 
+           (1.0 + xyrat1)
     @named klo2 = arrhenius_mlc_SI(t, T, 1.5E-13, 0, 0)
     @named khi2 = arrhenius_mlc_SI(t, T, 2.1E+09, -6.1, 0)
     xyrat2 = klo2.k * num_density * num_density_unit_inv / khi2.k
     blog2 = log10(xyrat2)
     fexp2 = 1.0 / (1.0 + blog2 * blog2)
-    kco2 = klo2.k * k_unit_inv * 0.6^fexp2 / (1.0 + xyrat2) 
+    kco2 = klo2.k * k_unit_inv * 0.6^fexp2 / (1.0 + xyrat2)
 
     @variables k(t) [unit = u"ppb^-1*s^-1"]
     C = num_density * ppb_unit * unit_conv
@@ -363,14 +381,18 @@ function rate_RO2NO_a2(t, T, num_density, a0, c0, a1; name = :rate_RO2NO_a2)
     num_density = ParentScope(num_density)
     consts = @constants begin
         ppb_unit = 1e-9, [unit = u"ppb^-1", description = "Convert from mol/mol_air to ppb"]
-        num_density_unit_inv = 1.0 / cm3_m3 * N_A, [unit = u"m^3/mol", description = "multiply by num_density to obtain SI-based unitless value of num_density"]
-        k_unit_inv = 1e6, [unit = u"m^-3*molec*s", description = "multiply by k to obtain cm^3*molec^-1*s^-1-based unitless value of k"]
+        num_density_unit_inv = 1.0 / cm3_m3 * N_A,
+        [unit = u"m^3/mol",
+            description = "multiply by num_density to obtain SI-based unitless value of num_density"]
+        k_unit_inv = 1e6,
+        [unit = u"m^-3*molec*s",
+            description = "multiply by k to obtain cm^3*molec^-1*s^-1-based unitless value of k"]
         unit_conv = 1.0 / cm3_m3 * N_A, [unit = u"m^3/mol/s"]
     end
 
     @named k0 = arrhenius_mlc_SI(t, T, a0, 0, c0)
     @named yyyn = arrhenius_mlc_SI(t, T, 0.826, 8.1, 0.0)
-    @variables(xxyn(t), 
+    @variables(xxyn(t),
         aaa(t),
         zzyn(t),
         rarb(t),
@@ -409,8 +431,12 @@ function rate_RO2NO_b2(t, T, num_density, a0, c0, a1; name = :rate_RO2NO_b2)
     num_density = ParentScope(num_density)
     consts = @constants begin
         ppb_unit = 1e-9, [unit = u"ppb^-1", description = "Convert from mol/mol_air to ppb"]
-        num_density_unit_inv = 1.0 / cm3_m3 * N_A, [unit = u"m^3/mol", description = "multiply by num_density to obtain SI-based unitless value of num_density"]
-        k_unit_inv = 1e6, [unit = u"m^-3*molec*s", description = "multiply by k to obtain cm^3*molec^-1*s^-1-based unitless value of k"]
+        num_density_unit_inv = 1.0 / cm3_m3 * N_A,
+        [unit = u"m^3/mol",
+            description = "multiply by num_density to obtain SI-based unitless value of num_density"]
+        k_unit_inv = 1e6,
+        [unit = u"m^-3*molec*s",
+            description = "multiply by k to obtain cm^3*molec^-1*s^-1-based unitless value of k"]
         unit_conv = 1.0 / cm3_m3 * N_A, [unit = u"m^3/mol/s"]
     end
     @named k0 = arrhenius_mlc_SI(t, T, a0, 0.0, c0)
@@ -427,7 +453,7 @@ function rate_RO2NO_b2(t, T, num_density, a0, c0, a1; name = :rate_RO2NO_b2)
     eqs = [xxyn ~ 1.94e-22 * exp(0.97 * a1) * num_density * num_density_unit_inv
            aaa ~ log10(xxyn / (yyyn.k * k_unit_inv))
            zzyn ~ (1.0 / (1.0 + (aaa * aaa)))
-           rarb ~ (xxyn / (1.0 + (xxyn / (yyyn.k * k_unit_inv )))) * (0.411^zzyn)
+           rarb ~ (xxyn / (1.0 + (xxyn / (yyyn.k * k_unit_inv)))) * (0.411^zzyn)
            fyrno3 ~ (rarb / (1.0 + rarb))
            k ~ k0.k * k_unit_inv * (1.0 - fyrno3) * C]
     ODESystem(
@@ -449,7 +475,9 @@ function tbranch(t, T, num_density, a0, b0, c0, a1, b1, c1; name = :tbranch)
     consts = @constants begin
         ppb_unit = 1e-9, [unit = u"ppb^-1", description = "Convert from mol/mol_air to ppb"]
         unit_conv = 1.0 / cm3_m3 * N_A, [unit = u"m^3/mol/s"]
-        k_unit_inv = 1e6, [unit = u"m^-3*molec*s", description = "multiply by k to obtain cm^3*molec^-1*s^-1-based unitless value of k"]
+        k_unit_inv = 1e6,
+        [unit = u"m^-3*molec*s",
+            description = "multiply by k to obtain cm^3*molec^-1*s^-1-based unitless value of k"]
     end
     @named k0 = arrhenius_mlc_SI(t, T, a0, b0, c0)
     @named k1 = arrhenius_mlc_SI(t, T, a1, b1, c1)
@@ -478,8 +506,12 @@ function rate_OHHNO3(t, T, num_density, a0, c0, a1, c1, a2, c2; name = :rate_OHH
     @named k1 = arrhenius_mlc_SI(t, T, a1, 0, c1)
     @named k1_5 = arrhenius_mlc_SI(t, T, a2, 0, c2)
     consts = @constants begin
-        num_density_unit_inv = 1.0 / cm3_m3 * N_A, [unit = u"m^3/mol", description = "multiply by num_density to obtain SI-based unitless value of num_density"]
-        k_unit_inv = 1e6, [unit = u"m^-3*molec*s", description = "multiply by k to obtain cm^3*molec^-1*s^-1-based unitless value of k"]
+        num_density_unit_inv = 1.0 / cm3_m3 * N_A,
+        [unit = u"m^3/mol",
+            description = "multiply by num_density to obtain SI-based unitless value of num_density"]
+        k_unit_inv = 1e6,
+        [unit = u"m^-3*molec*s",
+            description = "multiply by k to obtain cm^3*molec^-1*s^-1-based unitless value of k"]
         ppb_unit = 1e-9, [unit = u"ppb^-1", description = "Convert from mol/mol_air to ppb"]
         unit_conv = 1.0 / cm3_m3 * N_A, [unit = u"m^3/mol/s"]
     end
@@ -505,7 +537,8 @@ Used to compute the rate for these reactions:
 PPN        = RCO3 + NO2
 PAN        = MCO3 + NO2
 """
-function eq_const(t, T, num_density, a0, c0, a1, b1, a2, b2, fv; unit = u"ppb^-1*s^-1", name = :eq_const)
+function eq_const(t, T, num_density, a0, c0, a1, b1, a2, b2,
+        fv; unit = u"ppb^-1*s^-1", name = :eq_const)
     T = ParentScope(T)
     num_density = ParentScope(num_density)
     @named k0 = arrhenius_ppb(t, T, num_density, a0, 0, c0)  # backwards rxn rate
@@ -621,7 +654,9 @@ function rate_HACOH_a(t, T, num_density, a0, c0; name = :rate_HACOH_a)
     num_density = ParentScope(num_density)
     consts = @constants begin
         exp_arg = -1.0 / 60.0, [unit = u"K^-1"]
-        k_unit_inv = 1e6, [unit = u"m^-3*molec*s", description = "multiply by k to obtain cm^3*molec^-1*s^-1-based unitless value of k"]
+        k_unit_inv = 1e6,
+        [unit = u"m^-3*molec*s",
+            description = "multiply by k to obtain cm^3*molec^-1*s^-1-based unitless value of k"]
         ppb_unit = 1e-9, [unit = u"ppb^-1", description = "Convert from mol/mol_air to ppb"]
         unit_conv = 1.0 / cm3_m3 * N_A, [unit = u"m^3/mol/s"]
     end
@@ -644,7 +679,9 @@ function rate_HACOH_b(t, T, num_density, a0, c0; name = :rate_HACOH_b)
     num_density = ParentScope(num_density)
     consts = @constants begin
         exp_arg = -1.0 / 60.0, [unit = u"K^-1"]
-        k_unit_inv = 1e6, [unit = u"m^-3*molec*s", description = "multiply by k to obtain cm^3*molec^-1*s^-1-based unitless value of k"]
+        k_unit_inv = 1e6,
+        [unit = u"m^-3*molec*s",
+            description = "multiply by k to obtain cm^3*molec^-1*s^-1-based unitless value of k"]
         ppb_unit = 1e-9, [unit = u"ppb^-1", description = "Convert from mol/mol_air to ppb"]
         unit_conv = 1.0 / cm3_m3 * N_A, [unit = u"m^3/mol/s"]
     end
@@ -666,8 +703,12 @@ function rate_DMSOH(t, T, num_density, a0, c0, a1, c1; name = :rate_DMSOH)
     num_density = ParentScope(num_density)
     consts = @constants begin
         c2 = 0.2095e0
-        num_density_unit_inv = 1.0 / cm3_m3 * N_A, [unit = u"m^3/mol", description = "multiply by num_density to obtain SI-based unitless value of num_density"]
-        k_unit_inv = 1e6, [unit = u"m^-3*molec*s", description = "multiply by k to obtain cm^3*molec^-1*s^-1-based unitless value of k"]
+        num_density_unit_inv = 1.0 / cm3_m3 * N_A,
+        [unit = u"m^3/mol",
+            description = "multiply by num_density to obtain SI-based unitless value of num_density"]
+        k_unit_inv = 1e6,
+        [unit = u"m^-3*molec*s",
+            description = "multiply by k to obtain cm^3*molec^-1*s^-1-based unitless value of k"]
         ppb_unit = 1e-9, [unit = u"ppb^-1", description = "Convert from mol/mol_air to ppb"]
         unit_conv = 1.0 / cm3_m3 * N_A, [unit = u"m^3/mol/s"]
     end
@@ -677,8 +718,9 @@ function rate_DMSOH(t, T, num_density, a0, c0, a1, c1; name = :rate_DMSOH)
     C = num_density * ppb_unit * unit_conv
     ODESystem(
         #[k ~ unit_conv * (k0.k * num_density * c2) / (1 / one_s + k1.k * c2)],
-        [k ~ (k0.k * k_unit_inv * num_density * num_density_unit_inv * c2) /
-             (1.0 + k1.k * k_unit_inv * c2) * C],
+        [k ~
+         (k0.k * k_unit_inv * num_density * num_density_unit_inv * c2) /
+         (1.0 + k1.k * k_unit_inv * c2) * C],
         t,
         [k],
         consts;
@@ -698,8 +740,12 @@ function rate_GLYXNO3(t, T, num_density, a0, c0; name = :rate_GLYXNO3)
     num_density = ParentScope(num_density)
     @named k0 = arrhenius_mlc_SI(t, T, a0, 0, c0)
     consts = @constants begin
-        num_density_unit_inv = 1.0 / cm3_m3 * N_A, [unit = u"m^3/mol", description = "multiply by num_density to obtain SI-based unitless value of num_density"]
-        k_unit_inv = 1e6, [unit = u"m^-3*molec*s", description = "multiply by k to obtain cm^3*molec^-1*s^-1-based unitless value of k"]
+        num_density_unit_inv = 1.0 / cm3_m3 * N_A,
+        [unit = u"m^3/mol",
+            description = "multiply by num_density to obtain SI-based unitless value of num_density"]
+        k_unit_inv = 1e6,
+        [unit = u"m^-3*molec*s",
+            description = "multiply by k to obtain cm^3*molec^-1*s^-1-based unitless value of k"]
         ppb_unit = 1e-9, [unit = u"ppb^-1", description = "Convert from mol/mol_air to ppb"]
         unit_conv = 1.0 / cm3_m3 * N_A, [unit = u"m^3/mol/s"]
     end
@@ -769,7 +815,6 @@ function arrplus_ppb(
         name = name
     )
 end
-
 
 """
 Computes a temperature-dependent reaction rate constant using a modified
@@ -908,7 +953,9 @@ function rate_EPO(t, T, num_density, a1, e1, m1; name = :rate_EPO)
         e1 = e1, [unit = u"K"]
         a1 = a1
         ppb_unit = 1e-9, [unit = u"ppb^-1", description = "Convert from mol/mol_air to ppb"]
-        num_density_unit_inv = 1.0 / cm3_m3 * N_A, [unit = u"m^3/mol", description = "multiply by num_density to obtain SI-based unitless value of num_density"]
+        num_density_unit_inv = 1.0 / cm3_m3 * N_A,
+        [unit = u"m^3/mol",
+            description = "multiply by num_density to obtain SI-based unitless value of num_density"]
         unit_conv = 1.0 / cm3_m3 * N_A, [unit = u"m^3/mol/s"]
     end
     k1 = 1.0 / (m1 * num_density * num_density_unit_inv + 1.0)
@@ -921,7 +968,8 @@ end
 Used to compute the rate for reaction:
 BZPAN --> BZCO3 + NO2
 """
-function rate_PAN_abab(t, T, num_density, a0, b0, a1, b1, cf; unit = u"s^-1", name = :rate_PAN_abab)
+function rate_PAN_abab(
+        t, T, num_density, a0, b0, a1, b1, cf; unit = u"s^-1", name = :rate_PAN_abab)
     T = ParentScope(T)
     num_density = ParentScope(num_density)
     consts = @constants begin
@@ -929,8 +977,10 @@ function rate_PAN_abab(t, T, num_density, a0, b0, a1, b1, cf; unit = u"s^-1", na
         a1 = a1
         b0 = b0, [unit = u"K"]
         b1 = b1, [unit = u"K"]
-        num_density_unit_inv = 1.0 / cm3_m3 * N_A, [unit = u"m^3/mol", description = "multiply by num_density to obtain SI-based unitless value of num_density"]
-        unit_conv = 1.0 , [unit = u"s^-1"]
+        num_density_unit_inv = 1.0 / cm3_m3 * N_A,
+        [unit = u"m^3/mol",
+            description = "multiply by num_density to obtain SI-based unitless value of num_density"]
+        unit_conv = 1.0, [unit = u"s^-1"]
     end
     k0 = a0 * exp(b0 / T)
     k1 = a1 * exp(b1 / T)
@@ -956,7 +1006,9 @@ function rate_PAN_acac(t, T, num_density, a0, c0, a1, c1, cf; name = :rate_PAN_a
         a0 = a0
         a1 = a1
         ppb_unit = 1e-9, [unit = u"ppb^-1", description = "Convert from mol/mol_air to ppb"]
-        num_density_unit_inv = 1.0 / cm3_m3 * N_A, [unit = u"m^3/mol", description = "multiply by num_density to obtain SI-based unitless value of num_density"]
+        num_density_unit_inv = 1.0 / cm3_m3 * N_A,
+        [unit = u"m^3/mol",
+            description = "multiply by num_density to obtain SI-based unitless value of num_density"]
         unit_conv = 1.0 / cm3_m3 * N_A, [unit = u"m^3/mol/s"]
     end
     k0 = a0 * (T / K_300)^c0
@@ -1001,7 +1053,9 @@ function rate_NIT(t, T, num_density, a0, b0, c0, n, x0, y0; name = :rate_NIT)
         y0 = y0, [unit = u"K^-1"]
         zero = 0.0, [unit = u"ppb^-1*s^-1"]
         ppb_unit = 1e-9, [unit = u"ppb^-1", description = "Convert from mol/mol_air to ppb"]
-        num_density_unit_inv = 1.0 / cm3_m3 * N_A, [unit = u"m^3/mol", description = "multiply by num_density to obtain SI-based unitless value of num_density"]
+        num_density_unit_inv = 1.0 / cm3_m3 * N_A,
+        [unit = u"m^3/mol",
+            description = "multiply by num_density to obtain SI-based unitless value of num_density"]
         unit_conv = 1.0 / cm3_m3 * N_A, [unit = u"m^3/mol/s"]
     end
     vars = @variables begin
@@ -1058,7 +1112,9 @@ function rate_ALK(t, T, num_density, a0, b0, c0, n, x0, y0; name = :rate_ALK)
         y0 = y0, [unit = u"K^-1"]
         zero = 0, [unit = u"ppb^-1*s^-1"]
         ppb_unit = 1e-9, [unit = u"ppb^-1", description = "Convert from mol/mol_air to ppb"]
-        num_density_unit_inv = 1.0 / cm3_m3 * N_A, [unit = u"m^3/mol", description = "multiply by num_density to obtain SI-based unitless value of num_density"]
+        num_density_unit_inv = 1.0 / cm3_m3 * N_A,
+        [unit = u"m^3/mol",
+            description = "multiply by num_density to obtain SI-based unitless value of num_density"]
         unit_conv = 1.0 / cm3_m3 * N_A, [unit = u"m^3/mol/s"]
     end
     vars = @variables begin

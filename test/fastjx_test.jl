@@ -21,9 +21,9 @@ end
 
 @testitem "o31D" setup=[FastJXSetup] begin
     u_0 = [
-        0.007369280845991884, 
-        0.007374722096550664, 
-        0.007583971820745277, 
+        0.007369280845991884,
+        0.007374722096550664,
+        0.007583971820745277,
         0.007583971820745277
     ]
     fluxes = get_fluxes(3600 * 12.0, 30.0, 0.0, 0.9)
@@ -51,7 +51,7 @@ end
 
     j_H2O2_func = getsym(prob, fj.j_H2O2)
     j_H2O2_value = j_H2O2_func(prob)
-    j_want = GasChem.j_mean_H2O2(298.0, get_fluxes(3600 * 12.0, 40.0, -97.0, 101325)) 
+    j_want = GasChem.j_mean_H2O2(298.0, get_fluxes(3600 * 12.0, 40.0, -97.0, 101325))
     @test j_H2O2_value≈j_want rtol=0.004
 end
 
@@ -67,7 +67,6 @@ end
     ]
 
     @test test_2 ≈ u_2
-
 
     j_H2COa_func = getsym(prob, fj.j_H2COa)
     j_H2COa_value = j_H2COa_func(prob)
@@ -90,8 +89,8 @@ end
 
     j_H2COb_func = getsym(prob, fj.j_H2COb)
     j_H2COb_value = j_H2COb_func(prob)
-    @test j_H2COb_value≈
-    GasChem.j_mean_H2COb(
+    @test j_H2COb_value ≈
+          GasChem.j_mean_H2COb(
         298.0,
         get_fluxes(3600 * 12.0, 40.0, -97.0, 101325)
     ) rtol=1e-6
@@ -111,8 +110,8 @@ end
 
     j_CH3OOH_func = getsym(prob, fj.j_CH3OOH)
     j_CH3OOH_value = j_CH3OOH_func(prob)
-    @test j_CH3OOH_value≈
-    GasChem.j_mean_CH3OOH(
+    @test j_CH3OOH_value ≈
+          GasChem.j_mean_CH3OOH(
         298.0,
         get_fluxes(3600 * 12.0, 40.0, -97.0, 101325)
     ) rtol=1e-6
@@ -134,8 +133,8 @@ end
     j_NO2_func = getsym(prob, fj.j_NO2)
     j_NO2_value = j_NO2_func(prob)
 
-    @test j_NO2_value≈
-    GasChem.j_mean_NO2(298.0, get_fluxes(3600 * 12.0, 40.0, -97.0, 101325)) rtol=1e-6
+    @test j_NO2_value ≈
+          GasChem.j_mean_NO2(298.0, get_fluxes(3600 * 12.0, 40.0, -97.0, 101325)) rtol=1e-6
 end
 
 @testitem "GEOS-Chem: CFCl3, H1301, Glyxlc" setup=[FastJXSetup] begin
@@ -144,20 +143,20 @@ end
     j_CFCl3_func = getsym(prob, fj.j_CFCl3)
     j_CFCl3_value = j_CFCl3_func(prob)
 
-    @test j_CFCl3_value≈
-    GasChem.j_mean_CFCl3(298.0, get_fluxes(3600 * 12.0, 40.0, -97.0, 101325)) rtol=1e-6
+    @test j_CFCl3_value ≈
+          GasChem.j_mean_CFCl3(298.0, get_fluxes(3600 * 12.0, 40.0, -97.0, 101325)) rtol=1e-6
 
     j_H1301_func = getsym(prob, fj.j_H1301)
     j_H1301_value = j_H1301_func(prob)
 
-    @test j_H1301_value≈
-    GasChem.j_mean_H1301(298.0, get_fluxes(3600 * 12.0, 40.0, -97.0, 101325)) rtol=1e-6
+    @test j_H1301_value ≈
+          GasChem.j_mean_H1301(298.0, get_fluxes(3600 * 12.0, 40.0, -97.0, 101325)) rtol=1e-6
 
     j_Glyxlc_func = getsym(prob, fj.j_Glyxlc)
     j_Glyxlc_value = j_Glyxlc_func(prob)
 
-    @test j_Glyxlc_value≈
-    GasChem.j_mean_Glyxlc(298.0, get_fluxes(3600 * 12.0, 40.0, -97.0, 101325)) rtol=1e-6
+    @test j_Glyxlc_value ≈
+          GasChem.j_mean_Glyxlc(298.0, get_fluxes(3600 * 12.0, 40.0, -97.0, 101325)) rtol=1e-6
 end
 
 @testitem "Ensure Cos SZA is non-allocating" begin
@@ -177,23 +176,23 @@ end
     @parameters P, csa
     x = GasChem.calc_direct_fluxes(csa, P)
     @test substitute(x, Dict(P => 1013525, csa => 0.42255961917649837)) ≈ [
-        0.0, 
-        0.0, 
-        0.0, 
-        0.0, 
-        0.0, 
-        0.0, 
-        0.0, 
-        0.0, 
-        0.0, 
-        0.0, 
-        0.008445690580780573, 
-        4.368635862759404e6, 
-        3.861091113407282e11, 
-        7.162608365510285e12, 
-        4.381532157326822e13, 
-        5.5736656209660256e14, 
-        5.378272528516121e15, 
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.008445690580780573,
+        4.368635862759404e6,
+        3.861091113407282e11,
+        7.162608365510285e12,
+        4.381532157326822e13,
+        5.5736656209660256e14,
+        5.378272528516121e15,
         1.6978055609093792e17
     ]
 end
