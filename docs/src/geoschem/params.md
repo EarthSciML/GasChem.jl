@@ -29,8 +29,8 @@ sys2 = param_to_var(GEOSChemGasPhase(), :T, :num_density)
 @unpack T, num_density = sys2
 @constants T_0 = 300 [unit=u"K"]
 @constants t_0 = 1 [unit=u"s"]
-@constants numd_0 = 2.7e19 [unit=u"cm^-3"]
-@constants numd_slope = 2.5e19 [unit=u"cm^-3"]
+@constants numd_0 = 2.7e19 / 6.02e23 * 1e6 [unit=u"mol/m^3"]
+@constants numd_slope = 2.5e19 / 6.02e23 * 1e6 [unit=u"mol/m^3"]
 eqs = [
     T ~ T_0 + T_0 / 1.5 * sin(2π*t/t_0/(60*60*24)),
     num_density ~ numd_0 - numd_slope*t/t_0/(60*60*24*4)
