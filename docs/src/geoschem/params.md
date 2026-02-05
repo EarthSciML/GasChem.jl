@@ -29,11 +29,13 @@ sys2 = param_to_var(GEOSChemGasPhase(), :T, :num_density)
 @unpack T, num_density = sys2
 @constants T_0 = 300 [unit=u"K"]
 @constants t_0 = 1 [unit=u"s"]
+@constants nd_0 = 2.7e19 [unit=u"cm^-3"]
+@constants nd_slope = 2.5e19 [unit=u"cm^-3"]
 eqs = [
     T ~ T_0 + T_0 / 1.5 * sin(2π*t/t_0/(60*60*24)),
-    num_density ~ 2.7e19 - 2.5e19*t/t_0/(60*60*24*4)
+    num_density ~ nd_0 - nd_slope*t/t_0/(60*60*24*4)
 ]
-sys2 = extend(sys2, ODESystem(eqs, t; name = :var_T))
+sys2 = extend(sys2, System(eqs, t; name = :var_T))
 
 # Run the simulation again.
 sys2 = structural_simplify(sys2)

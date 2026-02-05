@@ -22,7 +22,7 @@ model = SuperFast()
 We can also look at them as a graph:
 
 ```@example 1
-Graph(SuperFast(; name = :SuperFast, rxn_sys = true))
+Catalyst.Graph(SuperFast(; name = :SuperFast, rxn_sys = true))
 ```
 
 ## Variables and parameters
