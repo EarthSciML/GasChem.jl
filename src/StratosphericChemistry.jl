@@ -26,7 +26,7 @@ export stratospheric_rate_coefficients
 # ============================================================================
 
 """
-    k_O_O2_M(T, M)
+    k_O_O2_M(T)
 
 Rate coefficient for O + O2 + M → O3 + M (Reaction 2 in Chapman mechanism)
 k2 = 6.0 × 10⁻³⁴ (T/300)⁻²·⁴ cm⁶ molecule⁻² s⁻¹
@@ -111,12 +111,12 @@ end
     k_HO2_O3(T)
 
 Rate coefficient for HO2 + O3 → OH + O2 + O2
-k ≈ 10⁻¹⁵ cm³ molecule⁻¹ s⁻¹
+k = 1.0 × 10⁻¹⁴ exp(-490/T) cm³ molecule⁻¹ s⁻¹
 
-Reference: Page 160, Seinfeld & Pandis (2006)
+Reference: Table B.1, Seinfeld & Pandis (2006)
 """
 function k_HO2_O3(T)
-    return 1.0e-15
+    return 1.0e-14 * exp(-490.0 / T)
 end
 
 """
@@ -183,12 +183,12 @@ end
     k_Cl_CH4(T)
 
 Rate coefficient for Cl + CH4 → HCl + CH3
-k ≈ 10⁻¹⁴ cm³ molecule⁻¹ s⁻¹ at 260 K
+k = 9.6 × 10⁻¹² exp(-1360/T) cm³ molecule⁻¹ s⁻¹
 
-Reference: Page 169 footnote, Seinfeld & Pandis (2006)
+Reference: Table B.1, Seinfeld & Pandis (2006)
 """
 function k_Cl_CH4(T)
-    return 1.0e-14  # Approximate value at stratospheric temperatures
+    return 9.6e-12 * exp(-1360.0 / T)
 end
 
 """
@@ -207,12 +207,12 @@ end
     k_Br_O3(T)
 
 Rate coefficient for Br + O3 → BrO + O2
-k ≈ 7 × 10⁻¹³ cm³ molecule⁻¹ s⁻¹ at 250 K
+k = 1.7 × 10⁻¹¹ exp(-800/T) cm³ molecule⁻¹ s⁻¹
 
-Reference: Page 198 (Problem 5.11), Seinfeld & Pandis (2006)
+Reference: Table B.1, Seinfeld & Pandis (2006)
 """
 function k_Br_O3(T)
-    return 7.0e-13
+    return 1.7e-11 * exp(-800.0 / T)
 end
 
 """
@@ -224,11 +224,11 @@ Multiple channels with different products
 Reference: Page 166, Seinfeld & Pandis (2006)
 """
 function k_BrO_ClO_BrCl(T)
-    return 2.0e-12  # → BrCl + O2
+    return 5.8e-13 * exp(170.0 / T)  # → BrCl + O2 (Table B.1)
 end
 
 function k_BrO_ClO_ClOO(T)
-    return 8.0e-12  # → ClOO + Br
+    return 2.3e-12 * exp(260.0 / T)  # → ClOO + Br (Table B.1)
 end
 
 """
@@ -429,8 +429,8 @@ Net: O3 + O3 → O2 + O2 + O2
     @parameters begin
         k_OH_O3 = 1.7e-18,
         [unit = u"m^3/s", description = "OH + O3 rate coefficient (1.7e-12 cm^3/molec/s)"]
-        k_HO2_O3 = 1e-21,
-        [unit = u"m^3/s", description = "HO2 + O3 rate coefficient (1e-15 cm^3/molec/s)"]
+        k_HO2_O3 = 1.16e-21,
+        [unit = u"m^3/s", description = "HO2 + O3 rate coefficient (1.16e-15 cm^3/molec/s at 227K)"]
         k_HO2_O = 3e-17,
         [unit = u"m^3/s", description = "HO2 + O rate coefficient (3e-11 cm^3/molec/s)"]
         k_HO2_NO = 3.5e-18,
@@ -489,8 +489,8 @@ d[Ox]/dt = -2 k2[ClO][O]
         [unit = u"m^3/s", description = "ClO + O rate coefficient (3e-11 cm^3/molec/s)"]
         k_ClO_NO = 6.4e-18,
         [unit = u"m^3/s", description = "ClO + NO rate coefficient (6.4e-12 cm^3/molec/s)"]
-        k_Cl_CH4 = 1e-20,
-        [unit = u"m^3/s", description = "Cl + CH4 rate coefficient (1e-14 cm^3/molec/s)"]
+        k_Cl_CH4 = 2.40e-20,
+        [unit = u"m^3/s", description = "Cl + CH4 rate coefficient (2.40e-14 cm^3/molec/s at 227K)"]
         k_OH_HCl = 2.6e-18,
         [unit = u"m^3/s", description = "OH + HCl rate coefficient (2.6e-12 cm^3/molec/s)"]
         k_ClO_NO2_M = 1.8e-43,
@@ -555,8 +555,8 @@ Br + CH4 is endothermic and extremely slow (Page 169).
 """
 @component function BrOxCycle(; name = :BrOxCycle)
     @parameters begin
-        k_Br_O3 = 7e-19,
-        [unit = u"m^3/s", description = "Br + O3 rate coefficient (7e-13 cm^3/molec/s)"]
+        k_Br_O3 = 5.02e-19,
+        [unit = u"m^3/s", description = "Br + O3 rate coefficient (5.02e-13 cm^3/molec/s at 227K)"]
         k_BrO_O = 5e-17,
         [unit = u"m^3/s", description = "BrO + O rate coefficient (5e-11 cm^3/molec/s)"]
         k_BrO_ClO = 2e-18,
@@ -670,8 +670,9 @@ d[Ox]/dt = 2j_O2[O2] - 2k4[O][O3]
         k_OH_O3_A = 1.7e-18,
         [unit = u"m^3/s", description = "Pre-factor: OH + O3 (1.7e-12 cm^3/molec/s)"]
         C_OH_O3 = -940.0, [unit = u"K", description = "exp(C/T) factor: OH + O3"]
-        k_HO2_O3_c = 1.0e-21,
-        [unit = u"m^3/s", description = "HO2 + O3 rate (1e-15 cm^3/molec/s)"]
+        k_HO2_O3_A = 1.0e-20,
+        [unit = u"m^3/s", description = "Pre-factor: HO2 + O3 (1e-14 cm^3/molec/s)"]
+        C_HO2_O3 = -490.0, [unit = u"K", description = "exp(C/T) factor: HO2 + O3"]
         k_HO2_O_A = 3.0e-17,
         [unit = u"m^3/s", description = "Pre-factor: HO2 + O (3e-11 cm^3/molec/s)"]
         C_HO2_O = 200.0, [unit = u"K", description = "exp(C/T) factor: HO2 + O"]
@@ -689,8 +690,9 @@ d[Ox]/dt = 2j_O2[O2] - 2k4[O][O3]
         k_ClO_NO_A = 6.4e-18,
         [unit = u"m^3/s", description = "Pre-factor: ClO + NO (6.4e-12 cm^3/molec/s)"]
         C_ClO_NO = 290.0, [unit = u"K", description = "exp(C/T) factor: ClO + NO"]
-        k_Cl_CH4_c = 1.0e-20,
-        [unit = u"m^3/s", description = "Cl + CH4 rate (1e-14 cm^3/molec/s)"]
+        k_Cl_CH4_A = 9.6e-18,
+        [unit = u"m^3/s", description = "Pre-factor: Cl + CH4 (9.6e-12 cm^3/molec/s)"]
+        C_Cl_CH4 = -1360.0, [unit = u"K", description = "exp(C/T) factor: Cl + CH4"]
         k_OH_HCl_A = 2.6e-18,
         [unit = u"m^3/s", description = "Pre-factor: OH + HCl (2.6e-12 cm^3/molec/s)"]
         C_OH_HCl = -350.0, [unit = u"K", description = "exp(C/T) factor: OH + HCl"]
@@ -703,8 +705,9 @@ d[Ox]/dt = 2j_O2[O2] - 2k4[O][O3]
         [unit = u"m^6/s", description = "Pre-factor: ClO + NO2 + M → ClONO2 (1.8e-31 cm^6/molec^2/s)"]
 
         # BrOx (Pages 166-169)
-        k_Br_O3_c = 7.0e-19,
-        [unit = u"m^3/s", description = "Br + O3 rate (7e-13 cm^3/molec/s)"]
+        k_Br_O3_A = 1.7e-17,
+        [unit = u"m^3/s", description = "Pre-factor: Br + O3 (1.7e-11 cm^3/molec/s)"]
+        C_Br_O3 = -800.0, [unit = u"K", description = "exp(C/T) factor: Br + O3"]
         k_BrO_O_c = 5.0e-17,
         [unit = u"m^3/s", description = "BrO + O rate (5e-11 cm^3/molec/s)"]
         k_BrO_ClO_c = 2.0e-18,
@@ -794,7 +797,7 @@ d[Ox]/dt = 2j_O2[O2] - 2k4[O][O3]
 
     # HOx
     k_OH_O3 = k_OH_O3_A * exp(C_OH_O3 / T)  # OH + O3
-    k_HO2_O3 = k_HO2_O3_c                   # HO2 + O3
+    k_HO2_O3 = k_HO2_O3_A * exp(C_HO2_O3 / T)  # HO2 + O3
     k_HO2_O = k_HO2_O_A * exp(C_HO2_O / T)  # HO2 + O
     k_HO2_NO = k_HO2_NO_A * exp(C_HO2_NO / T)  # HO2 + NO
 
@@ -802,14 +805,14 @@ d[Ox]/dt = 2j_O2[O2] - 2k4[O][O3]
     k_Cl_O3 = k_Cl_O3_A * exp(C_Cl_O3 / T)  # Cl + O3
     k_ClO_O = k_ClO_O_A * exp(C_ClO_O / T)  # ClO + O
     k_ClO_NO = k_ClO_NO_A * exp(C_ClO_NO / T)  # ClO + NO
-    k_Cl_CH4 = k_Cl_CH4_c                   # Cl + CH4
+    k_Cl_CH4 = k_Cl_CH4_A * exp(C_Cl_CH4 / T)  # Cl + CH4
     k_OH_HCl = k_OH_HCl_A * exp(C_OH_HCl / T)  # OH + HCl
 
     # ClO + NO2 + M → ClONO2 (termolecular, approximate as T-dependent)
     k_ClO_NO2_M = k_ClO_NO2_M_A * (T_ref / T)^3.4  # ClO + NO2 + M → ClONO2 + M
 
     # BrOx
-    k_Br_O3 = k_Br_O3_c                     # Br + O3
+    k_Br_O3 = k_Br_O3_A * exp(C_Br_O3 / T)  # Br + O3
     k_BrO_O = k_BrO_O_c                     # BrO + O
     k_BrO_ClO = k_BrO_ClO_c                 # BrO + ClO
     k_BrO_HO2 = k_BrO_HO2_c                 # BrO + HO2

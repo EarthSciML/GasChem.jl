@@ -86,6 +86,56 @@ end
     @test isapprox(GasChem.k_OH_HCl(T), 2.6e-12 * exp(-350.0 / T), rtol = 1e-10)
 end
 
+@testitem "Rate Coefficient k_HO2_O3" setup=[StratSetup] tags=[:stratospheric] begin
+    # Reference: Table B.1, k = 1.0 × 10⁻¹⁴ exp(-490/T) cm³ molecule⁻¹ s⁻¹
+    T=227.0
+    @test isapprox(GasChem.k_HO2_O3(T), 1.0e-14 * exp(-490.0 / T), rtol = 1e-10)
+    # Rate increases with temperature (Arrhenius behavior)
+    @test GasChem.k_HO2_O3(300.0) > GasChem.k_HO2_O3(200.0)
+end
+
+@testitem "Rate Coefficient k_Cl_CH4" setup=[StratSetup] tags=[:stratospheric] begin
+    # Reference: Table B.1, k = 9.6 × 10⁻¹² exp(-1360/T) cm³ molecule⁻¹ s⁻¹
+    T=227.0
+    @test isapprox(GasChem.k_Cl_CH4(T), 9.6e-12 * exp(-1360.0 / T), rtol = 1e-10)
+    @test GasChem.k_Cl_CH4(300.0) > GasChem.k_Cl_CH4(200.0)
+end
+
+@testitem "Rate Coefficient k_Br_O3" setup=[StratSetup] tags=[:stratospheric] begin
+    # Reference: Table B.1, k = 1.7 × 10⁻¹¹ exp(-800/T) cm³ molecule⁻¹ s⁻¹
+    T=227.0
+    @test isapprox(GasChem.k_Br_O3(T), 1.7e-11 * exp(-800.0 / T), rtol = 1e-10)
+    @test GasChem.k_Br_O3(300.0) > GasChem.k_Br_O3(200.0)
+end
+
+@testitem "Rate Coefficient k_HO2_O" setup=[StratSetup] tags=[:stratospheric] begin
+    # Reference: Page 161, k = 3.0 × 10⁻¹¹ exp(200/T) cm³ molecule⁻¹ s⁻¹
+    T=227.0
+    @test isapprox(GasChem.k_HO2_O(T), 3.0e-11 * exp(200.0 / T), rtol = 1e-10)
+end
+
+@testitem "Rate Coefficient k_HO2_NO" setup=[StratSetup] tags=[:stratospheric] begin
+    # Reference: Page 158, k = 3.5 × 10⁻¹² exp(250/T) cm³ molecule⁻¹ s⁻¹
+    T=227.0
+    @test isapprox(GasChem.k_HO2_NO(T), 3.5e-12 * exp(250.0 / T), rtol = 1e-10)
+end
+
+@testitem "Rate Coefficient k_ClO_NO" setup=[StratSetup] tags=[:stratospheric] begin
+    # Reference: Page 163, k = 6.4 × 10⁻¹² exp(290/T) cm³ molecule⁻¹ s⁻¹
+    T=227.0
+    @test isapprox(GasChem.k_ClO_NO(T), 6.4e-12 * exp(290.0 / T), rtol = 1e-10)
+end
+
+@testitem "Rate Coefficient k_BrO_ClO" setup=[StratSetup] tags=[:stratospheric] begin
+    # Reference: Table B.1, BrO + ClO channels
+    T=227.0
+    @test isapprox(GasChem.k_BrO_ClO_BrCl(T), 5.8e-13 * exp(170.0 / T), rtol = 1e-10)
+    @test isapprox(GasChem.k_BrO_ClO_ClOO(T), 2.3e-12 * exp(260.0 / T), rtol = 1e-10)
+    # Temperature dependence
+    @test GasChem.k_BrO_ClO_BrCl(300.0) < GasChem.k_BrO_ClO_BrCl(200.0)
+    @test GasChem.k_BrO_ClO_ClOO(300.0) < GasChem.k_BrO_ClO_ClOO(200.0)
+end
+
 @testitem "Rate Coefficient k_O1D_M" setup=[StratSetup] tags=[:stratospheric] begin
     # Reference: Page 143
     T=227.0
@@ -337,6 +387,77 @@ end
     # The steady-state O3 should be on the order of 10^12 molec/cm^3 at 30 km
     @test O3_cgs > 1e10
     @test O3_cgs < 1e14
+end
+
+@testitem "Time to Steady State (Eq. 5.17)" setup=[StratSetup] tags=[:stratospheric] begin
+    # Equation 5.17: tau_O3_ss = (1/4) * sqrt(k2*[M] / (k4 * j_O2 * j_O3))
+    # Reference: Table on page 147 of Seinfeld & Pandis (2006)
+    # At 40 km (T=251K): tau ~ 40 hours; at 30 km (T=227K): tau ~ 160 hours
+
+    # 30 km conditions
+    T=227.0
+    M_cgs=3.1e17
+    k2=GasChem.k_O_O2_M(T)
+    k4=GasChem.k_O_O3(T)
+    j_O2=6e-11
+    j_O3=1.2e-3
+
+    tau = 0.25 * sqrt(k2 * M_cgs / (k4 * j_O2 * j_O3))
+    tau_hours = tau / 3600.0
+
+    # At 30 km, the reference value is ~160 hours
+    @test tau_hours > 50   # order of magnitude check
+    @test tau_hours < 500
+
+    # 40 km conditions
+    T40=251.0
+    M40=7.1e16
+    k2_40=GasChem.k_O_O2_M(T40)
+    k4_40=GasChem.k_O_O3(T40)
+    j_O2_40=5e-10
+    j_O3_40=1.9e-3
+
+    tau_40 = 0.25 * sqrt(k2_40 * M40 / (k4_40 * j_O2_40 * j_O3_40))
+    tau_hours_40 = tau_40 / 3600.0
+
+    # At 40 km, the reference value is ~12-40 hours
+    @test tau_hours_40 > 1
+    @test tau_hours_40 < 100
+
+    # Timescale should decrease with altitude (faster at higher altitudes)
+    @test tau_hours_40 < tau_hours
+end
+
+@testitem "[O]/[O3] Ratio Reference Values (Page 145)" setup=[StratSetup] tags=[:stratospheric] begin
+    # Reference: Page 145, Seinfeld & Pandis (2006)
+    # At z=30km: [O]/[O3] = 3.0 × 10^-5
+    # At z=40km: [O]/[O3] = 9.4 × 10^-4
+
+    # These ratios use Eq. 5.7: [O]/[O3] = j_O3 / (k2 * [O2] * [M])
+    # Using j_O3 values from the table on page 144
+
+    # 30 km: j_O3 ~ 7e-4 + 5e-4 = 1.2e-3 s^-1 (total = j_O3->O + j_O3->O1D)
+    T30=227.0; M30=3.1e17
+    k2_30=GasChem.k_O_O2_M(T30)
+    j_O3_30=1.2e-3  # Total O3 photolysis rate at 30 km
+
+    ratio_30 = j_O3_30 / (k2_30 * 0.21 * M30 * M30)
+
+    # Should be on the order of 10^-5
+    @test ratio_30 > 1e-6
+    @test ratio_30 < 1e-3
+
+    # 40 km: j_O3 ~ 9e-4 + 1e-3 = 1.9e-3 s^-1
+    T40=251.0; M40=7.1e16
+    k2_40=GasChem.k_O_O2_M(T40)
+    j_O3_40=1.9e-3
+
+    ratio_40 = j_O3_40 / (k2_40 * 0.21 * M40 * M40)
+
+    # Should be larger than at 30 km (lower M means higher ratio)
+    @test ratio_40 > ratio_30
+    @test ratio_40 > 1e-5
+    @test ratio_40 < 1e-2
 end
 
 # =============================================================================

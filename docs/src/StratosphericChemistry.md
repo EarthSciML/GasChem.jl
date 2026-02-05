@@ -135,6 +135,25 @@ DataFrame(
 )
 ```
 
+#### Parameters
+
+```@example fullsys
+params = parameters(sys_full)
+DataFrame(
+    :Name => [string(Symbolics.tosymbol(p, escape = false)) for p in params],
+    :Units => [dimension(ModelingToolkit.get_unit(p)) for p in params],
+    :Description => [ModelingToolkit.getdescription(p) for p in params]
+)
+```
+
+#### Equations
+
+The full stratospheric system consists of 14 ODEs and 5 algebraic family definitions:
+
+```@example fullsys
+equations(sys_full)
+```
+
 ## Analysis
 
 This section demonstrates the behavior of the implemented systems and reproduces key results from Chapter 5 of Seinfeld & Pandis.
