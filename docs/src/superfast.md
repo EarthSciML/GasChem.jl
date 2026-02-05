@@ -49,7 +49,7 @@ DataFrame(
 We can run simulations with the model, optionally changing the initial conditions and parameters. For example, we can change the initial concentration of O₃ to 15 ppb and the temperature to 293K:
 
 ```@example 1
-sys = structural_simplify(model)
+sys = mtkcompile(model)
 
 tspan = (0.0, 3600*24)
 # Change the initial concentration of O₃ to 15 ppb and the temperature to 293K.

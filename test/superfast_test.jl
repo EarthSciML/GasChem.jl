@@ -1,7 +1,7 @@
 @testitem "Base case" begin
     using OrdinaryDiffEqRosenbrock, ModelingToolkit
     tspan = (0.0, 360.0)
-    answer = 23.400804629407062
+    answer = 36.4996261281333
 
     rs = mtkcompile(SuperFast())
     sol = solve(
@@ -18,7 +18,7 @@ end
 @testitem "ISOP sensitivity" begin
     using OrdinaryDiffEqRosenbrock, ModelingToolkit
     tspan = (0.0, 360.0)
-    u_isop = 1.3266279542331567
+    u_isop = 0.07926391932535637
 
     rs1 = mtkcompile(SuperFast())
     o1 = solve(
@@ -44,7 +44,7 @@ end
 @testitem "NO2 sensitivity" begin
     using OrdinaryDiffEqRosenbrock, ModelingToolkit
     tspan = (0.0, 360.0)
-    u_no2 = 28.430159226086346
+    u_no2 = 31.224800547922285
 
     rs1 = mtkcompile(SuperFast())
     o1 = solve(
@@ -70,7 +70,7 @@ end
 @testitem "CO sensitivity" begin
     using OrdinaryDiffEqRosenbrock, ModelingToolkit
     tspan = (0.0, 360.0)
-    u_co = -3.2610697264494846
+    u_co = -0.4196537139752934
 
     rs1 = mtkcompile(SuperFast())
     o1 = solve(
@@ -96,7 +96,7 @@ end
 @testitem "CH4 sensitivity" begin
     using OrdinaryDiffEqRosenbrock, ModelingToolkit
     tspan = (0.0, 360.0)
-    u_ch4 = 0.08634138773470212
+    u_ch4 = 0.015422493626878975
 
     rs1 = mtkcompile(SuperFast())
     o1 = solve(

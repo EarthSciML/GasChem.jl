@@ -189,7 +189,7 @@ If the keyword argument `rxn_sys` is set to `true`, the function will return a r
 ```
 using GasChem, EarthSciMLBase, DifferentialEquations, Plots
 rs = SuperFast()
-sol = solve(ODEProblem(structural_simplify(rs), [], (0,360), [], combinatoric_ratelaws=false), AutoTsit5(Rosenbrock23()), saveat=10.0)
+sol = solve(ODEProblem(mtkcompile(rs), [], (0,360)), AutoTsit5(Rosenbrock23()), saveat=10.0)
 plot(sol)
 ```
 """
@@ -294,9 +294,6 @@ function SuperFast(; name = :SuperFast, rxn_sys = false)
         jH2COb, CH2O --> CO
         jCH3OOH, CH3OOH --> CH2O + HO2 + OH
 
-        # Tracer
-        jA, A --> B
-        jB, B --> A
     end
     rxns = compose(rx_sys, rate_systems)
     if rxn_sys

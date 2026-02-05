@@ -20,6 +20,7 @@ makedocs(;
         "Home" => "index.md",
         "Atmospheric Lifetime" => "AtmosphericLifetime.md",
         "SuperFast" => "superfast.md",
+        "POLLU" => "pollu.md",
         "GEOS-Chem" => [
             "Overview" => "geoschem/overview.md",
             "State Variables" => "geoschem/states.md",
