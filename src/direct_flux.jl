@@ -435,47 +435,47 @@ const σ_O3_interp = create_fjx_interp(
             3.661 * 0.1,
             4.539 * 0.01,
             6.167 * 0.0001,
-            1.666 * 0.01,
+            1.666 * 0.01
         ] * 10.0f0^-19.0f0,
         SA_F32[
-            5.989, 
-            4.862, 
-            4.314, 
-            3.666, 
-            3.421, 
+            5.989,
+            4.862,
+            4.314,
+            3.666,
+            3.421,
             4.845,
-            6.519, 
-            9.299, 
-            8.826 * 10, 
-            3.566 * 10, 
-            1.547 * 10, 
+            6.519,
+            9.299,
+            8.826 * 10,
+            3.566 * 10,
+            1.547 * 10,
             8.260,
-            2.617, 
-            9.739 * 0.1, 
-            4.139 * 0.1, 
-            5.515 * 0.01, 
-            6.167 * 0.0001, 
-            1.666 * 0.01,
+            2.617,
+            9.739 * 0.1,
+            4.139 * 0.1,
+            5.515 * 0.01,
+            6.167 * 0.0001,
+            1.666 * 0.01
         ] * 10.0f0^-19.0f0,
         SA_F32[
-            5.990, 
-            4.866, 
-            4.320, 
-            3.678, 
-            3.432, 
-            4.840, 
-            6.504, 
-            9.278, 
-            8.896 * 10, 
-            3.618 * 10, 
-            1.586 * 10, 
+            5.990,
+            4.866,
+            4.320,
+            3.678,
+            3.432,
+            4.840,
+            6.504,
+            9.278,
+            8.896 * 10,
+            3.618 * 10,
+            1.586 * 10,
             8.595,
-            2.778, 
-            1.058, 
-            4.617 * 0.1, 
-            6.493 * 0.01, 
-            6.167 * 0.0001, 
-            1.666 * 0.01,
+            2.778,
+            1.058,
+            4.617 * 0.1,
+            6.493 * 0.01,
+            6.167 * 0.0001,
+            1.666 * 0.01
         ] * 10.0f0^-19.0f0
     ]
 )
@@ -588,7 +588,8 @@ const z_profile = SVector{74}(ZHL(P_levels, T_profile))
 
 # calculate optical depth
 const OD_ray_profile = hcat(Rayleigh_OD.(N_profile)...) # Rayleigh OD in each layer
-const OD_abs_profile = SMatrix{18, 73}(hcat([OD_abs(T_profile_top[i], N_profile[i], i) for i in 1:73]...)) # O2 absorption OD in each layer
+const OD_abs_profile = SMatrix{18, 73}(hcat([OD_abs(T_profile_top[i], N_profile[i], i)
+                                             for i in 1:73]...)) # O2 absorption OD in each layer
 const OD_total = SMatrix{74, 18}(
     vcat((OD_abs_profile + OD_ray_profile)', zeros(1, 18)),
 # Build the extended optical depth grid by appending a zero row (top-of-atmosphere).

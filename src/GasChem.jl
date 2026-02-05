@@ -17,6 +17,12 @@ using DocStringExtensions
 #TODO if @register_unit ppb 1e-9u"mol/mol_air", though it's physically correct, but this will result ModelingToolkit.ValidationError when coupling different models.
 
 include("AtmosphericLifetime.jl")
+# Re-export AtmosphericLifetime components for documentation
+using .AtmosphericLifetime: AtmosphericBudget, SpeciesLifetime, MultipleRemovalLifetime,
+                            OHReactionLifetime, TroposphericBudget
+export AtmosphericBudget, SpeciesLifetime, MultipleRemovalLifetime,
+       OHReactionLifetime, TroposphericBudget
+
 include("SuperFast.jl")
 include("geoschem_ratelaws.jl")
 include("geoschem_fullchem.jl")

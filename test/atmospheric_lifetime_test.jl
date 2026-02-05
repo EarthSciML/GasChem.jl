@@ -397,7 +397,7 @@ end
             compiled.k_t => k_t_val,
             compiled.P_n => P_n_val,
             compiled.P_a => P_a_val,
-            compiled.P_c => P_c_val,
+            compiled.P_c => P_c_val
         ),
         (0.0, t_end)
     )
