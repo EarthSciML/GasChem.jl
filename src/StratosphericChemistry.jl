@@ -595,10 +595,8 @@ N2O + O(¹D) → N2 + O2 (k = 4.9 × 10⁻¹¹ cm³/molec/s)
 
     # Derived concentrations
     O2_conc = O2_mix * M
-    N2_conc = N2_mix * M
     CH4_conc = CH4_mix * M
     H2O_conc = H2O_mix * M
-    N2O_conc = N2O_mix * M
 
     @variables begin
         # Odd oxygen family
