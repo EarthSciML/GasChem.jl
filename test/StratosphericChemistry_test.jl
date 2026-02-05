@@ -502,3 +502,185 @@ end
     # NO should be produced from N2O + O(1D) → 2NO
     @test sol[compiled_sys.NO][end] > 0
 end
+
+# =============================================================================
+# Rate Coefficient Reference Value Tests
+# =============================================================================
+
+@testitem "Rate Coefficients at Reference Temperatures" setup=[StratSetup] tags=[:stratospheric] begin
+    # Verify rate coefficients match textbook values at specific temperatures
+    # All CGS values from Seinfeld & Pandis Chapter 5
+
+    # k2 at 30 km (T=227K): 1.15e-33 cm^6/molec^2/s (Page 144)
+    k2_cgs_227 = 6.0e-34 * (227.0 / 300.0)^(-2.4)
+    @test isapprox(k2_cgs_227, 1.15e-33, rtol = 0.05)
+
+    # k2 at 40 km (T=251K): 9.1e-34 cm^6/molec^2/s (Page 144)
+    k2_cgs_251 = 6.0e-34 * (251.0 / 300.0)^(-2.4)
+    @test isapprox(k2_cgs_251, 9.1e-34, rtol = 0.05)
+
+    # k4 at 30 km (T=227K): 9.2e-16 cm^3/molec/s (Page 145)
+    k4_cgs_227 = 8.0e-12 * exp(-2060.0 / 227.0)
+    @test isapprox(k4_cgs_227, 9.2e-16, rtol = 0.1)
+
+    # k4 at 40 km (T=251K): 2.2e-15 cm^3/molec/s (Page 145)
+    k4_cgs_251 = 8.0e-12 * exp(-2060.0 / 251.0)
+    @test isapprox(k4_cgs_251, 2.2e-15, rtol = 0.1)
+
+    # Verify SI conversions
+    k2_si_227 = k_O_O2_M_si(227.0)
+    @test isapprox(k2_si_227, k2_cgs_227 * CGS_TO_SI_K2, rtol = 1e-10)
+
+    k4_si_227 = k_O_O3_si(227.0)
+    @test isapprox(k4_si_227, k4_cgs_227 * CGS_TO_SI_K, rtol = 1e-10)
+end
+
+@testitem "Characteristic Time tau_2 (Eq. 5.4)" setup=[StratSetup] tags=[:stratospheric] begin
+    # tau_2 = 1 / (0.21 * k2 * [M]^2) — Eq. 5.4, Page 143
+    # At 30 km (T=227K, M=3.1e17 cm^-3): tau_2 ≈ 0.04 s
+    # At 40 km (T=251K, M=7.1e16 cm^-3): tau_2 ≈ 1.04 s
+
+    M_30_cgs = 3.1e17  # molec/cm^3
+    k2_30_cgs = 6.0e-34 * (227.0 / 300.0)^(-2.4)
+    tau2_30 = 1.0 / (0.21 * k2_30_cgs * M_30_cgs^2)
+    @test isapprox(tau2_30, 0.04, rtol = 0.2)
+
+    M_40_cgs = 7.1e16
+    k2_40_cgs = 6.0e-34 * (251.0 / 300.0)^(-2.4)
+    tau2_40 = 1.0 / (0.21 * k2_40_cgs * M_40_cgs^2)
+    @test isapprox(tau2_40, 1.04, rtol = 0.2)
+end
+
+@testitem "O(1D) Steady-State Concentration (Eq. 5.19)" setup=[StratSetup] tags=[:stratospheric] begin
+    # Eq. 5.19: [O(1D)] = j_{O3→O(1D)} * [O3] / (k4 * [M])
+    # At 30 km, theta=45°: j_N2O ≈ 5e-8 s^-1, j_{O3→O(1D)} ≈ 15e-5 s^-1
+    # k4 = 3.2e-11 cm^3/molec/s (weighted quenching rate)
+    # [M] = 3.1e17 cm^-3, [O3] = 3e12 cm^-3
+    # [O(1D)] ≈ 45 molec/cm^3 (Page 153)
+
+    T = 227.0
+    M_cgs = 3.1e17  # molec/cm^3
+    O3_cgs = 3.0e12  # molec/cm^3
+    j_O3_O1D = 15e-5  # s^-1
+
+    # Weighted quenching rate: k = 0.21 * k_O2 + 0.79 * k_N2
+    k_O1D_M_cgs = 0.21 * 3.2e-11 * exp(70.0 / T) + 0.79 * 1.8e-11 * exp(110.0 / T)
+
+    O1D_ss = j_O3_O1D * O3_cgs / (k_O1D_M_cgs * M_cgs)
+
+    # Reference: ~45 molec/cm^3 at 30 km (Page 153)
+    @test O1D_ss > 10
+    @test O1D_ss < 200
+end
+
+@testitem "Ox Lifetime (Eq. 5.8)" setup=[StratSetup] tags=[:stratospheric] begin
+    # tau_Ox ≈ 0.21 * k2 * [M]^2 / (k4 * j_O3 * [O3]) — Eq. 5.8, Page 145
+    # At 30 km: tau_Ox ≈ 1.2e7 s (~140 days)
+    # At 40 km: tau_Ox ≈ 1e6 s (~12 days)
+
+    # 30 km
+    M_30_cgs = 3.1e17
+    O3_30_cgs = 3.0e12
+    k2_30 = 6.0e-34 * (227.0 / 300.0)^(-2.4)
+    k4_30 = 8.0e-12 * exp(-2060.0 / 227.0)
+    j_O3_30 = 1.2e-3
+
+    tau_Ox_30 = 0.21 * k2_30 * M_30_cgs^2 / (k4_30 * j_O3_30 * O3_30_cgs)
+    tau_Ox_30_days = tau_Ox_30 / 86400.0
+
+    # Reference: ~140 days at 30 km (Page 145)
+    @test tau_Ox_30_days > 50
+    @test tau_Ox_30_days < 500
+
+    # 40 km
+    M_40_cgs = 7.1e16
+    O3_40_cgs = 0.5e12
+    k2_40 = 6.0e-34 * (251.0 / 300.0)^(-2.4)
+    k4_40 = 8.0e-12 * exp(-2060.0 / 251.0)
+    j_O3_40 = 1.9e-3
+
+    tau_Ox_40 = 0.21 * k2_40 * M_40_cgs^2 / (k4_40 * j_O3_40 * O3_40_cgs)
+    tau_Ox_40_days = tau_Ox_40 / 86400.0
+
+    # Reference: ~12 days at 40 km (Page 145)
+    @test tau_Ox_40_days > 3
+    @test tau_Ox_40_days < 50
+
+    # Lifetime should decrease with altitude
+    @test tau_Ox_40_days < tau_Ox_30_days
+end
+
+@testitem "Time to Steady State Table Values (Eq. 5.17)" setup=[StratSetup] tags=[:stratospheric] begin
+    # Table on Page 147 gives tau_O3^ss at several altitudes
+    # All in CGS units for comparison
+
+    # z=20km: T=217K, k4=6e-16, j_O2=1e-11, j_O3=0.7e-3, tau≈1400h
+    # z=25km: T=222K, k4=7.5e-16, j_O2=2e-11, j_O3=0.7e-3, tau≈600h
+    # z=30km: T=227K, k4=9.2e-16, j_O2=6e-11, j_O3=1.2e-3, tau≈160h
+    # z=40km: T=251K, k4=2.2e-15, j_O2=5e-10, j_O3=1.9e-3, tau≈12h
+    # z=45km: T=265K, k4=3.4e-15, j_O2=8e-10, j_O3=6e-3, tau≈3h
+
+    altitudes = [20, 25, 30, 40, 45]
+    temps = [217.0, 222.0, 227.0, 251.0, 265.0]
+    M_cgs = [1.4e18, 6.4e17, 3.1e17, 7.1e16, 3.6e16]
+    j_O2_vals = [1e-11, 2e-11, 6e-11, 5e-10, 8e-10]
+    j_O3_vals = [0.7e-3, 0.7e-3, 1.2e-3, 1.9e-3, 6e-3]
+    tau_ref_hours = [1400.0, 600.0, 160.0, 12.0, 3.0]
+
+    for (i, z) in enumerate(altitudes)
+        T = temps[i]
+        M = M_cgs[i]
+        k2 = 6.0e-34 * (T / 300.0)^(-2.4)
+        k4 = 8.0e-12 * exp(-2060.0 / T)
+        j_O2 = j_O2_vals[i]
+        j_O3 = j_O3_vals[i]
+
+        tau = 0.25 * sqrt(k2 * M / (k4 * j_O2 * j_O3))
+        tau_h = tau / 3600.0
+
+        # Allow factor of 2 tolerance due to approximate photolysis rate values
+        @test isapprox(tau_h, tau_ref_hours[i], rtol = 0.5)
+    end
+end
+
+@testitem "NOx Cycle Rate Ratio (Page 155)" setup=[StratSetup] tags=[:stratospheric] begin
+    # The ratio k_{NO2+O}[NO2] / (k_{O+O3}[O3]) at 35 km ≈ 4.5
+    # This demonstrates NOx cycle is ~5x more effective than Chapman (Page 155)
+
+    T = 237.0  # 35 km
+    k_NO2_O = 5.6e-12 * exp(180.0 / T)   # cm^3/molec/s
+    k_O_O3 = 8.0e-12 * exp(-2060.0 / T)  # cm^3/molec/s
+
+    rate_coeff_ratio = k_NO2_O / k_O_O3
+    # Reference: ~9000 (Page 155)
+    @test rate_coeff_ratio > 5000
+    @test rate_coeff_ratio < 15000
+
+    # With [NO2] ≈ 1e9 cm^-3 and [O3] ≈ 2e12 cm^-3 at 35 km
+    NO2_conc = 1e9   # cm^-3
+    O3_conc = 2e12    # cm^-3
+    full_ratio = rate_coeff_ratio * NO2_conc / O3_conc
+    # Reference: ≈ 4.5 (Page 155)
+    @test isapprox(full_ratio, 4.5, rtol = 0.5)
+end
+
+@testitem "ClOx Lifetime Estimates (Page 163)" setup=[StratSetup] tags=[:stratospheric] begin
+    # At 40 km (T=251K), [O3] ≈ 0.5e12 cm^-3, [O]/[O3] ≈ 9.4e-4
+    # tau_Cl = 1/(k1*[O3]) ≈ 0.2 s
+    # tau_ClO = 1/(k2*[O]) ≈ 53 s
+
+    T = 251.0
+    O3_cgs = 0.5e12  # cm^-3
+    O_O3_ratio = 9.4e-4
+    O_cgs = O_O3_ratio * O3_cgs  # ≈ 4.7e8 cm^-3
+
+    k_Cl_O3 = 2.3e-11 * exp(-200.0 / T)
+    k_ClO_O = 3.0e-11 * exp(70.0 / T)
+
+    tau_Cl = 1.0 / (k_Cl_O3 * O3_cgs)
+    tau_ClO = 1.0 / (k_ClO_O * O_cgs)
+
+    # Reference: tau_Cl ≈ 0.2 s, tau_ClO ≈ 53 s (Page 163)
+    @test isapprox(tau_Cl, 0.2, rtol = 0.3)
+    @test isapprox(tau_ClO, 53.0, rtol = 0.3)
+end
