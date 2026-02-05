@@ -1,8 +1,18 @@
 module EarthSciDataExt
 using GasChem, EarthSciData, ModelingToolkit, EarthSciMLBase, DynamicQuantities
-@register_unit molec 1
-@register_unit mol_air 1u"mol"
-@register_unit ppb 1u"mol/mol_air"
+
+# Register custom units if not already registered by GasChem.
+# This is needed because extension precompilation may occur before GasChem's
+# unit registration takes effect.
+if !(:molec in DynamicQuantities.Units.UNIT_SYMBOLS)
+    @register_unit molec 1
+end
+if !(:mol_air in DynamicQuantities.Units.UNIT_SYMBOLS)
+    @register_unit mol_air 1u"mol"
+end
+if !(:ppb in DynamicQuantities.Units.UNIT_SYMBOLS)
+    @register_unit ppb 1u"mol/mol_air"
+end
 
 function EarthSciMLBase.couple2(
         c::GasChem.SuperFastCoupler,
@@ -31,7 +41,7 @@ function EarthSciMLBase.couple2(
     # Emissions are in units of "kg/kg air/s" and need to be converted to "ppb/s" or "nmol/mol/s".
     uconv = nmolpermol * MW_Air # Conversion factor with MW factored out.
     operator_compose(
-        convert(ODESystem, c),
+        convert(System, c),
         e,
         Dict(
             c.NO2 => e.NO2 => uconv / MW_NO2,
@@ -69,8 +79,7 @@ function EarthSciMLBase.couple2(
         MW_SO2=64.0638e-3,
         [unit=u"kg/mol", description="Sulfur dioxide molar mass"],
         MW_ISOP=68.12e-3,
-        [unit=u"kg/mol", description="Isoprene molar mass"],
-        )
+        [unit=u"kg/mol", description="Isoprene molar mass"],)
 
     # Emissions are in units of "kg/m3/s" and need to be converted to "ppb/s" or "nmol/mol/s".
     # To do this we need to convert kg of emissions to nmol of emissions,
@@ -82,7 +91,7 @@ function EarthSciMLBase.couple2(
     uconv = 1e9 / c.num_density
     #TODO(CT): Add missing couplings.
     operator_compose(
-        convert(ODESystem, c),
+        convert(System, c),
         e,
         Dict(
             c.ACET => e.ACET => uconv / MW_ACET,
@@ -136,12 +145,11 @@ function EarthSciMLBase.couple2(
 
     #TODO(CT): Add missing couplings.
     c = param_to_var(c, :T, :num_density)
-    @constants(
-        R=8.31446261815324, [unit=u"m^3*Pa/mol/K", description="Ideal gas constant"],
-    )
+    @constants(R=8.31446261815324,
+        [unit=u"m^3*Pa/mol/K", description="Ideal gas constant"],)
     ConnectorSystem([
-        c.T ~ gfp.I3₊T, 
-        c.num_density  ~ (gfp.P / R / gfp.I3₊T)
+            c.T ~ gfp.I3₊T,
+            c.num_density ~ (gfp.P / R / gfp.I3₊T)
         ], c, gfp)
 end
 

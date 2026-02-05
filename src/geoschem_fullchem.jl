@@ -203,7 +203,8 @@ function GEOSChemGasPhase(; name = :GEOSChemGasPhase, rxn_sys = false)
         return sys.k
     end
     function tbrnch(t, T, num_density, a0, b0, c0, a1, b1, c1)
-        sys = tbranch(t, T, num_density, a0, b0, c0, a1, b1, c1; name = Symbol(:tbranch_, i))
+        sys = tbranch(
+            t, T, num_density, a0, b0, c0, a1, b1, c1; name = Symbol(:tbranch_, i))
         i += 1
         push!(rate_systems, sys)
         return sys.k
@@ -305,7 +306,8 @@ function GEOSChemGasPhase(; name = :GEOSChemGasPhase, rxn_sys = false)
         return sys.k
     end
     function arrpls(t, T, num_density, a0, b0, c0, d0, e0)
-        sys = arrplus_ppb(t, T, num_density, a0, b0, c0, d0, e0; name = Symbol(:arrplus_, i))
+        sys = arrplus_ppb(
+            t, T, num_density, a0, b0, c0, d0, e0; name = Symbol(:arrplus_, i))
         i += 1
         push!(rate_systems, sys)
         return sys.k
@@ -327,7 +329,8 @@ function GEOSChemGasPhase(; name = :GEOSChemGasPhase, rxn_sys = false)
         return sys.k
     end
     function tunpls(t, T, num_density, a0, b0, c0, d0, e0)
-        sys = tunplus_ppb(t, T, num_density, a0, b0, c0, d0, e0; name = Symbol(:tunplus_, i))
+        sys = tunplus_ppb(
+            t, T, num_density, a0, b0, c0, d0, e0; name = Symbol(:tunplus_, i))
         i += 1
         push!(rate_systems, sys)
         return sys.k
@@ -349,13 +352,15 @@ function GEOSChemGasPhase(; name = :GEOSChemGasPhase, rxn_sys = false)
         return sys.k
     end
     function rISO1(t, T, num_density, a0, b0, c0, d0, e0, f0, g0)
-        sys = rate_ISO1(t, T, num_density, a0, b0, c0, d0, e0, f0, g0; name = Symbol(:rate_ISO1_, i))
+        sys = rate_ISO1(
+            t, T, num_density, a0, b0, c0, d0, e0, f0, g0; name = Symbol(:rate_ISO1_, i))
         i += 1
         push!(rate_systems, sys)
         return sys.k
     end
     function rISO2(t, T, num_density, a0, b0, c0, d0, e0, f0, g0)
-        sys = rate_ISO2(t, T, num_density, a0, b0, c0, d0, e0, f0, g0; name = Symbol(:rate_ISO2_, i))
+        sys = rate_ISO2(
+            t, T, num_density, a0, b0, c0, d0, e0, f0, g0; name = Symbol(:rate_ISO2_, i))
         i += 1
         push!(rate_systems, sys)
         return sys.k
@@ -436,299 +441,584 @@ function GEOSChemGasPhase(; name = :GEOSChemGasPhase, rxn_sys = false)
         # Equations - Date modified; Reference; Developer initials
 
         @ivs t [unit = u"s", description = "Time"]
-        @species(
-            A3O2(t)=0.0, [unit=u"ppb", description="CH3CH2CH2OO; Primary RO2 from C3H8"],
-            ACET(t)=0.0, [unit=u"ppb", description="CH3C(O)CH3; Acetone"],
-            ACTA(t)=0.0, [unit=u"ppb", description="CH3C(O)OH; Acetic acid"],
-            #AERI(t) = 0.0, [unit = u"ppb", description = "I; Dissolved iodine"],
-            ALD2(t)=0.0, [unit=u"ppb", description="CH3CHO; Acetaldehyde"],
-            ALK4(t)=0.0, [unit=u"ppb", description=">= C4 alkanes"],
-            #AONITA(t) = 0.0, [unit = u"ppb", description = "Aerosol-phase organic nitrate from aromatic precursors"],
-            AROMRO2(t)=0.0, [unit=u"ppb", description="generic peroxy radical from aromatic oxidation"],
-            AROMP4(t)=0.0, [unit=u"ppb", description="Generic C4 product from aromatic oxidation"],
-            AROMP5(t)=0.0, [unit=u"ppb", description="Generic C5 product from aromatic oxidation"],
-            ATO2(t)=0.0, [unit=u"ppb", description="CH3C(O)CH2O2; RO2 from acetone"],
-            ATOOH(t)=0.0, [unit=u"ppb", description="CH3C(O)CH2OOH; ATO2 peroxide"],
-            B3O2(t)=0.0, [unit=u"ppb", description="CH3CH(OO)CH3; Secondary RO2 from C3H8"],
-            BALD(t)=0.0, [unit=u"ppb", description="benzaldehyde and tolualdehyde"], 
-            BENZ(t)=0.0, [unit=u"ppb", description="C6H6; Benzene"],
-            BENZO(t)=0.0, [unit=u"ppb", description="C6H5O radical"],
-            BENZO2(t)=0.0, [unit=u"ppb", description="C6H5O2 radical"],
-            BENZP(t)=0.0, [unit=u"ppb", description="hydroperoxide from BENZO2"],
-            Br(t)=0.0, [unit=u"ppb", description="Br; Atomic bromine"],
-            Br2(t)=0.0, [unit=u"ppb", description="Br2; Molecular bromine"],
-            BrCl(t)=0.0, [unit=u"ppb", description="BrCl; Bromine chloride"],
-            BrNO2(t)=0.0, [unit=u"ppb", description="BrNO2; Nitryl bromide"],
-            BrNO3(t)=0.0, [unit=u"ppb", description="BrNO3; Bromine nitrate"],
-            BrO(t)=0.0, [unit=u"ppb", description="BrO; Bromine monoxide"],
-            BRO2(t)=0.0, [unit=u"ppb", description="C6H5O2 ; Peroxy radical from BENZ oxidation"],
-            #BrSALA(t) = 0.0, [unit = u"ppb", description = "Br; Fine sea salt bromine"],
-            #BrSALC(t) = 0.02, [unit = u"ppb", description = "Br; Course sea salt bromine"],
-            BZCO3(t)=0.0, [unit=u"ppb", description="benzoylperoxy radical"],
-            BZCO3H(t)=0.0, [unit=u"ppb", description="perbenzoic acid"],
-            BZPAN(t)=0.0, [unit=u"ppb", description="peroxybenzoyl nitrate"],
-            C2H2(t)=0.0, [unit=u"ppb", description="C2H2; Ethyne"],
-            C2H4(t)=0.0, [unit=u"ppb", description="Ethylene"],
-            C2H6(t)=0.0, [unit=u"ppb", description="C2H6; Ethane"],
-            C3H8(t)=0.0, [unit=u"ppb", description="C3H8; Propane"],
-            C4HVP1(t)=0.0, [unit=u"ppb", description="C4 hydroxy-vinyl-peroxy radicals from HPALDs"],
-            C4HVP2(t)=0.0, [unit=u"ppb", description="C4 hydroxy-vinyl-peroxy radicals from HPALDs"],
-            CCl4(t)=0.0, [unit=u"ppb", description="CCl4; Carbon tetrachloride"],
-            CFC11(t)=0.0, [unit=u"ppb", description="CCl3F ; CFC-11, R-11, Freon 11"],
-            CFC12(t)=0.0, [unit=u"ppb", description="CCl2F2; CFC-12, R-12, Freon 12"],
-            CFC113(t)=0.0, [unit=u"ppb", description="C2Cl3F3; CFC-113, Freon 113"],
-            CFC114(t)=0.0, [unit=u"ppb", description="C2Cl2F4; CFC-114, Freon 114"],
-            CFC115(t)=0.0, [unit=u"ppb", description="C2ClF5; CFC-115, Freon 115"],
-            CH2Br2(t)=0.0, [unit=u"ppb", description="CH3Br2; Dibromomethane"],
-            CH2Cl2(t)=0.0, [unit=u"ppb", description="CH2Cl2; Dichloromethane"],
-            CH2I2(t)=0.0, [unit=u"ppb", description="CH2I2; Diiodomethane"],
-            CH2IBr(t)=0.0, [unit=u"ppb", description="CH2IBr; Bromoiodomethane"],
-            CH2ICl(t)=0.0, [unit=u"ppb", description="CH2ICl; Chloroiodomethane"],
-            CH2O(t)=4e-6, [unit=u"ppb", description="CH2O; Formaldehyde"],
-            CH2OO(t)=0.0, [unit=u"ppb", description="CH2OO; Criegee intermediate"],
-            CH3Br(t)=0.0,[unit=u"ppb", description="CH3Br; Methyl bromide"],
-            CH3CCl3(t)=0.0, [unit=u"ppb", description="CH3CCl3; Methyl chloroform"],
-            CH3CHOO(t)=0.0, [unit=u"ppb", description="CH3CHOO; Criegee intermediate"],
-            CH3Cl(t)=0.0, [unit=u"ppb", description="CH3Cl; Chloromethane"],
-            CH3I(t)=1E-11, [unit=u"ppb", description="CH3I; Methyl iodide"],
-            CH4(t)=1.8E3, [unit=u"ppb", description="CH4; Methane"],
-            CHBr3(t)=0.0, [unit=u"ppb", description="CHBr3; Tribromethane"],
-            CHCl3(t)=0.0, [unit=u"ppb", description="CHCl3; Chloroform"],
-            Cl(t)=0.0, [unit=u"ppb", description="Cl; Atomic chlorine"],
-            Cl2(t)=0.0, [unit=u"ppb", description="Cl2; Molecular chlorine"],
-            Cl2O2(t)=0.0, [unit=u"ppb", description="Cl2O2; Dichlorine dioxide"],
-            ClNO2(t)=0.0, [unit=u"ppb", description="ClNO2; Nitryl chloride"],
-            ClNO3(t)=0.0, [unit=u"ppb", description="ClONO2; Chlorine nitrate"],
-            ClO(t)=0.0, [unit=u"ppb", description="ClO; Chlorine monoxide"],
-            ClOO(t)=0.0, [unit=u"ppb", description="ClOO; Chlorine dioxide"],
-            CO(t)=1E2, [unit=u"ppb", description="CO; Carbon monoxide"],
-            CO2(t)=3.55E5, [unit=u"ppb", description="CO2; Carbon dioxide"],
-            CSL(t)=0.0, [unit=u"ppb", description="cresols and xylols"],
-            DMS(t)=0.0, [unit=u"ppb", description="(CH3)2S; Dimethylsulfide"],
-            EOH(t)=0.0, [unit=u"ppb", description="C2H5OH; Ethanol"],
-            ETHLN(t)=0.0, [unit=u"ppb", description="CHOCH2ONO2; Ethanal nitrate"],
-            ETHN(t)=0.0, [unit=u"ppb", description="stable hydroxy-nitrooxy-ethane"],
-            ETHP(t)=0.0, [unit=u"ppb", description="stable hydroxy-hydroperoxy-ethane"],
-            ETNO3(t)=0.0, [unit=u"ppb", description="C2H5ONO2; Ethyl nitrate"],
-            ETO(t)=0.0, [unit=u"ppb", description="hydroxy-alkoxy-ethane radical"],
-            ETOO(t)=0.0, [unit=u"ppb", description="hydroxy-peroxy-ethane radical, formed from ethene + OH"],
-            ETO2(t)=0.0, [unit=u"ppb", description="CH3CH2OO; Ethylperoxy radical"],
-            ETP(t)=0.0, [unit=u"ppb", description="CH3CH2OOH; Ethylhydroperoxide"],
-            GLYC(t)=0.0, [unit=u"ppb", description="HOCH2CHO; Glycoaldehyde"],
-            GLYX(t)=0.0, [unit=u"ppb", description="CHOCHO; Glyoxal"],
-            H(t)=0.0, [unit=u"ppb", description="H; Atomic hydrogen"],
-            H1211(t)=0.0, [unit=u"ppb", description="CBrClF2; H-1211"],
-            H1301(t)=0.0, [unit=u"ppb", description="CBrF3; H-1301"],
-            H2402(t)=0.0, [unit=u"ppb", description="C2Br2F4; H-2402"],
-            H2O(t)=1.84E7, [unit=u"ppb", description="H2O; Water vapor"],
-            H2O2(t)=4E-6, [unit=u"ppb", description="H2O2; Hydrogen peroxide"],
-            HAC(t)=0.0, [unit=u"ppb", description="HOCH2C(O)CH3; Hydroxyacetone"],
-            HBr(t)=0.0, [unit=u"ppb", description="HBr; Hypobromic acid"],
-            HC5A(t)=0.0, [unit=u"ppb", description="C5H8O2; Isoprene-4,1-hydroxyaldehyde"],
-            HCFC123(t)=0.0, [unit=u"ppb", description="C2HCl2F3; HCFC-123, R-123, Freon 123"],
-            HCFC141b(t)=0.0, [unit=u"ppb", description="C(CH3)Cl2F; HCFC-141b, R-141b, Freon 141b"],
-            HCFC142b(t)=0.0, [unit=u"ppb", description="C(CH3)ClF2; HCFC-142b, R-142b, Freon 142b"],
-            HCFC22(t)=0.0, [unit=u"ppb", description="CHClF2 ; HCFC-22, R-22, Freon 22"],
-            HCl(t)=0.0, [unit=u"ppb", description="HCl; Hydrochloric acid"],
-            HCOOH(t)=0.0, [unit=u"ppb", description="HCOOH; Formic acid"],
-            HI(t)=0.0, [unit=u"ppb", description="HI; Hydrogen iodide"],
-            HMHP(t)=0.0, [unit=u"ppb", description="HOCH2OOH; Hydroxymethyl hydroperoxide"],
-            HMML(t)=0.0, [unit=u"ppb", description="C4H6O3; Hydroxymethyl-methyl-a-lactone"],
-            HMS(t)=1E-6, [unit=u"ppb", description="HOCH2SO3-; hydroxymethanesulfonate"],
-            HNO2(t)=4E-6, [unit=u"ppb", description="HONO; Nitrous acid"],
-            HNO3(t)=4E-6, [unit=u"ppb", description="HNO3; Nitric acid"],
-            HNO4(t)=4E-6, [unit=u"ppb", description="HNO4; Pernitric acid"],
-            HO2(t)=4E-6, [unit=u"ppb", description="HO2; Hydroperoxyl radical"],
-            HOBr(t)=0.0, [unit=u"ppb", description="HOBr; Hypobromous acid"],
-            HOCl(t)=0.0, [unit=u"ppb", description="HOCl; Hypochlorous acid"],
-            HOI(t)=0.0, [unit=u"ppb", description="HOI; Hypoiodous acid"],
-            HONIT(t)=0.0, [unit=u"ppb", description="2nd gen monoterpene organic nitrate"],
-            HPALD1(t)=0.0,[unit=u"ppb", description="O=CHC(CH3)=CHCH2OOH; d-4,1-C5-hydroperoxyaldehyde"],
-            HPALD1OO(t)=0.0, [unit=u"ppb", description="peroxy radicals from HPALD1"],
-            HPALD2(t)=0.0, [unit=u"ppb", description="HOOCH2C(CH3)=CHCH=O; d-1,4-C5-hydroperoxyaldehyde"],
-            HPALD2OO(t)=0.0, [unit=u"ppb", description="peroxy radicals from HPALD2"],
-            HPALD3(t)=0.0, [unit=u"ppb", description="O=CHC(CH3)OOHCH=CH2; b-2,1-C5-hydroperoxyaldehyde"],
-            HPALD4(t)=0.0, [unit=u"ppb", description="CH2=C(CH3)CHOOHCH=O; b-3,4-C5-hydroperoxyaldehyde" ],
-            HPETHNL(t)=0.0, [unit=u"ppb", description="CHOCH2OOH; hydroperoxyethanal"],
-            I(t)=0.0, [unit=u"ppb", description="I; Atmoic iodine"],
-            I2(t)=0.0, [unit=u"ppb", description="I2; Molecular iodine"],
-            I2O2(t)=0.0, [unit=u"ppb", description="I2O2; Diiodine dioxide"],
-            I2O3(t)=0.0, [unit=u"ppb", description="I2O3; Diiodine trioxide"],
-            I2O4(t)=0.0, [unit=u"ppb", description="I2O4; Diiodine tetraoxide"],
-            IBr(t)=0.0, [unit=u"ppb", description="IBr; Iodine monobromide"],
-            ICHE(t)=0.0, [unit=u"ppb", description="C5H8O3; Isoprene hydroxy-carbonyl-epoxides"],
-            ICHOO(t)=0.0, [unit=u"ppb", description="peroxy radical from IEPOXD"],
-            ICl(t)=0.0, [unit=u"ppb", description="ICl; Iodine monochloride"],
-            ICN(t)=0.0, [unit=u"ppb", description="C5H7NO4; Lumped isoprene carbonyl nitrates"],
-            ICNOO(t)=0.0, [unit=u"ppb", description="peroxy radicals from ICN"],
-            ICPDH(t)=0.0, [unit=u"ppb", description="C5H10O5; Isoprene dihydroxy hydroperoxycarbonyl"],
-            IDC(t)=0.0, [unit=u"ppb", description="C5H6O2; Lumped isoprene dicarbonyls"],
-            IDCHP(t)=0.0, [unit=u"ppb", description="C5H8O5; Isoprene dicarbonyl hydroxy dihydroperoxide"],
-            IDHDP(t)=0.0, [unit=u"ppb", description="C5H12O6; Isoprene dihydroxy dihydroperoxide"],
-            IDHNBOO(t)=0.0, [unit=u"ppb", description="peroxy radicals from INPB"],
-            IDHNDOO1(t)=0.0, [unit=u"ppb", description="peroxy radicals from INPD"],
-            IDHNDOO2(t)=0.0, [unit=u"ppb", description="peroxy radicals from INPD"],
-            IDHPE(t)=0.0, [unit=u"ppb", description="C5H10O5; Isoprene dihydroxy hydroperoxy epoxide"],
-            IDN(t)=0.0, [unit=u"ppb", description="C5H8N2O6; Lumped isoprene dinitrates"],
-            IDNOO(t)=0.0, [unit=u"ppb", description="peroxy radicals from IDN"],
-            IEPOXA(t)=0.0, [unit=u"ppb", description="C5H10O3; trans-Beta isoprene epoxydiol"],
-            IEPOXAOO(t)=0.0, [unit=u"ppb", description="peroxy radical from trans-Beta isoprene epoxydiol"],
-            IEPOXB(t)=0.0, [unit=u"ppb", description="C5H10O3; cis-Beta isoprene epoxydiol"],
-            IEPOXBOO(t)=0.0, [unit=u"ppb", description="peroxy radical from cis-Beta isoprene epoxydiol"],
-            IEPOXD(t)=0.0, [unit=u"ppb", description="C5H10O3; Delta isoprene epoxydiol"],
-            IHN1(t)=0.0, [unit=u"ppb", description="C5H9NO4; Isoprene-d-4-hydroxy-1-nitrate"],
-            IHN2(t)=0.0, [unit=u"ppb", description="C5H9NO4; Isoprene-b-1-hydroxy-2-nitrate"],
-            IHN3(t)=0.0, [unit=u"ppb", description="C5H9NO4; Isoprene-b-4-hydroxy-3-nitrate"],
-            IHN4(t)=0.0, [unit=u"ppb", description="C5H9NO4; Isoprene-d-1-hydroxy-4-nitrate"],
-            IHOO1(t)=0.0, [unit=u"ppb", description="peroxy radical from OH addition to isoprene at C1"],
-            IHOO4(t)=0.0, [unit=u"ppb", description="peroxy radical from OH addition to isoprene at C4"],
-            IHPNBOO(t)=0.0, [unit=u"ppb", description="peroxy radicals from INPB"],
-            IHPNDOO(t)=0.0, [unit=u"ppb", description="peroxy radicals from INPD"],
-            IHPOO1(t)=0.0, [unit=u"ppb", description="peroxy radical from ISOPOOH"],
-            IHPOO2(t)=0.0, [unit=u"ppb", description="peroxy radical from ISOPOOH"],
-            IHPOO3(t)=0.0, [unit=u"ppb", description="peroxy radical from ISOPOOH"],
-            INA(t)=0.0, [unit=u"ppb", description="alkoxy radical from INO2D"],
-            INDIOL(t)=0.0, [unit=u"ppb", description="Generic aerosol phase organonitrate hydrolysis product"],
-            INO(t)=0.0, [unit=u"ppb", description="INO; Nitrosyl iodide"],
-            INO2B(t)=0.0, [unit=u"ppb", description="beta-peroxy radicals from isoprene + NO3"],
-            INO2D(t)=0.0, [unit=u"ppb", description="delta-peroxy radicals from isoprene + NO3"],
-            INPB(t)=0.0, [unit=u"ppb", description="C5H9NO5; Lumped isoprene beta-hydroperoxy nitrates"],
-            INPD(t)=0.0, [unit=u"ppb", description="C5H9NO5; Lumped isoprene delta-hydroperoxy nitrates"],
-            IO(t)=0.0, [unit=u"ppb", description="IO; Iodine monoxide"],
-            IONITA(t)=0.0, [unit=u"ppb", description="Aerosol-phase organic nitrate from isoprene precursors"],
-            IONO(t)=0.0, [unit=u"ppb", description="IONO; Nitryl iodide"],
-            IONO2(t)=0.0, [unit=u"ppb", description="IONO2; Iodine nitrate"],
-            IPRNO3(t)=0.0, [unit=u"ppb", description="C3H8ONO2; Isopropyl nitrate"],
-            #ISALA(t) = 0.0, [unit = u"ppb", description = "I; Fine sea salt iodine"],
-            #ISALC(t) = 0.0, [unit = u"ppb", description = "I; Coarse sea salt iodine"],
-            ISOP(t)=0.0, [unit=u"ppb", description="CH2=C(CH3)CH=CH2; Isoprene"],
-            ISOPNOO1(t)=0.03, [unit=u"ppb", description="peroxy radicals from IHN2"],
-            ISOPNOO2(t)=0.0, [unit=u"ppb", description="peroxy radicals from IHN3"],
-            ITCN(t)=0.0, [unit=u"ppb", description="C5H9NO7; Lumped tetrafunctional isoprene carbonyl-nitrates"],
-            ITHN(t)=0.0, [unit=u"ppb", description="C5H11NO7; Lumped tetrafunctional isoprene hydroxynitrates"],
-            KO2(t)=0.0, [unit=u"ppb", description="RO2 from >3 ketones"],
-            LBRO2H(t)=0.0, [unit=u"ppb", description="Dummy spc to track oxidation of BRO2 by HO2"],
-            LBRO2N(t)=0.0, [unit=u"ppb", description="Dummy spc to track oxidation of BRO2 by NO"],
-            LIMO(t)=0.0, [unit=u"ppb", description="C10H16; Limonene"],
-            LIMO2(t)=0.0, [unit=u"ppb", description="RO2 from LIMO"],
-            LISOPOH(t)=0.0, [unit=u"ppb", description="Dummy spc to track oxidation of ISOP by OH"],
-            LISOPNO3(t)=0.0, [unit=u"ppb", description="Dummy spc to track oxidation of ISOP by NO3"],
-            LNRO2H(t)=0.0, [unit=u"ppb", description="Dummy spc to track oxidation of NRO2 by HO2"],
-            LNRO2N(t)=0.0, [unit=u"ppb", description="Dummy spc to track oxidation of NRO2 by NO"],
-            LTRO2H(t)=0.0, [unit=u"ppb", description="Dummy spc to track oxidation of TRO2 by HO2"],
-            LTRO2N(t)=0.0, [unit=u"ppb", description="Dummy spc to track oxidation of TRO2 by NO"],
-            LVOC(t)=0.0, [unit=u"ppb", description="C5H14O5; Gas-phase low-volatility non-IEPOX product of ISOPOOH (RIP) oxidation"],
-            #LVOCOA(t) = 0.0, [unit = u"ppb", description = "C5H14O5; Aerosol-phase low-volatility non-IEPOX product of ISOPOOH (RIP) oxidation"],
-            LXRO2H(t)=0.0, [unit=u"ppb", description="Dummy spc to track oxidation of XRO2 by HO2"],
-            LXRO2N(t)=0.0, [unit=u"ppb", description="Dummy spc to track oxidation of XRO2 by NO"],
-            MACR(t)=0.0, [unit=u"ppb", description="CH2=C(CH3)CHO; Methacrolein"],
-            MACR1OO(t)=0.0, [unit=u"ppb", description="peroxyacyl radical from MACR + OH"],
-            MACR1OOH(t)=0.0, [unit=u"ppb", description="CH2=C(CH3)C(O)OOH; Peracid from MACR"],
-            MACRNO2(t)=0.0, [unit=u"ppb", description="Product of MCRHN + OH"],
-            MAP(t)=0.0, [unit=u"ppb", description="CH3C(O)OOH; Peroxyacetic acid"],
-            MCO3(t)=0.0, [unit=u"ppb", description="CH3C(O)OO; Peroxyacetyl radical"],
-            MCRDH(t)=0.0, [unit=u"ppb", description="C4H8O3; Dihydroxy-MACR"],
-            MCRENOL(t)=0.0, [unit=u"ppb", description="C4H6O2; Lumped enols from MVK/MACR"],
-            MCRHN(t)=0.0, [unit=u"ppb", description="HOCH2C(ONO2)(CH3)CHO; Hydroxynitrate from MACR"],
-            MCRHNB(t)=0.0, [unit=u"ppb", description="O2NOCH2C(OH)(CH3)CHO; Hydroxynitrate from MACR"],
-            MCRHP(t)=0.0, [unit=u"ppb", description="HOCH2C(OOH)(CH3)CHO; Hydroxy-hydroperoxy-MACR"],
-            MCROHOO(t)=0.0, [unit=u"ppb", description="peroxy radical from MACR + OH"],
-            MCT(t)=0.0, [unit=u"ppb", description="methylcatechols"],
-            MEK(t)=0.0, [unit=u"ppb", description="RC(O)R; Methyl ethyl ketone"],
-            MENO3(t)=0.0, [unit=u"ppb", description="CH3ONO2; methyl nitrate"],
-            MGLY(t)=0.0, [unit=u"ppb", description="CH3COCHO; Methylglyoxal"],
-            MO2(t)=4E-6, [unit=u"ppb", description="CH3O2; Methylperoxy radical"],
-            MOH(t)=0.0, [unit=u"ppb", description="CH3OH; Methanol"],
-            MONITA(t)=0.0, [unit=u"ppb", description="Aerosol-phase organic nitrate from monoterpene precursors"],
-            MONITS(t)=0.0, [unit=u"ppb", description="Saturated 1st gen monoterpene organic nitrate"],
-            MONITU(t)=0.0, [unit=u"ppb", description="Unsaturated 1st gen monoterpene organic nitrate"],
-            MP(t)=4E-6, [unit=u"ppb", description="CH3OOH; Methylhydroperoxide"],
-            MPAN(t)=0.0, [unit=u"ppb", description="CH2=C(CH3)C(O)OONO2; Peroxymethacroyl nitrate (PMN)"],
-            MPN(t)=0.0, [unit=u"ppb", description="CH3O2NO2; Methyl peroxy nitrate"],
-            MSA(t)=0.0, [unit=u"ppb", description="CH4SO3; Methanesulfonic acid"],
-            MTPA(t)=0.0,[unit=u"ppb", description="Lumped monoterpenes: a-pinene, b-pinene, sabinene, carene"],
-            MTPO(t)=0.0, [unit=u"ppb", description="Other monoterpenes: Terpinene, terpinolene, myrcene, ocimene, other monoterpenes"],
-            MVK(t)=0.0, [unit=u"ppb", description="CH2=CHC(=O)CH3; Methyl vinyl ketone"],
-            MVKDH(t)=0.0, [unit=u"ppb", description="HOCH2CH2OHC(O)CH3; Dihydroxy-MVK"],
-            MVKHC(t)=0.0, [unit=u"ppb", description="C4H6O3; MVK hydroxy-carbonyl"],
-            MVKHCB(t)=0.0, [unit=u"ppb", description="C4H6O3; MVK hydroxy-carbonyl"],
-            MVKHP(t)=0.0, [unit=u"ppb", description="C4H8O4; MVK hydroxy-hydroperoxide"],
-            MVKN(t)=0.0, [unit=u"ppb", description="HOCH2CH(ONO2)C(=O)CH3; Hydroxynitrate from MVK"],
-            MVKOHOO(t)=0.0, [unit=u"ppb", description="peroxy radical from MVK + OH"],
-            MVKPC(t)=0.0, [unit=u"ppb", description="OCHCH(OOH)C(O)CH3; MVK hydroperoxy-carbonyl"],
-            N(t)=4E-11, [unit=u"ppb", description="N; Atomic nitrogen"],
-            N2O(t)=3E2, [unit=u"ppb", description="N2O; Nitrous oxide"],
-            N2O5(t)=4E-6, [unit=u"ppb", description="N2O5; Dinitrogen pentoxide"],
-            NAP(t)=0.0, [unit=u"ppb", description="C10H8; Naphthalene; IVOC surrogate"],
-            NIT(t)=0.0, [unit=u"ppb", description="NIT; Fine mode inorganic nitrate"],
-            NITs(t)=0.0, [unit=u"ppb", description="NITs; Coarse mode inorganic nitrate"],
-            NO(t)=4E-4, [unit=u"ppb", description="NO; Nitric oxide"],
-            NO2(t)=4E-4, [unit=u"ppb", description="NO2; Nitrogen dioxide"],
-            NO3(t)=4E-6, [unit=u"ppb", description="NO3; Nitrate radical"],
-            NPHEN(t)=0.0, [unit=u"ppb", description="nitrophenols"],
-            NPRNO3(t)=0.0, [unit=u"ppb", description="C3H8ONO2; n-propyl nitrate"],
-            NRO2(t)=0.0, [unit=u"ppb", description="Peroxy radical from NAP oxidation"],
-            O(t)=0.0, [unit=u"ppb", description="O(3P); Ground state atomic oxygen"],
-            O1D(t)=1E-6, [unit=u"ppb", description="O(1D); Excited atomic oxygen"],
-            O3(t)=2E1, [unit=u"ppb", description="O3; Ozone"],
-            #O3A(t) = 0.0, [unit = u"ppb", description = "O3; Ozone in accum seasalt"],
-            #O3C(t) = 0.0, [unit = u"ppb", description = "O3; Ozone in coarse seasalt"],
-            OClO(t)=0.0, [unit=u"ppb", description="OClO; Chlorine dioxide"],
-            OCS(t)=9E-6, [unit=u"ppb", description="COS; Carbonyl sulfide"],
-            OH(t)=4E-6, [unit=u"ppb", description="OH; Hydroxyl radical"],
-            OIO(t)=0.0, [unit=u"ppb", description="OIO; Iodine dioxide"],
-            OLND(t)=0.0, [unit=u"ppb", description="Monoterpene-derived NO3-alkene adduct"],
-            OLNN(t)=0.0, [unit=u"ppb", description="Monoterpene-derived NO3 adduct"],
-            OTHRO2(t)=0.0, [unit=u"ppb", description="Other C2 RO2 not from C2H6 oxidation"],
-            PAN(t)=0.0, [unit=u"ppb", description="CH3C(O)OONO2; Peroxyacetylnitrate"],
-            PHEN(t)=0.0, [unit=u"ppb", description="phenol"],
-            PIO2(t)=0.0, [unit=u"ppb", description="RO2 from MTPA"],
-            PIP(t)=0.0, [unit=u"ppb", description="Peroxides from MTPA"],
-            PO2(t)=0.0, [unit=u"ppb", description="HOCH2CH(OO)CH3; RO2 from propene"],
-            PP(t)=0.0, [unit=u"ppb", description="HOCH2CH(OOH)CH3; Peroxide from PO2"],
-            PPN(t)=0.0, [unit=u"ppb", description="CH3CH2C(O)OONO2; Peroxypropionylnitrate"],
-            PRN1(t)=0.0, [unit=u"ppb", description="O2NOCH2CH(OO)CH3; RO2 from propene + NO3"],
-            PROPNN(t)=0.0, [unit=u"ppb", description="CH3C(=O)CH2ONO2; Propanone nitrate"],
-            PRPE(t)=0.0, [unit=u"ppb", description="C3H6; >= C3 alkenes"],
-            PRPN(t)=0.0, [unit=u"ppb", description="O2NOCH2CH(OOH)CH3; Peroxide from PRN1"],
-            PYAC(t)=0.0, [unit=u"ppb", description="CH3COCOOH; Pyruvic acid"],
-            R4N1(t)=0.0, [unit=u"ppb", description="RO2 from R4N2"],
-            R4N2(t)=0.0, [unit=u"ppb", description="RO2NO; >= C4 alkylnitrates"],
-            R4O2(t)=0.0, [unit=u"ppb", description="RO2 from ALK4"],
-            R4P(t)=0.0, [unit=u"ppb", description="CH3CH2CH2CH2OOH; Peroxide from R4O2"],
-            RA3P(t)=0.0, [unit=u"ppb", description="CH3CH2CH2OOH; Peroxide from A3O2"],
-            RB3P(t)=0.0, [unit=u"ppb", description="CH3CH(OOH)CH3; Peroxide from B3O2"],
-            RCHO(t)=0.0, [unit=u"ppb", description="CH3CH2CHO; >= C3 aldehydes"],
-            RCO3(t)=0.0, [unit=u"ppb", description="CH3CH2C(O)OO; Peroxypropionyl radical"],
-            RIPA(t)=0.0, [unit=u"ppb", description="HOCH2C(OOH)(CH3)CH=CH2; 1,2-ISOPOOH"],
-            RIPB(t)=0.0, [unit=u"ppb", description="HOCH2C(OOH)(CH3)CH=CH2; 4,3-ISOPOOH"],
-            RIPC(t)=0.0, [unit=u"ppb", description="C5H10O3; d(1,4)-ISOPOOH"],
-            RIPD(t)=0.0, [unit=u"ppb", description="C5H10O3; d(4,1)-ISOPOOH"],
-            ROH(t)=0.0, [unit=u"ppb", description="C3H7OH; > C2 alcohols"],
-            RP(t)=0.0, [unit=u"ppb", description="CH3CH2C(O)OOH; Peroxide from RCO3"],
-            SALAAL(t)=0.0, [unit=u"ppb", description="Accumulation mode seasalt aerosol alkalinity"],
-            SALCAL(t)=0.0, [unit=u"ppb", description="Coarse mode seasalt aerosol alkalinity"],
-            SALACL(t)=0.0, [unit=u"ppb", description="Cl; Fine chloride"],
-            SALCCL(t)=0.0, [unit=u"ppb", description="Cl; Coarse chloride"],
-            #SALASO2(t) = 0.0, [unit = u"ppb", description = "SO2; Fine seasalt"],
-            #SALCSO2(t) = 0.0, [unit = u"ppb", description = "SO2; Coarse seasalt"],
-            #SALASO3(t) = 0.0, [unit = u"ppb", description = "SO3--; Fine seasalt"],
-            #SALCSO3(t) = 0.0, [unit = u"ppb", description = "SO3--; Coarse chloride"],
-            SO2(t)=0.0, [unit=u"ppb", description="SO2; Sulfur dioxide"],
-            SO4(t)=0.0, [unit=u"ppb", description="SO4; Sulfate"],
-            SO4s(t)=0.0, [unit=u"ppb", description="SO4 on sea-salt; Sulfate"],
-            #SOAGX(t) = 0.0, [unit = u"ppb", description = "CHOCHO; Aerosol-phase glyoxal"],
-            #SOAIE(t) = 0.0, [unit = u"ppb", description = "C5H10O3; Aerosol-phase IEPOX"],
-            TOLU(t)=0.0, [unit=u"ppb", description="C7H8; Toluene"],
-            TRO2(t)=0.0, [unit=u"ppb", description="Peroxy radical from TOLU oxidation"],
-            XYLE(t)=0.0, [unit=u"ppb", description="C8H10; Xylene"],
-            XRO2(t)=0.0, [unit=u"ppb", description="Peroxy radical from XYLE oxidation"],
-            RCOOH(t)=0.0, [unit=u"ppb", description="C2H5C(O)OH; > C2 organic acids "],)
+        @species(A3O2(t)=0.0,
+            [unit=u"ppb", description="CH3CH2CH2OO; Primary RO2 from C3H8"],
+            ACET(t)=0.0,
+            [unit=u"ppb", description="CH3C(O)CH3; Acetone"],
+            ACTA(t)=0.0,
+            [unit=u"ppb", description="CH3C(O)OH; Acetic acid"],
+        #AERI(t) = 0.0, [unit = u"ppb", description = "I; Dissolved iodine"],
+            ALD2(t)=0.0,
+            [unit=u"ppb", description="CH3CHO; Acetaldehyde"],
+            ALK4(t)=0.0,
+            [unit=u"ppb", description=">= C4 alkanes"],
+        #AONITA(t) = 0.0, [unit = u"ppb", description = "Aerosol-phase organic nitrate from aromatic precursors"],
+            AROMRO2(t)=0.0,
+            [unit=u"ppb", description="generic peroxy radical from aromatic oxidation"],
+            AROMP4(t)=0.0,
+            [unit=u"ppb", description="Generic C4 product from aromatic oxidation"],
+            AROMP5(t)=0.0,
+            [unit=u"ppb", description="Generic C5 product from aromatic oxidation"],
+            ATO2(t)=0.0,
+            [unit=u"ppb", description="CH3C(O)CH2O2; RO2 from acetone"],
+            ATOOH(t)=0.0,
+            [unit=u"ppb", description="CH3C(O)CH2OOH; ATO2 peroxide"],
+            B3O2(t)=0.0,
+            [unit=u"ppb", description="CH3CH(OO)CH3; Secondary RO2 from C3H8"],
+            BALD(t)=0.0,
+            [unit=u"ppb", description="benzaldehyde and tolualdehyde"],
+            BENZ(t)=0.0,
+            [unit=u"ppb", description="C6H6; Benzene"],
+            BENZO(t)=0.0,
+            [unit=u"ppb", description="C6H5O radical"],
+            BENZO2(t)=0.0,
+            [unit=u"ppb", description="C6H5O2 radical"],
+            BENZP(t)=0.0,
+            [unit=u"ppb", description="hydroperoxide from BENZO2"],
+            Br(t)=0.0,
+            [unit=u"ppb", description="Br; Atomic bromine"],
+            Br2(t)=0.0,
+            [unit=u"ppb", description="Br2; Molecular bromine"],
+            BrCl(t)=0.0,
+            [unit=u"ppb", description="BrCl; Bromine chloride"],
+            BrNO2(t)=0.0,
+            [unit=u"ppb", description="BrNO2; Nitryl bromide"],
+            BrNO3(t)=0.0,
+            [unit=u"ppb", description="BrNO3; Bromine nitrate"],
+            BrO(t)=0.0,
+            [unit=u"ppb", description="BrO; Bromine monoxide"],
+            BRO2(t)=0.0,
+            [unit=u"ppb", description="C6H5O2 ; Peroxy radical from BENZ oxidation"],
+        #BrSALA(t) = 0.0, [unit = u"ppb", description = "Br; Fine sea salt bromine"],
+        #BrSALC(t) = 0.02, [unit = u"ppb", description = "Br; Course sea salt bromine"],
+            BZCO3(t)=0.0,
+            [unit=u"ppb", description="benzoylperoxy radical"],
+            BZCO3H(t)=0.0,
+            [unit=u"ppb", description="perbenzoic acid"],
+            BZPAN(t)=0.0,
+            [unit=u"ppb", description="peroxybenzoyl nitrate"],
+            C2H2(t)=0.0,
+            [unit=u"ppb", description="C2H2; Ethyne"],
+            C2H4(t)=0.0,
+            [unit=u"ppb", description="Ethylene"],
+            C2H6(t)=0.0,
+            [unit=u"ppb", description="C2H6; Ethane"],
+            C3H8(t)=0.0,
+            [unit=u"ppb", description="C3H8; Propane"],
+            C4HVP1(t)=0.0,
+            [unit=u"ppb", description="C4 hydroxy-vinyl-peroxy radicals from HPALDs"],
+            C4HVP2(t)=0.0,
+            [unit=u"ppb", description="C4 hydroxy-vinyl-peroxy radicals from HPALDs"],
+            CCl4(t)=0.0,
+            [unit=u"ppb", description="CCl4; Carbon tetrachloride"],
+            CFC11(t)=0.0,
+            [unit=u"ppb", description="CCl3F ; CFC-11, R-11, Freon 11"],
+            CFC12(t)=0.0,
+            [unit=u"ppb", description="CCl2F2; CFC-12, R-12, Freon 12"],
+            CFC113(t)=0.0,
+            [unit=u"ppb", description="C2Cl3F3; CFC-113, Freon 113"],
+            CFC114(t)=0.0,
+            [unit=u"ppb", description="C2Cl2F4; CFC-114, Freon 114"],
+            CFC115(t)=0.0,
+            [unit=u"ppb", description="C2ClF5; CFC-115, Freon 115"],
+            CH2Br2(t)=0.0,
+            [unit=u"ppb", description="CH3Br2; Dibromomethane"],
+            CH2Cl2(t)=0.0,
+            [unit=u"ppb", description="CH2Cl2; Dichloromethane"],
+            CH2I2(t)=0.0,
+            [unit=u"ppb", description="CH2I2; Diiodomethane"],
+            CH2IBr(t)=0.0,
+            [unit=u"ppb", description="CH2IBr; Bromoiodomethane"],
+            CH2ICl(t)=0.0,
+            [unit=u"ppb", description="CH2ICl; Chloroiodomethane"],
+            CH2O(t)=4e-6,
+            [unit=u"ppb", description="CH2O; Formaldehyde"],
+            CH2OO(t)=0.0,
+            [unit=u"ppb", description="CH2OO; Criegee intermediate"],
+            CH3Br(t)=0.0,
+            [unit=u"ppb", description="CH3Br; Methyl bromide"],
+            CH3CCl3(t)=0.0,
+            [unit=u"ppb", description="CH3CCl3; Methyl chloroform"],
+            CH3CHOO(t)=0.0,
+            [unit=u"ppb", description="CH3CHOO; Criegee intermediate"],
+            CH3Cl(t)=0.0,
+            [unit=u"ppb", description="CH3Cl; Chloromethane"],
+            CH3I(t)=1E-11,
+            [unit=u"ppb", description="CH3I; Methyl iodide"],
+            CH4(t)=1.8E3,
+            [unit=u"ppb", description="CH4; Methane"],
+            CHBr3(t)=0.0,
+            [unit=u"ppb", description="CHBr3; Tribromethane"],
+            CHCl3(t)=0.0,
+            [unit=u"ppb", description="CHCl3; Chloroform"],
+            Cl(t)=0.0,
+            [unit=u"ppb", description="Cl; Atomic chlorine"],
+            Cl2(t)=0.0,
+            [unit=u"ppb", description="Cl2; Molecular chlorine"],
+            Cl2O2(t)=0.0,
+            [unit=u"ppb", description="Cl2O2; Dichlorine dioxide"],
+            ClNO2(t)=0.0,
+            [unit=u"ppb", description="ClNO2; Nitryl chloride"],
+            ClNO3(t)=0.0,
+            [unit=u"ppb", description="ClONO2; Chlorine nitrate"],
+            ClO(t)=0.0,
+            [unit=u"ppb", description="ClO; Chlorine monoxide"],
+            ClOO(t)=0.0,
+            [unit=u"ppb", description="ClOO; Chlorine dioxide"],
+            CO(t)=1E2,
+            [unit=u"ppb", description="CO; Carbon monoxide"],
+            CO2(t)=3.55E5,
+            [unit=u"ppb", description="CO2; Carbon dioxide"],
+            CSL(t)=0.0,
+            [unit=u"ppb", description="cresols and xylols"],
+            DMS(t)=0.0,
+            [unit=u"ppb", description="(CH3)2S; Dimethylsulfide"],
+            EOH(t)=0.0,
+            [unit=u"ppb", description="C2H5OH; Ethanol"],
+            ETHLN(t)=0.0,
+            [unit=u"ppb", description="CHOCH2ONO2; Ethanal nitrate"],
+            ETHN(t)=0.0,
+            [unit=u"ppb", description="stable hydroxy-nitrooxy-ethane"],
+            ETHP(t)=0.0,
+            [unit=u"ppb", description="stable hydroxy-hydroperoxy-ethane"],
+            ETNO3(t)=0.0,
+            [unit=u"ppb", description="C2H5ONO2; Ethyl nitrate"],
+            ETO(t)=0.0,
+            [unit=u"ppb", description="hydroxy-alkoxy-ethane radical"],
+            ETOO(t)=0.0,
+            [
+            unit=u"ppb", description="hydroxy-peroxy-ethane radical, formed from ethene + OH"],
+            ETO2(t)=0.0,
+            [unit=u"ppb", description="CH3CH2OO; Ethylperoxy radical"],
+            ETP(t)=0.0,
+            [unit=u"ppb", description="CH3CH2OOH; Ethylhydroperoxide"],
+            GLYC(t)=0.0,
+            [unit=u"ppb", description="HOCH2CHO; Glycoaldehyde"],
+            GLYX(t)=0.0,
+            [unit=u"ppb", description="CHOCHO; Glyoxal"],
+            H(t)=0.0,
+            [unit=u"ppb", description="H; Atomic hydrogen"],
+            H1211(t)=0.0,
+            [unit=u"ppb", description="CBrClF2; H-1211"],
+            H1301(t)=0.0,
+            [unit=u"ppb", description="CBrF3; H-1301"],
+            H2402(t)=0.0,
+            [unit=u"ppb", description="C2Br2F4; H-2402"],
+            H2O(t)=1.84E7,
+            [unit=u"ppb", description="H2O; Water vapor"],
+            H2O2(t)=4E-6,
+            [unit=u"ppb", description="H2O2; Hydrogen peroxide"],
+            HAC(t)=0.0,
+            [unit=u"ppb", description="HOCH2C(O)CH3; Hydroxyacetone"],
+            HBr(t)=0.0,
+            [unit=u"ppb", description="HBr; Hypobromic acid"],
+            HC5A(t)=0.0,
+            [unit=u"ppb", description="C5H8O2; Isoprene-4,1-hydroxyaldehyde"],
+            HCFC123(t)=0.0,
+            [unit=u"ppb", description="C2HCl2F3; HCFC-123, R-123, Freon 123"],
+            HCFC141b(t)=0.0,
+            [unit=u"ppb", description="C(CH3)Cl2F; HCFC-141b, R-141b, Freon 141b"],
+            HCFC142b(t)=0.0,
+            [unit=u"ppb", description="C(CH3)ClF2; HCFC-142b, R-142b, Freon 142b"],
+            HCFC22(t)=0.0,
+            [unit=u"ppb", description="CHClF2 ; HCFC-22, R-22, Freon 22"],
+            HCl(t)=0.0,
+            [unit=u"ppb", description="HCl; Hydrochloric acid"],
+            HCOOH(t)=0.0,
+            [unit=u"ppb", description="HCOOH; Formic acid"],
+            HI(t)=0.0,
+            [unit=u"ppb", description="HI; Hydrogen iodide"],
+            HMHP(t)=0.0,
+            [unit=u"ppb", description="HOCH2OOH; Hydroxymethyl hydroperoxide"],
+            HMML(t)=0.0,
+            [unit=u"ppb", description="C4H6O3; Hydroxymethyl-methyl-a-lactone"],
+            HMS(t)=1E-6,
+            [unit=u"ppb", description="HOCH2SO3-; hydroxymethanesulfonate"],
+            HNO2(t)=4E-6,
+            [unit=u"ppb", description="HONO; Nitrous acid"],
+            HNO3(t)=4E-6,
+            [unit=u"ppb", description="HNO3; Nitric acid"],
+            HNO4(t)=4E-6,
+            [unit=u"ppb", description="HNO4; Pernitric acid"],
+            HO2(t)=4E-6,
+            [unit=u"ppb", description="HO2; Hydroperoxyl radical"],
+            HOBr(t)=0.0,
+            [unit=u"ppb", description="HOBr; Hypobromous acid"],
+            HOCl(t)=0.0,
+            [unit=u"ppb", description="HOCl; Hypochlorous acid"],
+            HOI(t)=0.0,
+            [unit=u"ppb", description="HOI; Hypoiodous acid"],
+            HONIT(t)=0.0,
+            [unit=u"ppb", description="2nd gen monoterpene organic nitrate"],
+            HPALD1(t)=0.0,
+            [unit=u"ppb", description="O=CHC(CH3)=CHCH2OOH; d-4,1-C5-hydroperoxyaldehyde"],
+            HPALD1OO(t)=0.0,
+            [unit=u"ppb", description="peroxy radicals from HPALD1"],
+            HPALD2(t)=0.0,
+            [unit=u"ppb", description="HOOCH2C(CH3)=CHCH=O; d-1,4-C5-hydroperoxyaldehyde"],
+            HPALD2OO(t)=0.0,
+            [unit=u"ppb", description="peroxy radicals from HPALD2"],
+            HPALD3(t)=0.0,
+            [unit=u"ppb", description="O=CHC(CH3)OOHCH=CH2; b-2,1-C5-hydroperoxyaldehyde"],
+            HPALD4(t)=0.0,
+            [unit=u"ppb", description="CH2=C(CH3)CHOOHCH=O; b-3,4-C5-hydroperoxyaldehyde"],
+            HPETHNL(t)=0.0,
+            [unit=u"ppb", description="CHOCH2OOH; hydroperoxyethanal"],
+            I(t)=0.0,
+            [unit=u"ppb", description="I; Atomic iodine"],
+            I2(t)=0.0,
+            [unit=u"ppb", description="I2; Molecular iodine"],
+            I2O2(t)=0.0,
+            [unit=u"ppb", description="I2O2; Diiodine dioxide"],
+            I2O3(t)=0.0,
+            [unit=u"ppb", description="I2O3; Diiodine trioxide"],
+            I2O4(t)=0.0,
+            [unit=u"ppb", description="I2O4; Diiodine tetraoxide"],
+            IBr(t)=0.0,
+            [unit=u"ppb", description="IBr; Iodine monobromide"],
+            ICHE(t)=0.0,
+            [unit=u"ppb", description="C5H8O3; Isoprene hydroxy-carbonyl-epoxides"],
+            ICHOO(t)=0.0,
+            [unit=u"ppb", description="peroxy radical from IEPOXD"],
+            ICl(t)=0.0,
+            [unit=u"ppb", description="ICl; Iodine monochloride"],
+            ICN(t)=0.0,
+            [unit=u"ppb", description="C5H7NO4; Lumped isoprene carbonyl nitrates"],
+            ICNOO(t)=0.0,
+            [unit=u"ppb", description="peroxy radicals from ICN"],
+            ICPDH(t)=0.0,
+            [unit=u"ppb", description="C5H10O5; Isoprene dihydroxy hydroperoxycarbonyl"],
+            IDC(t)=0.0,
+            [unit=u"ppb", description="C5H6O2; Lumped isoprene dicarbonyls"],
+            IDCHP(t)=0.0,
+            [
+            unit=u"ppb", description="C5H8O5; Isoprene dicarbonyl hydroxy dihydroperoxide"],
+            IDHDP(t)=0.0,
+            [unit=u"ppb", description="C5H12O6; Isoprene dihydroxy dihydroperoxide"],
+            IDHNBOO(t)=0.0,
+            [unit=u"ppb", description="peroxy radicals from INPB"],
+            IDHNDOO1(t)=0.0,
+            [unit=u"ppb", description="peroxy radicals from INPD"],
+            IDHNDOO2(t)=0.0,
+            [unit=u"ppb", description="peroxy radicals from INPD"],
+            IDHPE(t)=0.0,
+            [unit=u"ppb", description="C5H10O5; Isoprene dihydroxy hydroperoxy epoxide"],
+            IDN(t)=0.0,
+            [unit=u"ppb", description="C5H8N2O6; Lumped isoprene dinitrates"],
+            IDNOO(t)=0.0,
+            [unit=u"ppb", description="peroxy radicals from IDN"],
+            IEPOXA(t)=0.0,
+            [unit=u"ppb", description="C5H10O3; trans-Beta isoprene epoxydiol"],
+            IEPOXAOO(t)=0.0,
+            [unit=u"ppb", description="peroxy radical from trans-Beta isoprene epoxydiol"],
+            IEPOXB(t)=0.0,
+            [unit=u"ppb", description="C5H10O3; cis-Beta isoprene epoxydiol"],
+            IEPOXBOO(t)=0.0,
+            [unit=u"ppb", description="peroxy radical from cis-Beta isoprene epoxydiol"],
+            IEPOXD(t)=0.0,
+            [unit=u"ppb", description="C5H10O3; Delta isoprene epoxydiol"],
+            IHN1(t)=0.0,
+            [unit=u"ppb", description="C5H9NO4; Isoprene-d-4-hydroxy-1-nitrate"],
+            IHN2(t)=0.0,
+            [unit=u"ppb", description="C5H9NO4; Isoprene-b-1-hydroxy-2-nitrate"],
+            IHN3(t)=0.0,
+            [unit=u"ppb", description="C5H9NO4; Isoprene-b-4-hydroxy-3-nitrate"],
+            IHN4(t)=0.0,
+            [unit=u"ppb", description="C5H9NO4; Isoprene-d-1-hydroxy-4-nitrate"],
+            IHOO1(t)=0.0,
+            [unit=u"ppb", description="peroxy radical from OH addition to isoprene at C1"],
+            IHOO4(t)=0.0,
+            [unit=u"ppb", description="peroxy radical from OH addition to isoprene at C4"],
+            IHPNBOO(t)=0.0,
+            [unit=u"ppb", description="peroxy radicals from INPB"],
+            IHPNDOO(t)=0.0,
+            [unit=u"ppb", description="peroxy radicals from INPD"],
+            IHPOO1(t)=0.0,
+            [unit=u"ppb", description="peroxy radical from ISOPOOH"],
+            IHPOO2(t)=0.0,
+            [unit=u"ppb", description="peroxy radical from ISOPOOH"],
+            IHPOO3(t)=0.0,
+            [unit=u"ppb", description="peroxy radical from ISOPOOH"],
+            INA(t)=0.0,
+            [unit=u"ppb", description="alkoxy radical from INO2D"],
+            INDIOL(t)=0.0,
+            [
+            unit=u"ppb", description="Generic aerosol phase organonitrate hydrolysis product"],
+            INO(t)=0.0,
+            [unit=u"ppb", description="INO; Nitrosyl iodide"],
+            INO2B(t)=0.0,
+            [unit=u"ppb", description="beta-peroxy radicals from isoprene + NO3"],
+            INO2D(t)=0.0,
+            [unit=u"ppb", description="delta-peroxy radicals from isoprene + NO3"],
+            INPB(t)=0.0,
+            [unit=u"ppb", description="C5H9NO5; Lumped isoprene beta-hydroperoxy nitrates"],
+            INPD(t)=0.0,
+            [
+            unit=u"ppb", description="C5H9NO5; Lumped isoprene delta-hydroperoxy nitrates"],
+            IO(t)=0.0,
+            [unit=u"ppb", description="IO; Iodine monoxide"],
+            IONITA(t)=0.0,
+            [
+            unit=u"ppb", description="Aerosol-phase organic nitrate from isoprene precursors"],
+            IONO(t)=0.0,
+            [unit=u"ppb", description="IONO; Nitryl iodide"],
+            IONO2(t)=0.0,
+            [unit=u"ppb", description="IONO2; Iodine nitrate"],
+            IPRNO3(t)=0.0,
+            [unit=u"ppb", description="C3H8ONO2; Isopropyl nitrate"],
+        #ISALA(t) = 0.0, [unit = u"ppb", description = "I; Fine sea salt iodine"],
+        #ISALC(t) = 0.0, [unit = u"ppb", description = "I; Coarse sea salt iodine"],
+            ISOP(t)=0.0,
+            [unit=u"ppb", description="CH2=C(CH3)CH=CH2; Isoprene"],
+            ISOPNOO1(t)=0.03,
+            [unit=u"ppb", description="peroxy radicals from IHN2"],
+            ISOPNOO2(t)=0.0,
+            [unit=u"ppb", description="peroxy radicals from IHN3"],
+            ITCN(t)=0.0,
+            [
+            unit=u"ppb", description="C5H9NO7; Lumped tetrafunctional isoprene carbonyl-nitrates"],
+            ITHN(t)=0.0,
+            [
+            unit=u"ppb", description="C5H11NO7; Lumped tetrafunctional isoprene hydroxynitrates"],
+            KO2(t)=0.0,
+            [unit=u"ppb", description="RO2 from >3 ketones"],
+            LBRO2H(t)=0.0,
+            [unit=u"ppb", description="Dummy spc to track oxidation of BRO2 by HO2"],
+            LBRO2N(t)=0.0,
+            [unit=u"ppb", description="Dummy spc to track oxidation of BRO2 by NO"],
+            LIMO(t)=0.0,
+            [unit=u"ppb", description="C10H16; Limonene"],
+            LIMO2(t)=0.0,
+            [unit=u"ppb", description="RO2 from LIMO"],
+            LISOPOH(t)=0.0,
+            [unit=u"ppb", description="Dummy spc to track oxidation of ISOP by OH"],
+            LISOPNO3(t)=0.0,
+            [unit=u"ppb", description="Dummy spc to track oxidation of ISOP by NO3"],
+            LNRO2H(t)=0.0,
+            [unit=u"ppb", description="Dummy spc to track oxidation of NRO2 by HO2"],
+            LNRO2N(t)=0.0,
+            [unit=u"ppb", description="Dummy spc to track oxidation of NRO2 by NO"],
+            LTRO2H(t)=0.0,
+            [unit=u"ppb", description="Dummy spc to track oxidation of TRO2 by HO2"],
+            LTRO2N(t)=0.0,
+            [unit=u"ppb", description="Dummy spc to track oxidation of TRO2 by NO"],
+            LVOC(t)=0.0,
+            [unit=u"ppb",
+            description="C5H14O5; Gas-phase low-volatility non-IEPOX product of ISOPOOH (RIP) oxidation"],
+        #LVOCOA(t) = 0.0, [unit = u"ppb", description = "C5H14O5; Aerosol-phase low-volatility non-IEPOX product of ISOPOOH (RIP) oxidation"],
+            LXRO2H(t)=0.0,
+            [unit=u"ppb", description="Dummy spc to track oxidation of XRO2 by HO2"],
+            LXRO2N(t)=0.0,
+            [unit=u"ppb", description="Dummy spc to track oxidation of XRO2 by NO"],
+            MACR(t)=0.0,
+            [unit=u"ppb", description="CH2=C(CH3)CHO; Methacrolein"],
+            MACR1OO(t)=0.0,
+            [unit=u"ppb", description="peroxyacyl radical from MACR + OH"],
+            MACR1OOH(t)=0.0,
+            [unit=u"ppb", description="CH2=C(CH3)C(O)OOH; Peracid from MACR"],
+            MACRNO2(t)=0.0,
+            [unit=u"ppb", description="Product of MCRHN + OH"],
+            MAP(t)=0.0,
+            [unit=u"ppb", description="CH3C(O)OOH; Peroxyacetic acid"],
+            MCO3(t)=0.0,
+            [unit=u"ppb", description="CH3C(O)OO; Peroxyacetyl radical"],
+            MCRDH(t)=0.0,
+            [unit=u"ppb", description="C4H8O3; Dihydroxy-MACR"],
+            MCRENOL(t)=0.0,
+            [unit=u"ppb", description="C4H6O2; Lumped enols from MVK/MACR"],
+            MCRHN(t)=0.0,
+            [unit=u"ppb", description="HOCH2C(ONO2)(CH3)CHO; Hydroxynitrate from MACR"],
+            MCRHNB(t)=0.0,
+            [unit=u"ppb", description="O2NOCH2C(OH)(CH3)CHO; Hydroxynitrate from MACR"],
+            MCRHP(t)=0.0,
+            [unit=u"ppb", description="HOCH2C(OOH)(CH3)CHO; Hydroxy-hydroperoxy-MACR"],
+            MCROHOO(t)=0.0,
+            [unit=u"ppb", description="peroxy radical from MACR + OH"],
+            MCT(t)=0.0,
+            [unit=u"ppb", description="methylcatechols"],
+            MEK(t)=0.0,
+            [unit=u"ppb", description="RC(O)R; Methyl ethyl ketone"],
+            MENO3(t)=0.0,
+            [unit=u"ppb", description="CH3ONO2; methyl nitrate"],
+            MGLY(t)=0.0,
+            [unit=u"ppb", description="CH3COCHO; Methylglyoxal"],
+            MO2(t)=4E-6,
+            [unit=u"ppb", description="CH3O2; Methylperoxy radical"],
+            MOH(t)=0.0,
+            [unit=u"ppb", description="CH3OH; Methanol"],
+            MONITA(t)=0.0,
+            [
+            unit=u"ppb", description="Aerosol-phase organic nitrate from monoterpene precursors"],
+            MONITS(t)=0.0,
+            [unit=u"ppb", description="Saturated 1st gen monoterpene organic nitrate"],
+            MONITU(t)=0.0,
+            [unit=u"ppb", description="Unsaturated 1st gen monoterpene organic nitrate"],
+            MP(t)=4E-6,
+            [unit=u"ppb", description="CH3OOH; Methylhydroperoxide"],
+            MPAN(t)=0.0,
+            [
+            unit=u"ppb", description="CH2=C(CH3)C(O)OONO2; Peroxymethacroyl nitrate (PMN)"],
+            MPN(t)=0.0,
+            [unit=u"ppb", description="CH3O2NO2; Methyl peroxy nitrate"],
+            MSA(t)=0.0,
+            [unit=u"ppb", description="CH4SO3; Methanesulfonic acid"],
+            MTPA(t)=0.0,
+            [
+            unit=u"ppb", description="Lumped monoterpenes: a-pinene, b-pinene, sabinene, carene"],
+            MTPO(t)=0.0,
+            [unit=u"ppb",
+            description="Other monoterpenes: Terpinene, terpinolene, myrcene, ocimene, other monoterpenes"],
+            MVK(t)=0.0,
+            [unit=u"ppb", description="CH2=CHC(=O)CH3; Methyl vinyl ketone"],
+            MVKDH(t)=0.0,
+            [unit=u"ppb", description="HOCH2CH2OHC(O)CH3; Dihydroxy-MVK"],
+            MVKHC(t)=0.0,
+            [unit=u"ppb", description="C4H6O3; MVK hydroxy-carbonyl"],
+            MVKHCB(t)=0.0,
+            [unit=u"ppb", description="C4H6O3; MVK hydroxy-carbonyl"],
+            MVKHP(t)=0.0,
+            [unit=u"ppb", description="C4H8O4; MVK hydroxy-hydroperoxide"],
+            MVKN(t)=0.0,
+            [unit=u"ppb", description="HOCH2CH(ONO2)C(=O)CH3; Hydroxynitrate from MVK"],
+            MVKOHOO(t)=0.0,
+            [unit=u"ppb", description="peroxy radical from MVK + OH"],
+            MVKPC(t)=0.0,
+            [unit=u"ppb", description="OCHCH(OOH)C(O)CH3; MVK hydroperoxy-carbonyl"],
+            N(t)=4E-11,
+            [unit=u"ppb", description="N; Atomic nitrogen"],
+            N2O(t)=3E2,
+            [unit=u"ppb", description="N2O; Nitrous oxide"],
+            N2O5(t)=4E-6,
+            [unit=u"ppb", description="N2O5; Dinitrogen pentoxide"],
+            NAP(t)=0.0,
+            [unit=u"ppb", description="C10H8; Naphthalene; IVOC surrogate"],
+            NIT(t)=0.0,
+            [unit=u"ppb", description="NIT; Fine mode inorganic nitrate"],
+            NITs(t)=0.0,
+            [unit=u"ppb", description="NITs; Coarse mode inorganic nitrate"],
+            NO(t)=4E-4,
+            [unit=u"ppb", description="NO; Nitric oxide"],
+            NO2(t)=4E-4,
+            [unit=u"ppb", description="NO2; Nitrogen dioxide"],
+            NO3(t)=4E-6,
+            [unit=u"ppb", description="NO3; Nitrate radical"],
+            NPHEN(t)=0.0,
+            [unit=u"ppb", description="nitrophenols"],
+            NPRNO3(t)=0.0,
+            [unit=u"ppb", description="C3H8ONO2; n-propyl nitrate"],
+            NRO2(t)=0.0,
+            [unit=u"ppb", description="Peroxy radical from NAP oxidation"],
+            O(t)=0.0,
+            [unit=u"ppb", description="O(3P); Ground state atomic oxygen"],
+            O1D(t)=1E-6,
+            [unit=u"ppb", description="O(1D); Excited atomic oxygen"],
+            O3(t)=2E1,
+            [unit=u"ppb", description="O3; Ozone"],
+        #O3A(t) = 0.0, [unit = u"ppb", description = "O3; Ozone in accum seasalt"],
+        #O3C(t) = 0.0, [unit = u"ppb", description = "O3; Ozone in coarse seasalt"],
+            OClO(t)=0.0,
+            [unit=u"ppb", description="OClO; Chlorine dioxide"],
+            OCS(t)=9E-6,
+            [unit=u"ppb", description="COS; Carbonyl sulfide"],
+            OH(t)=4E-6,
+            [unit=u"ppb", description="OH; Hydroxyl radical"],
+            OIO(t)=0.0,
+            [unit=u"ppb", description="OIO; Iodine dioxide"],
+            OLND(t)=0.0,
+            [unit=u"ppb", description="Monoterpene-derived NO3-alkene adduct"],
+            OLNN(t)=0.0,
+            [unit=u"ppb", description="Monoterpene-derived NO3 adduct"],
+            OTHRO2(t)=0.0,
+            [unit=u"ppb", description="Other C2 RO2 not from C2H6 oxidation"],
+            PAN(t)=0.0,
+            [unit=u"ppb", description="CH3C(O)OONO2; Peroxyacetylnitrate"],
+            PHEN(t)=0.0,
+            [unit=u"ppb", description="phenol"],
+            PIO2(t)=0.0,
+            [unit=u"ppb", description="RO2 from MTPA"],
+            PIP(t)=0.0,
+            [unit=u"ppb", description="Peroxides from MTPA"],
+            PO2(t)=0.0,
+            [unit=u"ppb", description="HOCH2CH(OO)CH3; RO2 from propene"],
+            PP(t)=0.0,
+            [unit=u"ppb", description="HOCH2CH(OOH)CH3; Peroxide from PO2"],
+            PPN(t)=0.0,
+            [unit=u"ppb", description="CH3CH2C(O)OONO2; Peroxypropionylnitrate"],
+            PRN1(t)=0.0,
+            [unit=u"ppb", description="O2NOCH2CH(OO)CH3; RO2 from propene + NO3"],
+            PROPNN(t)=0.0,
+            [unit=u"ppb", description="CH3C(=O)CH2ONO2; Propanone nitrate"],
+            PRPE(t)=0.0,
+            [unit=u"ppb", description="C3H6; >= C3 alkenes"],
+            PRPN(t)=0.0,
+            [unit=u"ppb", description="O2NOCH2CH(OOH)CH3; Peroxide from PRN1"],
+            PYAC(t)=0.0,
+            [unit=u"ppb", description="CH3COCOOH; Pyruvic acid"],
+            R4N1(t)=0.0,
+            [unit=u"ppb", description="RO2 from R4N2"],
+            R4N2(t)=0.0,
+            [unit=u"ppb", description="RO2NO; >= C4 alkylnitrates"],
+            R4O2(t)=0.0,
+            [unit=u"ppb", description="RO2 from ALK4"],
+            R4P(t)=0.0,
+            [unit=u"ppb", description="CH3CH2CH2CH2OOH; Peroxide from R4O2"],
+            RA3P(t)=0.0,
+            [unit=u"ppb", description="CH3CH2CH2OOH; Peroxide from A3O2"],
+            RB3P(t)=0.0,
+            [unit=u"ppb", description="CH3CH(OOH)CH3; Peroxide from B3O2"],
+            RCHO(t)=0.0,
+            [unit=u"ppb", description="CH3CH2CHO; >= C3 aldehydes"],
+            RCO3(t)=0.0,
+            [unit=u"ppb", description="CH3CH2C(O)OO; Peroxypropionyl radical"],
+            RIPA(t)=0.0,
+            [unit=u"ppb", description="HOCH2C(OOH)(CH3)CH=CH2; 1,2-ISOPOOH"],
+            RIPB(t)=0.0,
+            [unit=u"ppb", description="HOCH2C(OOH)(CH3)CH=CH2; 4,3-ISOPOOH"],
+            RIPC(t)=0.0,
+            [unit=u"ppb", description="C5H10O3; d(1,4)-ISOPOOH"],
+            RIPD(t)=0.0,
+            [unit=u"ppb", description="C5H10O3; d(4,1)-ISOPOOH"],
+            ROH(t)=0.0,
+            [unit=u"ppb", description="C3H7OH; > C2 alcohols"],
+            RP(t)=0.0,
+            [unit=u"ppb", description="CH3CH2C(O)OOH; Peroxide from RCO3"],
+            SALAAL(t)=0.0,
+            [unit=u"ppb", description="Accumulation mode seasalt aerosol alkalinity"],
+            SALCAL(t)=0.0,
+            [unit=u"ppb", description="Coarse mode seasalt aerosol alkalinity"],
+            SALACL(t)=0.0,
+            [unit=u"ppb", description="Cl; Fine chloride"],
+            SALCCL(t)=0.0,
+            [unit=u"ppb", description="Cl; Coarse chloride"],
+        #SALASO2(t) = 0.0, [unit = u"ppb", description = "SO2; Fine seasalt"],
+        #SALCSO2(t) = 0.0, [unit = u"ppb", description = "SO2; Coarse seasalt"],
+        #SALASO3(t) = 0.0, [unit = u"ppb", description = "SO3--; Fine seasalt"],
+        #SALCSO3(t) = 0.0, [unit = u"ppb", description = "SO3--; Coarse chloride"],
+            SO2(t)=0.0,
+            [unit=u"ppb", description="SO2; Sulfur dioxide"],
+            SO4(t)=0.0,
+            [unit=u"ppb", description="SO4; Sulfate"],
+            SO4s(t)=0.0,
+            [unit=u"ppb", description="SO4 on sea-salt; Sulfate"],
+        #SOAGX(t) = 0.0, [unit = u"ppb", description = "CHOCHO; Aerosol-phase glyoxal"],
+        #SOAIE(t) = 0.0, [unit = u"ppb", description = "C5H10O3; Aerosol-phase IEPOX"],
+            TOLU(t)=0.0,
+            [unit=u"ppb", description="C7H8; Toluene"],
+            TRO2(t)=0.0,
+            [unit=u"ppb", description="Peroxy radical from TOLU oxidation"],
+            XYLE(t)=0.0,
+            [unit=u"ppb", description="C8H10; Xylene"],
+            XRO2(t)=0.0,
+            [unit=u"ppb", description="Peroxy radical from XYLE oxidation"],
+            RCOOH(t)=0.0,
+            [unit=u"ppb", description="C2H5C(O)OH; > C2 organic acids "],)
 
-        @parameters(
-            H2=5E2, [isconstantspecies=true, unit=u"ppb", description="H2; Molecular hydrogen"],
-            N2=7.81E8, [isconstantspecies=true, unit=u"ppb", description="N2; Molecular nitrogen"],
-            O2=2.1E8, [isconstantspecies=true, unit=u"ppb", description="O2; Molecular oxygen"],
+        @parameters(H2=5E2,
+            [isconstantspecies=true, unit=u"ppb", description="H2; Molecular hydrogen"],
+            N2=7.81E8, [
+                isconstantspecies=true, unit=u"ppb", description="N2; Molecular nitrogen"],
+            O2=2.1E8, [
+                isconstantspecies=true, unit=u"ppb", description="O2; Molecular oxygen"],
             N_A=6.02214076e23,
             [description="Avogadro's number"],
             cm3_m3=1e6,
@@ -737,15 +1027,15 @@ function GEOSChemGasPhase(; name = :GEOSChemGasPhase, rxn_sys = false)
             [unit=u"K", description="Temperature"],
             P=101325,
             [unit=u"Pa", description="Pressure"],
-            num_density=2.7e19 / N_A * cm3_m3,
+            num_density=2.7e19/N_A*cm3_m3,
             [
-            unit = u"mol/m^3",
-            description="Number density of air.",
+                unit=u"mol/m^3",
+                description="Number density of air."
             ],
-            num_density_inv= N_A / cm3_m3,
+            num_density_inv=N_A/cm3_m3,
             [
-            unit = u"m^3/mol",
-            description="multiply by num_density to obtain the unitless value of num_density",
+                unit=u"m^3/mol",
+                description="multiply by num_density to obtain the unitless value of num_density"
             ],
             k_mt1=0,
             [
@@ -1231,8 +1521,10 @@ function GEOSChemGasPhase(; name = :GEOSChemGasPhase, rxn_sys = false)
         ETO2 + NO --> ALD2 + NO2 + HO2#==2019/05/10; Fisher2018; JAF==#
         rRO2NOa2(t, T, num_density, 2.60e-12, 365.0e0, 2.0e0), ETO2 + NO --> ETNO3#==2019/05/10; Fisher2018; JAF==#
         arr(t, T, num_density, 2.60e-12, 0.0, 365.0e0), OTHRO2 + NO --> ALD2 + NO2 + HO2#==2019/05/10; Fisher2018; JAF==#
-        tbrnch(t, T, num_density, 7.60e-12, 0, -585.0e0, 5.87e0, 0.64e0, -816.0e0), C3H8 + OH --> B3O2
-        tbrnch(t, T, num_density, 7.60e-12, 0, -585.0e0, 1.7e-1, -0.64e0, 816.0e0), C3H8 + OH --> A3O2
+        tbrnch(t, T, num_density, 7.60e-12, 0, -585.0e0, 5.87e0, 0.64e0, -816.0e0),
+        C3H8 + OH --> B3O2
+        tbrnch(t, T, num_density, 7.60e-12, 0, -585.0e0, 1.7e-1, -0.64e0, 816.0e0),
+        C3H8 + OH --> A3O2
         rRO2NOb2(t, T, num_density, 2.90e-12, 350.0e0, 3.0e0),
         A3O2 + NO --> NO2 + HO2 + RCHO#==2019/05/10; Fisher2018; JAF==#
         rRO2NOa2(t, T, num_density, 2.90e-12, 350.0e0, 3.0e0), A3O2 + NO --> NPRNO3#==2019/05/10; Fisher2018; JAF==#
@@ -1283,7 +1575,8 @@ function GEOSChemGasPhase(; name = :GEOSChemGasPhase, rxn_sys = false)
         RCO3 + NO --> NO2 + 0.500OTHRO2 + 0.070A3O2 + 0.270B3O2#==2019/05/10; Fisher2018; JAF==#
         c(6.50e-15, T, num_density), RCHO + NO3 --> HNO3 + RCO3
         regressT(t, T, num_density, 1.33e-13, 3.82e-11, -2000.0e0), ACET + OH --> ATO2 + H2O#==JPL Eval 17, p1-62-D31; EVF==#
-        c(5.92e-13, T, num_density), A3O2 + MO2 --> HO2 + 0.750CH2O + 0.750RCHO + 0.250MOH + 0.250ROH
+        c(5.92e-13, T, num_density),
+        A3O2 + MO2 --> HO2 + 0.750CH2O + 0.750RCHO + 0.250MOH + 0.250ROH
         c(5.92e-13, T, num_density),
         PO2 + MO2 -->
         HO2 + 0.500ALD2 + 1.250CH2O + 0.160HAC + 0.090RCHO + 0.250MOH + 0.250ROH
@@ -1296,8 +1589,10 @@ function GEOSChemGasPhase(; name = :GEOSChemGasPhase, rxn_sys = false)
         rRO2HO2(t, T, num_density, 2.91e-13, 1300.0e0, 3.0e0), B3O2 + HO2 --> RB3P#==2013/03/22; Paulot2009; FP,EAM,JMAO,MJE==#
         rRO2HO2(t, T, num_density, 2.91e-13, 1300.0e0, 3.0e0), PRN1 + HO2 --> PRPN#==2013/03/22; Paulot2009; FP,EAM,JMAO,MJE==#
         arr(t, T, num_density, 1.30e-12, 0.0, -25.0e0), MEK + OH --> KO2 + H2O
-        c(3.00e-13, T, num_density), MO2 + ETO2 --> 0.750CH2O + 0.750ALD2 + HO2 + 0.250MOH + 0.250EOH
-        c(3.00e-13, T, num_density), MO2 + OTHRO2 --> 0.750CH2O + 0.750ALD2 + HO2 + 0.250MOH + 0.250EOH#==2019/05/10; Fisher2018; JAF==#
+        c(3.00e-13, T, num_density),
+        MO2 + ETO2 --> 0.750CH2O + 0.750ALD2 + HO2 + 0.250MOH + 0.250EOH
+        c(3.00e-13, T, num_density),
+        MO2 + OTHRO2 --> 0.750CH2O + 0.750ALD2 + HO2 + 0.250MOH + 0.250EOH#==2019/05/10; Fisher2018; JAF==#
         c(8.00e-16, T, num_density), MEK + NO3 --> HNO3 + KO2
         c(8.37e-14, T, num_density),
         R4O2 + MO2 -->
@@ -1386,19 +1681,27 @@ function GEOSChemGasPhase(; name = :GEOSChemGasPhase, rxn_sys = false)
         rHACOH_b(t, T, num_density, 2.15e-12, 305.0e0),
         HAC + OH --> 0.500HCOOH + OH + 0.500ACTA + 0.500CO2 + 0.500CO + 0.500MO2#==2013/03/22; Paulot2009; FP,EAM,JMAO,MJE==#
         arr(t, T, num_density, 1.68e-12, 0.0, 500.0e0), MCO3 + A3O2 --> MO2 + RCHO + HO2
-        arr(t, T, num_density, 1.68e-12, 0.0, 500.0e0), MCO3 + PO2 --> MO2 + ALD2 + CH2O + HO2
+        arr(t, T, num_density, 1.68e-12, 0.0, 500.0e0),
+        MCO3 + PO2 --> MO2 + ALD2 + CH2O + HO2
         arr(t, T, num_density, 1.87e-13, 0.0, 500.0e0), MCO3 + A3O2 --> ACTA + RCHO
-        arr(t, T, num_density, 1.87e-13, 0.0, 500.0e0), MCO3 + PO2 --> ACTA + 0.350RCHO + 0.650HAC
+        arr(t, T, num_density, 1.87e-13, 0.0, 500.0e0),
+        MCO3 + PO2 --> ACTA + 0.350RCHO + 0.650HAC
         arr(t, T, num_density, 1.68e-12, 0.0, 500.0e0),
         RCO3 + MO2 --> CH2O + HO2 + 0.500OTHRO2 + 0.070A3O2 + 0.270B3O2#==2019/05/10; Fisher2018; JAF==#
         arr(t, T, num_density, 1.87e-13, 0.0, 500.0e0), RCO3 + MO2 --> RCOOH + CH2O
-        arr(t, T, num_density, 8.78e-12, 0.0, 200.0e0), PRPN + OH --> 0.209PRN1 + 0.791OH + 0.791PROPNN#==2013/03/22; Paulot2009; FP,EAM,JMAO,MJE==#
-        arr(t, T, num_density, 5.18e-12, 0.0, 200.0e0), ETP + OH --> 0.640OH + 0.360OTHRO2 + 0.640ALD2#==2013/03/22; Paulot2009; FP,EAM,JMAO,MJE==#
-        arr(t, T, num_density, 5.18e-12, 0.0, 200.0e0), RA3P + OH --> 0.640OH + 0.360A3O2 + 0.640RCHO#==2013/03/22; Paulot2009; FP,EAM,JMAO,MJE==#
-        arr(t, T, num_density, 8.78e-12, 0.0, 200.0e0), RB3P + OH --> 0.791OH + 0.209B3O2 + 0.791ACET#==2013/03/22; Paulot2009; FP,EAM,JMAO,MJE==#
-        arr(t, T, num_density, 8.78e-12, 0.0, 200.0e0), R4P + OH --> 0.791OH + 0.209R4O2 + 0.791RCHO#==2013/03/22; Paulot2009; FP,EAM,JMAO,MJE==#
+        arr(t, T, num_density, 8.78e-12, 0.0, 200.0e0),
+        PRPN + OH --> 0.209PRN1 + 0.791OH + 0.791PROPNN#==2013/03/22; Paulot2009; FP,EAM,JMAO,MJE==#
+        arr(t, T, num_density, 5.18e-12, 0.0, 200.0e0),
+        ETP + OH --> 0.640OH + 0.360OTHRO2 + 0.640ALD2#==2013/03/22; Paulot2009; FP,EAM,JMAO,MJE==#
+        arr(t, T, num_density, 5.18e-12, 0.0, 200.0e0),
+        RA3P + OH --> 0.640OH + 0.360A3O2 + 0.640RCHO#==2013/03/22; Paulot2009; FP,EAM,JMAO,MJE==#
+        arr(t, T, num_density, 8.78e-12, 0.0, 200.0e0),
+        RB3P + OH --> 0.791OH + 0.209B3O2 + 0.791ACET#==2013/03/22; Paulot2009; FP,EAM,JMAO,MJE==#
+        arr(t, T, num_density, 8.78e-12, 0.0, 200.0e0),
+        R4P + OH --> 0.791OH + 0.209R4O2 + 0.791RCHO#==2013/03/22; Paulot2009; FP,EAM,JMAO,MJE==#
         arr(t, T, num_density, 6.13e-13, 0.0, 200.0e0), RP + OH --> RCO3#==2013/03/22; Paulot2009; FP,EAM,JMAO,MJE==#
-        arr(t, T, num_density, 8.78e-12, 0.0, 200.0e0), PP + OH --> 0.791OH + 0.209PO2 + 0.791HAC#==2013/03/22; Paulot2009; FP,EAM,JMAO,MJE==#
+        arr(t, T, num_density, 8.78e-12, 0.0, 200.0e0),
+        PP + OH --> 0.791OH + 0.209PO2 + 0.791HAC#==2013/03/22; Paulot2009; FP,EAM,JMAO,MJE==#
         arr(t, T, num_density, 4.82e-11, 0.0, -400.0e0), LVOC + OH --> OH#==2017/06/14; Marais2016; EAM==#
         arr(t, T, num_density, 6.13e-13, 0.0, 200.0e0), OH + MAP --> MCO3#==2013/03/22; Paulot2009; FP,EAM,JMAO,MJE==#
         c(1.40e-18, T, num_density), C2H6 + NO3 --> ETO2 + HNO3#==2013/03/22; Paulot2009; FP,EAM,JMAO,MJE==#
@@ -1421,7 +1724,8 @@ function GEOSChemGasPhase(; name = :GEOSChemGasPhase, rxn_sys = false)
         arr(t, T, num_density, 1.68e-12, 0.0, 500.0e0), B3O2 + MCO3 --> MO2 + HO2 + ACET
         arr(t, T, num_density, 1.68e-12, 0.0, 500.0e0),
         R4N1 + MCO3 --> MO2 + NO2 + 0.390CH2O + 0.750ALD2 + 0.570RCHO + 0.300R4O2
-        arr(t, T, num_density, 1.68e-12, 0.0, 500.0e0), PRN1 + MCO3 --> MO2 + NO2 + CH2O + ALD2
+        arr(t, T, num_density, 1.68e-12, 0.0, 500.0e0),
+        PRN1 + MCO3 --> MO2 + NO2 + CH2O + ALD2
         arr(t, T, num_density, 1.87e-13, 0.0, 500.0e0), R4O2 + MCO3 --> MEK + ACTA
         arr(t, T, num_density, 1.87e-13, 0.0, 500.0e0), ATO2 + MCO3 --> MGLY + ACTA#==2017/07/27; Fix C creation; SAS,BHH,MJE==#
         arr(t, T, num_density, 1.87e-13, 0.0, 500.0e0), KO2 + MCO3 --> MEK + ACTA
@@ -1453,7 +1757,8 @@ function GEOSChemGasPhase(; name = :GEOSChemGasPhase, rxn_sys = false)
         arr(t, T, num_density, 1.20e-11, 0.0, -280.0e0), DMS + OH --> SO2 + MO2 + CH2O
         rDMSOH(t, T, num_density, 8.20e-39, 5376.0e0, 1.05e-5, 3644.0e0),
         DMS + OH --> 0.750SO2 + 0.250MSA + MO2
-        arr(t, T, num_density, 1.90e-13, 0.0, 530.0e0), DMS + NO3 --> SO2 + HNO3 + MO2 + CH2O
+        arr(t, T, num_density, 1.90e-13, 0.0, 530.0e0),
+        DMS + NO3 --> SO2 + HNO3 + MO2 + CH2O
         arr3(t, T, num_density, 3.30e-31, 4.3e+00, 0.0, 1.6e-12, 0.0, 0.0, 0.6e0),
         SO2 + OH --> SO4 + HO2#==+M==#
         arr(t, T, num_density, 1.60e-11, 0.0, -780.0e0), Br + O3 --> BrO + O2#==2012/06/07; Parrella2012; JPP==#
@@ -1490,7 +1795,8 @@ function GEOSChemGasPhase(; name = :GEOSChemGasPhase, rxn_sys = false)
         c(1.31e-10, T, num_density), O1D + CH4 --> MO2 + OH#==2014/02/03; Eastham2014; SDE==#
         c(0.09e-10, T, num_density), O1D + CH4 --> CH2O + H2#==2014/02/03; Eastham2014; SDE==#
         c(0.35e-10, T, num_density), O1D + CH4 --> CH2O + H + HO2#==2014/02/03; Eastham2014; SDE==#
-        arr(t, T, num_density, 6.00e-34, 2.4e0, 0) * num_density * num_density_inv, O + O2 --> O3#==2014/02/03; Eastham2014; SDE==#
+        arr(t, T, num_density, 6.00e-34, 2.4e0, 0) * num_density * num_density_inv,
+        O + O2 --> O3#==2014/02/03; Eastham2014; SDE==#
         arr(t, T, num_density, 8.00e-12, 0.0, -2060.0e0), O + O3 --> 2.000O2#==2014/02/03; Eastham2014; SDE==#
         arr(t, T, num_density, 2.80e-12, 0.0, -1800.0e0), OH + H2 --> H2O + H#==2014/02/03; Eastham2014; SDE==#
         arr(t, T, num_density, 1.80e-11, 0.0, 180.0e0), O + OH --> O2 + H#==2014/02/03; Eastham2014; SDE==#
@@ -1517,26 +1823,37 @@ function GEOSChemGasPhase(; name = :GEOSChemGasPhase, rxn_sys = false)
         arr(t, T, num_density, 5.80e-12, 0.0, 220.0e0), N + NO2 --> N2O + O#==2014/02/03; Eastham2014; SDE==#
         arr(t, T, num_density, 1.90e-11, 0.0, 230.0e0), BrO + O --> Br + O2#==2014/02/03; Eastham2014; SDE==#
         arr(t, T, num_density, 3.40e-11, 0.0, -1600.0e0), CH2O + O --> CO + HO2 + OH#==2014/02/03; Eastham2014; SDE==#
-        c(1.50e-10, T, num_density), O1D + HCl --> 0.090O + 0.090HCl + 0.240H + 0.670Cl + 0.240ClO + 0.670OH#==2014/02/03; Eastham2014; SDE==#
-        c(1.50e-10, T, num_density), O1D + HBr --> 0.200O + 0.200HBr + 0.150BrO + 0.650OH + 0.150H + 0.650Br#==2014/02/03; Eastham2014; SDE==#
+        c(1.50e-10, T, num_density),
+        O1D + HCl --> 0.090O + 0.090HCl + 0.240H + 0.670Cl + 0.240ClO + 0.670OH#==2014/02/03; Eastham2014; SDE==#
+        c(1.50e-10, T, num_density),
+        O1D + HBr --> 0.200O + 0.200HBr + 0.150BrO + 0.650OH + 0.150H + 0.650Br#==2014/02/03; Eastham2014; SDE==#
         c(2.70e-10, T, num_density), O1D + Cl2 --> 0.250O + 0.250Cl2 + 0.750Cl + 0.750ClO#==2014/02/03; Eastham2014; SDE==#
         c(3.30e-10, T, num_density), O1D + CCl4 --> 0.140O + 0.140CCl4 + 0.860ClO + 2.580Cl#==2014/02/03; Eastham2014; SDE==#
         c(1.80e-10, T, num_density), O1D + CH3Br --> 0.440BrO + MO2 + 0.560Br#==2014/02/03; Eastham2014; SDE==#
-        c(2.70e-10, T, num_density), O1D + CH2Br2 --> 0.050O + 0.050CH2Br2 + 0.950BrO + 0.950Br#==2014/02/03; Eastham2014; SDE==#
-        c(6.60e-10, T, num_density), O1D + CHBr3 --> 0.320O + 0.320CHBr3 + 0.680BrO + 1.360Br#==2014/02/03; Eastham2014; SDE==#
-        c(1.02e-10, T, num_density), O1D + HCFC22 --> 0.280O + 0.280HCFC22 + 0.550ClO + 0.170Cl#==2017/02/22; JPL 15-10; BHH,MJE==#
-        c(2.30e-10, T, num_density), O1D + CFC11 --> 0.120O + 0.120CFC11 + 0.880ClO + 1.760Cl#==2014/02/03; Eastham2014; SDE==#
-        c(1.40e-10, T, num_density), O1D + CFC12 --> 0.140O + 0.140CFC12 + 0.860ClO + 0.860Cl#==2014/02/03; Eastham2014; SDE==#
+        c(2.70e-10, T, num_density),
+        O1D + CH2Br2 --> 0.050O + 0.050CH2Br2 + 0.950BrO + 0.950Br#==2014/02/03; Eastham2014; SDE==#
+        c(6.60e-10, T, num_density),
+        O1D + CHBr3 --> 0.320O + 0.320CHBr3 + 0.680BrO + 1.360Br#==2014/02/03; Eastham2014; SDE==#
+        c(1.02e-10, T, num_density),
+        O1D + HCFC22 --> 0.280O + 0.280HCFC22 + 0.550ClO + 0.170Cl#==2017/02/22; JPL 15-10; BHH,MJE==#
+        c(2.30e-10, T, num_density),
+        O1D + CFC11 --> 0.120O + 0.120CFC11 + 0.880ClO + 1.760Cl#==2014/02/03; Eastham2014; SDE==#
+        c(1.40e-10, T, num_density),
+        O1D + CFC12 --> 0.140O + 0.140CFC12 + 0.860ClO + 0.860Cl#==2014/02/03; Eastham2014; SDE==#
         c(1.50e-10, T, num_density),
         O1D + H1211 --> 0.360O + 0.360H1211 + 0.310BrO + 0.310Cl + 0.330Br + 0.330ClO#==2014/02/03; Eastham2014; SDE==#
         c(1.00e-10, T, num_density), O1D + H1301 --> 0.590O + 0.590H1301 + 0.410BrO#==2014/02/03; Eastham2014; SDE==#
-        c(2.60e-10, T, num_density), O1D + HCFC141b --> 0.310O + 0.310HCFC141b + 0.690ClO + 0.690Cl#==2014/02/03; Eastham2014; SDE==#
+        c(2.60e-10, T, num_density),
+        O1D + HCFC141b --> 0.310O + 0.310HCFC141b + 0.690ClO + 0.690Cl#==2014/02/03; Eastham2014; SDE==#
         c(2.00e-10, T, num_density), O1D + HCFC142b --> 0.260O + 0.260HCFC142b + 0.740ClO#==2017/02/22; JPL 15-10; BHH,MJE==#
-        c(2.00e-10, T, num_density), O1D + HCFC123 --> 0.210O + 0.210HCFC123 + 0.790Cl + 0.790ClO#==2014/02/03; Eastham2014; SDE==#
-        c(2.32e-10, T, num_density), O1D + CFC113 --> 0.250O + 0.250CFC113 + 1.500Cl + 0.750ClO#==2017/02/22; JPL 15-10; BHH,MJE==#
+        c(2.00e-10, T, num_density),
+        O1D + HCFC123 --> 0.210O + 0.210HCFC123 + 0.790Cl + 0.790ClO#==2014/02/03; Eastham2014; SDE==#
+        c(2.32e-10, T, num_density),
+        O1D + CFC113 --> 0.250O + 0.250CFC113 + 1.500Cl + 0.750ClO#==2017/02/22; JPL 15-10; BHH,MJE==#
         arr(t, T, num_density, 1.30e-10, 0.0, -25.0e0),
         O1D + CFC114 --> 0.250O + 0.250CFC114 + 0.750Cl + 0.750ClO#==2017/02/22; JPL 15-10; BHH,MJE==#
-        arr(t, T, num_density, 5.40e-11, 0.0, -30.0e0), O1D + CFC115 --> 0.700O + 0.700CFC115 + 0.300ClO#==2017/02/22; JPL 15-10; BHH,MJE==#
+        arr(t, T, num_density, 5.40e-11, 0.0, -30.0e0),
+        O1D + CFC115 --> 0.700O + 0.700CFC115 + 0.300ClO#==2017/02/22; JPL 15-10; BHH,MJE==#
         arr(t, T, num_density, 1.60e-10, 0.0, 0.0e0),
         O1D + H2402 --> 0.250O + 0.250H2402 + 0.750Br + 0.750BrO#==2014/02/03; Eastham2014; SDE==#
         arr(t, T, num_density, 2.60e-12, 0.0, -1100.0e0), OH + Cl2 --> HOCl + Cl#==2014/02/03; Eastham2014; SDE==#
@@ -1610,8 +1927,10 @@ function GEOSChemGasPhase(; name = :GEOSChemGasPhase, rxn_sys = false)
         arr(t, T, num_density, 3.60e-12, 0.0, -840.0e0), ClNO3 + O --> ClO + NO3#==2014/02/03; Eastham2014; SDE==#
         arr(t, T, num_density, 6.50e-12, 0.0, 135.0e0), ClNO3 + Cl --> Cl2 + NO3#==2014/02/03; Eastham2014; SDE==#
         arr(t, T, num_density, 2.17e-11, 0.0, -1130.0e0), CH3Cl + Cl --> CO + 2.000HCl + HO2#==2014/02/03; Eastham2014; SDE==#
-        arr(t, T, num_density, 1.24e-12, 0.0, -1070.0e0), CH2Cl2 + Cl --> CO + HCl + 2.000Cl + HO2#==2017/09/22; Sherwen2016b;TS,JAS,SDE==#
-        arr(t, T, num_density, 3.77e-12, 0.0, -1011.0e0), CHCl3 + Cl --> CO + HCl + 3.000Cl + HO2#==2017/09/22; Sherwen2016b;TS,JAS,SDE==#
+        arr(t, T, num_density, 1.24e-12, 0.0, -1070.0e0),
+        CH2Cl2 + Cl --> CO + HCl + 2.000Cl + HO2#==2017/09/22; Sherwen2016b;TS,JAS,SDE==#
+        arr(t, T, num_density, 3.77e-12, 0.0, -1011.0e0),
+        CHCl3 + Cl --> CO + HCl + 3.000Cl + HO2#==2017/09/22; Sherwen2016b;TS,JAS,SDE==#
         c(2.00e-13, T, num_density), Cl + HCOOH --> HCl + CO2 + H2O#==2017/09/22; Sherwen2016b;TS,JAS,SDE==#
         c(1.60e-10, T, num_density), Cl + MO2 --> ClO + CH2O + HO2#==2017/09/22; Sherwen2016b;TS,JAS,SDE==#
         c(5.7e-11, T, num_density), Cl + MP --> HCl + MO2#==2017/09/22; Sherwen2016b;TS,JAS,SDE==#
@@ -1624,7 +1943,8 @@ function GEOSChemGasPhase(; name = :GEOSChemGasPhase, rxn_sys = false)
         arr(t, T, num_density, 6.54e-11, 0.0, 60.0e0), Cl + C3H8 --> HCl + B3O2#==2017/09/22; Sherwen2016b;TS,JAS,SDE==#
         arr(t, T, num_density, 8.12e-11, 0.0, -90.0e0), Cl + C3H8 --> HCl + A3O2#==2017/09/22; Sherwen2016b;TS,JAS,SDE==#
         arr(t, T, num_density, 7.70e-11, 0.0, -1000.0e0), Cl + ACET --> HCl + ATO2#==2017/09/22; Sherwen2016b;TS,JAS,SDE==#
-        arr(t, T, num_density, 7.60e-11, 0.0, 500.0e0), Cl + ISOP --> HCl + 0.5IHOO1 + 0.5IHOO4#==2019/11/06; Sherwen2016b;KHB,TS,JAS,SDE==#
+        arr(t, T, num_density, 7.60e-11, 0.0, 500.0e0),
+        Cl + ISOP --> HCl + 0.5IHOO1 + 0.5IHOO4#==2019/11/06; Sherwen2016b;KHB,TS,JAS,SDE==#
         c(2.05e-10, T, num_density), Cl + ALK4 --> HCl + R4O2#==2017/09/22; Sherwen2016b;TS,JAS,SDE==#
         arr3(t, T, num_density, 4.00e-28, 0.0, 0.0, 2.8e-10, 0.0, 0.0, 0.6e0),
         Cl + PRPE --> HCl + PO2#==2017/09/22; Sherwen2016b;TS,JAS,SDE==#
@@ -1668,7 +1988,8 @@ function GEOSChemGasPhase(; name = :GEOSChemGasPhase, rxn_sys = false)
         c(1.20e-15, T, num_density), CH2OO + CO --> CH2O#==2015/09/25; Millet2015; DBM,EAM==#
         c(1.00e-14, T, num_density), CH2OO + NO --> CH2O + NO2#==2015/09/25; Millet2015; DBM,EAM==#
         c(1.00e-15, T, num_density), CH2OO + NO2 --> CH2O + NO3#==2015/09/25; Millet2015; DBM,EAM==#
-        c(1.70e-15, T, num_density), CH2OO + H2O --> 0.730HMHP + 0.210HCOOH + 0.060CH2O + 0.060H2O2#==2019/11/06; Bates2019; KHB==#
+        c(1.70e-15, T, num_density),
+        CH2OO + H2O --> 0.730HMHP + 0.210HCOOH + 0.060CH2O + 0.060H2O2#==2019/11/06; Bates2019; KHB==#
         arrsq(t, T, num_density, 2.88e-35, 0.0, 1391.0e0),
         CH2OO + H2O + H2O --> 0.400HMHP + 0.540HCOOH + 0.060CH2O + 0.060H2O2#==2019/11/06; Bates2019; KHB==#
         c(1.40e-12, T, num_density), CH2OO + O3 --> CH2O#==2019/11/06; Bates2019; KHB==#
@@ -1737,13 +2058,17 @@ function GEOSChemGasPhase(; name = :GEOSChemGasPhase, rxn_sys = false)
         arr(t, T, num_density, 7.40e-13, 0.0, 765.0e0),
         LIMO2 + MCO3 -->
         0.500HO2 + 0.500MO2 + 0.192PRPE + 0.385CH2O + 0.308MACR + 0.500RCOOH#==2017/07/14; Roberts1992; KRT,JAF,CCM,EAM,KHB,RHS==#
-        c(1.20e-12, T, num_density), LIMO2 + NO3 --> HO2 + NO2 + 0.385PRPE + 0.385CH2O + 0.615MACR#==2017/07/14; Roberts1992; KRT,JAF,CCM,EAM,KHB,RHS==#
+        c(1.20e-12, T, num_density),
+        LIMO2 + NO3 --> HO2 + NO2 + 0.385PRPE + 0.385CH2O + 0.615MACR#==2017/07/14; Roberts1992; KRT,JAF,CCM,EAM,KHB,RHS==#
         arr(t, T, num_density, 3.40e-12, 0.0, 190.0e0),
         PIP + OH --> 0.490OH + 0.440R4O2 + 0.080RCHO + 0.410MEK#==2017/07/14; Goliff2013; KRT,JAF,CCM,EAM,KHB,RHS==#
         c(4.00e-12, T, num_density), OLNN + NO --> HO2 + NO2 + MONITS#==2017/07/14; Browne2014,Goliff2013; KRT,JAF,CCM,EAM,KHB,RHS==#
-        c(4.00e-12, T, num_density), OLND + NO --> 2.000NO2 + 0.287CH2O + 1.240RCHO + 0.464MEK#==2017/07/14; Goliff2013; KRT,JAF,CCM,EAM,KHB,RHS==#
-        arr(t, T, num_density, 1.66e-13, 0.0, 1300.0e0), OLNN + HO2 --> 0.700MONITS + 0.300MONITU#==2017/07/14; Browne2014,Roberts1992; KRT,JAF,CCM,EAM,KHB,RHS==#
-        arr(t, T, num_density, 1.66e-13, 0.0, 1300.0e0), OLND + HO2 --> 0.700MONITS + 0.300MONITU#==2017/07/14; Browne2014,Roberts1992; KRT,JAF,CCM,EAM,KHB,RHS==#
+        c(4.00e-12, T, num_density),
+        OLND + NO --> 2.000NO2 + 0.287CH2O + 1.240RCHO + 0.464MEK#==2017/07/14; Goliff2013; KRT,JAF,CCM,EAM,KHB,RHS==#
+        arr(t, T, num_density, 1.66e-13, 0.0, 1300.0e0),
+        OLNN + HO2 --> 0.700MONITS + 0.300MONITU#==2017/07/14; Browne2014,Roberts1992; KRT,JAF,CCM,EAM,KHB,RHS==#
+        arr(t, T, num_density, 1.66e-13, 0.0, 1300.0e0),
+        OLND + HO2 --> 0.700MONITS + 0.300MONITU#==2017/07/14; Browne2014,Roberts1992; KRT,JAF,CCM,EAM,KHB,RHS==#
         arr(t, T, num_density, 1.60e-13, 0.0, 708.0e0),
         OLNN + MO2 --> 2.000HO2 + CH2O + 0.700MONITS + 0.300MONITU#==2017/07/14; Browne2014,Roberts1992; KRT,JAF,CCM,EAM,KHB,RHS==#
         arr(t, T, num_density, 9.68e-14, 0.0, 708.0e0),
@@ -1762,8 +2087,10 @@ function GEOSChemGasPhase(; name = :GEOSChemGasPhase, rxn_sys = false)
         arr(t, T, num_density, 5.37e-13, 0.0, 765.0e0),
         OLND + MCO3 --> 0.500MO2 + NO2 + 0.287CH2O + 1.240RCHO + 0.464MEK + 0.500RCOOH#==2017/07/14; Browne2014,Roberts1992; KRT,JAF,CCM,EAM,KHB,RHS==#
         c(1.20e-12, T, num_density), OLNN + NO3 --> HO2 + NO2 + 0.700MONITS + 0.300MONITU#==2017/07/14; Browne2014,Roberts1992; KRT,JAF,CCM,EAM,KHB,RHS==#
-        c(1.20e-12, T, num_density), OLND + NO3 --> 2.000NO2 + 0.287CH2O + 1.240RCHO + 0.464MEK#==2017/07/14; Browne2014,Roberts1992; KRT,JAF,CCM,EAM,KHB,RHS==#
-        arr(t, T, num_density, 7.00e-14, 0.0, 1000.0e0), OLNN + OLNN --> HO2 + 1.400MONITS + 0.600MONITU#==2017/07/14; Browne2014,Roberts1992; KRT,JAF,CCM,EAM,KHB,RHS==#
+        c(1.20e-12, T, num_density),
+        OLND + NO3 --> 2.000NO2 + 0.287CH2O + 1.240RCHO + 0.464MEK#==2017/07/14; Browne2014,Roberts1992; KRT,JAF,CCM,EAM,KHB,RHS==#
+        arr(t, T, num_density, 7.00e-14, 0.0, 1000.0e0),
+        OLNN + OLNN --> HO2 + 1.400MONITS + 0.600MONITU#==2017/07/14; Browne2014,Roberts1992; KRT,JAF,CCM,EAM,KHB,RHS==#
         arr(t, T, num_density, 4.25e-14, 0.0, 1000.0e0),
         OLNN + OLND -->
         0.500HO2 + 0.500NO2 + 0.202CH2O + 0.640RCHO + 0.149MEK + 1.050MONITS + 0.450MONITU#==2017/07/14; Browne2014,Roberts1992; KRT,JAF,CCM,EAM,KHB,RHS==#
@@ -1804,11 +2131,14 @@ function GEOSChemGasPhase(; name = :GEOSChemGasPhase, rxn_sys = false)
         0.58CH2OO +
         0.827CH2O +
         0.013H2O2#==2019/11/06; Bates2019; KHB==#
-        rISO1(t, T, num_density, 1.7e-11, 3.90e2, 9.33e-2, 5.05e15, -1.22e4, 1.79e14, -8.830e3),
+        rISO1(t, T, num_density, 1.7e-11, 3.90e2, 9.33e-2,
+            5.05e15, -1.22e4, 1.79e14, -8.830e3),
         ISOP + OH --> LISOPOH + IHOO1#==2019/11/06; Bates2019; KHB==#
-        rISO1(t, T, num_density, 1.0e-11, 3.90e2, 2.26e-1, 2.22e9, -7.160e3, 1.75e14, -9.054e3),
+        rISO1(t, T, num_density, 1.0e-11, 3.90e2, 2.26e-1,
+            2.22e9, -7.160e3, 1.75e14, -9.054e3),
         ISOP + OH --> LISOPOH + IHOO4#==2019/11/06; Bates2019; KHB==#
-        rISO2(t, T, num_density, 1.7e-11, 3.90e2, 9.33e-2, 5.05e15, -1.22e4, 1.79e14, -8.830e3),
+        rISO2(t, T, num_density, 1.7e-11, 3.90e2, 9.33e-2,
+            5.05e15, -1.22e4, 1.79e14, -8.830e3),
         ISOP + OH -->
         0.3MCO3 +
         0.3MGLY +
@@ -1820,7 +2150,8 @@ function GEOSChemGasPhase(; name = :GEOSChemGasPhase, rxn_sys = false)
         1.5OH +
         0.3HPETHNL +
         LISOPOH#==2019/11/06; Bates2019; KHB==#
-        rISO2(t, T, num_density, 1.0e-11, 3.90e2, 2.26e-1, 2.22e9, -7.160e3, 1.75e14, -9.054e3),
+        rISO2(t, T, num_density, 1.0e-11, 3.90e2, 2.26e-1,
+            2.22e9, -7.160e3, 1.75e14, -9.054e3),
         ISOP + OH -->
         0.3CH2O +
         0.15HPALD4 +
@@ -1833,10 +2164,12 @@ function GEOSChemGasPhase(; name = :GEOSChemGasPhase, rxn_sys = false)
         LISOPOH#==2019/11/06; Bates2019; KHB==#
         arrpls(t, T, num_density, 2.12e-13, -1300e0, 0, 1.1644e0, -7.0485e-4),
         IHOO1 + HO2 --> 0.063MVK + 0.063OH + 0.063HO2 + 0.063CH2O + 0.937RIPA#==2019/11/06; Bates2019; KHB==#
-        arrpls(t, T, num_density, 2.12e-13, -1300e0, 0, -0.1644e0, 7.0485e-4), IHOO1 + HO2 --> RIPC#==2019/11/06; Bates2019; KHB==#
+        arrpls(t, T, num_density, 2.12e-13, -1300e0, 0, -0.1644e0, 7.0485e-4),
+        IHOO1 + HO2 --> RIPC#==2019/11/06; Bates2019; KHB==#
         arrpls(t, T, num_density, 2.12e-13, -1300e0, 0, 1.2038e0, -9.0435e-4),
         IHOO4 + HO2 --> 0.063MACR + 0.063OH + 0.063HO2 + 0.063CH2O + 0.937RIPB#==2019/11/06; Bates2019; KHB==#
-        arrpls(t, T, num_density, 2.12e-13, -1300e0, 0, -0.2038e0, 9.0435e-4), IHOO4 + HO2 --> RIPD#==2019/11/06; Bates2019; KHB==#
+        arrpls(t, T, num_density, 2.12e-13, -1300e0, 0, -0.2038e0, 9.0435e-4),
+        IHOO4 + HO2 --> RIPD#==2019/11/06; Bates2019; KHB==#
         arrplsnodim(t, T, 1.04e11, 9.746e3, 0, 1.1644e0, -7.0485e-4),
         IHOO1 --> CH2O + OH + MVK#==2019/11/06; Bates2019; KHB==#
         tunplsnodim(t, T, 5.05e15, -1.22e4, 1.0e8, -0.0128e0, 5.1242e-5),
@@ -2000,7 +2333,8 @@ function GEOSChemGasPhase(; name = :GEOSChemGasPhase, rxn_sys = false)
         IHPOO3 + NO --> ITHN#==2019/11/06; Bates2019; KHB==#
         arr(t, T, num_density, 2.47e-13, 0.0, 1300.0e0),
         IHPOO3 + HO2 --> 0.35IDHDP + 0.65GLYC + 0.65HAC + 1.3OH#==2019/11/06; Bates2019; KHB==#
-        arr(t, T, num_density, 3.22e-11, 0.0, -400.0e0), IEPOXD + OH --> 0.75ICHE + 0.75HO2 + 0.25ICHOO#==2019/11/06; Bates2019; KHB==#
+        arr(t, T, num_density, 3.22e-11, 0.0, -400.0e0),
+        IEPOXD + OH --> 0.75ICHE + 0.75HO2 + 0.25ICHOO#==2019/11/06; Bates2019; KHB==#
         arr(t, T, num_density, 1.05e-11, 0.0, -400.0e0), IEPOXA + OH --> ICHE + HO2#==2019/11/06; Bates2019; KHB==#
         rEPO(t, T, num_density, 5.82e-11, -4.00e2, 1.14e-20),
         IEPOXA + OH --> 0.67IEPOXAOO + 0.33IEPOXBOO#==2019/11/06; Bates2019; KHB==#
@@ -2033,10 +2367,14 @@ function GEOSChemGasPhase(; name = :GEOSChemGasPhase, rxn_sys = false)
         rALK(t, T, num_density, 2.7e-12, 3.50e2, 13.098e0, 8.0e0, 1.0e0, 0.0e0),
         ICHOO + NO --> NO2 + 0.8HAC + 0.8CO + CH2O + HO2 + 0.2MVKHC#==2019/11/06; Bates2019; KHB==#
         arrnodim(t, T, 1.875e+13, 0.0, -10000.0e0), ICHOO --> HO2 + 2.000CO + HAC + OH#==2019/11/06; Bates2019; KHB==#
-        arr(t, T, num_density, 2.70e-12, 0.0, 350.0e0), HPALD1OO + NO --> NO2 + OH + CO2 + MVK#==2019/11/06; Bates2019; KHB==#
-        arr(t, T, num_density, 2.38e-13, 0.0, 1300.0e0), HPALD1OO + HO2 --> OH + OH + CO2 + MVK#==2019/11/06; Bates2019; KHB==#
-        arr(t, T, num_density, 2.70e-12, 0.0, 350.0e0), HPALD2OO + NO --> NO2 + OH + CO2 + MACR#==2019/11/06; Bates2019; KHB==#
-        arr(t, T, num_density, 2.38e-13, 0.0, 1300.0e0), HPALD2OO + HO2 --> OH + OH + CO2 + MACR#==2019/11/06; Bates2019; KHB==#
+        arr(t, T, num_density, 2.70e-12, 0.0, 350.0e0),
+        HPALD1OO + NO --> NO2 + OH + CO2 + MVK#==2019/11/06; Bates2019; KHB==#
+        arr(t, T, num_density, 2.38e-13, 0.0, 1300.0e0),
+        HPALD1OO + HO2 --> OH + OH + CO2 + MVK#==2019/11/06; Bates2019; KHB==#
+        arr(t, T, num_density, 2.70e-12, 0.0, 350.0e0),
+        HPALD2OO + NO --> NO2 + OH + CO2 + MACR#==2019/11/06; Bates2019; KHB==#
+        arr(t, T, num_density, 2.38e-13, 0.0, 1300.0e0),
+        HPALD2OO + HO2 --> OH + OH + CO2 + MACR#==2019/11/06; Bates2019; KHB==#
         arr(t, T, num_density, 7.14e-12, 0.0, 390.0e0), IHN2 + OH --> ISOPNOO1#==2019/11/06; Bates2019; KHB==#
         rEPO(t, T, num_density, 6.30e-12, 390.0e0, 1.62e-19),
         IHN2 + OH --> 0.67IEPOXA + 0.33IEPOXB + NO2#==2019/11/06; Bates2019; KHB==#
@@ -2115,7 +2453,8 @@ function GEOSChemGasPhase(; name = :GEOSChemGasPhase, rxn_sys = false)
         0.383CH2O#==2019/11/06; Bates2019; KHB==#
         rNIT(t, T, num_density, 2.7e-12, 350.0e0, 1.851e0, 11.0e0, 1.0e0, 0.0e0),
         IDHNBOO + NO --> IDN#==2019/11/06; Bates2019; KHB==#
-        arr(t, T, num_density, 2.95e-12, 0.0, 450.0e0), ISOP + NO3 --> 0.465INO2B + 0.535INO2D + LISOPNO3#==2019/11/06; Bates2019; KHB==#
+        arr(t, T, num_density, 2.95e-12, 0.0, 450.0e0),
+        ISOP + NO3 --> 0.465INO2B + 0.535INO2D + LISOPNO3#==2019/11/06; Bates2019; KHB==#
         arr(t, T, num_density, 2.47e-13, 0.0, 1300.0e0),
         INO2B + HO2 --> 0.473INPB + 0.048MACR + 0.479MVK + 0.527OH + 0.527CH2O + 0.527NO2#==2019/11/06; Bates2019; KHB==#
         arr(t, T, num_density, 2.47e-13, 0.0, 1300.0e0), INO2D + HO2 --> INPD#==2019/11/06; Bates2019; KHB==#
@@ -2148,7 +2487,8 @@ function GEOSChemGasPhase(; name = :GEOSChemGasPhase, rxn_sys = false)
         1.577CH2O +
         0.611NO2 +
         0.034MOH#==2019/11/06; Bates2019; KHB==#
-        c(1.92e-12, T, num_density), INO2B + MCO3 --> CH2O + NO2 + MO2 + 0.903MVK + 0.097MACR#==2019/11/06; Bates2019; KHB==#
+        c(1.92e-12, T, num_density),
+        INO2B + MCO3 --> CH2O + NO2 + MO2 + 0.903MVK + 0.097MACR#==2019/11/06; Bates2019; KHB==#
         c(7.71e-12, T, num_density), INO2D + MCO3 --> MO2 + 0.841INA + 0.159HO2 + 0.159ICN#==2019/11/06; Bates2019; KHB==#
         c(2.3e-12, T, num_density), INO2B + NO3 --> CH2O + 2NO2 + 0.903MVK + 0.097MACR#==2019/11/06; Bates2019; KHB==#
         c(2.3e-12, T, num_density), INO2D + NO3 --> NO2 + 0.841INA + 0.159HO2 + 0.159ICN#==2019/11/06; Bates2019; KHB==#
@@ -2162,7 +2502,8 @@ function GEOSChemGasPhase(; name = :GEOSChemGasPhase, rxn_sys = false)
         INO2D + NO --> IDN#==2019/11/06; Bates2019; KHB==#
         arr(t, T, num_density, 2.50e-14, 0.0, -300.0e0), INA + O2 --> ICN + HO2#==2019/11/06; Bates2019; KHB==#
         arrnodim(t, T, 1.00e+20, 0.0, -10000.0e0), INA --> IDHNBOO#==2019/11/06; Bates2019; KHB==#
-        arr(t, T, num_density, 5.88e-12, 0.0, 390.0e0), INPB + OH --> 0.670IHPNBOO + 0.33IDHNBOO#==2019/11/06; Bates2019; KHB==#
+        arr(t, T, num_density, 5.88e-12, 0.0, 390.0e0),
+        INPB + OH --> 0.670IHPNBOO + 0.33IDHNBOO#==2019/11/06; Bates2019; KHB==#
         arr(t, T, num_density, 1.61e-11, 0.0, 390.0e0), INPD + OH --> IHPNDOO#==2019/11/06; Bates2019; KHB==#
         rEPO(t, T, num_density, 4.471e-12, 390.0e0, 2.28e-20), INPB + OH --> OH + ITHN#==2019/11/06; Bates2019; KHB==#
         rEPO(t, T, num_density, 8.77e-12, 390.0e0, 2.185e-20), INPD + OH --> OH + ITHN#==2019/11/06; Bates2019; KHB==#
@@ -2242,7 +2583,8 @@ function GEOSChemGasPhase(; name = :GEOSChemGasPhase, rxn_sys = false)
         arr(t, T, num_density, 2.54e-13, 0.0, 1300.0e0),
         ICNOO + HO2 -->
         0.67ICNOO + 0.33CO2 + 0.33CO + 0.33HO2 + 0.231PROPNN + OH + 0.099ETHLN#==2019/11/06; Bates2019; KHB==#
-        arr(t, T, num_density, 1.00e-11, 0.0, 0.0e0), IDN + OH --> 0.565NO2 + 0.565ITHN + 0.435IDNOO#==2019/11/06; Bates2019; KHB==#
+        arr(t, T, num_density, 1.00e-11, 0.0, 0.0e0),
+        IDN + OH --> 0.565NO2 + 0.565ITHN + 0.435IDNOO#==2019/11/06; Bates2019; KHB==#
         arr(t, T, num_density, 2.70e-12, 0.0, 350.0e0),
         IDNOO + NO --> PROPNN + 1.11NO2 + 0.11GLYC + 0.89ETHLN + 0.89HO2#==2019/11/06; Bates2019; KHB==#
         arr(t, T, num_density, 2.71e-13, 0.0, 1300.0e0),
@@ -2282,7 +2624,8 @@ function GEOSChemGasPhase(; name = :GEOSChemGasPhase, rxn_sys = false)
         arr(t, T, num_density, 2.70e-12, 0.0, 470.0e0),
         MCRHP + OH --> 0.77CO + OH + 0.77HAC + 0.23ATOOH + 0.23CO2#==2019/11/06; Bates2019; KHB==#
         arr(t, T, num_density, 1.39e-11, 0.0, 380.0e0), MCRHN + OH --> MACRNO2#==2019/11/06; Bates2019; KHB==#
-        arr(t, T, num_density, 2.70e-12, 0.0, 470.0e0), MCRHNB + OH --> 0.250CO + OH + PROPNN + 0.750CO2#==2019/11/06; Bates2019; KHB==#
+        arr(t, T, num_density, 2.70e-12, 0.0, 470.0e0),
+        MCRHNB + OH --> 0.250CO + OH + PROPNN + 0.750CO2#==2019/11/06; Bates2019; KHB==#
         arr(t, T, num_density, 2.70e-12, 0.0, 350.0e0), C4HVP1 + NO --> NO2 + MVKOHOO#==2019/11/06; Bates2019; KHB==#
         arr(t, T, num_density, 1.93e-13, 0.0, 1300.0e0), C4HVP1 + HO2 --> OH + MVKOHOO#==2019/11/06; Bates2019; KHB==#
         c(9.00e-12, T, num_density), C4HVP1 + NO2 --> MVKN#==2019/11/06; Bates2019; KHB==#
@@ -2301,10 +2644,12 @@ function GEOSChemGasPhase(; name = :GEOSChemGasPhase, rxn_sys = false)
         0.187MGLY +
         0.187HCOOH#==2019/11/06; Bates2019; KHB==#
         arr(t, T, num_density, 5.00e-12, 0.0, 470.0e0), MVKPC + OH --> OH + CO + MGLY#==2019/11/06; Bates2019; KHB==#
-        arr(t, T, num_density, 8.70e-12, 0.0, 70.0e0), MVKDH + OH --> 0.4MVKHCB + 0.6MVKHC + HO2#==2019/11/06; Bates2019; KHB==#
+        arr(t, T, num_density, 8.70e-12, 0.0, 70.0e0),
+        MVKDH + OH --> 0.4MVKHCB + 0.6MVKHC + HO2#==2019/11/06; Bates2019; KHB==#
         arr(t, T, num_density, 5.00e-12, 0.0, 470.0e0), MVKHCB + OH --> OH + MGLY#==2019/11/06; Bates2019; KHB==#
         arr(t, T, num_density, 2.00e-12, 0.0, 70.0e0), MVKHC + OH --> 2CO + HO2 + MCO3#==2019/11/06; Bates2019; KHB==#
-        arr(t, T, num_density, 2.4e-11, 0.0, 70.0e0), MCRDH + OH --> 0.16MVKHCB + HO2 + 0.84HAC + 0.84CO#==2019/11/06; Bates2019; KHB==#
+        arr(t, T, num_density, 2.4e-11, 0.0, 70.0e0),
+        MCRDH + OH --> 0.16MVKHCB + HO2 + 0.84HAC + 0.84CO#==2019/11/06; Bates2019; KHB==#
         arr(t, T, num_density, 2.12e-13, 0.0, 1300.0e0),
         MVKOHOO + HO2 -->
         0.360MCO3 +
@@ -2356,8 +2701,10 @@ function GEOSChemGasPhase(; name = :GEOSChemGasPhase, rxn_sys = false)
         MACRNO2 + MO2 --> 0.7HAC + 0.7CO2 + 0.7NO2 + 0.7HO2 + CH2O + 0.3MCRHNB#==2019/11/06; Bates2019; KHB==#
         arrnodim(t, T, 1.58e+16, 0.0, -13500.0e0), MPAN --> MACR1OO + NO2#==2019/11/06; Bates2019; KHB==#
         c(2.90e-11, T, num_density), MPAN + OH --> 0.75HMML + NO3 + 0.25HAC + 0.25CO#==2019/11/06; Bates2019; KHB==#
-        c(4.33e-12, T, num_density), HMML + OH --> 0.700MGLY + 0.700OH + 0.300MCO3 + 0.300HCOOH#==2019/11/06; Bates2019; KHB==#
-        c(1.00e-11, T, num_density), ICPDH + OH --> CO + 0.5HO2 + 0.5OH + 0.5MCRHP + 0.35MVKDH + 0.15MCRDH#==2019/11/06; Bates2019; KHB==#
+        c(4.33e-12, T, num_density),
+        HMML + OH --> 0.700MGLY + 0.700OH + 0.300MCO3 + 0.300HCOOH#==2019/11/06; Bates2019; KHB==#
+        c(1.00e-11, T, num_density),
+        ICPDH + OH --> CO + 0.5HO2 + 0.5OH + 0.5MCRHP + 0.35MVKDH + 0.15MCRDH#==2019/11/06; Bates2019; KHB==#
         c(2.25e-11, T, num_density),
         IDCHP + OH -->
         0.888CO +
@@ -2383,7 +2730,8 @@ function GEOSChemGasPhase(; name = :GEOSChemGasPhase, rxn_sys = false)
         0.022CH2O#==2019/11/06; Bates2019; KHB==#
         arr(t, T, num_density, 1.40e-12, 0.0, -1860.0e0), ETHLN + NO3 --> HNO3 + NO2 + MCO3#==2019/11/06; Bates2019; KHB==#
         c(8.00e-13, T, num_density), PYAC + OH --> MCO3 + CO2#==2019/11/06; Bates2019; KHB==#
-        arr(t, T, num_density, 1.30e-12, 0.0, 500.0e0), HMHP + OH --> 0.5CH2O + 0.5HO2 + 0.5HCOOH + 0.5OH#==2019/11/06; Bates2019; KHB==#
+        arr(t, T, num_density, 1.30e-12, 0.0, 500.0e0),
+        HMHP + OH --> 0.5CH2O + 0.5HO2 + 0.5HCOOH + 0.5OH#==2019/11/06; Bates2019; KHB==#
         arr(t, T, num_density, 3.14e-12, 0.0, 580.0e0),
         MCO3 + HO2 --> 0.13O3 + 0.13ACTA + 0.37MAP + 0.5MO2 + 0.5CO2 + 0.5OH#==2019/11/06; Bates2019; KHB==#
         arr(t, T, num_density, 1.55e-12, 0.0, 340.0e0), HPETHNL + OH --> CO + OH + CH2O#==2019/11/06; Bates2019; KHB==#
@@ -2399,9 +2747,11 @@ function GEOSChemGasPhase(; name = :GEOSChemGasPhase, rxn_sys = false)
         arr3(t, T, num_density, 5.50e-30, 0.0e0, 0.0, 8.3e-13, -2.0e0, 0.0, 0.5e0),
         C2H2 + OH --> 0.636GLYX + 0.636OH + 0.364CO + 0.364HO2 + 0.364HCOOH#==2021/09/22; Kwon2020; KHB,MSL==#
         arr(t, T, num_density, 1.53e-13, 0.0e0, 1300.0e0), ETOO + HO2 --> ETHP#==2021/09/22; Kwon2020; KHB,MSL==#
-        arr(t, T, num_density, 2.7e-12, 0.0e+00, 360.0e0), ETOO + NO --> 0.995ETO + 0.995NO2 + 0.005ETHN#==2021/09/22; Kwon2020; KHB,MSL==#
+        arr(t, T, num_density, 2.7e-12, 0.0e+00, 360.0e0),
+        ETOO + NO --> 0.995ETO + 0.995NO2 + 0.005ETHN#==2021/09/22; Kwon2020; KHB,MSL==#
         c(2.3e-12, T, num_density), ETOO + NO3 --> ETO + NO2#==2021/09/22; Kwon2020; KHB,MSL==#
-        c(6.00e-13, T, num_density), ETOO + MO2 --> 0.6ETO + 0.6HO2 + 0.8CH2O + 0.2MOH + 0.2ETHP + 0.2GLYC#==2021/09/22; Kwon2020; KHB,MSL==#
+        c(6.00e-13, T, num_density),
+        ETOO + MO2 --> 0.6ETO + 0.6HO2 + 0.8CH2O + 0.2MOH + 0.2ETHP + 0.2GLYC#==2021/09/22; Kwon2020; KHB,MSL==#
         arrnodim(t, T, 9.5e+13, 0.0e0, -5988.0e0), ETO --> HO2 + 2.000CH2O#==2021/09/22; Kwon2020; KHB,MSL==#
         arr(t, T, num_density, 2.5e-14, 0.0e0, -300.0e0), ETO + O2 --> GLYC + HO2#==2021/09/22; Kwon2020; KHB,MSL==#
         c(8.40e-13, T, num_density), ETHN + OH --> GLYC + NO2#==2021/09/22; Kwon2020; KHB,MSL==#
@@ -2439,7 +2789,8 @@ function GEOSChemGasPhase(; name = :GEOSChemGasPhase, rxn_sys = false)
         0.56AROMP5 +
         0.28AROMP4 +
         0.45RCOOH#==2021/09/29; Bates2021b; KHB,MSL==#
-        regressT(t, T, num_density, 0, 2.91e-13 * 0.82e0, 1300.0e0), AROMRO2 + HO2 --> OH + HO2#==2021/09/29; Bates2021b; KHB,MSL==#
+        regressT(t, T, num_density, 0, 2.91e-13 * 0.82e0, 1300.0e0),
+        AROMRO2 + HO2 --> OH + HO2#==2021/09/29; Bates2021b; KHB,MSL==#
         arr(t, T, num_density, 2.60e-12, 0.0e+00, 365.0e0), AROMRO2 + NO --> NO2 + HO2#==2021/09/29; Bates2021b; KHB,MSL==#
         c(2.30e-12, T, num_density), AROMRO2 + NO3 --> NO2 + HO2#==2021/09/29; Bates2021b; KHB,MSL==#
         arr(t, T, num_density, 1.70e-14, 0.0e0, 220.0e0), AROMRO2 + MO2 --> CH2O + HO2 + HO2#==2021/09/29; Bates2021b; KHB,MSL==#
@@ -2447,11 +2798,14 @@ function GEOSChemGasPhase(; name = :GEOSChemGasPhase, rxn_sys = false)
         arr(t, T, num_density, 4.70e-13, 0.0e0, 1220.0e0),
         PHEN + OH --> 0.06BENZO + 0.06GLYX + 0.18AROMP4 + 0.14AROMRO2 + 0.8MCT + 0.8HO2#==2021/09/29; Bates2021b; KHB,MSL==#
         c(3.8e-12, T, num_density), PHEN + NO3 --> 0.258NPHEN + 0.742HNO3 + 0.742BENZO#==2021/09/29; Bates2021b; KHB,MSL==#
-        c(4.7e-11, T, num_density), CSL + OH --> 0.727MCT + 0.727HO2 + 0.2AROMRO2 + 0.073BENZO + 0.44AROMP5#==2021/09/29; Bates2021b; KHB,MSL==#
-        c(1.4e-11, T, num_density), CSL + NO3 --> 0.5NPHEN + 0.2AROMRO2 + 0.5HNO3 + 0.3BENZO + 0.44AROMP5#==2021/09/29; Bates2021b; KHB,MSL==#
+        c(4.7e-11, T, num_density),
+        CSL + OH --> 0.727MCT + 0.727HO2 + 0.2AROMRO2 + 0.073BENZO + 0.44AROMP5#==2021/09/29; Bates2021b; KHB,MSL==#
+        c(1.4e-11, T, num_density),
+        CSL + NO3 --> 0.5NPHEN + 0.2AROMRO2 + 0.5HNO3 + 0.3BENZO + 0.44AROMP5#==2021/09/29; Bates2021b; KHB,MSL==#
         c(2.0e-11, T, num_density), MCT + OH --> 0.3BENZO + 0.7AROMRO2 + 1.05AROMP4#==2021/09/29; Bates2021b; KHB,MSL==#
         c(9.2e-18, T, num_density), MCT + O3 --> GLYC + HO2 + OH + AROMP4#==2021/09/29; Bates2021b; KHB,MSL==#
-        c(9.9e-11, T, num_density), MCT + NO3 --> 0.5NPHEN + 0.5HNO3 + 0.3BENZO + 0.2AROMRO2 + 0.3AROMP4#==2021/09/29; Bates2021b; KHB,MSL==#
+        c(9.9e-11, T, num_density),
+        MCT + NO3 --> 0.5NPHEN + 0.5HNO3 + 0.3BENZO + 0.2AROMRO2 + 0.3AROMP4#==2021/09/29; Bates2021b; KHB,MSL==#
         arr(t, T, num_density, 5.90e-12, 0.0e0, 225.0e0), BALD + OH --> BZCO3#==2021/09/29; Bates2021b; KHB,MSL==#
         c(2.4e-15, T, num_density), BALD + NO3 --> BZCO3 + HNO3#==2021/09/29; Bates2021b; KHB,MSL==#
         arr(t, T, num_density, 1.10e-11, 0.0e0, 340.0e0),
@@ -2481,12 +2835,15 @@ function GEOSChemGasPhase(; name = :GEOSChemGasPhase, rxn_sys = false)
         c(2.08e-12, T, num_density), BENZO + NO2 --> NPHEN#==2021/09/29; Bates2021b; KHB,MSL==#
         c(3.47e-12, T, num_density), NPHEN + OH --> 0.5R4N1 + AROMP4 + 0.5NO2#==2021/09/29; Bates2021b; KHB,MSL==#
         c(2.60e-12, T, num_density), NPHEN + NO3 --> 0.5HNO3 + NO2 + 0.5R4N1 + AROMP4#==2021/09/29; Bates2021b; KHB,MSL==#
-        arr(t, T, num_density, 2.670e-13, 0.0e0, 365.0e0), BENZO2 + MO2 --> BENZO + HO2 + CH2O#==2021/09/29; Bates2021b; KHB,MSL==#
-        arr(t, T, num_density, 2.670e-12, 0.0e0, 365.0e0), BZCO3 + MO2 --> BENZO2 + CO2 + HO2 + CH2O#==2021/09/29; Bates2021b; KHB,MSL==#
+        arr(t, T, num_density, 2.670e-13, 0.0e0, 365.0e0),
+        BENZO2 + MO2 --> BENZO + HO2 + CH2O#==2021/09/29; Bates2021b; KHB,MSL==#
+        arr(t, T, num_density, 2.670e-12, 0.0e0, 365.0e0),
+        BZCO3 + MO2 --> BENZO2 + CO2 + HO2 + CH2O#==2021/09/29; Bates2021b; KHB,MSL==#
         c(5.0e-11, T, num_density),
         AROMP4 + OH -->
         0.6GLYX + 0.25CO + 0.25HCOOH + 0.25OH + 0.33HO2 + 0.33RCO3 + 0.45RCOOH#==2021/09/29; Bates2021b; KHB,MSL==#
-        c(8.0e-16, T, num_density), AROMP4 + O3 --> 0.5HCOOH + 0.5CO + 0.6GLYX + 0.9GLYC + 0.1HO2 + 0.1OH#==2021/09/29; Bates2021b; KHB,MSL==#
+        c(8.0e-16, T, num_density),
+        AROMP4 + O3 --> 0.5HCOOH + 0.5CO + 0.6GLYX + 0.9GLYC + 0.1HO2 + 0.1OH#==2021/09/29; Bates2021b; KHB,MSL==#
         c1(1.5e-3), AROMP4 --> 0.2HO2 + 0.2GLYX + 1.2RCHO#==2021/09/29; Bates2021b; KHB,MSL==#
         c(5.0e-11, T, num_density),
         AROMP5 + OH -->

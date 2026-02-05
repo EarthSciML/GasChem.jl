@@ -12,7 +12,9 @@ makedocs(;
         prettyurls = get(ENV, "CI", "false") == "true",
         canonical = "https://gaschem.earthsci.dev",
         assets = String[],
-        repolink = "https://github.com/EarthSciML/GasChem.jl"
+        repolink = "https://github.com/EarthSciML/GasChem.jl",
+        size_threshold = 2 * 1024 * 1024,  # 2 MiB (params page is large due to many GEOS-Chem parameters)
+        size_threshold_warn = 500 * 1024    # 500 KiB
     ),
     pages = [
         "Home" => "index.md",

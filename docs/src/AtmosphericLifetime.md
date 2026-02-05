@@ -6,26 +6,26 @@ The AtmosphericLifetime module provides a ModelingToolkit.jl implementation of a
 
 Atmospheric lifetime is a fundamental concept in atmospheric chemistry that characterizes how long a species remains in a given atmospheric reservoir before being removed by chemical reactions, deposition, or transport. Understanding lifetimes is essential for:
 
-- Predicting the accumulation of pollutants and greenhouse gases
-- Assessing the response time of the atmosphere to emission changes
-- Understanding the spatial scale of pollution (local vs. global)
-- Evaluating the effectiveness of emission control strategies
+  - Predicting the accumulation of pollutants and greenhouse gases
+  - Assessing the response time of the atmosphere to emission changes
+  - Understanding the spatial scale of pollution (local vs. global)
+  - Evaluating the effectiveness of emission control strategies
 
 The module implements several key concepts:
 
-| Component | Equations | Description |
-|:----------|:----------|:------------|
-| [`AtmosphericBudget`](@ref) | Eq. 2.1-2.2 | Mass conservation and steady-state conditions |
-| [`SpeciesLifetime`](@ref) | Eq. 2.3-2.6 | Lifetime calculations for various scenarios |
-| [`MultipleRemovalLifetime`](@ref) | Eq. 2.7-2.9 | Combined lifetime from parallel removal pathways |
-| [`OHReactionLifetime`](@ref) | Eq. 2.12 | Lifetime due to OH radical reaction |
-| [`TroposphericBudget`](@ref) | Eq. 2.13-2.17 | Complete tropospheric budget with multiple sources and sinks |
+| Component                         | Equations     | Description                                                  |
+|:--------------------------------- |:------------- |:------------------------------------------------------------ |
+| [`AtmosphericBudget`](@ref)       | Eq. 2.1-2.2   | Mass conservation and steady-state conditions                |
+| [`SpeciesLifetime`](@ref)         | Eq. 2.3-2.6   | Lifetime calculations for various scenarios                  |
+| [`MultipleRemovalLifetime`](@ref) | Eq. 2.7-2.9   | Combined lifetime from parallel removal pathways             |
+| [`OHReactionLifetime`](@ref)      | Eq. 2.12      | Lifetime due to OH radical reaction                          |
+| [`TroposphericBudget`](@ref)      | Eq. 2.13-2.17 | Complete tropospheric budget with multiple sources and sinks |
 
 ### Reference
 
 > Seinfeld, J. H. and Pandis, S. N.: *Atmospheric Chemistry and Physics: From Air Pollution to Climate Change*, 2nd Edition, Chapter 2: Atmospheric Trace Constituents, John Wiley & Sons, Inc., Hoboken, New Jersey, 2006, ISBN: 978-0-471-72017-1.
 
----
+* * *
 
 ## Implementation
 
@@ -36,20 +36,23 @@ This section provides detailed documentation of each equation system implemented
 The fundamental mass conservation equation for an atmospheric species states that the rate of change of mass in a reservoir equals the sum of transport and chemistry contributions.
 
 **Equation 2.1** (Mass Conservation):
+
 ```math
 \frac{dQ}{dt} = (F_{in} - F_{out}) + (P - R)
 ```
 
 where:
-- ``Q``: Total mass (or moles) of the species in the reservoir
-- ``F_{in}``: Rate of mass inflow from outside the reservoir
-- ``F_{out}``: Rate of mass outflow from the reservoir
-- ``P``: Rate of chemical production within the reservoir
-- ``R``: Rate of chemical removal within the reservoir
+
+  - ``Q``: Total mass (or moles) of the species in the reservoir
+  - ``F_{in}``: Rate of mass inflow from outside the reservoir
+  - ``F_{out}``: Rate of mass outflow from the reservoir
+  - ``P``: Rate of chemical production within the reservoir
+  - ``R``: Rate of chemical removal within the reservoir
 
 **Equation 2.2** (Steady State):
 
 At steady state, ``dQ/dt = 0``, implying:
+
 ```math
 F_{in} + P = F_{out} + R
 ```
@@ -75,13 +78,14 @@ DataFrame(
 equations(sys)
 ```
 
----
+* * *
 
 ### SpeciesLifetime (Eq. 2.3-2.6)
 
 The SpeciesLifetime component calculates atmospheric lifetime using various formulations depending on the scenario.
 
 **Equation 2.3** (General Lifetime):
+
 ```math
 \tau = \frac{Q}{R + F_{out}}
 ```
@@ -91,6 +95,7 @@ This general definition applies to any reservoir with both chemical removal and 
 **Equation 2.4** (Global Atmosphere):
 
 For the global atmosphere as a whole, there is no outflow to other reservoirs (``F_{out} = 0``):
+
 ```math
 \tau = \frac{Q}{R}
 ```
@@ -98,6 +103,7 @@ For the global atmosphere as a whole, there is no outflow to other reservoirs (`
 **Equation 2.5** (Steady State):
 
 At steady state with no external transport (``F_{in} = F_{out} = 0``), production equals removal:
+
 ```math
 \tau = \frac{Q}{R} = \frac{Q}{P}
 ```
@@ -105,6 +111,7 @@ At steady state with no external transport (``F_{in} = F_{out} = 0``), productio
 **Equation 2.6** (First-Order Removal):
 
 When removal follows first-order kinetics (``R = \lambda Q``):
+
 ```math
 \tau = \frac{1}{\lambda}
 ```
@@ -141,18 +148,20 @@ DataFrame(
 equations(sys)
 ```
 
----
+* * *
 
 ### MultipleRemovalLifetime (Eq. 2.7-2.9)
 
 When multiple independent removal pathways operate in parallel, the combined lifetime is calculated from the individual pathway lifetimes.
 
 **Equation 2.7** (Two First-Order Processes):
+
 ```math
 \tau = \frac{1}{k_1 + k_2}
 ```
 
 **Equation 2.8** (Inverse Lifetime Sum):
+
 ```math
 \frac{1}{\tau} = \frac{1}{\tau_1} + \frac{1}{\tau_2}
 ```
@@ -160,11 +169,13 @@ When multiple independent removal pathways operate in parallel, the combined lif
 This shows that inverse lifetimes (removal rates) are additive for parallel processes.
 
 **Equation 2.9** (Combined Lifetime Formula):
+
 ```math
 \tau = \frac{\tau_1 \cdot \tau_2}{\tau_1 + \tau_2}
 ```
 
 This can be extended to N pathways:
+
 ```math
 \frac{1}{\tau} = \sum_{i=1}^{N} \frac{1}{\tau_i}
 ```
@@ -201,27 +212,30 @@ DataFrame(
 equations(sys)
 ```
 
----
+* * *
 
 ### OHReactionLifetime (Eq. 2.12)
 
 The hydroxyl radical (OH) is the primary oxidant in the troposphere for many trace species. The lifetime due to OH reaction is calculated from the second-order rate constant and the ambient OH concentration.
 
 **Equation 2.12**:
+
 ```math
 \tau = \frac{1}{k_{OH} \cdot [OH]}
 ```
 
 where:
-- ``k_{OH}``: Second-order rate constant for reaction with OH (cm^3/(molecule s))
-- ``[OH]``: Concentration of OH radicals (molecule/cm^3)
+
+  - ``k_{OH}``: Second-order rate constant for reaction with OH (cm^3/(molecule s))
+  - ``[OH]``: Concentration of OH radicals (molecule/cm^3)
 
 The product ``k_{OH} \cdot [OH]`` gives an effective first-order rate constant consistent with Eq. 2.6.
 
 **Typical Values**:
-- ``k_{OH}``: varies widely, e.g., ``10^{-14}`` to ``10^{-10}`` cm^3/(molecule s)
-- ``[OH]``: ~``10^6`` molecule/cm^3 (global tropospheric average)
-- ``\tau``: seconds to years depending on species
+
+  - ``k_{OH}``: varies widely, e.g., ``10^{-14}`` to ``10^{-10}`` cm^3/(molecule s)
+  - ``[OH]``: ~``10^6`` molecule/cm^3 (global tropospheric average)
+  - ``\tau``: seconds to years depending on species
 
 #### State Variables
 
@@ -255,34 +269,39 @@ DataFrame(
 equations(sys)
 ```
 
----
+* * *
 
 ### TroposphericBudget (Eq. 2.13-2.17)
 
 The TroposphericBudget component implements the complete mass balance for a trace species in the troposphere, including multiple source and sink terms.
 
 **Equations 2.13-2.14** (Tropospheric Budget):
+
 ```math
 \frac{dQ_i}{dt} = P_i^n + P_i^a + P_i^c - (k_i^d + k_i^w + k_i^c + k_i^t) Q_i
 ```
 
 **Source terms** (production rates):
-- ``P_n``: Natural emissions (biogenic, volcanic, oceanic, etc.)
-- ``P_a``: Anthropogenic emissions (combustion, industrial, agricultural, etc.)
-- ``P_c``: Chemical production within the troposphere
+
+  - ``P_n``: Natural emissions (biogenic, volcanic, oceanic, etc.)
+  - ``P_a``: Anthropogenic emissions (combustion, industrial, agricultural, etc.)
+  - ``P_c``: Chemical production within the troposphere
 
 **Removal terms** (first-order rate constants):
-- ``k_d``: Dry deposition (uptake by surfaces)
-- ``k_w``: Wet deposition (scavenging by precipitation)
-- ``k_c``: Chemical loss (reaction with OH, O3, NO3, etc.)
-- ``k_t``: Transport to stratosphere (cross-tropopause flux)
+
+  - ``k_d``: Dry deposition (uptake by surfaces)
+  - ``k_w``: Wet deposition (scavenging by precipitation)
+  - ``k_c``: Chemical loss (reaction with OH, O3, NO3, etc.)
+  - ``k_t``: Transport to stratosphere (cross-tropopause flux)
 
 **Equation 2.15** (Lifetime from Removal):
+
 ```math
 \tau_i = \frac{1}{k_d + k_w + k_c + k_t}
 ```
 
 **Equations 2.16-2.17** (Lifetime from Production at Steady State):
+
 ```math
 \tau_i = \frac{Q_i}{P_n + P_a + P_c}
 ```
@@ -319,7 +338,7 @@ DataFrame(
 equations(sys)
 ```
 
----
+* * *
 
 ## Analysis
 
@@ -377,12 +396,12 @@ prob = ODEProblem(
         compiled.k_t => k_t_val,
         compiled.P_n => P_n_val,
         compiled.P_a => P_a_val,
-        compiled.P_c => P_c_val,
+        compiled.P_c => P_c_val
     ),
     (0.0, t_end)
 )
 
-sol = solve(prob, saveat=tau/10)
+sol = solve(prob, saveat = tau/10)
 
 # Convert time to days for plotting
 t_days = sol.t ./ 86400
@@ -426,7 +445,7 @@ p1
 
 **Physical Interpretation**: The species mass grows exponentially at first, then levels off as removal processes balance the sources. The characteristic timescale for this approach to equilibrium is the atmospheric lifetime ``\tau``. After one lifetime, the mass reaches 63% (``1 - 1/e``) of its steady-state value.
 
----
+* * *
 
 ### Exponential Decay from Initial Burden
 
@@ -459,12 +478,12 @@ prob = ODEProblem(
         compiled.k_t => 0.0,
         compiled.P_n => 0.0,
         compiled.P_a => 0.0,
-        compiled.P_c => 0.0,
+        compiled.P_c => 0.0
     ),
     (0.0, 5 / lambda)
 )
 
-sol = solve(prob, saveat=(1/lambda)/10)
+sol = solve(prob, saveat = (1/lambda)/10)
 
 # Calculate analytical solution for comparison
 tau = 1 / lambda
@@ -511,12 +530,13 @@ p2
 ```
 
 **Key Results**:
-- After 1 lifetime: 36.8% remains (``e^{-1}``)
-- After 2 lifetimes: 13.5% remains (``e^{-2}``)
-- After 3 lifetimes: 5.0% remains (``e^{-3}``)
-- After 5 lifetimes: 0.7% remains (``e^{-5}``)
 
----
+  - After 1 lifetime: 36.8% remains (``e^{-1}``)
+  - After 2 lifetimes: 13.5% remains (``e^{-2}``)
+  - After 3 lifetimes: 5.0% remains (``e^{-3}``)
+  - After 5 lifetimes: 0.7% remains (``e^{-5}``)
+
+* * *
 
 ### Effect of Multiple Removal Pathways
 
@@ -566,11 +586,12 @@ p3
 ```
 
 **Physical Interpretation**:
-- When ``\tau_1 = \tau_2``, the combined lifetime is exactly half of either individual lifetime
-- The combined lifetime is always less than the smaller of the two individual lifetimes
-- A fast removal pathway dominates the total lifetime even if a slow pathway exists
 
----
+  - When ``\tau_1 = \tau_2``, the combined lifetime is exactly half of either individual lifetime
+  - The combined lifetime is always less than the smaller of the two individual lifetimes
+  - A fast removal pathway dominates the total lifetime even if a slow pathway exists
+
+* * *
 
 ### Contribution of Removal Pathways to Total Lifetime
 
@@ -630,12 +651,13 @@ p4
 ```
 
 **Key Observations**:
-- Chemical loss typically dominates for reactive species
-- Dry deposition is significant for species that deposit readily to surfaces
-- Wet deposition is important for soluble species
-- Stratospheric transport is usually a minor sink for most tropospheric species
 
----
+  - Chemical loss typically dominates for reactive species
+  - Dry deposition is significant for species that deposit readily to surfaces
+  - Wet deposition is important for soluble species
+  - Stratospheric transport is usually a minor sink for most tropospheric species
+
+* * *
 
 ### OH Reaction Lifetimes for Common Atmospheric Species
 
@@ -655,7 +677,7 @@ species_data = [
     ("Carbon Monoxide (CO)", 2.4e-13, "Months"),
     ("Formaldehyde (HCHO)", 8.5e-12, "Hours"),
     ("Isoprene (C5H8)", 1.0e-10, "Hours"),
-    ("Nitrogen Dioxide (NO2)", 1.2e-11, "Hours"),
+    ("Nitrogen Dioxide (NO2)", 1.2e-11, "Hours")
 ]
 
 # Calculate lifetimes
@@ -716,20 +738,23 @@ p5 = bar(
 
 # Add horizontal lines for reference timescales
 hline!(p5, [log10(365)], label = "1 year", linestyle = :dash, color = :red, linewidth = 2)
-hline!(p5, [log10(30)], label = "1 month", linestyle = :dash, color = :orange, linewidth = 2)
+hline!(
+    p5, [log10(30)], label = "1 month", linestyle = :dash, color = :orange, linewidth = 2)
 hline!(p5, [log10(1)], label = "1 day", linestyle = :dash, color = :green, linewidth = 2)
-hline!(p5, [log10(1/24)], label = "1 hour", linestyle = :dash, color = :purple, linewidth = 2)
+hline!(
+    p5, [log10(1/24)], label = "1 hour", linestyle = :dash, color = :purple, linewidth = 2)
 
 savefig(p5, "oh_lifetimes.png")
 p5
 ```
 
 **Physical Interpretation**:
-- **Long-lived species** (CH4, CO): Global distribution, well-mixed in the troposphere
-- **Intermediate species** (C2H6, C3H8): Regional to hemispheric influence
-- **Short-lived species** (HCHO, isoprene, NO2): Local influence, highly variable concentrations
 
----
+  - **Long-lived species** (CH4, CO): Global distribution, well-mixed in the troposphere
+  - **Intermediate species** (C2H6, C3H8): Regional to hemispheric influence
+  - **Short-lived species** (HCHO, isoprene, NO2): Local influence, highly variable concentrations
+
+* * *
 
 ### Sensitivity to OH Concentration
 
@@ -739,7 +764,7 @@ The effective lifetime depends strongly on the ambient OH concentration, which v
 using Plots
 
 # OH concentration range (molecule/cm^3)
-OH_range = 10 .^ range(5, 7, length=50)
+OH_range = 10 .^ range(5, 7, length = 50)
 
 # k_OH for methane and CO
 k_OH_CH4 = 6.3e-15  # cm^3/(molecule s)
@@ -784,18 +809,20 @@ p6
 ```
 
 **Physical Interpretation**:
-- Lifetime scales inversely with OH concentration (``\tau \propto 1/[OH]``)
-- A factor of 10 increase in OH leads to a factor of 10 decrease in lifetime
-- OH concentrations vary from ~10^5 molecule/cm^3 (remote marine) to ~10^7 molecule/cm^3 (polluted urban)
 
----
+  - Lifetime scales inversely with OH concentration (``\tau \propto 1/[OH]``)
+  - A factor of 10 increase in OH leads to a factor of 10 decrease in lifetime
+  - OH concentrations vary from ~10^5 molecule/cm^3 (remote marine) to ~10^7 molecule/cm^3 (polluted urban)
+
+* * *
 
 ### Methane Lifetime Budget
 
 Methane has multiple removal pathways, making it a good example of applying Eq. 2.7-2.9. The total atmospheric lifetime combines:
-- Tropospheric OH oxidation (~10 years)
-- Soil uptake (~150 years)
-- Stratospheric loss (~120 years)
+
+  - Tropospheric OH oxidation (~10 years)
+  - Soil uptake (~150 years)
+  - Stratospheric loss (~120 years)
 
 ```@example ch4_budget
 using Plots
@@ -830,8 +857,8 @@ println("  Stratospheric:   $(round(frac_strat, digits=1))%")
 
 # Create pie chart of removal contributions
 labels_pie = ["OH Reaction\n($(round(frac_OH, digits=1))%)",
-          "Soil Uptake\n($(round(frac_soil, digits=1))%)",
-          "Stratospheric\n($(round(frac_strat, digits=1))%)"]
+    "Soil Uptake\n($(round(frac_soil, digits=1))%)",
+    "Stratospheric\n($(round(frac_strat, digits=1))%)"]
 fracs = [frac_OH, frac_soil, frac_strat]
 
 p7 = pie(
@@ -848,25 +875,22 @@ p7
 
 **Key Result**: Despite individual pathway lifetimes ranging from 10 to 150 years, the combined atmospheric lifetime of methane is approximately 8-9 years. This is because the fastest removal process (OH oxidation) dominates the total removal rate.
 
----
+* * *
 
 ## Summary
 
 The AtmosphericLifetime module provides a comprehensive implementation of the fundamental atmospheric lifetime equations from Seinfeld and Pandis Chapter 2. Key takeaways:
 
-1. **Mass Conservation** (Eq. 2.1): The rate of change of atmospheric burden equals sources minus sinks
+ 1. **Mass Conservation** (Eq. 2.1): The rate of change of atmospheric burden equals sources minus sinks
 
-2. **Lifetime Definition** (Eq. 2.3-2.6): Lifetime characterizes the persistence of a species in the atmosphere
-
-3. **Multiple Pathways** (Eq. 2.7-2.9): Parallel removal processes combine via their inverse lifetimes; the fastest process dominates
-
-4. **OH Oxidation** (Eq. 2.12): The OH radical is the primary oxidant determining the lifetime of most reduced species
-
-5. **Tropospheric Budget** (Eq. 2.13-2.17): A complete budget includes natural and anthropogenic emissions, chemical production, and multiple removal pathways
+ 2. **Lifetime Definition** (Eq. 2.3-2.6): Lifetime characterizes the persistence of a species in the atmosphere
+ 3. **Multiple Pathways** (Eq. 2.7-2.9): Parallel removal processes combine via their inverse lifetimes; the fastest process dominates
+ 4. **OH Oxidation** (Eq. 2.12): The OH radical is the primary oxidant determining the lifetime of most reduced species
+ 5. **Tropospheric Budget** (Eq. 2.13-2.17): A complete budget includes natural and anthropogenic emissions, chemical production, and multiple removal pathways
 
 These concepts are essential for understanding air quality, climate forcing by greenhouse gases, and the design of emission control strategies.
 
----
+* * *
 
 ## API Reference
 

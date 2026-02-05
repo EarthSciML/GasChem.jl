@@ -56,11 +56,13 @@ flux_interp_18(P, csa) = interpolations_18_const[18](ustrip(P), ustrip(csa))
 function flux_eqs_interpolation(csa, P)
     flux_vals = []
     flux_vars = []
-    @constants c_flux = 1.0 [unit = u"s^-1", description = "Constant actinic flux (for unit conversion)"]
+    @constants c_flux = 1.0 [
+        unit = u"s^-1", description = "Constant actinic flux (for unit conversion)"]
 
-    interpolation_funcs = [flux_interp_1, flux_interp_2, flux_interp_3, flux_interp_4, flux_interp_5, flux_interp_6,
-                          flux_interp_7, flux_interp_8, flux_interp_9, flux_interp_10, flux_interp_11, flux_interp_12,
-                          flux_interp_13, flux_interp_14, flux_interp_15, flux_interp_16, flux_interp_17, flux_interp_18]
+    interpolation_funcs = [flux_interp_1, flux_interp_2, flux_interp_3,
+        flux_interp_4, flux_interp_5, flux_interp_6,
+        flux_interp_7, flux_interp_8, flux_interp_9, flux_interp_10, flux_interp_11, flux_interp_12,
+        flux_interp_13, flux_interp_14, flux_interp_15, flux_interp_16, flux_interp_17, flux_interp_18]
 
     for i in 1:18
         f = interpolation_funcs[i](P, csa)
@@ -121,7 +123,6 @@ function FastJX_interpolation_troposphere(t_ref::AbstractFloat; name = :FastJX)
     flux_vars, fluxeqs, c_flux = flux_eqs_interpolation(cosSZA, P/P_unit)
     j_o31D_adj = adjust_j_o31D(ParentScope(T), ParentScope(P), ParentScope(H2O))
 
-
     eqs = [cosSZA ~ cos_solar_zenith_angle(t + t_ref, lat, long);
            fluxeqs;
            j_ActAld ~ j_mean_ActAld(T/T_unit, flux_vars);
@@ -145,8 +146,10 @@ function FastJX_interpolation_troposphere(t_ref::AbstractFloat; name = :FastJX)
         [lat, long, T, P, H2O, t_ref, c_flux, T_unit, P_unit];
         name = name,
         metadata = Dict(CoupleType => FastJXCoupler),
-        systems = [j_o31D_adj],
+        systems = [j_o31D_adj]
     )
     return flatten(fjx) # Need to do flatten because otherwise coupling doesn't work correctly
 end
-FastJX_interpolation_troposphere(t_ref::DateTime; kwargs...) = FastJX_interpolation_troposphere(datetime2unix(t_ref); kwargs...)
+function FastJX_interpolation_troposphere(t_ref::DateTime; kwargs...)
+    FastJX_interpolation_troposphere(datetime2unix(t_ref); kwargs...)
+end

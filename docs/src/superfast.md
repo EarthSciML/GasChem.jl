@@ -19,12 +19,6 @@ using ModelingToolkit: t
 model = SuperFast()
 ```
 
-We can also look at them as a graph:
-
-```@example 1
-Graph(SuperFast(; name = :SuperFast, rxn_sys = true))
-```
-
 ## Variables and parameters
 
 The chemical species included in the superfast model are:
