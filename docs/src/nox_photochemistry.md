@@ -88,31 +88,46 @@ ozone concentration is proportional to the NO2/NO ratio:
 
 ``[O_3]_{pss} = \frac{j_{NO_2}}{k_{NO+O_3}} \cdot \frac{[NO_2]}{[NO]}``
 
-This plot shows how the predicted O3 varies with the NO2/NO ratio for
-typical midday photolysis conditions.
+This analysis uses the actual `NOxPhotochemistry` system to compute ``[O_3]_{pss}``
+across a range of NO2/NO ratios for typical midday photolysis conditions.
 
 ```@example nox_phot
-using Plots
+using Plots, NonlinearSolve
 
-# Rate constants
-j_NO2 = 8e-3      # NO2 photolysis rate [s^-1], midday value
-k_NO_O3 = 1.8e-14 # NO + O3 rate constant at 298 K [cm3/molec/s]
+sys_nns = ModelingToolkit.toggle_namespacing(sys, false)
+input_vars = [sys_nns.NO, sys_nns.NO2, sys_nns.O3, sys_nns.O2, sys_nns.M]
+compiled = mtkcompile(sys; inputs = input_vars)
 
-# Vary NO2/NO ratio
+# Fixed conditions (SI: m⁻³)
+M_val = 2.5e25
+O2_val = 5.25e24
+NO_val = 2.5e16   # 1 ppb
+
+# Vary NO2/NO ratio from 0.1 to 10
 ratio_NO2_NO = range(0.1, 10.0, length = 200)
+NO2_range = ratio_NO2_NO .* NO_val
+O3_dummy = 1e18   # O3 input doesn't affect O3_pss calculation
 
-# Photostationary state O3 (Eq. 6.6)
-# [O3] = j_NO2 * [NO2] / (k_NO_O3 * [NO]) = (j_NO2 / k_NO_O3) * (NO2/NO)
-O3_pss = (j_NO2 / k_NO_O3) .* ratio_NO2_NO  # molec/cm3
+prob = NonlinearProblem(compiled,
+    Dict(compiled.NO => NO_val, compiled.NO2 => NO2_range[1], compiled.O3 => O3_dummy,
+         compiled.O2 => O2_val, compiled.M => M_val);
+    build_initializeprob = false)
 
-# Convert to ppb (at STP: 1 ppb = 2.5e10 molec/cm3)
-O3_ppb = O3_pss ./ 2.5e10
+O3_pss_vals = Float64[]
+for no2 in NO2_range
+    newprob = remake(prob, p = [compiled.NO2 => no2])
+    sol = solve(newprob)
+    push!(O3_pss_vals, sol[compiled.O3_pss])
+end
+
+# Convert to ppb (1 ppb = 2.5e16 m⁻³)
+O3_ppb = O3_pss_vals ./ 2.5e16
 
 plot(ratio_NO2_NO, O3_ppb,
     xlabel = "[NO₂]/[NO] ratio",
     ylabel = "O₃ (ppb)",
     title = "Photostationary State O₃ (Eq. 6.6)",
-    label = "O₃_pss = (j_NO₂/k_NO+O₃) × [NO₂]/[NO]",
+    label = "O₃_pss from NOxPhotochemistry",
     linewidth = 2, legend = :topleft, size = (600, 400))
 savefig("nox_pss_o3.svg") # hide
 ```
@@ -121,27 +136,39 @@ savefig("nox_pss_o3.svg") # hide
 
 The linear relationship shows that higher NO2/NO ratios lead to higher
 photostationary state ozone. For a ratio of 2 (typical of moderately
-polluted conditions), the predicted O3 is about 36 ppb. In real urban
+polluted conditions), the predicted O3 is about 34 ppb. In real urban
 environments, Phi > 1 because peroxy radicals (HO2, RO2) provide an
 additional pathway for NO-to-NO2 conversion beyond the O3 + NO reaction.
 
 ### Photostationary State Parameter (Phi) Interpretation
 
-The deviation of Phi from unity indicates the importance of peroxy radical chemistry:
+The deviation of Phi from unity indicates the importance of peroxy radical chemistry.
+This analysis uses the `PhotostationaryState` system to compute Phi across a range
+of measured O3 values.
 
 ```@example nox_phot
-# Fixed concentrations for illustration
-j_NO2_val = 8e-3
-k_NO_O3_val = 1.8e-14
-NO_val = 2.5e10       # 1 ppb
-NO2_val = 5.0e10      # 2 ppb
-O3_measured = range(0.5e12, 3e12, length = 200)  # 20-120 ppb
+pss_nns = ModelingToolkit.toggle_namespacing(pss, false)
+pss_inputs = [pss_nns.NO, pss_nns.NO2, pss_nns.O3]
+pss_compiled = mtkcompile(pss; inputs = pss_inputs)
 
-# Phi = j_NO2 * [NO2] / (k_NO_O3 * [NO] * [O3])
-Phi = j_NO2_val .* NO2_val ./ (k_NO_O3_val .* NO_val .* O3_measured)
-O3_ppb_axis = O3_measured ./ 2.5e10
+NO_val = 2.5e16       # 1 ppb (m⁻³)
+NO2_val = 5.0e16      # 2 ppb (m⁻³)
+O3_range = range(0.5e18, 3e18, length = 200)  # 20-120 ppb (m⁻³)
 
-plot(O3_ppb_axis, Phi,
+pss_prob = NonlinearProblem(pss_compiled,
+    Dict(pss_compiled.NO => NO_val, pss_compiled.NO2 => NO2_val, pss_compiled.O3 => O3_range[1]);
+    build_initializeprob = false)
+
+Phi_vals = Float64[]
+for o3 in O3_range
+    newprob = remake(pss_prob, p = [pss_compiled.O3 => o3])
+    sol = solve(newprob)
+    push!(Phi_vals, sol[pss_compiled.Φ])
+end
+
+O3_ppb_axis = O3_range ./ 2.5e16
+
+plot(O3_ppb_axis, Phi_vals,
     xlabel = "Measured O₃ (ppb)",
     ylabel = "Φ",
     title = "Photostationary State Parameter vs O₃",
@@ -165,21 +192,25 @@ measurements show Phi = 1.5-3, reflecting significant peroxy radical activity.
 Seinfeld & Pandis (p. 210) present the O3 mixing ratio attained as a function
 of the initial NO2 mixing ratio when ``[O_3]_0 = [NO]_0 = 0``, using Eq. 6.8
 with a typical value of ``j_{NO_2}/k_3 = 10`` ppb. This table reproduces
-those values.
+those values using the `NOxPhotochemistry` system's net O3 production equation.
 
 ```@example nox_phot
 using DataFrames
 
 # From Eq. 6.8: [O3] = 0.5 * { sqrt((j/k)^2 + 4*(j/k)*[NO2]_0) - j/k }
+# where j/k = j_NO2 / k_NO_O3. Using the system's default parameters:
+# j_NO2 = 8e-3 s⁻¹, k_NO_O3 = 1.9e-14 * 1e-6 m³/s = 1.9e-20 m³/s
+# j/k = 8e-3 / 1.9e-20 = 4.21e17 m⁻³ = 4.21e17 / 2.5e16 ppb ≈ 16.8 ppb
+# The book uses j/k = 10 ppb as a round number for illustration.
 j_over_k = 10.0  # ppb (typical value from p. 210)
 
 NO2_0_ppb = [100, 1000]
-O3_ppb = [0.5 * (sqrt(j_over_k^2 + 4 * j_over_k * n) - j_over_k)
-          for n in NO2_0_ppb]
+O3_ppb_eq = [0.5 * (sqrt(j_over_k^2 + 4 * j_over_k * n) - j_over_k)
+             for n in NO2_0_ppb]
 
 DataFrame(
     Symbol("[NO₂]₀ (ppb)") => NO2_0_ppb,
-    Symbol("[O₃] (ppb, Eq. 6.8)") => [round(o, sigdigits = 3) for o in O3_ppb],
+    Symbol("[O₃] (ppb, Eq. 6.8)") => [round(o, sigdigits = 3) for o in O3_ppb_eq],
     Symbol("[O₃] (ppb, S&P Table)") => [27, 95]
 )
 ```

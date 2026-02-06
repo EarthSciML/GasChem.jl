@@ -8,8 +8,8 @@ ozone at wavelengths below 320 nm, producing electronically excited O(1D) atoms
 which can react with water vapor to form OH.
 
 This system implements equations 6.1-6.4 from Section 6.1 of Seinfeld & Pandis,
-computing the steady-state O(1D) concentration, the OH yield (fraction of O(1D)
-that produces OH rather than being quenched), and the OH production rate.
+computing the steady-state O(1D) concentration, the OH yield (number of OH
+radicals produced per O(1D) formed), and the OH production rate.
 
 **Reference**: Seinfeld, J.H. and Pandis, S.N. (2006). *Atmospheric Chemistry and Physics:
 From Air Pollution to Climate Change*, 2nd Edition. John Wiley & Sons. Section 6.1, pp. 204-207.
@@ -28,6 +28,7 @@ density M.
 
 ```@example oh_prod
 using DataFrames, ModelingToolkit, Symbolics, DynamicQuantities, GasChem
+using NonlinearSolve
 
 sys = OHProduction()
 vars = unknowns(sys)
@@ -59,51 +60,61 @@ eqs = equations(sys)
 
 ### OH Yield vs Water Vapor Concentration
 
-The OH yield (epsilon_OH) represents the fraction of O(1D) atoms that react with H2O
-to produce OH rather than being quenched back to O(3P). It increases with humidity
-because more water vapor competes with N2/O2 for the O(1D) atoms.
+The OH yield (``\varepsilon_{OH}``) represents the number of OH radicals produced per
+O(1D) atom formed. Each O(1D) + H2O reaction produces 2 OH, so ``\varepsilon_{OH}``
+ranges from 0 (all O(1D) quenched) to 2 (all O(1D) reacts with H2O).
 
 From Equation 6.4:
-``\varepsilon_{OH} = \frac{k_4 [H_2O]}{k_3 [M] + k_4 [H_2O]}``
+``\varepsilon_{OH} = \frac{2 k_4 [H_2O]}{k_3 [M] + k_4 [H_2O]}``
 
-Typical tropospheric values range from about 0.05 (dry, upper troposphere) to
-0.15 (humid, lower troposphere).
+This analysis uses the actual `OHProduction` system to compute ``\varepsilon_{OH}``
+and ``P_{OH}`` across a range of humidity conditions.
 
 ```@example oh_prod
 using Plots
 
-# Rate constants at 298 K
-k3_N2 = 2.6e-11  # O(1D) + N2 quenching rate [cm3/molec/s]
-k3_O2 = 4.0e-11  # O(1D) + O2 quenching rate [cm3/molec/s]
-k4 = 2.2e-10     # O(1D) + H2O rate [cm3/molec/s]
-f_N2 = 0.78
-f_O2 = 0.21
-k3_eff = f_N2 * k3_N2 + f_O2 * k3_O2
-M = 2.5e19  # total air [molec/cm3]
+sys_nns = ModelingToolkit.toggle_namespacing(sys, false)
+input_vars = [sys_nns.O3, sys_nns.H2O, sys_nns.M]
+compiled = mtkcompile(sys; inputs = input_vars)
 
-# Vary H2O from dry to very humid conditions
-H2O = range(1e16, 1.5e18, length = 200)  # [molec/cm3]
+# Conditions: O3 = 50 ppb at surface (M = 2.5e25 m⁻³)
+M_val = 2.5e25   # m⁻³
+O3_val = 50e-9 * M_val  # 50 ppb in m⁻³
 
-# Compute OH yield (Eq. 6.4)
-eps_OH = [k4 * h / (k3_eff * M + k4 * h) for h in H2O]
+# Vary H2O from dry to very humid conditions (m⁻³)
+H2O_range = range(1e22, 1.5e24, length = 200)
 
-# Compute OH production rate (Eq. 6.3) for O3 = 40 ppb
-j_O3 = 1e-5  # s^-1
-O3 = 1e12    # ~40 ppb [molec/cm3]
-P_OH = [2 * j_O3 * O3 * e for e in eps_OH]
+# Solve the system for each H2O value
+eps_vals = Float64[]
+P_OH_vals = Float64[]
 
-p1 = plot(H2O ./ 1e17, eps_OH .* 100,
+prob = NonlinearProblem(compiled,
+    Dict(compiled.O3 => O3_val, compiled.H2O => H2O_range[1], compiled.M => M_val);
+    build_initializeprob = false)
+
+for h in H2O_range
+    newprob = remake(prob, p = [compiled.H2O => h])
+    sol = solve(newprob)
+    push!(eps_vals, sol[compiled.ε_OH])
+    push!(P_OH_vals, sol[compiled.P_OH])
+end
+
+# Convert H2O to 10^17 molec/cm³ for plotting (1 m⁻³ = 1e-6 cm⁻³)
+H2O_cgs = H2O_range .* 1e-6 ./ 1e17
+
+p1 = plot(H2O_cgs, eps_vals .* 100,
     xlabel = "[H₂O] (10¹⁷ molec cm⁻³)",
     ylabel = "OH Yield (%)",
     title = "OH Yield vs Water Vapor",
     label = "ε_OH (Eq. 6.4)",
     linewidth = 2, legend = :bottomright)
 
-p2 = plot(H2O ./ 1e17, P_OH ./ 1e6,
+# Convert P_OH to 10^6 molec/cm³/s for plotting
+p2 = plot(H2O_cgs, P_OH_vals .* 1e-6 ./ 1e6,
     xlabel = "[H₂O] (10¹⁷ molec cm⁻³)",
     ylabel = "P(OH) (10⁶ molec cm⁻³ s⁻¹)",
     title = "OH Production Rate vs Humidity",
-    label = "P_OH (Eq. 6.3, O₃=40 ppb)",
+    label = "P_OH (Eq. 6.3, O₃=50 ppb)",
     linewidth = 2, legend = :bottomright)
 
 plot(p1, p2, layout = (1, 2), size = (800, 350))
@@ -114,39 +125,43 @@ savefig("oh_yield_humidity.svg") # hide
 
 The left panel shows that OH yield increases approximately linearly with water
 vapor at typical tropospheric concentrations (where ``k_3[M] \gg k_4[H_2O]``),
-ranging from about 3% in dry air to about 12% at high humidity. The right panel
+ranging from a few percent in dry air to over 20% at high humidity. The right panel
 shows the corresponding OH production rate, which is proportional to both the
 O3 concentration and the OH yield.
 
 ### Table: OH Yield (ε\_OH) vs Relative Humidity at 298 K
 
 Seinfeld & Pandis (p. 207) provide the following table of ``\varepsilon_{OH}``
-as a function of relative humidity at the surface at 298 K, using
-``k_4/k_3 = 7.6``. This table is reproduced here using Eq. 6.4.
+as a function of relative humidity at the surface at 298 K. This table is
+reproduced here by solving the `OHProduction` system at different humidity levels.
 
 ```@example oh_prod
 using DataFrames
 
-# At 298 K, saturation vapor pressure of water ≈ 3.17 kPa
-# At surface pressure ~101.3 kPa: ξ_H2O^sat = 3.17/101.3 ≈ 0.0313
-# But S&P use p_H2O^sat at 288 K giving ξ_H2O^sat = 0.0167
-# Following S&P exactly: at 288K, p_H2O^sat ≈ 1.69 kPa, ξ_H2O^sat = 0.0167
-# ε_OH ≈ 2 k4 ξ_H2O / k3 (approximate form when k3[M] >> k4[H2O])
-# With k4/k3 = 7.6:  ε_OH ≈ 2 * 7.6 * RH * ξ_H2O^sat = 15.2 * RH * 0.0167
+# At 298 K, saturation H2O mixing ratio ≈ 0.031
+xi_H2O_sat = 0.031
+M_val = 2.5e25  # m⁻³
+O3_val = 50e-9 * M_val
 
-k4_k3_ratio = 7.6  # from page 207
-xi_H2O_sat = 0.0167  # at 288 K, from page 207
+RH_values = [10, 25, 50, 80]
+eps_computed = Float64[]
 
-RH_values = [10, 25, 50, 80]  # percent
-eps_values = [2 * k4_k3_ratio * (rh / 100) * xi_H2O_sat for rh in RH_values]
+for rh in RH_values
+    H2O_val = (rh / 100) * xi_H2O_sat * M_val
+    newprob = remake(prob, p = [compiled.H2O => H2O_val, compiled.O3 => O3_val, compiled.M => M_val])
+    sol = solve(newprob)
+    push!(eps_computed, sol[compiled.ε_OH])
+end
 
 DataFrame(
     Symbol("RH (%)") => RH_values,
-    Symbol("ξ_H₂O") => [round((rh / 100) * xi_H2O_sat, sigdigits = 4) for rh in RH_values],
-    Symbol("ε_OH (computed)") => [round(e, sigdigits = 2) for e in eps_values],
+    Symbol("ε_OH (computed)") => [round(e, sigdigits = 2) for e in eps_computed],
     Symbol("ε_OH (S&P Table)") => [0.047, 0.12, 0.23, 0.38]
 )
 ```
 
-At 80% RH, close to 40% of the O(¹D) formed leads to OH radicals, consistent
-with the values reported in Seinfeld & Pandis.
+The computed values agree well with the book's values at low to moderate humidity.
+At high humidity (80% RH), the book uses the approximate formula
+``\varepsilon_{OH} \approx 2 k_4 \xi_{H_2O} / k_3`` while our implementation
+uses the exact form of Eq. 6.4, leading to a small difference at high RH where
+the denominator term ``k_4[H_2O]`` becomes non-negligible.

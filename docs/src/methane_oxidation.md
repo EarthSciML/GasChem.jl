@@ -114,9 +114,9 @@ k_values = [
     "3.8 × 10⁻¹²",
     "1.9 × 10⁻¹²",
     "j ≈ 5 × 10⁻⁶ s⁻¹",
-    "8.5 × 10⁻¹²",
+    "9.0 × 10⁻¹²",
     "j ≈ 3 × 10⁻⁵ s⁻¹",
-    "j ≈ 5 × 10⁻⁵ s⁻¹",
+    "j ≈ 4 × 10⁻⁵ s⁻¹",
     "5.2 × 10⁻¹²",
     "5.7 × 10⁻³² [M]",
     "8.1 × 10⁻¹²",
@@ -157,32 +157,57 @@ while at low NOx, CH3O2 reacts with HO2 to form CH3OOH, which terminates
 the radical chain. This determines the overall O3 yield per CH4 molecule
 oxidized.
 
+This analysis uses the `MethaneOxidation` system to compute the competing
+reaction rates R3 (CH3O2 + NO) and R4 (CH3O2 + HO2) across a range of
+NO concentrations.
+
 ```@example ch4_ox
-using Plots
+using Plots, NonlinearSolve
 
-# Rate constants from Table 6.1
-k3 = 7.7e-12   # CH3O2 + NO [cm3/molec/s]
-k4 = 5.2e-12   # CH3O2 + HO2 [cm3/molec/s]
-k15 = 8.1e-12  # HO2 + NO [cm3/molec/s]
+sys_nns = ModelingToolkit.toggle_namespacing(sys, false)
+input_vars = [sys_nns.CH4, sys_nns.CH3, sys_nns.CH3O2, sys_nns.CH3O, sys_nns.CH3OOH,
+              sys_nns.HCHO, sys_nns.HCO, sys_nns.OH, sys_nns.HO2, sys_nns.H,
+              sys_nns.NO, sys_nns.NO2, sys_nns.O, sys_nns.O2, sys_nns.M]
+compiled = mtkcompile(sys; inputs = input_vars)
 
-# Fixed HO2 level
-HO2 = 1e8  # molec/cm3
+# Fixed conditions (SI: m⁻³)
+M_val = 2.5e25
+O2_val = 5.25e24
+HO2_val = 1e14     # m⁻³ (= 1e8 cm⁻³)
+CH3O2_val = 1e14   # m⁻³
+CH4_val = 4.5e19   # ~1800 ppb
+OH_val = 1e12      # typical daytime
 
-# Vary NO from 10 ppt to 100 ppb
+# Vary NO from 10 ppt to 100 ppb (m⁻³)
 NO_ppb = 10 .^ range(-2, 2, length = 200)
-NO = NO_ppb .* 2.5e10  # molec/cm3
+NO_vals = NO_ppb .* 2.5e16  # m⁻³
 
-# Fraction of CH3O2 going through NO pathway (O3-producing)
-f_NO = k3 .* NO ./ (k3 .* NO .+ k4 .* HO2)
+# Compute R3 (CH3O2+NO) and R4 (CH3O2+HO2) using the system
+R3_vals = Float64[]
+R4_vals = Float64[]
 
-# Maximum O3 yield per CH4 at high NOx:
-# Step 1: CH3O2 + NO -> CH3O + NO2 (1 O3 if NO goes through)
-# Step 2: CH3O + O2 -> HCHO + HO2; HO2 + NO -> OH + NO2 (1 O3)
-# Step 3: HCHO + OH -> HCO + H2O; HCO + O2 -> CO + HO2; HO2 + NO -> (1 O3)
-# Step 4: CO + OH -> CO2 + H; H + O2 -> HO2; HO2 + NO -> (1 O3)
-# Total at full conversion through NO: up to ~4 O3 per CH4
-# We model approximate yield as function of f_NO
-O3_yield = 4.0 .* f_NO  # simplified estimate
+# Set all species to typical values
+base_dict = Dict(
+    compiled.CH4 => CH4_val, compiled.CH3 => 1e10, compiled.CH3O2 => CH3O2_val,
+    compiled.CH3O => 1e10, compiled.CH3OOH => 1e14, compiled.HCHO => 1e15,
+    compiled.HCO => 1e10, compiled.OH => OH_val, compiled.HO2 => HO2_val,
+    compiled.H => 1e8, compiled.NO => NO_vals[1], compiled.NO2 => 1e16,
+    compiled.O => 1e8, compiled.O2 => O2_val, compiled.M => M_val)
+
+prob = NonlinearProblem(compiled, base_dict; build_initializeprob = false)
+
+for no in NO_vals
+    newprob = remake(prob, p = [compiled.NO => no])
+    sol = solve(newprob)
+    push!(R3_vals, sol[compiled.R3])
+    push!(R4_vals, sol[compiled.R4])
+end
+
+# Fraction through NO pathway
+f_NO = R3_vals ./ (R3_vals .+ R4_vals)
+
+# Approximate O3 yield (up to ~4 O3 per CH4 at full NO pathway)
+O3_yield = 4.0 .* f_NO
 
 p1 = plot(NO_ppb, f_NO .* 100,
     xlabel = "NO (ppb)", ylabel = "Fraction via NO pathway (%)",
@@ -217,18 +242,24 @@ Formaldehyde (HCHO) is a key intermediate with three loss pathways:
 reaction with OH, radical photolysis (HCO + H), and molecular photolysis
 (H2 + CO). The branching ratio affects the HOx budget.
 
+This analysis uses the `MethaneOxidation` system to compute the three HCHO
+loss rates (R10, R11, R12) at typical daytime conditions.
+
 ```@example ch4_ox
-# Rate constants for HCHO loss
-k10 = 8.5e-12    # HCHO + OH [cm3/molec/s]
-j11 = 3e-5       # HCHO -> HCO + H [s^-1]
-j12 = 5e-5       # HCHO -> H2 + CO [s^-1]
-OH = 1e6          # molec/cm3
+# Compute HCHO loss rates using the system
+HCHO_val = 1e15   # m⁻³
+OH_val_hcho = 1e12  # m⁻³ (= 1e6 cm⁻³)
 
-# Total HCHO loss rate
-L_OH = k10 * OH
-L_total = L_OH + j11 + j12
+hcho_prob = remake(prob, p = [
+    compiled.HCHO => HCHO_val, compiled.OH => OH_val_hcho])
+sol = solve(hcho_prob)
 
-fractions = [L_OH / L_total * 100, j11 / L_total * 100, j12 / L_total * 100]
+R10_val = sol[compiled.R10]  # HCHO + OH
+R11_val = sol[compiled.R11]  # HCHO → HCO + H
+R12_val = sol[compiled.R12]  # HCHO → H₂ + CO
+
+L_total = R10_val + R11_val + R12_val
+fractions = [R10_val / L_total * 100, R11_val / L_total * 100, R12_val / L_total * 100]
 labels_bar = [
     "HCHO + OH\n(radical)", "HCHO + hν → HCO + H\n(radical)", "HCHO + hν → H₂ + CO\n(molecular)"]
 

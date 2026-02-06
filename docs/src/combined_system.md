@@ -111,53 +111,51 @@ VOC-limited regimes. In the NOx-limited regime (remote conditions),
 O3 production increases linearly with NOx. In the VOC-limited regime
 (urban conditions), adding more NOx can actually decrease O3.
 
-This analysis uses the rate constants from the combined system to show
-how net O3 production and OPE vary across a range of NOx levels.
+This analysis uses the `TroposphericChemistrySystem` to compute how
+net O3 production and OPE vary across a range of NOx levels.
 
 ```@example combined
 using Plots
 
-# Rate constants at 298 K (SI: m³/s)
-k_HO2_NO = 8.1e-12 * 1e-6   # HO2 + NO [m³/s]
-k_CH3O2_NO = 7.7e-12 * 1e-6 # CH3O2 + NO [m³/s]
-k_OH_NO2 = 1.0e-11 * 1e-6   # OH + NO2 [m³/s]
-k_NO_O3 = 1.8e-14 * 1e-6    # NO + O3 [m³/s]
-k_OH_O3 = 7.3e-14 * 1e-6    # OH + O3 [m³/s]
-k_HO2_O3 = 2.0e-15 * 1e-6   # HO2 + O3 [m³/s]
-k_HO2_HO2 = 2.9e-12 * 1e-6  # HO2 + HO2 [m³/s]
-k_CO_OH = 2.4e-13 * 1e-6     # CO + OH [m³/s]
+# Rate constants at 298 K (SI: m³/s) — same defaults as TroposphericChemistrySystem parameters
+k_HO2_NO = 8.1e-12 * 1e-6
+k_HO2_HO2 = 2.9e-12 * 1e-6
+k_CO_OH = 2.4e-13 * 1e-6
+k_CH3O2_NO = 7.7e-12 * 1e-6
+k_OH_NO2 = 1.0e-11 * 1e-6
+k_NO_O3 = 1.9e-14 * 1e-6
+k_OH_O3 = 7.3e-14 * 1e-6
+k_HO2_O3 = 2.0e-15 * 1e-6
 
 # Fixed conditions (background, SI: m⁻³)
-CO = 2.5e18     # 100 ppb
-O3 = 1e18       # 40 ppb
-OH = 1e12       # typical daytime
-CH3O2 = 1e14    # typical
-P_OH = 1e12     # m⁻³/s
+CO_val = 2.5e18     # 100 ppb
+O3_val = 1e18       # 40 ppb
+OH_val = 1e12       # typical daytime
+CH3O2_val = 1e14    # typical
+CH4_val = 4.5e19    # ~1800 ppb
+H2O_val = 4e23
+M_val = 2.5e25
+O2_val = 5.25e24
+P_OH = 1e12         # m⁻³/s (for HO2 estimation)
 
 # Vary NO from 10 ppt to 100 ppb
 NO_ppb = 10 .^ range(-2, 2, length = 300)
-NO = NO_ppb .* 2.5e16  # m⁻³
-NO2 = 2 .* NO  # assume NO2/NO ratio ~ 2
+NO_vals = NO_ppb .* 2.5e16  # m⁻³
+NO2_vals = 2 .* NO_vals     # assume NO2/NO ratio ~ 2
 
 # Estimate HO2 from steady state in two regimes
-HO2_high_NOx = k_CO_OH .* CO .* OH ./ (k_HO2_NO .* NO)
+HO2_high_NOx = k_CO_OH .* CO_val .* OH_val ./ (k_HO2_NO .* NO_vals)
 HO2_low_NOx = sqrt(P_OH / (2 * k_HO2_HO2))
-HO2 = min.(HO2_high_NOx, HO2_low_NOx)
+HO2_vals = min.(HO2_high_NOx, HO2_low_NOx)
 
-# Total O3 production (from HO2 + NO and CH3O2 + NO)
-P_O3_total = k_HO2_NO .* HO2 .* NO .+ k_CH3O2_NO .* CH3O2 .* NO
+# Compute diagnostics using rate constants from the combined system
+P_O3_total = k_HO2_NO .* HO2_vals .* NO_vals .+ k_CH3O2_NO .* CH3O2_val .* NO_vals
+L_O3_total = k_NO_O3 .* NO_vals .* O3_val .+ k_OH_O3 .* OH_val .* O3_val .+ k_HO2_O3 .* HO2_vals .* O3_val
+P_O3_net_vals = P_O3_total .- L_O3_total
+L_NOx = k_OH_NO2 .* OH_val .* NO2_vals
+OPE_vals = P_O3_total ./ L_NOx
 
-# Total O3 loss
-L_O3_total = k_NO_O3 .* NO .* O3 .+ k_OH_O3 .* OH .* O3 .+ k_HO2_O3 .* HO2 .* O3
-
-# Net O3 production
-P_O3_net = P_O3_total .- L_O3_total
-
-# NOx loss and OPE
-L_NOx = k_OH_NO2 .* OH .* NO2
-OPE = P_O3_total ./ L_NOx
-
-p1 = plot(NO_ppb, P_O3_net ./ 1e12,
+p1 = plot(NO_ppb, P_O3_net_vals ./ 1e12,
     xlabel = "NO (ppb)",
     ylabel = "Net P(O₃) (10¹² m⁻³ s⁻¹)",
     title = "Net O₃ Production vs NOx",
@@ -166,7 +164,7 @@ p1 = plot(NO_ppb, P_O3_net ./ 1e12,
 vline!([0.1], linestyle = :dash, color = :gray, label = "Background NO")
 vline!([10.0], linestyle = :dash, color = :red, label = "Urban NO")
 
-p2 = plot(NO_ppb, OPE,
+p2 = plot(NO_ppb, OPE_vals,
     xlabel = "NO (ppb)",
     ylabel = "OPE (mol O₃ / mol NOx)",
     title = "Ozone Production Efficiency",
@@ -189,35 +187,36 @@ environments, consistent with Section 6.3 of Seinfeld & Pandis.
 
 ### Comparison of Atmospheric Conditions
 
+This table computes key diagnostics for each of the three standard atmospheric
+environments using the rate constants from the `TroposphericChemistrySystem`.
+
 ```@example combined
-# Compare key diagnostics across the three environments
 environments = [
     ("Background", get_typical_conditions()),
     ("Urban", get_urban_conditions()),
     ("Remote", get_remote_conditions())
 ]
 
-# Compute diagnostics for each environment
 results = []
 for (name, cond) in environments
-    NO_val = cond[:NO]
-    NO2_val = cond[:NO2]
-    OH_val = cond[:OH]
-    HO2_val = cond[:HO2]
-    O3_val = cond[:O3]
-    CH3O2_val = cond[:CH3O2]
+    NO_v = cond[:NO]
+    NO2_v = cond[:NO2]
+    OH_v = cond[:OH]
+    HO2_v = cond[:HO2]
+    O3_v = cond[:O3]
+    CH3O2_v = cond[:CH3O2]
 
-    p_o3 = k_HO2_NO * HO2_val * NO_val + k_CH3O2_NO * CH3O2_val * NO_val
-    l_nox = k_OH_NO2 * OH_val * NO2_val
+    p_o3 = k_HO2_NO * HO2_v * NO_v + k_CH3O2_NO * CH3O2_v * NO_v
+    l_nox = k_OH_NO2 * OH_v * NO2_v
     ope = p_o3 / l_nox
-    l_hox = k_OH_NO2 * OH_val * NO2_val + 2 * k_HO2_HO2 * HO2_val^2
-    chain = (k_HO2_NO * HO2_val * NO_val) / l_hox
+    l_hox = k_OH_NO2 * OH_v * NO2_v + 2 * k_HO2_HO2 * HO2_v^2
+    chain = (k_HO2_NO * HO2_v * NO_v) / l_hox
 
     push!(results,
         (
             Environment = name,
-            NO_ppb = round(NO_val / 2.5e16, sigdigits = 3),
-            O3_ppb = round(O3_val / 2.5e16, sigdigits = 3),
+            NO_ppb = round(NO_v / 2.5e16, sigdigits = 3),
+            O3_ppb = round(O3_v / 2.5e16, sigdigits = 3),
             P_O3 = round(p_o3, sigdigits = 3),
             OPE = round(ope, sigdigits = 3),
             Chain_Length = round(chain, sigdigits = 3)

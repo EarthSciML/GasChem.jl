@@ -83,7 +83,7 @@ Seinfeld & Pandis Chapter 6.
 
   - j_NO2 ≈ 8 × 10⁻³ s⁻¹ (typical midday value)
   - k_O_O2_M = 6.0 × 10⁻³⁴ cm⁶ molecule⁻² s⁻¹ = 6.0 × 10⁻⁴⁶ m⁶ s⁻¹    # Parameters (rate constants converted to SI)
-  - k_NO_O3 = 1.8 × 10⁻¹⁴ cm³ molecule⁻¹ s⁻¹ = 1.8 × 10⁻²⁰ m³ s⁻¹
+  - k_NO_O3 = 1.9 × 10⁻¹⁴ cm³ molecule⁻¹ s⁻¹ = 1.9 × 10⁻²⁰ m³ s⁻¹ (p. 211)
 """
 @component function NOxPhotochemistry(; name = :NOxPhotochemistry)
     # Parameters (rate constants converted to SI)
@@ -91,8 +91,8 @@ Seinfeld & Pandis Chapter 6.
         j_NO2 = 8e-3, [description = "NO₂ photolysis rate", unit = u"s^-1"]
         k_O_O2_M = 6.0e-34 * 1e-12,
         [description = "O + O₂ + M → O₃ rate (6.0e-34 cm⁶/molec²/s)", unit = u"m^6/s"]
-        k_NO_O3 = 1.8e-14 * 1e-6,
-        [description = "NO + O₃ → NO₂ rate (1.8e-14 cm³/molec/s)", unit = u"m^3/s"]
+        k_NO_O3 = 1.9e-14 * 1e-6,
+        [description = "NO + O₃ → NO₂ rate (1.9e-14 cm³/molec/s, p. 211)", unit = u"m^3/s"]
     end
 
     # Input variables (concentrations in SI: m⁻³)
@@ -151,8 +151,8 @@ When Φ = 1: Pure photostationary state (no net ozone production)
     # Parameters
     @parameters begin
         j_NO2 = 8e-3, [description = "NO₂ photolysis rate", unit = u"s^-1"]
-        k_NO_O3 = 1.8e-14 * 1e-6,
-        [description = "NO + O₃ → NO₂ rate (1.8e-14 cm³/molec/s)", unit = u"m^3/s"]
+        k_NO_O3 = 1.9e-14 * 1e-6,
+        [description = "NO + O₃ → NO₂ rate (1.9e-14 cm³/molec/s, p. 211)", unit = u"m^3/s"]
     end
 
     # Input variables

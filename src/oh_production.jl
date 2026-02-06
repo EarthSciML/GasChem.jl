@@ -71,7 +71,7 @@ This is an algebraic system that computes diagnostic quantities from input conce
 
 # Parameters
 
-  - `j_O3`: O₃ photolysis rate producing O(¹D) [s⁻¹]
+  - `j_O3`: O₃ photolysis rate producing O(¹D) [s⁻¹] (default: 6×10⁻⁵ s⁻¹ at surface, solar zenith 0°)
   - `k3_N2`: Rate constant for O(¹D) + N₂ quenching [m³ s⁻¹]
   - `k3_O2`: Rate constant for O(¹D) + O₂ quenching [m³ s⁻¹]
   - `k4`: Rate constant for O(¹D) + H₂O → 2OH [m³ s⁻¹]
@@ -80,6 +80,7 @@ This is an algebraic system that computes diagnostic quantities from input conce
 
 # Rate Constants at 298 K (from Table B.1, Seinfeld & Pandis)
 
+  - j_O3 ≈ 6 × 10⁻⁵ s⁻¹ (at surface, solar zenith angle 0°, Figure 4.15)
   - k3_N2 = 2.6 × 10⁻¹¹ cm³ molecule⁻¹ s⁻¹ = 2.6 × 10⁻¹⁷ m³ s⁻¹
   - k3_O2 = 4.0 × 10⁻¹¹ cm³ molecule⁻¹ s⁻¹ = 4.0 × 10⁻¹⁷ m³ s⁻¹
   - k4 = 2.2 × 10⁻¹⁰ cm³ molecule⁻¹ s⁻¹ = 2.2 × 10⁻¹⁶ m³ s⁻¹
@@ -94,7 +95,7 @@ This is an algebraic system that computes diagnostic quantities from input conce
 
     # Parameters (rate constants converted from cm³/molecule/s to m³/s)
     @parameters begin
-        j_O3 = 1e-5, [description = "O₃ photolysis rate producing O(¹D)", unit = u"s^-1"]
+        j_O3 = 6e-5, [description = "O₃ photolysis rate producing O(¹D) at surface, solar zenith 0°", unit = u"s^-1"]
         k3_N2 = 2.6e-11 * 1e-6,
         [description = "O(¹D) + N₂ quenching rate (2.6e-11 cm³/molec/s)", unit = u"m^3/s"]
         k3_O2 = 4.0e-11 * 1e-6,
@@ -131,11 +132,14 @@ This is an algebraic system that computes diagnostic quantities from input conce
         # Equation 6.1: O(¹D) steady-state concentration
         O1D ~ j_O3 * O3 / (k3_eff * M + k4 * H2O),
 
-        # Equation 6.4: OH yield (fraction of O(¹D) producing OH)
-        ε_OH ~ k4 * H2O / (k3_eff * M + k4 * H2O),
+        # Equation 6.4: OH yield (number of OH radicals produced per O(¹D) formed)
+        # ε_OH = 2 k₄[H₂O] / (k₃[M] + k₄[H₂O])
+        # The factor of 2 accounts for 2 OH produced per O(¹D) + H₂O reaction
+        ε_OH ~ two * k4 * H2O / (k3_eff * M + k4 * H2O),
 
-        # Equation 6.3: OH production rate (2 OH per O(¹D) + H₂O reaction)
-        P_OH ~ two * j_O3 * O3 * ε_OH
+        # Equation 6.3: OH production rate
+        # P_OH = j_{O₃→O(¹D)} [O₃] ε_OH = 2 j k₄[H₂O] / (k₃[M] + k₄[H₂O]) [O₃]
+        P_OH ~ j_O3 * O3 * ε_OH
     ]
 
     return System(eqs, t; name)

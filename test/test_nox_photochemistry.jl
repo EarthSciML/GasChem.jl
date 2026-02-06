@@ -98,8 +98,8 @@ end
     @test O3_pss < 1e19
 
     # O3_pss = j_NO2 * [NO2] / (k_NO_O3 * [NO])
-    # = 8e-3 * 5e16 / (1.8e-20 * 2.5e16) = 4e14 / 4.5e-4 = 8.89e17
-    @test O3_pss ≈ 8.89e17 rtol = 0.05
+    # = 8e-3 * 5e16 / (1.9e-20 * 2.5e16) = 4e14 / 4.75e-4 = 8.42e17
+    @test O3_pss ≈ 8.42e17 rtol = 0.05
 end
 
 @testitem "NOxPhotochemistry: Eq 6.7 Photostationary State Parameter" setup=[SP_CH6_Setup] tags=[:sp_ch6] begin
@@ -113,7 +113,7 @@ end
 
     # Compute O3_pss for these conditions
     j_NO2 = 8e-3
-    k_NO_O3 = 1.8e-14 * 1e-6
+    k_NO_O3 = 1.9e-14 * 1e-6
     O3_pss_val = j_NO2 * NO2_val / (k_NO_O3 * NO_val)
 
     # At PSS value of O3: Phi should be 1
@@ -145,7 +145,7 @@ end
     M_val = 2.5e25
 
     j_NO2 = 8e-3
-    k_NO_O3 = 1.8e-14 * 1e-6
+    k_NO_O3 = 1.9e-14 * 1e-6
     O3_pss_val = j_NO2 * NO2_val / (k_NO_O3 * NO_val)
 
     # At photostationary state: P_O3 ≈ 0
@@ -178,7 +178,7 @@ end
 
     @test param_dict[:j_NO2] ≈ 8e-3
     @test param_dict[:k_O_O2_M] ≈ 6.0e-34 * 1e-12
-    @test param_dict[:k_NO_O3] ≈ 1.8e-14 * 1e-6
+    @test param_dict[:k_NO_O3] ≈ 1.9e-14 * 1e-6
 end
 
 # ===========================================================================
@@ -210,7 +210,7 @@ end
     compiled = compile_with_inputs(sys, [:NO, :NO2, :O3])
 
     j_NO2 = 8e-3
-    k_NO_O3 = 1.8e-14 * 1e-6
+    k_NO_O3 = 1.9e-14 * 1e-6
     NO_val = 2.5e16
     NO2_val = 5e16
     O3_pss_val = j_NO2 * NO2_val / (k_NO_O3 * NO_val)

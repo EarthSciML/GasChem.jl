@@ -36,9 +36,9 @@ using ModelingToolkit: t, D
 # 7.  CH₃OOH + OH → CH₃O₂ + H₂O                    | 3.8 × 10⁻¹²
 # 8.  CH₃OOH + OH → HCHO + OH + H₂O                | 1.9 × 10⁻¹²
 # 9.  CH₃OOH + hν → CH₃O + OH                      | j ≈ 5 × 10⁻⁶ s⁻¹
-# 10. HCHO + OH → HCO + H₂O                        | 8.5 × 10⁻¹²
+# 10. HCHO + OH → HCO + H₂O                        | 9.0 × 10⁻¹² (p. 221: k₇ = 9e-12)
 # 11. HCHO + hν → HCO + H                          | j ≈ 3 × 10⁻⁵ s⁻¹
-# 12. HCHO + hν → H₂ + CO                          | j ≈ 5 × 10⁻⁵ s⁻¹
+# 12. HCHO + hν → H₂ + CO                          | j ≈ 4 × 10⁻⁵ s⁻¹ (p. 221)
 # 13. HCO + O₂ → CO + HO₂                          | 5.2 × 10⁻¹²
 # 14. H + O₂ + M → HO₂ + M                         | 5.7 × 10⁻³² [M] (cm⁶)
 # 15. HO₂ + NO → OH + NO₂                          | 8.1 × 10⁻¹²
@@ -64,7 +64,7 @@ This system computes individual reaction rates and diagnostic production/loss te
 # Diagnostics (Output Variables)
 
   - R1-R17: Individual reaction rates [m⁻³ s⁻¹]
-  - P_O3_net: Net O₃ production [m⁻³ s⁻¹]
+  - P_O3_gross: Gross O₃ production from peroxy+NO reactions [m⁻³ s⁻¹]
   - P_HCHO: HCHO production rate [m⁻³ s⁻¹]
   - L_CH4: CH₄ loss rate [m⁻³ s⁻¹]
 
@@ -92,8 +92,8 @@ Termolecular rate constants converted from cm⁶/molec²/s to m⁶/s (×10⁻¹�
         [description = "CH₃OOH + OH → CH₃O₂ rate (3.8e-12 cm³/molec/s)", unit = u"m^3/s"]
         k8 = 1.9e-12 * 1e-6,
         [description = "CH₃OOH + OH → HCHO rate (1.9e-12 cm³/molec/s)", unit = u"m^3/s"]
-        k10 = 8.5e-12 * 1e-6,
-        [description = "HCHO + OH rate (8.5e-12 cm³/molec/s)", unit = u"m^3/s"]
+        k10 = 9.0e-12 * 1e-6,
+        [description = "HCHO + OH rate (9.0e-12 cm³/molec/s, p. 221)", unit = u"m^3/s"]
         k13 = 5.2e-12 * 1e-6,
         [description = "HCO + O₂ rate (5.2e-12 cm³/molec/s)", unit = u"m^3/s"]
         k15 = 8.1e-12 * 1e-6,
@@ -110,7 +110,7 @@ Termolecular rate constants converted from cm⁶/molec²/s to m⁶/s (×10⁻¹�
         # Photolysis rates (s⁻¹)
         j9 = 5e-6, [description = "CH₃OOH photolysis rate", unit = u"s^-1"]
         j11 = 3e-5, [description = "HCHO → HCO + H photolysis rate", unit = u"s^-1"]
-        j12 = 5e-5, [description = "HCHO → H₂ + CO photolysis rate", unit = u"s^-1"]
+        j12 = 4e-5, [description = "HCHO → H₂ + CO photolysis rate (~4e-5 s⁻¹, p. 221)", unit = u"s^-1"]
         j16 = 8e-3, [description = "NO₂ photolysis rate", unit = u"s^-1"]
     end
 
@@ -123,7 +123,6 @@ Termolecular rate constants converted from cm⁶/molec²/s to m⁶/s (×10⁻¹�
         CH3OOH(t), [description = "Methyl hydroperoxide", unit = u"m^-3"]
         HCHO(t), [description = "Formaldehyde", unit = u"m^-3"]
         HCO(t), [description = "Formyl radical", unit = u"m^-3"]
-        CO(t), [description = "Carbon monoxide", unit = u"m^-3"]
         OH(t), [description = "Hydroxyl radical", unit = u"m^-3"]
         HO2(t), [description = "Hydroperoxy radical", unit = u"m^-3"]
         H(t), [description = "Hydrogen atom", unit = u"m^-3"]
@@ -131,7 +130,6 @@ Termolecular rate constants converted from cm⁶/molec²/s to m⁶/s (×10⁻¹�
         NO2(t), [description = "Nitrogen dioxide", unit = u"m^-3"]
         O(t), [description = "Oxygen atom", unit = u"m^-3"]
         O2(t), [description = "Molecular oxygen", unit = u"m^-3"]
-        O3(t), [description = "Ozone", unit = u"m^-3"]
         M(t), [description = "Total air density", unit = u"m^-3"]
     end
 
@@ -154,7 +152,7 @@ Termolecular rate constants converted from cm⁶/molec²/s to m⁶/s (×10⁻¹�
         R15(t), [description = "HO₂ + NO rate", unit = u"m^-3*s^-1"]
         R16(t), [description = "NO₂ photolysis rate", unit = u"m^-3*s^-1"]
         R17(t), [description = "O + O₂ rate", unit = u"m^-3*s^-1"]
-        P_O3_net(t), [description = "Net O₃ production", unit = u"m^-3*s^-1"]
+        P_O3_gross(t), [description = "Gross O₃ production (HO₂+NO + CH₃O₂+NO)", unit = u"m^-3*s^-1"]
         P_HCHO(t), [description = "HCHO production", unit = u"m^-3*s^-1"]
         L_CH4(t), [description = "CH₄ loss rate", unit = u"m^-3*s^-1"]
     end
@@ -183,7 +181,7 @@ Termolecular rate constants converted from cm⁶/molec²/s to m⁶/s (×10⁻¹�
         # Diagnostic variables
         L_CH4 ~ R1,                            # CH₄ loss = R1
         P_HCHO ~ R6 + R8,                      # HCHO production
-        P_O3_net ~ R15 + R3                   # Net O₃ production = HO₂+NO + CH₃O₂+NO (Eq. 6.9 analog)
+        P_O3_gross ~ R15 + R3                   # Gross O₃ production = HO₂+NO + CH₃O₂+NO (Eq. 6.9 analog)
     ]
 
     return System(eqs, t; name)
@@ -223,8 +221,8 @@ for termolecular reactions (reactions 2, 6, 13, 14, 17).
                 description = "CH₃OOH + OH → CH₃O₂ rate (3.8e-12 cm³/molec/s)", unit = u"m^3/s"]
             k8 = 1.9e-12 * 1e-6,
             [description = "CH₃OOH + OH → HCHO rate (1.9e-12 cm³/molec/s)", unit = u"m^3/s"]
-            k10 = 8.5e-12 * 1e-6,
-            [description = "HCHO + OH rate (8.5e-12 cm³/molec/s)", unit = u"m^3/s"]
+            k10 = 9.0e-12 * 1e-6,
+            [description = "HCHO + OH rate (9.0e-12 cm³/molec/s, p. 221)", unit = u"m^3/s"]
             k15 = 8.1e-12 * 1e-6,
             [description = "HO₂ + NO rate (8.1e-12 cm³/molec/s)", unit = u"m^3/s"]
             k_CO_OH = 2.4e-13 * 1e-6,
@@ -233,8 +231,8 @@ for termolecular reactions (reactions 2, 6, 13, 14, 17).
             [description = "OH + NO₂ rate (1.0e-11 cm³/molec/s)", unit = u"m^3/s"]
             k_HO2_HO2 = 2.9e-12 * 1e-6,
             [description = "HO₂ + HO₂ rate (2.9e-12 cm³/molec/s)", unit = u"m^3/s"]
-            k_NO_O3 = 1.8e-14 * 1e-6,
-            [description = "NO + O₃ rate (1.8e-14 cm³/molec/s)", unit = u"m^3/s"]
+            k_NO_O3 = 1.9e-14 * 1e-6,
+            [description = "NO + O₃ rate (1.9e-14 cm³/molec/s, p. 211)", unit = u"m^3/s"]
 
             # Termolecular reactions (m⁶ s⁻¹)
             k2_0 = 1.0e-30 * 1e-12,
@@ -257,7 +255,7 @@ for termolecular reactions (reactions 2, 6, 13, 14, 17).
             # Photolysis rates (s⁻¹)
             j9 = 5e-6, [description = "CH₃OOH photolysis rate", unit = u"s^-1"]
             j11 = 3e-5, [description = "HCHO → HCO + H rate", unit = u"s^-1"]
-            j12 = 5e-5, [description = "HCHO → H₂ + CO rate", unit = u"s^-1"]
+            j12 = 4e-5, [description = "HCHO → H₂ + CO rate (~4e-5 s⁻¹, p. 221)", unit = u"s^-1"]
             j16 = 8e-3, [description = "NO₂ photolysis rate", unit = u"s^-1"]
 
             # External source for OH production (e.g., from O₃ photolysis)
@@ -311,8 +309,8 @@ for termolecular reactions (reactions 2, 6, 13, 14, 17).
         # R7:  CH₃OOH + OH → CH₃O₂ + H₂O
         k7, CH3OOH + OH --> CH3O2
 
-        # R8:  CH₃OOH + OH → HCHO + H₂O  (OH consumed, not regenerated per ODE)
-        k8, CH3OOH + OH --> HCHO
+        # R8:  CH₃OOH + OH → HCHO + OH + H₂O  (OH is regenerated; net: CH₃OOH → HCHO + H₂O)
+        k8, CH3OOH + OH --> HCHO + OH
 
         # R9:  CH₃OOH + hν → CH₃O + OH
         j9, CH3OOH --> CH3O + OH

@@ -178,7 +178,7 @@ function get_typical_conditions()
         # Concentrations in m⁻³ (= molecules/cm³ × 10⁶)
         :M => 2.5e25,      # Total air at STP
         :O2 => 5.25e24,    # 21% of M
-        :H2O => 4e23,      # ~1% relative humidity equivalent
+        :H2O => 4e23,      # ~1.6% mixing ratio, ~50% RH at 298 K
         :O3 => 1e18,       # ~40 ppb
         :NO => 2.5e15,     # ~0.1 ppb
         :NO2 => 2.5e16,    # ~1 ppb

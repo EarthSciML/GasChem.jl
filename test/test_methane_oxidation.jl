@@ -10,8 +10,7 @@
     params = parameters(sys)
     eqs = equations(sys)
 
-    # 15 input species (CO and O3 are declared but unused in equations, so MTK excludes them)
-    # + 17 reaction rates (R1-R17) + 3 diagnostics (P_O3_net, P_HCHO, L_CH4) = 35
+    # 15 input species + 17 reaction rates (R1-R17) + 3 diagnostics (P_O3_gross, P_HCHO, L_CH4) = 35
     @test length(vars) == 35
 
     # 20 equations: 17 reaction rates + 3 diagnostics
@@ -22,7 +21,7 @@
 
     # Check key diagnostic variable names
     var_names = [string(v) for v in vars]
-    for expected in ["P_O3_net", "P_HCHO", "L_CH4"]
+    for expected in ["P_O3_gross", "P_HCHO", "L_CH4"]
         @test any(n -> contains(n, expected), var_names)
     end
 
@@ -76,7 +75,7 @@ end
     @test param_dict[:k6] ≈ 1.9e-15 * 1e-6
     @test param_dict[:k7] ≈ 3.8e-12 * 1e-6
     @test param_dict[:k8] ≈ 1.9e-12 * 1e-6
-    @test param_dict[:k10] ≈ 8.5e-12 * 1e-6
+    @test param_dict[:k10] ≈ 9.0e-12 * 1e-6
     @test param_dict[:k13] ≈ 5.2e-12 * 1e-6
     @test param_dict[:k15] ≈ 8.1e-12 * 1e-6
 
@@ -88,7 +87,7 @@ end
     # Photolysis rates (s^-1)
     @test param_dict[:j9] ≈ 5e-6
     @test param_dict[:j11] ≈ 3e-5
-    @test param_dict[:j12] ≈ 5e-5
+    @test param_dict[:j12] ≈ 4e-5
     @test param_dict[:j16] ≈ 8e-3
 end
 
@@ -107,7 +106,7 @@ end
     @test param_dict[:k_CO_OH] ≈ 2.4e-13 * 1e-6
     @test param_dict[:k_OH_NO2] ≈ 1.0e-11 * 1e-6
     @test param_dict[:k_HO2_HO2] ≈ 2.9e-12 * 1e-6
-    @test param_dict[:k_NO_O3] ≈ 1.8e-14 * 1e-6
+    @test param_dict[:k_NO_O3] ≈ 1.9e-14 * 1e-6
 
     # External OH source (m^-3/s)
     @test param_dict[:P_OH_ext] ≈ 1e6 * 1e6
@@ -219,7 +218,7 @@ end
     @test sol[compiled.L_CH4] > 0
 end
 
-@testitem "MethaneOxidation: Net O3 Production (P_O3_net = R15 + R3)" setup=[SP_CH6_Setup] tags=[:sp_ch6] begin
+@testitem "MethaneOxidation: Net O3 Production (P_O3_gross = R15 + R3)" setup=[SP_CH6_Setup] tags=[:sp_ch6] begin
     sys = MethaneOxidation()
     ch4_inputs = [:CH4, :CH3, :CH3O2, :CH3O, :CH3OOH, :HCHO, :HCO,
                   :OH, :HO2, :H, :NO, :NO2, :O, :O2, :M]
@@ -236,9 +235,9 @@ end
     prob = NonlinearProblem(compiled, input_vals; build_initializeprob = false)
     sol = solve(prob)
 
-    # P_O3_net = R15 + R3 (HO2+NO and CH3O2+NO reactions produce NO2, leading to O3)
-    @test sol[compiled.P_O3_net] ≈ sol[compiled.R15] + sol[compiled.R3] rtol = 1e-6
-    @test sol[compiled.P_O3_net] > 0
+    # P_O3_gross = R15 + R3 (HO2+NO and CH3O2+NO reactions produce NO2, leading to O3)
+    @test sol[compiled.P_O3_gross] ≈ sol[compiled.R15] + sol[compiled.R3] rtol = 1e-6
+    @test sol[compiled.P_O3_gross] > 0
 
     # Both contributing reactions should be positive
     @test sol[compiled.R15] > 0
@@ -376,7 +375,7 @@ end
     end
 
     # All diagnostics should be positive
-    @test sol[compiled.P_O3_net] > 0
+    @test sol[compiled.P_O3_gross] > 0
     @test sol[compiled.P_HCHO] > 0
     @test sol[compiled.L_CH4] > 0
 end
