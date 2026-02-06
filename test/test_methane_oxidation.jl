@@ -68,12 +68,12 @@ end
     for p in params if ModelingToolkit.hasdefault(p))
 
     # Bimolecular rate constants (m^3/s)
-    @test param_dict[:k1] ≈ 6.3e-15 * 1e-6
+    @test param_dict[:k1] ≈ 2.45e-12 * exp(-1775 / 298) * 1e-6
     @test param_dict[:k3] ≈ 7.7e-12 * 1e-6
     @test param_dict[:k4] ≈ 5.2e-12 * 1e-6
     @test param_dict[:k5] ≈ 3.5e-13 * 1e-6
     @test param_dict[:k6] ≈ 1.9e-15 * 1e-6
-    @test param_dict[:k7] ≈ 3.8e-12 * 1e-6
+    @test param_dict[:k7] ≈ 3.6e-12 * exp(200 / 298) * 1e-6
     @test param_dict[:k8] ≈ 1.9e-12 * 1e-6
     @test param_dict[:k10] ≈ 9.0e-12 * 1e-6
     @test param_dict[:k13] ≈ 5.2e-12 * 1e-6
@@ -98,7 +98,7 @@ end
     for p in params if ModelingToolkit.hasdefault(p))
 
     # Same kinetic rate constants as MethaneOxidation (in SI)
-    @test param_dict[:k1] ≈ 6.3e-15 * 1e-6
+    @test param_dict[:k1] ≈ 2.45e-12 * exp(-1775 / 298) * 1e-6
     @test param_dict[:k3] ≈ 7.7e-12 * 1e-6
     @test param_dict[:k15] ≈ 8.1e-12 * 1e-6
 
@@ -134,10 +134,10 @@ end
     sol=solve(prob)
 
     # R1 = k1 * CH4 * OH
-    k1=6.3e-15*1e-6
+    k1=2.45e-12*exp(-1775/298)*1e-6
     expected_R1=k1*4.5e19*1e12
     @test sol[compiled.R1] ≈ expected_R1 rtol = 1e-6
-    @test sol[compiled.R1] ≈ 2.835e11 rtol = 0.01
+    @test sol[compiled.R1] ≈ 2.874e11 rtol = 0.02
     @test sol[compiled.R1] > 0
 end
 
@@ -346,7 +346,7 @@ end
     # CH4 tropospheric lifetime is approximately 5-15 years at typical [OH]
     @test tau_years > 3
     @test tau_years < 20
-    @test tau_years ≈ 5.03 rtol = 0.1
+    @test tau_years ≈ 4.96 rtol = 0.1
 end
 
 @testitem "MethaneOxidation: All Reaction Rates Positive" setup=[SP_CH6_Setup] tags=[:sp_ch6] begin

@@ -27,13 +27,13 @@ using ModelingToolkit: t, D
 # ============================================================================
 # Reaction                                          | k at 298 K (cm³/molec/s)
 # ============================================================================
-# 1.  CH₄ + OH → CH₃ + H₂O                         | 6.3 × 10⁻¹⁵
+# 1.  CH₄ + OH → CH₃ + H₂O                         | 6.39 × 10⁻¹⁵
 # 2.  CH₃ + O₂ + M → CH₃O₂ + M                     | 1.0 × 10⁻³⁰ [M] (cm⁶)
 # 3.  CH₃O₂ + NO → CH₃O + NO₂                      | 7.7 × 10⁻¹²
 # 4.  CH₃O₂ + HO₂ → CH₃OOH + O₂                    | 5.2 × 10⁻¹²
 # 5.  CH₃O₂ + CH₃O₂ → products                     | 3.5 × 10⁻¹³
 # 6.  CH₃O + O₂ → HCHO + HO₂                       | 1.9 × 10⁻¹⁵
-# 7.  CH₃OOH + OH → CH₃O₂ + H₂O                    | 3.8 × 10⁻¹²
+# 7.  CH₃OOH + OH → CH₃O₂ + H₂O                    | 7.06 × 10⁻¹²
 # 8.  CH₃OOH + OH → HCHO + OH + H₂O                | 1.9 × 10⁻¹²
 # 9.  CH₃OOH + hν → CH₃O + OH                      | j ≈ 5 × 10⁻⁶ s⁻¹
 # 10. HCHO + OH → HCO + H₂O                        | 9.0 × 10⁻¹² (p. 221: k₇ = 9e-12)
@@ -78,8 +78,8 @@ Termolecular rate constants converted from cm⁶/molec²/s to m⁶/s (×10⁻¹�
     # Parameters - Rate constants at 298 K from Table 6.1 (converted to SI)
     @parameters begin
         # Bimolecular reactions (m³ s⁻¹)
-        k1 = 6.3e-15 * 1e-6,
-        [description = "CH₄ + OH rate (6.3e-15 cm³/molec/s)", unit = u"m^3/s"]
+        k1 = 2.45e-12 * exp(-1775 / 298) * 1e-6,
+        [description = "CH₄ + OH rate (2.45e-12 exp(-1775/T) cm³/molec/s, Table 6.1 rxn 1)", unit = u"m^3/s"]
         k3 = 7.7e-12 * 1e-6,
         [description = "CH₃O₂ + NO rate (7.7e-12 cm³/molec/s)", unit = u"m^3/s"]
         k4 = 5.2e-12 * 1e-6,
@@ -88,8 +88,8 @@ Termolecular rate constants converted from cm⁶/molec²/s to m⁶/s (×10⁻¹�
         [description = "CH₃O₂ + CH₃O₂ rate (3.5e-13 cm³/molec/s)", unit = u"m^3/s"]
         k6 = 1.9e-15 * 1e-6,
         [description = "CH₃O + O₂ rate (1.9e-15 cm³/molec/s)", unit = u"m^3/s"]
-        k7 = 3.8e-12 * 1e-6,
-        [description = "CH₃OOH + OH → CH₃O₂ rate (3.8e-12 cm³/molec/s)", unit = u"m^3/s"]
+        k7 = 3.6e-12 * exp(200 / 298) * 1e-6,
+        [description = "CH₃OOH + OH → CH₃O₂ rate (3.6e-12 exp(200/T) cm³/molec/s, Table 6.1 rxn 5a)", unit = u"m^3/s"]
         k8 = 1.9e-12 * 1e-6,
         [description = "CH₃OOH + OH → HCHO rate (1.9e-12 cm³/molec/s)", unit = u"m^3/s"]
         k10 = 9.0e-12 * 1e-6,
@@ -210,17 +210,17 @@ for termolecular reactions (reactions 2, 6, 13, 14, 17).
 
         @parameters begin
             # Bimolecular reactions (m³ s⁻¹)
-            k1 = 6.3e-15 * 1e-6,
-            [description = "CH₄ + OH rate (6.3e-15 cm³/molec/s)", unit = u"m^3/s"]
+            k1 = 2.45e-12 * exp(-1775 / 298) * 1e-6,
+            [description = "CH₄ + OH rate (2.45e-12 exp(-1775/T) cm³/molec/s, Table 6.1 rxn 1)", unit = u"m^3/s"]
             k3 = 7.7e-12 * 1e-6,
             [description = "CH₃O₂ + NO rate (7.7e-12 cm³/molec/s)", unit = u"m^3/s"]
             k4 = 5.2e-12 * 1e-6,
             [description = "CH₃O₂ + HO₂ rate (5.2e-12 cm³/molec/s)", unit = u"m^3/s"]
             k5 = 3.5e-13 * 1e-6,
             [description = "CH₃O₂ + CH₃O₂ rate (3.5e-13 cm³/molec/s)", unit = u"m^3/s"]
-            k7 = 3.8e-12 * 1e-6,
+            k7 = 3.6e-12 * exp(200 / 298) * 1e-6,
             [
-                description = "CH₃OOH + OH → CH₃O₂ rate (3.8e-12 cm³/molec/s)", unit = u"m^3/s"]
+                description = "CH₃OOH + OH → CH₃O₂ rate (3.6e-12 exp(200/T) cm³/molec/s, Table 6.1 rxn 5a)", unit = u"m^3/s"]
             k8 = 1.9e-12 * 1e-6,
             [description = "CH₃OOH + OH → HCHO rate (1.9e-12 cm³/molec/s)", unit = u"m^3/s"]
             k10 = 9.0e-12 * 1e-6,
