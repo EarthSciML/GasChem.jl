@@ -32,6 +32,8 @@ makedocs(;
             "Methane Oxidation" => "methane_oxidation.md",
             "Combined System" => "combined_system.md"
         ],
+        "Radiation Fundamentals" => "radiation_fundamentals.md",
+        "Stratospheric Chemistry" => "StratosphericChemistry.md",
         "Composing models" => "composing_models.md",
         "API" => "api.md"
     ]

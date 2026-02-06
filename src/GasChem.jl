@@ -7,7 +7,7 @@ using Dates
 using DynamicQuantities
 using StaticArrays
 using Interpolations
-using ModelingToolkit: t
+using ModelingToolkit: t, D
 using BSON
 using DocStringExtensions
 
@@ -31,6 +31,8 @@ include("direct_flux.jl")
 include("Fast-JX.jl")
 include("interpolations_FastJX.jl")
 include("fastjx_couplings.jl")
+include("radiation_fundamentals.jl")
+include("StratosphericChemistry.jl")
 
 # Tropospheric chemistry from Seinfeld & Pandis Chapter 6
 include("oh_production.jl")
