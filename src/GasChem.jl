@@ -44,6 +44,6 @@ include("combined_system.jl")
 export OHProduction, NOxPhotochemistry, COOxidation, MethaneOxidation, MethaneOxidationODE
 export PhotostationaryState, OzoneProductionEfficiency
 export TroposphericChemistrySystem
-export get_typical_conditions, get_urban_conditions, get_remote_conditions
+export TypicalConditions, UrbanConditions, RemoteConditions, get_conditions_dict
 
 end

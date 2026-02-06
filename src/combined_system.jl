@@ -164,74 +164,146 @@ All species concentrations must be provided as inputs [m⁻³].
 end
 
 """
-    get_typical_conditions()
+    TypicalConditions(; name)
 
-Returns a dictionary of typical lower troposphere conditions for use
-with the TroposphericChemistrySystem.
+ModelingToolkit System representing typical lower troposphere conditions.
 
-All concentrations in SI units (m⁻³).
+All concentrations are parameters in SI units (m⁻³).
 
 Based on values from Seinfeld & Pandis Chapter 6.
 """
-function get_typical_conditions()
-    return Dict(
-        # Concentrations in m⁻³ (= molecules/cm³ × 10⁶)
-        :M => 2.5e25,      # Total air at STP
-        :O2 => 5.25e24,    # 21% of M
-        :H2O => 4e23,      # ~1.6% mixing ratio, ~50% RH at 298 K
-        :O3 => 1e18,       # ~40 ppb
-        :NO => 2.5e15,     # ~0.1 ppb
-        :NO2 => 2.5e16,    # ~1 ppb
-        :CO => 2.5e18,     # ~100 ppb
-        :CH4 => 4.5e19,    # ~1800 ppb
-        :OH => 1e12,       # typical daytime
-        :HO2 => 1e14,      # typical daytime
-        :CH3O2 => 1e14    # typical daytime
-    )
+@component function TypicalConditions(; name = :TypicalConditions)
+    @parameters begin
+        M = 2.5e25, [description = "Total air at STP", unit = u"m^-3"]
+        O2 = 5.25e24, [description = "O₂, 21% of M", unit = u"m^-3"]
+        H2O = 4e23, [description = "Water vapor, ~50% RH at 298 K", unit = u"m^-3"]
+        O3 = 1e18, [description = "Ozone, ~40 ppb", unit = u"m^-3"]
+        NO = 2.5e15, [description = "NO, ~0.1 ppb", unit = u"m^-3"]
+        NO2 = 2.5e16, [description = "NO₂, ~1 ppb", unit = u"m^-3"]
+        CO = 2.5e18, [description = "CO, ~100 ppb", unit = u"m^-3"]
+        CH4 = 4.5e19, [description = "CH₄, ~1800 ppb", unit = u"m^-3"]
+        OH = 1e12, [description = "OH, typical daytime", unit = u"m^-3"]
+        HO2 = 1e14, [description = "HO₂, typical daytime", unit = u"m^-3"]
+        CH3O2 = 1e14, [description = "CH₃O₂, typical daytime", unit = u"m^-3"]
+    end
+    @variables begin
+        M_out(t), [description = "Total air number density", unit = u"m^-3"]
+        O2_out(t), [description = "O₂ concentration", unit = u"m^-3"]
+        H2O_out(t), [description = "Water vapor concentration", unit = u"m^-3"]
+        O3_out(t), [description = "Ozone concentration", unit = u"m^-3"]
+        NO_out(t), [description = "NO concentration", unit = u"m^-3"]
+        NO2_out(t), [description = "NO₂ concentration", unit = u"m^-3"]
+        CO_out(t), [description = "CO concentration", unit = u"m^-3"]
+        CH4_out(t), [description = "CH₄ concentration", unit = u"m^-3"]
+        OH_out(t), [description = "OH concentration", unit = u"m^-3"]
+        HO2_out(t), [description = "HO₂ concentration", unit = u"m^-3"]
+        CH3O2_out(t), [description = "CH₃O₂ concentration", unit = u"m^-3"]
+    end
+    eqs = [
+        M_out ~ M, O2_out ~ O2, H2O_out ~ H2O, O3_out ~ O3,
+        NO_out ~ NO, NO2_out ~ NO2, CO_out ~ CO, CH4_out ~ CH4,
+        OH_out ~ OH, HO2_out ~ HO2, CH3O2_out ~ CH3O2,
+    ]
+    return System(eqs, t; name)
 end
 
 """
-    get_urban_conditions()
+    UrbanConditions(; name)
 
-Returns a dictionary of typical urban conditions with elevated NOx.
+ModelingToolkit System representing typical urban conditions with elevated NOx.
 
-All concentrations in SI units (m⁻³).
+All concentrations are parameters in SI units (m⁻³).
 """
-function get_urban_conditions()
-    return Dict(
-        :M => 2.5e25,
-        :O2 => 5.25e24,
-        :H2O => 4e23,
-        :O3 => 2e18,       # ~80 ppb (can be high in urban areas)
-        :NO => 2.5e17,     # ~10 ppb
-        :NO2 => 7.5e17,    # ~30 ppb
-        :CO => 5e19,       # ~2 ppm
-        :CH4 => 4.5e19,    # ~1800 ppb
-        :OH => 5e11,       # reduced due to high NOx
-        :HO2 => 5e13,      # reduced due to high NOx
-        :CH3O2 => 5e13
-    )
+@component function UrbanConditions(; name = :UrbanConditions)
+    @parameters begin
+        M = 2.5e25, [description = "Total air at STP", unit = u"m^-3"]
+        O2 = 5.25e24, [description = "O₂, 21% of M", unit = u"m^-3"]
+        H2O = 4e23, [description = "Water vapor", unit = u"m^-3"]
+        O3 = 2e18, [description = "Ozone, ~80 ppb", unit = u"m^-3"]
+        NO = 2.5e17, [description = "NO, ~10 ppb", unit = u"m^-3"]
+        NO2 = 7.5e17, [description = "NO₂, ~30 ppb", unit = u"m^-3"]
+        CO = 5e19, [description = "CO, ~2 ppm", unit = u"m^-3"]
+        CH4 = 4.5e19, [description = "CH₄, ~1800 ppb", unit = u"m^-3"]
+        OH = 5e11, [description = "OH, reduced due to high NOx", unit = u"m^-3"]
+        HO2 = 5e13, [description = "HO₂, reduced due to high NOx", unit = u"m^-3"]
+        CH3O2 = 5e13, [description = "CH₃O₂", unit = u"m^-3"]
+    end
+    @variables begin
+        M_out(t), [description = "Total air number density", unit = u"m^-3"]
+        O2_out(t), [description = "O₂ concentration", unit = u"m^-3"]
+        H2O_out(t), [description = "Water vapor concentration", unit = u"m^-3"]
+        O3_out(t), [description = "Ozone concentration", unit = u"m^-3"]
+        NO_out(t), [description = "NO concentration", unit = u"m^-3"]
+        NO2_out(t), [description = "NO₂ concentration", unit = u"m^-3"]
+        CO_out(t), [description = "CO concentration", unit = u"m^-3"]
+        CH4_out(t), [description = "CH₄ concentration", unit = u"m^-3"]
+        OH_out(t), [description = "OH concentration", unit = u"m^-3"]
+        HO2_out(t), [description = "HO₂ concentration", unit = u"m^-3"]
+        CH3O2_out(t), [description = "CH₃O₂ concentration", unit = u"m^-3"]
+    end
+    eqs = [
+        M_out ~ M, O2_out ~ O2, H2O_out ~ H2O, O3_out ~ O3,
+        NO_out ~ NO, NO2_out ~ NO2, CO_out ~ CO, CH4_out ~ CH4,
+        OH_out ~ OH, HO2_out ~ HO2, CH3O2_out ~ CH3O2,
+    ]
+    return System(eqs, t; name)
 end
 
 """
-    get_remote_conditions()
+    RemoteConditions(; name)
 
-Returns a dictionary of typical remote/background conditions with low NOx.
+ModelingToolkit System representing typical remote/background conditions with low NOx.
 
-All concentrations in SI units (m⁻³).
+All concentrations are parameters in SI units (m⁻³).
 """
-function get_remote_conditions()
-    return Dict(
-        :M => 2.5e25,
-        :O2 => 5.25e24,
-        :H2O => 4e23,
-        :O3 => 7.5e17,     # ~30 ppb
-        :NO => 2.5e14,     # ~10 ppt
-        :NO2 => 5e14,      # ~20 ppt
-        :CO => 2e18,       # ~80 ppb
-        :CH4 => 4.5e19,    # ~1800 ppb
-        :OH => 1e12,
-        :HO2 => 2e14,      # higher due to low NOx
-        :CH3O2 => 2e14
-    )
+@component function RemoteConditions(; name = :RemoteConditions)
+    @parameters begin
+        M = 2.5e25, [description = "Total air at STP", unit = u"m^-3"]
+        O2 = 5.25e24, [description = "O₂, 21% of M", unit = u"m^-3"]
+        H2O = 4e23, [description = "Water vapor", unit = u"m^-3"]
+        O3 = 7.5e17, [description = "Ozone, ~30 ppb", unit = u"m^-3"]
+        NO = 2.5e14, [description = "NO, ~10 ppt", unit = u"m^-3"]
+        NO2 = 5e14, [description = "NO₂, ~20 ppt", unit = u"m^-3"]
+        CO = 2e18, [description = "CO, ~80 ppb", unit = u"m^-3"]
+        CH4 = 4.5e19, [description = "CH₄, ~1800 ppb", unit = u"m^-3"]
+        OH = 1e12, [description = "OH, typical daytime", unit = u"m^-3"]
+        HO2 = 2e14, [description = "HO₂, higher due to low NOx", unit = u"m^-3"]
+        CH3O2 = 2e14, [description = "CH₃O₂", unit = u"m^-3"]
+    end
+    @variables begin
+        M_out(t), [description = "Total air number density", unit = u"m^-3"]
+        O2_out(t), [description = "O₂ concentration", unit = u"m^-3"]
+        H2O_out(t), [description = "Water vapor concentration", unit = u"m^-3"]
+        O3_out(t), [description = "Ozone concentration", unit = u"m^-3"]
+        NO_out(t), [description = "NO concentration", unit = u"m^-3"]
+        NO2_out(t), [description = "NO₂ concentration", unit = u"m^-3"]
+        CO_out(t), [description = "CO concentration", unit = u"m^-3"]
+        CH4_out(t), [description = "CH₄ concentration", unit = u"m^-3"]
+        OH_out(t), [description = "OH concentration", unit = u"m^-3"]
+        HO2_out(t), [description = "HO₂ concentration", unit = u"m^-3"]
+        CH3O2_out(t), [description = "CH₃O₂ concentration", unit = u"m^-3"]
+    end
+    eqs = [
+        M_out ~ M, O2_out ~ O2, H2O_out ~ H2O, O3_out ~ O3,
+        NO_out ~ NO, NO2_out ~ NO2, CO_out ~ CO, CH4_out ~ CH4,
+        OH_out ~ OH, HO2_out ~ HO2, CH3O2_out ~ CH3O2,
+    ]
+    return System(eqs, t; name)
+end
+
+"""
+    get_conditions_dict(sys)
+
+Helper to extract default parameter values from a conditions System as a Dict{Symbol,Float64}.
+This is a convenience function for use in tests and analysis code.
+"""
+function get_conditions_dict(sys)
+    params = parameters(sys)
+    result = Dict{Symbol,Float64}()
+    for p in params
+        if ModelingToolkit.hasdefault(p)
+            result[Symbol(p)] = Float64(ModelingToolkit.getdefault(p))
+        end
+    end
+    return result
 end

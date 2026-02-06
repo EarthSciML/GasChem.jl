@@ -48,8 +48,8 @@ end
 # ===========================================================================
 # Condition Functions Tests
 # ===========================================================================
-@testitem "TroposphericChemistrySystem: Typical Conditions" setup=[SP_CH6_Setup] tags=[:sp_ch6] begin
-    cond = get_typical_conditions()
+@testitem "TroposphericChemistrySystem: TypicalConditions" setup=[SP_CH6_Setup] tags=[:sp_ch6] begin
+    cond = get_conditions_dict(TypicalConditions())
 
     required_keys = [:M, :O2, :H2O, :O3, :NO, :NO2, :CO, :CH4, :OH, :HO2, :CH3O2]
     for key in required_keys
@@ -70,9 +70,9 @@ end
     @test cond[:O2] / cond[:M] ≈ 0.21 rtol = 0.01
 end
 
-@testitem "TroposphericChemistrySystem: Urban vs Typical Conditions" setup=[SP_CH6_Setup] tags=[:sp_ch6] begin
-    typical = get_typical_conditions()
-    urban = get_urban_conditions()
+@testitem "TroposphericChemistrySystem: UrbanConditions vs TypicalConditions" setup=[SP_CH6_Setup] tags=[:sp_ch6] begin
+    typical = get_conditions_dict(TypicalConditions())
+    urban = get_conditions_dict(UrbanConditions())
 
     @test urban[:NO] > typical[:NO]
     @test urban[:NO2] > typical[:NO2]
@@ -82,9 +82,9 @@ end
     @test urban[:CH4] ≈ typical[:CH4]
 end
 
-@testitem "TroposphericChemistrySystem: Remote vs Typical Conditions" setup=[SP_CH6_Setup] tags=[:sp_ch6] begin
-    typical = get_typical_conditions()
-    remote = get_remote_conditions()
+@testitem "TroposphericChemistrySystem: RemoteConditions vs TypicalConditions" setup=[SP_CH6_Setup] tags=[:sp_ch6] begin
+    typical = get_conditions_dict(TypicalConditions())
+    remote = get_conditions_dict(RemoteConditions())
 
     @test remote[:NO] < typical[:NO]
     @test remote[:NO2] < typical[:NO2]
@@ -102,7 +102,7 @@ end
               sys_nns.CO, sys_nns.CH3O2, sys_nns.H2O, sys_nns.M, sys_nns.O2]
     compiled = mtkcompile(sys; inputs = inputs)
 
-    cond = get_typical_conditions()
+    cond = get_conditions_dict(TypicalConditions())
     u0p = Dict(
         compiled.O3 => cond[:O3], compiled.NO => cond[:NO], compiled.NO2 => cond[:NO2],
         compiled.OH => cond[:OH], compiled.HO2 => cond[:HO2], compiled.CO => cond[:CO],
@@ -123,7 +123,7 @@ end
               sys_nns.CO, sys_nns.CH3O2, sys_nns.H2O, sys_nns.M, sys_nns.O2]
     compiled = mtkcompile(sys; inputs = inputs)
 
-    cond = get_typical_conditions()
+    cond = get_conditions_dict(TypicalConditions())
     u0p = Dict(
         compiled.O3 => cond[:O3], compiled.NO => cond[:NO], compiled.NO2 => cond[:NO2],
         compiled.OH => cond[:OH], compiled.HO2 => cond[:HO2], compiled.CO => cond[:CO],
@@ -148,7 +148,7 @@ end
               sys_nns.CO, sys_nns.CH3O2, sys_nns.H2O, sys_nns.M, sys_nns.O2]
     compiled = mtkcompile(sys; inputs = inputs)
 
-    cond = get_typical_conditions()
+    cond = get_conditions_dict(TypicalConditions())
     u0p = Dict(
         compiled.O3 => cond[:O3], compiled.NO => cond[:NO], compiled.NO2 => cond[:NO2],
         compiled.OH => cond[:OH], compiled.HO2 => cond[:HO2], compiled.CO => cond[:CO],
@@ -174,7 +174,7 @@ end
               sys_nns.CO, sys_nns.CH3O2, sys_nns.H2O, sys_nns.M, sys_nns.O2]
     compiled = mtkcompile(sys; inputs = inputs)
 
-    cond = get_typical_conditions()
+    cond = get_conditions_dict(TypicalConditions())
     u0p = Dict(
         compiled.O3 => cond[:O3], compiled.NO => cond[:NO], compiled.NO2 => cond[:NO2],
         compiled.OH => cond[:OH], compiled.HO2 => cond[:HO2], compiled.CO => cond[:CO],
@@ -200,7 +200,7 @@ end
               sys_nns.CO, sys_nns.CH3O2, sys_nns.H2O, sys_nns.M, sys_nns.O2]
     compiled = mtkcompile(sys; inputs = inputs)
 
-    cond = get_typical_conditions()
+    cond = get_conditions_dict(TypicalConditions())
     u0p = Dict(
         compiled.O3 => cond[:O3], compiled.NO => cond[:NO], compiled.NO2 => cond[:NO2],
         compiled.OH => cond[:OH], compiled.HO2 => cond[:HO2], compiled.CO => cond[:CO],
@@ -229,7 +229,7 @@ end
               sys_nns.CO, sys_nns.CH3O2, sys_nns.H2O, sys_nns.M, sys_nns.O2]
     compiled = mtkcompile(sys; inputs = inputs)
 
-    cond = get_typical_conditions()
+    cond = get_conditions_dict(TypicalConditions())
     u0p = Dict(
         compiled.O3 => cond[:O3], compiled.NO => cond[:NO], compiled.NO2 => cond[:NO2],
         compiled.OH => cond[:OH], compiled.HO2 => cond[:HO2], compiled.CO => cond[:CO],
@@ -258,7 +258,7 @@ end
               sys_nns.CO, sys_nns.CH3O2, sys_nns.H2O, sys_nns.M, sys_nns.O2]
     compiled = mtkcompile(sys; inputs = inputs)
 
-    cond = get_typical_conditions()
+    cond = get_conditions_dict(TypicalConditions())
     u0p = Dict(
         compiled.O3 => cond[:O3], compiled.NO => cond[:NO], compiled.NO2 => cond[:NO2],
         compiled.OH => cond[:OH], compiled.HO2 => cond[:HO2], compiled.CO => cond[:CO],
@@ -288,7 +288,7 @@ end
               sys_nns.CO, sys_nns.CH3O2, sys_nns.H2O, sys_nns.M, sys_nns.O2]
     compiled = mtkcompile(sys; inputs = inputs)
 
-    cond = get_typical_conditions()
+    cond = get_conditions_dict(TypicalConditions())
     u0p = Dict(
         compiled.O3 => cond[:O3], compiled.NO => cond[:NO], compiled.NO2 => cond[:NO2],
         compiled.OH => cond[:OH], compiled.HO2 => cond[:HO2], compiled.CO => cond[:CO],
@@ -334,9 +334,9 @@ end
         return solve(prob)
     end
 
-    sol_typical = solve_system(compiled, get_typical_conditions())
-    sol_urban = solve_system(compiled, get_urban_conditions())
-    sol_remote = solve_system(compiled, get_remote_conditions())
+    sol_typical = solve_system(compiled, get_conditions_dict(TypicalConditions()))
+    sol_urban = solve_system(compiled, get_conditions_dict(UrbanConditions()))
+    sol_remote = solve_system(compiled, get_conditions_dict(RemoteConditions()))
 
     # All OPE values should be positive
     @test sol_typical[compiled.OPE] > 0
@@ -356,7 +356,7 @@ end
               sys_nns.CO, sys_nns.CH3O2, sys_nns.H2O, sys_nns.M, sys_nns.O2]
     compiled = mtkcompile(sys; inputs = inputs)
 
-    cond = get_typical_conditions()
+    cond = get_conditions_dict(TypicalConditions())
     u0p = Dict(
         compiled.O3 => cond[:O3], compiled.NO => cond[:NO], compiled.NO2 => cond[:NO2],
         compiled.OH => cond[:OH], compiled.HO2 => cond[:HO2], compiled.CO => cond[:CO],
@@ -379,8 +379,8 @@ end
 # Qualitative Property Tests
 # ===========================================================================
 @testitem "TroposphericChemistrySystem: Physical Bounds" setup=[SP_CH6_Setup] tags=[:sp_ch6] begin
-    for get_cond in [get_typical_conditions, get_urban_conditions, get_remote_conditions]
-        cond = get_cond()
+    for cond_sys in [TypicalConditions(), UrbanConditions(), RemoteConditions()]
+        cond = get_conditions_dict(cond_sys)
         for (key, val) in cond
             @test val > 0
         end
@@ -405,8 +405,8 @@ end
         return solve(prob)
     end
 
-    for get_cond in [get_typical_conditions, get_urban_conditions, get_remote_conditions]
-        cond = get_cond()
+    for (i, cond_sys) in enumerate([TypicalConditions(), UrbanConditions(), RemoteConditions()])
+        cond = get_conditions_dict(cond_sys)
 
         # O2 should be ~21% of M
         @test cond[:O2] / cond[:M] ≈ 0.21 rtol = 0.01
@@ -421,7 +421,7 @@ end
         @test cond[:HO2] / cond[:OH] > 1
 
         # CH4 is the most abundant reactive hydrocarbon (except urban CO)
-        if get_cond !== get_urban_conditions
+        if i != 2  # not UrbanConditions
             @test cond[:CH4] > cond[:CO]
         end
 

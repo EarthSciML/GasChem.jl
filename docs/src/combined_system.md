@@ -14,7 +14,7 @@ The systems are coupled through shared species (OH, HO2, NO, NO2, O3) and
 the combined system computes aggregate diagnostics including net O3 production,
 OPE, and HOx chain length.
 
-Helper functions provide typical atmospheric conditions for different environments.
+Condition systems provide typical atmospheric conditions for different environments.
 
 **Reference**: Seinfeld, J.H. and Pandis, S.N. (2006). *Atmospheric Chemistry and Physics:
 From Air Pollution to Climate Change*, 2nd Edition. John Wiley & Sons. Chapter 6.
@@ -24,15 +24,19 @@ TroposphericChemistrySystem
 ```
 
 ```@docs
-get_typical_conditions
+TypicalConditions
 ```
 
 ```@docs
-get_urban_conditions
+UrbanConditions
 ```
 
 ```@docs
-get_remote_conditions
+RemoteConditions
+```
+
+```@docs
+get_conditions_dict
 ```
 
 ## Implementation
@@ -70,15 +74,15 @@ eqs = equations(sys)
 
 ### Typical Atmospheric Conditions
 
-The module provides helper functions for three atmospheric environments:
+The module provides condition systems for three atmospheric environments:
 
 ```@example combined
 using DataFrames
 
 conditions = [
-    ("Background", get_typical_conditions()),
-    ("Urban", get_urban_conditions()),
-    ("Remote", get_remote_conditions())
+    ("Background", get_conditions_dict(TypicalConditions())),
+    ("Urban", get_conditions_dict(UrbanConditions())),
+    ("Remote", get_conditions_dict(RemoteConditions()))
 ]
 
 # Show key species for each condition
@@ -192,9 +196,9 @@ environments using the rate constants from the `TroposphericChemistrySystem`.
 
 ```@example combined
 environments = [
-    ("Background", get_typical_conditions()),
-    ("Urban", get_urban_conditions()),
-    ("Remote", get_remote_conditions())
+    ("Background", get_conditions_dict(TypicalConditions())),
+    ("Urban", get_conditions_dict(UrbanConditions())),
+    ("Remote", get_conditions_dict(RemoteConditions()))
 ]
 
 results = []
