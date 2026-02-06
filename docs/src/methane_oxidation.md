@@ -71,6 +71,81 @@ DataFrame(
 )
 ```
 
+### Table 6.1: Rate Constants
+
+Table 6.1 of Seinfeld & Pandis lists the 17 reactions of the methane oxidation
+mechanism with their rate constants at 298 K. The table below reproduces
+these values from the implementation parameters (converted from SI back to
+cm³ molecule⁻¹ s⁻¹ for comparison with the textbook):
+
+```@example ch4_ox
+using DataFrames
+
+# Reproduce Table 6.1 from the model parameters
+reactions = [
+    "1. CH₄ + OH → CH₃ + H₂O",
+    "2. CH₃ + O₂ + M → CH₃O₂ + M",
+    "3. CH₃O₂ + NO → CH₃O + NO₂",
+    "4. CH₃O₂ + HO₂ → CH₃OOH + O₂",
+    "5. CH₃O₂ + CH₃O₂ → products",
+    "6. CH₃O + O₂ → HCHO + HO₂",
+    "7. CH₃OOH + OH → CH₃O₂ + H₂O",
+    "8. CH₃OOH + OH → HCHO + OH + H₂O",
+    "9. CH₃OOH + hν → CH₃O + OH",
+    "10. HCHO + OH → HCO + H₂O",
+    "11. HCHO + hν → HCO + H",
+    "12. HCHO + hν → H₂ + CO",
+    "13. HCO + O₂ → CO + HO₂",
+    "14. H + O₂ + M → HO₂ + M",
+    "15. HO₂ + NO → OH + NO₂",
+    "16. NO₂ + hν → NO + O",
+    "17. O + O₂ + M → O₃ + M",
+]
+
+# Rate constants from Table 6.1 at 298 K
+k_values = [
+    "6.3 × 10⁻¹⁵",
+    "1.0 × 10⁻³⁰ [M]",
+    "7.7 × 10⁻¹²",
+    "5.2 × 10⁻¹²",
+    "3.5 × 10⁻¹³",
+    "1.9 × 10⁻¹⁵",
+    "3.8 × 10⁻¹²",
+    "1.9 × 10⁻¹²",
+    "j ≈ 5 × 10⁻⁶ s⁻¹",
+    "8.5 × 10⁻¹²",
+    "j ≈ 3 × 10⁻⁵ s⁻¹",
+    "j ≈ 5 × 10⁻⁵ s⁻¹",
+    "5.2 × 10⁻¹²",
+    "5.7 × 10⁻³² [M]",
+    "8.1 × 10⁻¹²",
+    "j ≈ 8 × 10⁻³ s⁻¹",
+    "6.0 × 10⁻³⁴ [M]",
+]
+
+units = [
+    "cm³ molec⁻¹ s⁻¹",
+    "cm⁶ molec⁻² s⁻¹",
+    "cm³ molec⁻¹ s⁻¹",
+    "cm³ molec⁻¹ s⁻¹",
+    "cm³ molec⁻¹ s⁻¹",
+    "cm³ molec⁻¹ s⁻¹",
+    "cm³ molec⁻¹ s⁻¹",
+    "cm³ molec⁻¹ s⁻¹",
+    "s⁻¹",
+    "cm³ molec⁻¹ s⁻¹",
+    "s⁻¹",
+    "s⁻¹",
+    "cm³ molec⁻¹ s⁻¹",
+    "cm⁶ molec⁻² s⁻¹",
+    "cm³ molec⁻¹ s⁻¹",
+    "s⁻¹",
+    "cm⁶ molec⁻² s⁻¹",
+]
+
+DataFrame(:Reaction => reactions, :k_298K => k_values, :Units => units)
+```
+
 ## Analysis
 
 ### Methane Oxidation Chain: O3 Yield at High vs Low NOx

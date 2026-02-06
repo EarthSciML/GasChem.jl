@@ -81,99 +81,149 @@ equations(ope_sys)
 
 ## Analysis
 
-### HOx Chain Length and OPE vs NOx
+### Figure 6.3: OPE vs NOx for CO Oxidation
 
-The HOx chain length and Ozone Production Efficiency (OPE) both depend
-strongly on the NOx concentration. At high NOx, the dominant HOx termination
-is OH + NO2 -> HNO3, giving short chains and low OPE. At low NOx, the
-dominant termination is HO2 + HO2 -> H2O2, giving long chains and high OPE.
+Figure 6.3 of Seinfeld & Pandis shows the ozone production efficiency (OPE)
+for atmospheric CO oxidation at 298 K at the Earth's surface as a function
+of the NOx (NO + NO2) level. The conditions are: ``P_{HO_x} = 1`` ppt s⁻¹,
+``[NO]/[NO_2] = 0.1``, and CO mixing ratio of 200 ppb.
+
+OPE is computed from Eqs. 6.10, 6.23, and 6.22 by solving the quadratic
+equation for [HO2] (Eq. 6.23 combined with 6.10) and then computing
+OPE = P(O3) / L(NOx).
 
 ```@example co_ox
 using Plots
 
-# Rate constants at 298 K
-k_CO_OH = 2.4e-13    # CO + OH [cm3/molec/s]
-k_HO2_NO = 8.1e-12   # HO2 + NO [cm3/molec/s]
-k_HO2_HO2 = 2.9e-12  # HO2 + HO2 [cm3/molec/s]
-k_OH_NO2 = 1.0e-11   # OH + NO2 [cm3/molec/s]
-k_HO2_O3 = 2.0e-15   # HO2 + O3 [cm3/molec/s]
-k_OH_O3 = 7.3e-14    # OH + O3 [cm3/molec/s]
+# Rate constants at 298 K (cm³ molecule⁻¹ s⁻¹)
+k_CO_OH = 2.4e-13    # CO + OH (Eq. 6.17, k_{OH+CO})
+k_HO2_NO = 8.1e-12   # HO₂ + NO (Eq. 6.9, k_{HO₂+NO})
+k_HO2_HO2 = 2.9e-12  # HO₂ + HO₂ (Eq. 6.11, k_{HO₂+HO₂})
+k_OH_NO2 = 1.0e-11   # OH + NO₂ (Eq. 6.12, k_{OH+NO₂})
 
-# Fixed conditions
-CO = 2.5e12    # 100 ppb
-O3 = 1e12      # 40 ppb
-OH = 1e6       # typical
-P_OH = 1e6     # molec/cm3/s
+# Conditions from Figure 6.3 caption
+M = 2.5e19             # total air at surface [molec/cm³]
+CO = 200e-9 * M        # 200 ppb CO [molec/cm³]
+NO_NO2_ratio = 0.1     # [NO]/[NO₂] = 0.1
 
-# Vary NOx (expressed as NO, ppb)
-NO_ppb = 10 .^ range(-2, 2, length=200)
-NO = NO_ppb .* 2.5e10  # convert to molec/cm3
-NO2 = 2 .* NO          # assume NO2/NO = 2
+# P_HOx in molec/cm³/s (1 ppt/s = 1e-12 * M / s)
+P_HOx = 1e-12 * M      # 1 ppt/s
 
-# Estimate HO2 from steady state:
-# At high NOx: HO2 ~ k_CO_OH * CO * OH / (k_HO2_NO * NO)
-# At low NOx: HO2 ~ sqrt(P_OH / (2 * k_HO2_HO2))
-HO2_high = k_CO_OH .* CO .* OH ./ (k_HO2_NO .* NO)
-HO2_low = sqrt(P_OH / (2 * k_HO2_HO2))
-HO2 = min.(HO2_high, HO2_low)
+# Vary NOx from 1 ppt to 10⁶ ppt (= 1 ppm)
+NOx_ppt = 10 .^ range(0, 6, length=300)
+NOx = NOx_ppt .* 1e-12 .* M   # molec/cm³
 
-# HOx loss rate
-L_HOx = k_OH_NO2 .* OH .* NO2 .+ 2 .* k_HO2_HO2 .* HO2.^2
+# Partition NOx into NO and NO2 using [NO]/[NO2] = 0.1
+# NO = ratio * NO2, NOx = NO + NO2 = (ratio + 1) * NO2
+NO2 = NOx ./ (1 + NO_NO2_ratio)
+NO = NO_NO2_ratio .* NO2
 
-# HOx chain length
-chain = (k_HO2_NO .* HO2 .* NO) ./ L_HOx
+# Solve quadratic for [HO2] from Eqs. 6.10 and 6.23:
+# P_HOx = 2 k_{HO2+HO2} [HO2]² + k_{OH+NO2} [OH] [NO2]     (Eq. 6.10)
+# k_{CO+OH} [CO] [OH] = k_{HO2+NO} [HO2] [NO] + 2 k_{HO2+HO2} [HO2]²  (Eq. 6.23)
+#
+# Eliminating [OH] from 6.10: [OH] = (P_HOx - 2k_{HO2+HO2}[HO2]²) / (k_{OH+NO2}[NO2])
+# Substituting into 6.23:
+#   k_{CO+OH}[CO] * (P_HOx - 2k_{HO2+HO2}[HO2]²) / (k_{OH+NO2}[NO2]) = k_{HO2+NO}[HO2][NO] + 2k_{HO2+HO2}[HO2]²
+#
+# This gives: a[HO2]² + b[HO2] + c = 0
+# where:
+#   a = 2k_{HO2+HO2} * (1 + k_{OH+NO2}[NO2] / (k_{CO+OH}[CO]))   -- from text below Eq. 6.23
+#   b = k_{HO2+NO} * k_{OH+NO2} * [NO2] * [NO] / (k_{CO+OH} * [CO])
+#   c = -P_HOx
 
-# OPE = P(O3) / L(NOx)
+a_vals = 2 .* k_HO2_HO2 .* (1 .+ k_OH_NO2 .* NO2 ./ (k_CO_OH .* CO))
+b_vals = k_HO2_NO .* k_OH_NO2 .* NO2 .* NO ./ (k_CO_OH .* CO)
+c_val = -P_HOx
+
+# Solve quadratic: HO2 = (-b + sqrt(b² - 4ac)) / (2a)
+HO2 = (-b_vals .+ sqrt.(b_vals .^ 2 .- 4 .* a_vals .* c_val)) ./ (2 .* a_vals)
+
+# Compute OH from Eq. 6.10
+OH = (P_HOx .- 2 .* k_HO2_HO2 .* HO2 .^ 2) ./ (k_OH_NO2 .* NO2)
+
+# Compute OPE = P(O3) / L(NOx) = k_{HO2+NO}[HO2][NO] / (k_{OH+NO2}[OH][NO2])   (Eq. 6.22)
 P_O3 = k_HO2_NO .* HO2 .* NO
 L_NOx = k_OH_NO2 .* OH .* NO2
 OPE = P_O3 ./ L_NOx
 
-p1 = plot(NO_ppb, chain,
-    xlabel="NO (ppb)", ylabel="Chain Length",
-    title="HOx Chain Length vs NO",
-    xscale=:log10, yscale=:log10,
-    linewidth=2, label="Chain length",
-    legend=:topright, ylims=(0.1, 1000))
-
-p2 = plot(NO_ppb, OPE,
-    xlabel="NO (ppb)", ylabel="OPE (mol O₃ / mol NOx)",
-    title="Ozone Production Efficiency vs NO",
-    xscale=:log10, yscale=:log10,
-    linewidth=2, label="OPE",
-    legend=:topright, ylims=(0.1, 1000))
-
-plot(p1, p2, layout=(1, 2), size=(800, 350))
-savefig("co_chain_ope.svg") # hide
+plot(NOx_ppt, OPE,
+    xlabel = "NOₓ (ppt)",
+    ylabel = "Ozone Production Efficiency",
+    title = "Figure 6.3: OPE for CO Oxidation",
+    xscale = :log10,
+    linewidth = 2, label = "OPE (Eqs. 6.10, 6.22, 6.23)",
+    legend = :topright,
+    ylims = (0, 9),
+    size = (600, 400))
+annotate!([(1e4, 7, text("P_HOx = 1 ppt/s\n[NO]/[NO₂] = 0.1\nCO = 200 ppb\nT = 298 K", 8, :left))])
+savefig("co_fig6_3.svg") # hide
 ```
 
-![HOx chain length and OPE vs NOx](co_chain_ope.svg)
+![Figure 6.3: OPE vs NOx](co_fig6_3.svg)
 
-Both the chain length and OPE decrease as NOx increases, reflecting the
-transition from the NOx-limited regime (low NOx, HO2 + HO2 termination,
-OPE ~ 10-30) to the VOC-limited regime (high NOx, OH + NO2 termination,
-OPE ~ 1-3). This is consistent with Table 6.2 of Seinfeld & Pandis.
+The OPE is largest at the lowest NOx concentrations; at these low levels,
+NOx termination by OH + NO₂ is suppressed and each NOx molecule participates
+in more O₃ production cycles. At 100 ppb NOx, OPE approaches zero as the
+OH + NO₂ reaction occurs preferentially relative to propagation of the cycle.
+This reproduces Figure 6.3 of Seinfeld & Pandis.
 
-### Net O3 Production Rate vs NO
+### Figure 6.4: CO Oxidation Characteristics vs NO
 
-The net O3 production rate initially increases with NO (more HO2 + NO
-reactions) but levels off or decreases at very high NO as O3 titration
-(NO + O3) and reduced HO2 (due to faster cycling) compete.
+Figure 6.4 shows [HO₂], P(O₃), and the HOx loss terms HHL and NHL as functions
+of [NO] for three values of ``P_{HO_x}`` (0.1, 0.6, and 1.2 ppt s⁻¹).
+Conditions: 298 K, ``[NO_2]/[NO] = 7``.
+
+- HHL = ``2 k_{HO_2+HO_2} [HO_2]^2`` (HOx loss via HO₂ self-reaction, Eq. 6.11)
+- NHL = ``k_{OH+NO_2} [OH] [NO_2]`` (HOx loss via OH+NO₂, Eq. 6.12)
 
 ```@example co_ox
-# Net O3 production = HO2*NO - OH*O3 - HO2*O3 loss terms
-P_O3_net = k_HO2_NO .* HO2 .* NO .- k_OH_O3 .* OH .* O3 .- k_HO2_O3 .* HO2 .* O3
+# Conditions from Figure 6.4 caption
+M = 2.5e19
+NO2_NO_ratio = 7.0      # [NO2]/[NO] = 7
+P_HOx_ppt = [0.1, 0.6, 1.2]  # ppt/s
+P_HOx_vals = P_HOx_ppt .* 1e-12 .* M  # molec/cm³/s
 
-plot(NO_ppb, P_O3_net ./ 1e6,
-    xlabel="NO (ppb)",
-    ylabel="Net P(O₃) (10⁶ molec cm⁻³ s⁻¹)",
-    title="Net O₃ Production Rate vs NO",
-    xscale=:log10,
-    linewidth=2, label="P(O₃)_net",
-    legend=:topleft, size=(600, 400))
-savefig("co_po3_vs_no.svg") # hide
+# Vary NO from 0 to 6e10 molec/cm³
+NO_range = range(1e8, 6e10, length=500)
+NO2_range = NO2_NO_ratio .* NO_range
+
+p_ho2 = plot(title = "(a) [HO₂]", xlabel = "NO (molec cm⁻³)", ylabel = "HO₂ (molec cm⁻³)")
+p_po3 = plot(title = "(b) P(O₃)", xlabel = "NO (molec cm⁻³)", ylabel = "P_O₃ (molec cm⁻³ s⁻¹)")
+p_hhl = plot(title = "(c) HHL and NHL", xlabel = "NO (molec cm⁻³)",
+    ylabel = "HHL, NHL (molec cm⁻³ s⁻¹)")
+
+for (i, P_HOx) in enumerate(P_HOx_vals)
+    lbl = "P_HOx = $(P_HOx_ppt[i]) ppt/s"
+
+    a_v = 2 .* k_HO2_HO2 .* (1 .+ k_OH_NO2 .* NO2_range ./ (k_CO_OH .* CO))
+    b_v = k_HO2_NO .* k_OH_NO2 .* NO2_range .* NO_range ./ (k_CO_OH .* CO)
+    c_v = -P_HOx
+
+    HO2_v = (-b_v .+ sqrt.(b_v .^ 2 .- 4 .* a_v .* c_v)) ./ (2 .* a_v)
+    OH_v = (P_HOx .- 2 .* k_HO2_HO2 .* HO2_v .^ 2) ./ (k_OH_NO2 .* NO2_range)
+
+    PO3_v = k_HO2_NO .* HO2_v .* NO_range
+    HHL_v = 2 .* k_HO2_HO2 .* HO2_v .^ 2
+    NHL_v = k_OH_NO2 .* OH_v .* NO2_range
+
+    plot!(p_ho2, NO_range, HO2_v, label = lbl, linewidth = 2)
+    plot!(p_po3, NO_range, PO3_v, label = lbl, linewidth = 2)
+    plot!(p_hhl, NO_range, HHL_v, label = "HHL " * lbl, linewidth = 2, linestyle = :solid)
+    plot!(p_hhl, NO_range, NHL_v, label = "NHL " * lbl, linewidth = 2, linestyle = :dash)
+end
+
+plot(p_ho2, p_po3, p_hhl, layout = (3, 1), size = (600, 900), left_margin = 5 * Plots.mm)
+savefig("co_fig6_4.svg") # hide
 ```
 
-![Net O3 production rate vs NO](co_po3_vs_no.svg)
+![Figure 6.4: CO oxidation characteristics vs NO](co_fig6_4.svg)
 
-This figure illustrates the nonlinear dependence of O3 production on NOx,
-a fundamental feature of tropospheric photochemistry described in Section 6.3.
+Panel (a) shows that [HO₂] decreases with [NO] because the HO₂ + NO reaction
+consumes HO₂ more efficiently at higher NO. Panel (b) shows that P(O₃) achieves
+a maximum at an intermediate [NO]; at low [NO], HO₂ is abundant but there is
+insufficient NO for the O₃-producing HO₂ + NO reaction, while at high [NO],
+HO₂ is depleted. Panel (c) shows the crossover from HHL-dominated (low NOx,
+HO₂ self-reaction) to NHL-dominated (high NOx, OH + NO₂) HOx termination.
+The maximum in P(O₃) occurs at a larger [NO] than the HHL/NHL crossover.
+This reproduces Figure 6.4 of Seinfeld & Pandis.

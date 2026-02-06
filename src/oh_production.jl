@@ -58,41 +58,53 @@ and OH yield (Eq. 6.4) from Seinfeld & Pandis Chapter 6.
 This is an algebraic system that computes diagnostic quantities from input concentrations.
 
 # Input Variables (must be provided)
-- `O3`: Ozone concentration [m⁻³]
-- `H2O`: Water vapor concentration [m⁻³]
-- `M`: Total air number density [m⁻³]
+
+  - `O3`: Ozone concentration [m⁻³]
+  - `H2O`: Water vapor concentration [m⁻³]
+  - `M`: Total air number density [m⁻³]
 
 # Output Variables (computed)
-- `O1D`: Excited oxygen O(¹D) steady-state concentration [m⁻³]
-- `P_OH`: OH production rate [m⁻³ s⁻¹]
-- `ε_OH`: OH yield (fraction of O(¹D) producing OH) [dimensionless]
+
+  - `O1D`: Excited oxygen O(¹D) steady-state concentration [m⁻³]
+  - `P_OH`: OH production rate [m⁻³ s⁻¹]
+  - `ε_OH`: OH yield (fraction of O(¹D) producing OH) [dimensionless]
 
 # Parameters
-- `j_O3`: O₃ photolysis rate producing O(¹D) [s⁻¹]
-- `k3_N2`: Rate constant for O(¹D) + N₂ quenching [m³ s⁻¹]
-- `k3_O2`: Rate constant for O(¹D) + O₂ quenching [m³ s⁻¹]
-- `k4`: Rate constant for O(¹D) + H₂O → 2OH [m³ s⁻¹]
-- `f_N2`: Fraction of M that is N₂ [dimensionless]
-- `f_O2`: Fraction of M that is O₂ [dimensionless]
+
+  - `j_O3`: O₃ photolysis rate producing O(¹D) [s⁻¹]
+  - `k3_N2`: Rate constant for O(¹D) + N₂ quenching [m³ s⁻¹]
+  - `k3_O2`: Rate constant for O(¹D) + O₂ quenching [m³ s⁻¹]
+  - `k4`: Rate constant for O(¹D) + H₂O → 2OH [m³ s⁻¹]
+  - `f_N2`: Fraction of M that is N₂ [dimensionless]
+  - `f_O2`: Fraction of M that is O₂ [dimensionless]
 
 # Rate Constants at 298 K (from Table B.1, Seinfeld & Pandis)
-- k3_N2 = 2.6 × 10⁻¹¹ cm³ molecule⁻¹ s⁻¹ = 2.6 × 10⁻¹⁷ m³ s⁻¹
-- k3_O2 = 4.0 × 10⁻¹¹ cm³ molecule⁻¹ s⁻¹ = 4.0 × 10⁻¹⁷ m³ s⁻¹
-- k4 = 2.2 × 10⁻¹⁰ cm³ molecule⁻¹ s⁻¹ = 2.2 × 10⁻¹⁶ m³ s⁻¹
+
+  - k3_N2 = 2.6 × 10⁻¹¹ cm³ molecule⁻¹ s⁻¹ = 2.6 × 10⁻¹⁷ m³ s⁻¹
+  - k3_O2 = 4.0 × 10⁻¹¹ cm³ molecule⁻¹ s⁻¹ = 4.0 × 10⁻¹⁷ m³ s⁻¹
+  - k4 = 2.2 × 10⁻¹⁰ cm³ molecule⁻¹ s⁻¹ = 2.2 × 10⁻¹⁶ m³ s⁻¹
 """
-@component function OHProduction(; name=:OHProduction)
+@component function OHProduction(; name = :OHProduction)
     @constants begin
-        two = 2, [description = "Stoichiometric factor: 2 OH per O(¹D)+H₂O reaction (dimensionless)", unit = u"1"]
+        two = 2,
+        [
+            description = "Stoichiometric factor: 2 OH per O(¹D)+H₂O reaction (dimensionless)",
+            unit = u"1"]
     end
 
     # Parameters (rate constants converted from cm³/molecule/s to m³/s)
     @parameters begin
         j_O3 = 1e-5, [description = "O₃ photolysis rate producing O(¹D)", unit = u"s^-1"]
-        k3_N2 = 2.6e-11 * 1e-6, [description = "O(¹D) + N₂ quenching rate (2.6e-11 cm³/molec/s)", unit = u"m^3/s"]
-        k3_O2 = 4.0e-11 * 1e-6, [description = "O(¹D) + O₂ quenching rate (4.0e-11 cm³/molec/s)", unit = u"m^3/s"]
-        k4 = 2.2e-10 * 1e-6, [description = "O(¹D) + H₂O → 2OH rate (2.2e-10 cm³/molec/s)", unit = u"m^3/s"]
-        f_N2 = 0.78, [description = "Fraction of air that is N₂ (dimensionless)", unit = u"1"]
-        f_O2 = 0.21, [description = "Fraction of air that is O₂ (dimensionless)", unit = u"1"]
+        k3_N2 = 2.6e-11 * 1e-6,
+        [description = "O(¹D) + N₂ quenching rate (2.6e-11 cm³/molec/s)", unit = u"m^3/s"]
+        k3_O2 = 4.0e-11 * 1e-6,
+        [description = "O(¹D) + O₂ quenching rate (4.0e-11 cm³/molec/s)", unit = u"m^3/s"]
+        k4 = 2.2e-10 * 1e-6,
+        [description = "O(¹D) + H₂O → 2OH rate (2.2e-10 cm³/molec/s)", unit = u"m^3/s"]
+        f_N2 = 0.78,
+        [description = "Fraction of air that is N₂ (dimensionless)", unit = u"1"]
+        f_O2 = 0.21,
+        [description = "Fraction of air that is O₂ (dimensionless)", unit = u"1"]
     end
 
     # Input variables (concentrations in SI: m⁻³)
@@ -123,7 +135,7 @@ This is an algebraic system that computes diagnostic quantities from input conce
         ε_OH ~ k4 * H2O / (k3_eff * M + k4 * H2O),
 
         # Equation 6.3: OH production rate (2 OH per O(¹D) + H₂O reaction)
-        P_OH ~ two * j_O3 * O3 * ε_OH,
+        P_OH ~ two * j_O3 * O3 * ε_OH
     ]
 
     return System(eqs, t; name)

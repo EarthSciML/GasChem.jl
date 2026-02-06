@@ -158,3 +158,32 @@ When measured O3 is lower than the photostationary state value, Phi > 1,
 indicating that peroxy radicals are converting NO to NO2 and producing O3.
 When measured O3 exceeds the PSS value, Phi < 1. Typical urban daytime
 measurements show Phi = 1.5-3, reflecting significant peroxy radical activity.
+
+### Table: Steady-State O3 from Pure NO2 (Eq. 6.8)
+
+Seinfeld & Pandis (p. 210) present the O3 mixing ratio attained as a function
+of the initial NO2 mixing ratio when ``[O_3]_0 = [NO]_0 = 0``, using Eq. 6.8
+with a typical value of ``j_{NO_2}/k_3 = 10`` ppb. This table reproduces
+those values.
+
+```@example nox_phot
+using DataFrames
+
+# From Eq. 6.8: [O3] = 0.5 * { sqrt((j/k)^2 + 4*(j/k)*[NO2]_0) - j/k }
+j_over_k = 10.0  # ppb (typical value from p. 210)
+
+NO2_0_ppb = [100, 1000]
+O3_ppb = [
+    0.5 * (sqrt(j_over_k^2 + 4 * j_over_k * n) - j_over_k)
+    for n in NO2_0_ppb
+]
+
+DataFrame(
+    Symbol("[NO₂]₀ (ppb)") => NO2_0_ppb,
+    Symbol("[O₃] (ppb, Eq. 6.8)") => [round(o, sigdigits = 3) for o in O3_ppb],
+    Symbol("[O₃] (ppb, S&P Table)") => [27, 95],
+)
+```
+
+The computed values match the textbook values, confirming the correct
+implementation of the photostationary state relationship.
