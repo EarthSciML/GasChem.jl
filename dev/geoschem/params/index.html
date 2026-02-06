@@ -48,7 +48,7 @@ p2 = plot(sol2.t, sol2[sys2.T], label = &quot;T (K)&quot;, xticks = :none)
 p3 = plot(
     sol2.t, sol2[sys2.num_density], label = &quot;num_density (molec/cm³)&quot;, xlabel = &quot;Time (s)&quot;)
 
-plot(p1, p2, p3, layout = grid(3, 1, heights = [0.7, 0.15, 0.15]))</code></pre><img src="7b55551f.svg" alt="Example block output"/><h2 id="Model-Parameter-Information"><a class="docs-heading-anchor" href="#Model-Parameter-Information">Model Parameter Information</a><a id="Model-Parameter-Information-1"></a><a class="docs-heading-anchor-permalink" href="#Model-Parameter-Information" title="Permalink"></a></h2><p>Here is a list of all of the model parameters:</p><pre><code class="language-julia hljs">using GasChem, DataFrames, EarthSciMLBase, ModelingToolkit, DynamicQuantities
+plot(p1, p2, p3, layout = grid(3, 1, heights = [0.7, 0.15, 0.15]))</code></pre><img src="d10dcd9a.svg" alt="Example block output"/><h2 id="Model-Parameter-Information"><a class="docs-heading-anchor" href="#Model-Parameter-Information">Model Parameter Information</a><a id="Model-Parameter-Information-1"></a><a class="docs-heading-anchor-permalink" href="#Model-Parameter-Information" title="Permalink"></a></h2><p>Here is a list of all of the model parameters:</p><pre><code class="language-julia hljs">using GasChem, DataFrames, EarthSciMLBase, ModelingToolkit, DynamicQuantities
 @variables t [unit = u&quot;s&quot;, description = &quot;Time&quot;]
 gc = structural_simplify(GEOSChemGasPhase())
 vars = parameters(gc)
