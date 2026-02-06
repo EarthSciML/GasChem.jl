@@ -28,9 +28,9 @@ using ModelingToolkit: t, D
 # These reactions form the basic cycle for CO oxidation with O₃ production.
 
 # ============================================================================
-# Equation 6.14: HO₂ Steady-State (High NOx)
+# Equation 6.18: HO₂ Steady-State (High NOx)
 # ============================================================================
-# [HO₂] = k₉[CO][OH] / (k₁₁[NO])
+# [HO₂] = k_{CO+OH}[CO][OH] / (k_{HO₂+NO}[NO])
 #
 # At high NOx, HO₂ is removed primarily by reaction with NO.
 
@@ -140,10 +140,10 @@ from Seinfeld & Pandis Chapter 6, including HOx cycling and steady-state relatio
         # Main termination: OH + NO₂ → HNO₃ and HO₂ + HO₂ → H₂O₂
         L_HOx ~ k_OH_NO2 * OH * NO2 + two * k_HO2_HO2 * HO2^2,
 
-        # Equation 6.14: HO₂ steady-state (high NOx limit)
+        # Equation 6.18: HO₂ steady-state (high NOx limit)
         HO2_ss ~ k_CO_OH * CO * OH / (k_HO2_NO * NO),
 
-        # Net ozone production rate (Eq. 6.21)
+        # Net ozone production rate (Eq. 6.9 production minus O₃ loss terms)
         # O₃ production from HO₂ + NO minus loss from OH + O₃ and HO₂ + O₃
         P_O3 ~ k_HO2_NO * HO2 * NO - k_OH_O3 * OH * O3 - k_HO2_O3 * HO2 * O3,
 

@@ -14,8 +14,9 @@ OH-HO2 cycles before termination) and the Ozone Production Efficiency
 (OPE = moles O3 produced per mole NOx consumed) are key diagnostics.
 
 Two components are provided:
-- `COOxidation`: Full CO oxidation diagnostic system (Eqs. 6.9-6.17)
-- `OzoneProductionEfficiency`: OPE diagnostic (Eqs. 6.21-6.24)
+
+  - `COOxidation`: Full CO oxidation diagnostic system (Eqs. 6.9-6.17)
+  - `OzoneProductionEfficiency`: OPE diagnostic (Eqs. 6.21-6.24)
 
 **Reference**: Seinfeld, J.H. and Pandis, S.N. (2006). *Atmospheric Chemistry and Physics:
 From Air Pollution to Climate Change*, 2nd Edition. John Wiley & Sons. Section 6.3, pp. 212-219.
@@ -38,7 +39,7 @@ using DataFrames, ModelingToolkit, Symbolics, DynamicQuantities, GasChem
 sys = COOxidation()
 vars = unknowns(sys)
 DataFrame(
-    :Name => [string(Symbolics.tosymbol(v, escape=false)) for v in vars],
+    :Name => [string(Symbolics.tosymbol(v, escape = false)) for v in vars],
     :Units => [dimension(ModelingToolkit.get_unit(v)) for v in vars],
     :Description => [ModelingToolkit.getdescription(v) for v in vars]
 )
@@ -49,7 +50,7 @@ DataFrame(
 ```@example co_ox
 params = parameters(sys)
 DataFrame(
-    :Name => [string(Symbolics.tosymbol(p, escape=false)) for p in params],
+    :Name => [string(Symbolics.tosymbol(p, escape = false)) for p in params],
     :Units => [dimension(ModelingToolkit.get_unit(p)) for p in params],
     :Description => [ModelingToolkit.getdescription(p) for p in params]
 )
@@ -67,7 +68,7 @@ eqs = equations(sys)
 ope_sys = OzoneProductionEfficiency()
 vars_ope = unknowns(ope_sys)
 DataFrame(
-    :Name => [string(Symbolics.tosymbol(v, escape=false)) for v in vars_ope],
+    :Name => [string(Symbolics.tosymbol(v, escape = false)) for v in vars_ope],
     :Units => [dimension(ModelingToolkit.get_unit(v)) for v in vars_ope],
     :Description => [ModelingToolkit.getdescription(v) for v in vars_ope]
 )
@@ -110,7 +111,7 @@ NO_NO2_ratio = 0.1     # [NO]/[NO₂] = 0.1
 P_HOx = 1e-12 * M      # 1 ppt/s
 
 # Vary NOx from 1 ppt to 10⁶ ppt (= 1 ppm)
-NOx_ppt = 10 .^ range(0, 6, length=300)
+NOx_ppt = 10 .^ range(0, 6, length = 300)
 NOx = NOx_ppt .* 1e-12 .* M   # molec/cm³
 
 # Partition NOx into NO and NO2 using [NO]/[NO2] = 0.1
@@ -156,7 +157,8 @@ plot(NOx_ppt, OPE,
     legend = :topright,
     ylims = (0, 9),
     size = (600, 400))
-annotate!([(1e4, 7, text("P_HOx = 1 ppt/s\n[NO]/[NO₂] = 0.1\nCO = 200 ppb\nT = 298 K", 8, :left))])
+annotate!([(
+    1e4, 7, text("P_HOx = 1 ppt/s\n[NO]/[NO₂] = 0.1\nCO = 200 ppb\nT = 298 K", 8, :left))])
 savefig("co_fig6_3.svg") # hide
 ```
 
@@ -174,8 +176,8 @@ Figure 6.4 shows [HO₂], P(O₃), and the HOx loss terms HHL and NHL as functio
 of [NO] for three values of ``P_{HO_x}`` (0.1, 0.6, and 1.2 ppt s⁻¹).
 Conditions: 298 K, ``[NO_2]/[NO] = 7``.
 
-- HHL = ``2 k_{HO_2+HO_2} [HO_2]^2`` (HOx loss via HO₂ self-reaction, Eq. 6.11)
-- NHL = ``k_{OH+NO_2} [OH] [NO_2]`` (HOx loss via OH+NO₂, Eq. 6.12)
+  - HHL = ``2 k_{HO_2+HO_2} [HO_2]^2`` (HOx loss via HO₂ self-reaction, Eq. 6.11)
+  - NHL = ``k_{OH+NO_2} [OH] [NO_2]`` (HOx loss via OH+NO₂, Eq. 6.12)
 
 ```@example co_ox
 # Conditions from Figure 6.4 caption
@@ -185,7 +187,7 @@ P_HOx_ppt = [0.1, 0.6, 1.2]  # ppt/s
 P_HOx_vals = P_HOx_ppt .* 1e-12 .* M  # molec/cm³/s
 
 # Vary NO from 0 to 6e10 molec/cm³
-NO_range = range(1e8, 6e10, length=500)
+NO_range = range(1e8, 6e10, length = 500)
 NO2_range = NO2_NO_ratio .* NO_range
 
 p_ho2 = plot(title = "(a) [HO₂]", xlabel = "NO (molec cm⁻³)", ylabel = "HO₂ (molec cm⁻³)")

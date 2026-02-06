@@ -12,8 +12,9 @@ Each step can produce ozone when NOx is present through peroxy + NO reactions.
 At high NOx, complete CH4 oxidation can produce 3-5 O3 molecules.
 
 Two components are provided:
-- `MethaneOxidation`: Algebraic system computing individual reaction rates and diagnostics from Table 6.1
-- `MethaneOxidationODE`: Full ODE system for time evolution of all species
+
+  - `MethaneOxidation`: Algebraic system computing individual reaction rates and diagnostics from Table 6.1
+  - `MethaneOxidationODE`: Full ODE system for time evolution of all species
 
 **Reference**: Seinfeld, J.H. and Pandis, S.N. (2006). *Atmospheric Chemistry and Physics:
 From Air Pollution to Climate Change*, 2nd Edition. John Wiley & Sons. Section 6.4, Table 6.1, pp. 219-227.
@@ -36,7 +37,7 @@ using DataFrames, ModelingToolkit, Symbolics, DynamicQuantities, GasChem
 sys = MethaneOxidation()
 vars = unknowns(sys)
 DataFrame(
-    :Name => [string(Symbolics.tosymbol(v, escape=false)) for v in vars],
+    :Name => [string(Symbolics.tosymbol(v, escape = false)) for v in vars],
     :Units => [dimension(ModelingToolkit.get_unit(v)) for v in vars],
     :Description => [ModelingToolkit.getdescription(v) for v in vars]
 )
@@ -47,7 +48,7 @@ DataFrame(
 ```@example ch4_ox
 params = parameters(sys)
 DataFrame(
-    :Name => [string(Symbolics.tosymbol(p, escape=false)) for p in params],
+    :Name => [string(Symbolics.tosymbol(p, escape = false)) for p in params],
     :Units => [dimension(ModelingToolkit.get_unit(p)) for p in params],
     :Description => [ModelingToolkit.getdescription(p) for p in params]
 )
@@ -65,7 +66,7 @@ eqs = equations(sys)
 ode_sys = MethaneOxidationODE()
 vars_ode = unknowns(ode_sys)
 DataFrame(
-    :Name => [string(Symbolics.tosymbol(v, escape=false)) for v in vars_ode],
+    :Name => [string(Symbolics.tosymbol(v, escape = false)) for v in vars_ode],
     :Units => [dimension(ModelingToolkit.get_unit(v)) for v in vars_ode],
     :Description => [ModelingToolkit.getdescription(v) for v in vars_ode]
 )
@@ -99,7 +100,7 @@ reactions = [
     "14. H + O₂ + M → HO₂ + M",
     "15. HO₂ + NO → OH + NO₂",
     "16. NO₂ + hν → NO + O",
-    "17. O + O₂ + M → O₃ + M",
+    "17. O + O₂ + M → O₃ + M"
 ]
 
 # Rate constants from Table 6.1 at 298 K
@@ -120,7 +121,7 @@ k_values = [
     "5.7 × 10⁻³² [M]",
     "8.1 × 10⁻¹²",
     "j ≈ 8 × 10⁻³ s⁻¹",
-    "6.0 × 10⁻³⁴ [M]",
+    "6.0 × 10⁻³⁴ [M]"
 ]
 
 units = [
@@ -140,7 +141,7 @@ units = [
     "cm⁶ molec⁻² s⁻¹",
     "cm³ molec⁻¹ s⁻¹",
     "s⁻¹",
-    "cm⁶ molec⁻² s⁻¹",
+    "cm⁶ molec⁻² s⁻¹"
 ]
 
 DataFrame(:Reaction => reactions, :k_298K => k_values, :Units => units)
@@ -168,7 +169,7 @@ k15 = 8.1e-12  # HO2 + NO [cm3/molec/s]
 HO2 = 1e8  # molec/cm3
 
 # Vary NO from 10 ppt to 100 ppb
-NO_ppb = 10 .^ range(-2, 2, length=200)
+NO_ppb = 10 .^ range(-2, 2, length = 200)
 NO = NO_ppb .* 2.5e10  # molec/cm3
 
 # Fraction of CH3O2 going through NO pathway (O3-producing)
@@ -184,20 +185,20 @@ f_NO = k3 .* NO ./ (k3 .* NO .+ k4 .* HO2)
 O3_yield = 4.0 .* f_NO  # simplified estimate
 
 p1 = plot(NO_ppb, f_NO .* 100,
-    xlabel="NO (ppb)", ylabel="Fraction via NO pathway (%)",
-    title="CH₃O₂ Fate: NO vs HO₂",
-    xscale=:log10, linewidth=2,
-    label="% through CH₃O₂ + NO",
-    legend=:bottomright)
+    xlabel = "NO (ppb)", ylabel = "Fraction via NO pathway (%)",
+    title = "CH₃O₂ Fate: NO vs HO₂",
+    xscale = :log10, linewidth = 2,
+    label = "% through CH₃O₂ + NO",
+    legend = :bottomright)
 
 p2 = plot(NO_ppb, O3_yield,
-    xlabel="NO (ppb)", ylabel="O₃ molecules per CH₄",
-    title="O₃ Yield from CH₄ Oxidation",
-    xscale=:log10, linewidth=2,
-    label="Approximate O₃ yield",
-    legend=:bottomright, ylims=(0, 5))
+    xlabel = "NO (ppb)", ylabel = "O₃ molecules per CH₄",
+    title = "O₃ Yield from CH₄ Oxidation",
+    xscale = :log10, linewidth = 2,
+    label = "Approximate O₃ yield",
+    legend = :bottomright, ylims = (0, 5))
 
-plot(p1, p2, layout=(1, 2), size=(800, 350))
+plot(p1, p2, layout = (1, 2), size = (800, 350))
 savefig("ch4_o3_yield.svg") # hide
 ```
 
@@ -228,13 +229,14 @@ L_OH = k10 * OH
 L_total = L_OH + j11 + j12
 
 fractions = [L_OH / L_total * 100, j11 / L_total * 100, j12 / L_total * 100]
-labels_bar = ["HCHO + OH\n(radical)", "HCHO + hν → HCO + H\n(radical)", "HCHO + hν → H₂ + CO\n(molecular)"]
+labels_bar = [
+    "HCHO + OH\n(radical)", "HCHO + hν → HCO + H\n(radical)", "HCHO + hν → H₂ + CO\n(molecular)"]
 
 bar(labels_bar, fractions,
-    ylabel="Fraction of HCHO Loss (%)",
-    title="Formaldehyde Loss Pathways",
-    label=false, color=[:steelblue :orange :green],
-    size=(600, 400), ylims=(0, 100))
+    ylabel = "Fraction of HCHO Loss (%)",
+    title = "Formaldehyde Loss Pathways",
+    label = false, color = [:steelblue :orange :green],
+    size = (600, 400), ylims = (0, 100))
 savefig("hcho_branching.svg") # hide
 ```
 

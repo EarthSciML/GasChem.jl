@@ -32,7 +32,7 @@ using DataFrames, ModelingToolkit, Symbolics, DynamicQuantities, GasChem
 sys = OHProduction()
 vars = unknowns(sys)
 DataFrame(
-    :Name => [string(Symbolics.tosymbol(v, escape=false)) for v in vars],
+    :Name => [string(Symbolics.tosymbol(v, escape = false)) for v in vars],
     :Units => [dimension(ModelingToolkit.get_unit(v)) for v in vars],
     :Description => [ModelingToolkit.getdescription(v) for v in vars]
 )
@@ -43,7 +43,7 @@ DataFrame(
 ```@example oh_prod
 params = parameters(sys)
 DataFrame(
-    :Name => [string(Symbolics.tosymbol(p, escape=false)) for p in params],
+    :Name => [string(Symbolics.tosymbol(p, escape = false)) for p in params],
     :Units => [dimension(ModelingToolkit.get_unit(p)) for p in params],
     :Description => [ModelingToolkit.getdescription(p) for p in params]
 )
@@ -82,7 +82,7 @@ k3_eff = f_N2 * k3_N2 + f_O2 * k3_O2
 M = 2.5e19  # total air [molec/cm3]
 
 # Vary H2O from dry to very humid conditions
-H2O = range(1e16, 1.5e18, length=200)  # [molec/cm3]
+H2O = range(1e16, 1.5e18, length = 200)  # [molec/cm3]
 
 # Compute OH yield (Eq. 6.4)
 eps_OH = [k4 * h / (k3_eff * M + k4 * h) for h in H2O]
@@ -93,20 +93,20 @@ O3 = 1e12    # ~40 ppb [molec/cm3]
 P_OH = [2 * j_O3 * O3 * e for e in eps_OH]
 
 p1 = plot(H2O ./ 1e17, eps_OH .* 100,
-    xlabel="[H₂O] (10¹⁷ molec cm⁻³)",
-    ylabel="OH Yield (%)",
-    title="OH Yield vs Water Vapor",
-    label="ε_OH (Eq. 6.4)",
-    linewidth=2, legend=:bottomright)
+    xlabel = "[H₂O] (10¹⁷ molec cm⁻³)",
+    ylabel = "OH Yield (%)",
+    title = "OH Yield vs Water Vapor",
+    label = "ε_OH (Eq. 6.4)",
+    linewidth = 2, legend = :bottomright)
 
 p2 = plot(H2O ./ 1e17, P_OH ./ 1e6,
-    xlabel="[H₂O] (10¹⁷ molec cm⁻³)",
-    ylabel="P(OH) (10⁶ molec cm⁻³ s⁻¹)",
-    title="OH Production Rate vs Humidity",
-    label="P_OH (Eq. 6.3, O₃=40 ppb)",
-    linewidth=2, legend=:bottomright)
+    xlabel = "[H₂O] (10¹⁷ molec cm⁻³)",
+    ylabel = "P(OH) (10⁶ molec cm⁻³ s⁻¹)",
+    title = "OH Production Rate vs Humidity",
+    label = "P_OH (Eq. 6.3, O₃=40 ppb)",
+    linewidth = 2, legend = :bottomright)
 
-plot(p1, p2, layout=(1, 2), size=(800, 350))
+plot(p1, p2, layout = (1, 2), size = (800, 350))
 savefig("oh_yield_humidity.svg") # hide
 ```
 
@@ -144,7 +144,7 @@ DataFrame(
     Symbol("RH (%)") => RH_values,
     Symbol("ξ_H₂O") => [round((rh / 100) * xi_H2O_sat, sigdigits = 4) for rh in RH_values],
     Symbol("ε_OH (computed)") => [round(e, sigdigits = 2) for e in eps_values],
-    Symbol("ε_OH (S&P Table)") => [0.047, 0.12, 0.23, 0.38],
+    Symbol("ε_OH (S&P Table)") => [0.047, 0.12, 0.23, 0.38]
 )
 ```
 
