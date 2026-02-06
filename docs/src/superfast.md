@@ -1,31 +1,34 @@
 # SuperFast Gas-Phase Atmospheric Chemical Mechanism
 
-The Super Fast Chemical Mechanism is one of the simplest representations of atmospheric chemistry. It can efficiently simulate background tropospheric ozone chemistry and perform well for those species included in the mechanism. The chemical equations used are included in the supporting table S2 of the paper,
-["Evaluating simplified chemical mechanisms within present-day simulations of the Community Earth System Model version 1.2 with CAM4 (CESM1.2 CAM-chem):
-MOZART-4 vs. Reduced Hydrocarbon vs. Super-Fast chemistry" (2018), Benjamin Brown-Steiner, Noelle E. Selin, Ronald G. Prinn, Simone Tilmes, Louisa Emmons, Jean-François Lamarque, and Philip Cameron-Smith.](https://gmd.copernicus.org/articles/11/4155/2018/)
+## Overview
 
-## Illustrative Example
+The Super Fast Chemical Mechanism is one of the simplest representations of atmospheric chemistry. It can efficiently simulate background tropospheric ozone chemistry and perform well for those species included in the mechanism. The mechanism includes 15 tracers and 30 reactions covering methane oxidation, oxidant chemistry, sulfur chemistry, and simplified isoprene chemistry.
 
-Here is a simple example of initializing the SuperFast model and running a simulation.
-First, we can look at the reaction equations:
+**Reference**: Brown-Steiner, B., Selin, N. E., Prinn, R. G., Tilmes, S., Emmons, L., Lamarque, J.-F., and Cameron-Smith, P.: Evaluating simplified chemical mechanisms within present-day simulations of the Community Earth System Model version 1.2 with CAM4 (CESM1.2 CAM-chem): MOZART-4 vs. Reduced Hydrocarbon vs. Super-Fast chemistry, Geosci. Model Dev., 11, 4155-4174, [https://doi.org/10.5194/gmd-11-4155-2018](https://gmd.copernicus.org/articles/11/4155/2018/), 2018.
 
-```@example 1
-using GasChem, EarthSciMLBase, ModelingToolkit
-using DynamicQuantities, DifferentialEquations
+```@docs
+SuperFast
+```
+
+## Implementation
+
+The chemical equations are included in the supporting Table S2 of the paper. Rate constants use Arrhenius, Troe, and custom forms implemented as sub-systems that compute temperature- and pressure-dependent rate coefficients.
+
+```@example superfast
+using GasChem, EarthSciMLBase, ModelingToolkit, Symbolics
+using DynamicQuantities, OrdinaryDiffEqRosenbrock
 using Catalyst
 using Plots
+using DataFrames
 using ModelingToolkit: t
 
 model = SuperFast()
 ```
 
-## Variables and parameters
+### State Variables
 
-The chemical species included in the superfast model are:
-
-```@example 1
+```@example superfast
 vars = unknowns(model)[1:12]
-using DataFrames
 DataFrame(
     :Name => [string(Symbolics.tosymbol(v, escape = false)) for v in vars],
     :Units => [dimension(ModelingToolkit.get_unit(v)) for v in vars],
@@ -33,47 +36,68 @@ DataFrame(
     :Default => [ModelingToolkit.getdefault(v) for v in vars])
 ```
 
-And here are the parameters:
+### Parameters
 
-```@example 1
-vars = parameters(model)
+```@example superfast
+params = parameters(model)
 DataFrame(
-    :Name => [string(Symbolics.tosymbol(v, escape = false)) for v in vars],
-    :Units => [dimension(ModelingToolkit.get_unit(v)) for v in vars],
-    :Description => [ModelingToolkit.getdescription(v) for v in vars],
-    :Default => [ModelingToolkit.getdefault(v) for v in vars])
+    :Name => [string(Symbolics.tosymbol(v, escape = false)) for v in params],
+    :Units => [dimension(ModelingToolkit.get_unit(v)) for v in params],
+    :Description => [ModelingToolkit.getdescription(v) for v in params],
+    :Default => [ModelingToolkit.getdefault(v) for v in params])
 ```
 
-## Running simulations
+### Equations
 
-We can run simulations with the model, optionally changing the initial conditions and parameters. For example, we can change the initial concentration of O₃ to 15 ppb and the temperature to 293K:
+```@example superfast
+eqs = equations(model)
+```
 
-```@example 1
+## Analysis
+
+### Base Case Simulation
+
+We can run simulations with the model, optionally changing the initial conditions and parameters. Here we change the initial concentration of O₃ to 15 ppb and the temperature to 293K:
+
+```@example superfast
 sys = mtkcompile(model)
 
 tspan = (0.0, 3600*24)
-# Change the initial concentration of O₃ to 15 ppb and the temperature to 293K.
 prob = ODEProblem(sys, [sys.O3 => 15], tspan, [sys.T => 293])
-```
+sol = solve(prob, Rosenbrock23(), saveat = 10.0)
 
-Now we can solve the system and plot the result:
-
-```@example 1
-sol = solve(prob, AutoTsit5(Rosenbrock23()), saveat = 10.0)
-
-plot(sol, ylim = (0, 50), xlabel = "Time",
+plot(sol, ylim = (0, 50), xlabel = "Time (s)",
     ylabel = "Concentration (ppb)", legend = :outerright)
 ```
 
-Finally let's run some simulations with different values for parameter `T`.
+### Temperature Sensitivity
 
-```@example 1
+The following simulations show how ozone concentrations respond to different temperatures, consistent with the temperature dependence of the Arrhenius rate expressions.
+
+```@example superfast
 sol1 = solve(ODEProblem(sys, [], tspan, [sys.T => 273]),
-    AutoTsit5(Rosenbrock23()), saveat = 10.0)
+    Rosenbrock23(), saveat = 10.0)
 sol2 = solve(ODEProblem(sys, [], tspan, [sys.T => 298]),
-    AutoTsit5(Rosenbrock23()), saveat = 10.0)
+    Rosenbrock23(), saveat = 10.0)
 
 plot([sol1[sys.O3], sol2[sys.O3]], label = ["T=273K" "T=298K"],
     title = "Change of O3 concentration at different temperatures",
-    xlabel = "Time (second)", ylabel = "concentration (ppb)")
+    xlabel = "Time (s)", ylabel = "Concentration (ppb)")
+```
+
+### NO₂ Sensitivity
+
+NO₂ is a key precursor for ozone production through photolysis (NO₂ + hv → NO + O₃). Higher NO₂ concentrations lead to increased ozone formation.
+
+```@example superfast
+sol_base = solve(ODEProblem(sys, [], tspan),
+    Rosenbrock23(), saveat = 10.0)
+sol_highNO2 = solve(ODEProblem(sys, [sys.NO2 => 100.0], tspan),
+    Rosenbrock23(), saveat = 10.0)
+
+p = plot(sol_base.t, sol_base[sys.O3], label = "Base case (NO₂=0.4 ppt)",
+    xlabel = "Time (s)", ylabel = "O₃ concentration (ppb)")
+plot!(p, sol_highNO2.t, sol_highNO2[sys.O3], label = "High NO₂ (100 ppb)")
+title!(p, "Ozone response to NO₂ perturbation")
+p
 ```

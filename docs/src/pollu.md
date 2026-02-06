@@ -64,7 +64,7 @@ computed using RADAU5 with true double precision (uround = 1.01e-19). We reprodu
 and compare against the reference values.
 
 ```@example pollu
-using DifferentialEquations, Plots
+using OrdinaryDiffEqRosenbrock, Plots
 
 sys = mtkcompile(model)
 

@@ -7,20 +7,20 @@ We can explore what happens when we change them:
 
 ```@example
 using GasChem, EarthSciMLBase
-using DifferentialEquations, ModelingToolkit
+using OrdinaryDiffEqDefault, OrdinaryDiffEqRosenbrock, ModelingToolkit
 using DynamicQuantities, Plots
 using ModelingToolkit: t
 
 tspan = (0.0, 60.0*60*24*4) # 4 day simulation
 
 # Run a simulation with constant temperature and pressure.
-sys = structural_simplify(GEOSChemGasPhase())
+sys = mtkcompile(GEOSChemGasPhase())
 vals = ModelingToolkit.get_defaults(sys)
 for k in setdiff(unknowns(sys), keys(vals))
     vals[k] = 0 # Set variables with no default to zero.
 end
 prob = ODEProblem(sys, vals, tspan, vals)
-sol1 = solve(prob, AutoTsit5(Rosenbrock23()))
+sol1 = solve(prob, Rosenbrock23())
 
 # Now, convert parameters to variables so we can change them over time.
 sys2 = param_to_var(GEOSChemGasPhase(), :T, :num_density)
@@ -38,13 +38,13 @@ eqs = [
 sys2 = extend(sys2, System(eqs, t; name = :var_T))
 
 # Run the simulation again.
-sys2 = structural_simplify(sys2)
+sys2 = mtkcompile(sys2)
 vals = ModelingToolkit.get_defaults(sys2)
 for k in setdiff(unknowns(sys2), keys(vals))
     vals[k] = 0 # Set variables with no default to zero.
 end
 prob = ODEProblem(sys2, vals, tspan, vals)
-sol2 = solve(prob, AutoTsit5(Rosenbrock23()))
+sol2 = solve(prob, Rosenbrock23())
 
 # Plot the results
 p1 = plot(sol1.t, sol1[sys2.O3], xticks = :none, label = "Constant T and P",
@@ -64,8 +64,7 @@ Here is a list of all of the model parameters:
 
 ```@example 1
 using GasChem, DataFrames, EarthSciMLBase, ModelingToolkit, DynamicQuantities
-@variables t [unit = u"s", description = "Time"]
-gc = structural_simplify(GEOSChemGasPhase())
+gc = mtkcompile(GEOSChemGasPhase())
 vars = parameters(gc)
 DataFrame(
     :Name => [string(Symbolics.tosymbol(v, escape = false)) for v in vars],
