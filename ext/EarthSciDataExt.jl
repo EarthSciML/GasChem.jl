@@ -230,7 +230,7 @@ function EarthSciMLBase.couple2(
             c.CH2O => e.FORM => uconv / MW_FORM,
             c.CO => e.CO => uconv / MW_CO,
             c.ALD => e.ALD2 => uconv / MW_ALD2,
-            c.SO2 => e.SO2 => uconv / MW_SO2,
+            c.SO2 => e.SO2 => uconv / MW_SO2
         )
     )
 end

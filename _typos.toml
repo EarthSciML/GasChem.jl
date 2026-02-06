@@ -16,5 +16,8 @@ strat = "strat"    # Stratospheric (common abbreviation)
 # External library functions
 setp = "setp"      # Function from SymbolicIndexingInterface.jl
 
+# Journal name abbreviations
+Comput = "Comput"  # SIAM J. Sci. Comput. (journal title abbreviation)
+
 # Author names from referenced papers
 Jenkin = "Jenkin"  # M. E. Jenkin (atmospheric chemistry researcher)

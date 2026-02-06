@@ -30,7 +30,7 @@ end
         rs.SO2 => 0.007 * 1e3, # y[17] = 0.007 ppm = 7 ppb
         rs.SO4 => 0.0,         # y[18] = 0 ppm
         rs.NO3 => 0.0,         # y[19] = 0 ppm
-        rs.N2O5 => 0.0,        # y[20] = 0 ppm
+        rs.N2O5 => 0.0        # y[20] = 0 ppm
     ]
     tspan = (0.0, 3600.0)  # 60 minutes in seconds
 
@@ -39,7 +39,7 @@ end
         Rosenbrock23(),
         saveat = 10.0,
         abstol = 1e-12,
-        reltol = 1e-12,
+        reltol = 1e-12
     )
 
     # Reference values from Verwer (1994) Fortran benchmark, converted ppm → ppb
@@ -64,7 +64,7 @@ end
         rs.HO2 => 0.0, rs.OH => 0.0, rs.CH2O => 100.0, rs.CO => 300.0,
         rs.ALD => 10.0, rs.MEO2 => 0.0, rs.C2O3 => 0.0, rs.CO2 => 0.0,
         rs.PAN => 0.0, rs.CH3O => 0.0, rs.HNO3 => 0.0, rs.O1D => 0.0,
-        rs.SO2 => 7.0, rs.SO4 => 0.0, rs.NO3 => 0.0, rs.N2O5 => 0.0,
+        rs.SO2 => 7.0, rs.SO4 => 0.0, rs.NO3 => 0.0, rs.N2O5 => 0.0
     ]
     tspan = (0.0, 60.0)  # 1 minute in seconds
 
@@ -73,7 +73,7 @@ end
         Rosenbrock23(),
         saveat = 10.0,
         abstol = 1e-12,
-        reltol = 1e-12,
+        reltol = 1e-12
     )
 
     # Basic qualitative checks
@@ -89,7 +89,7 @@ end
         rs.HO2 => 0.0, rs.OH => 0.0, rs.CH2O => 100.0, rs.CO => 300.0,
         rs.ALD => 10.0, rs.MEO2 => 0.0, rs.C2O3 => 0.0, rs.CO2 => 0.0,
         rs.PAN => 0.0, rs.CH3O => 0.0, rs.HNO3 => 0.0, rs.O1D => 0.0,
-        rs.SO2 => 7.0, rs.SO4 => 0.0, rs.NO3 => 0.0, rs.N2O5 => 0.0,
+        rs.SO2 => 7.0, rs.SO4 => 0.0, rs.NO3 => 0.0, rs.N2O5 => 0.0
     ]
     tspan = (0.0, 3600.0)
 
@@ -98,7 +98,7 @@ end
         Rosenbrock23(),
         saveat = 10.0,
         abstol = 1e-12,
-        reltol = 1e-12,
+        reltol = 1e-12
     )
 
     # Sulfur conservation: SO2 + SO4 should be constant
@@ -133,13 +133,13 @@ end
         DateTime(2016, 5, 4);
         lonrange = deg2rad(-115):deg2rad(2.5):deg2rad(-68.75),
         latrange = deg2rad(25):deg2rad(2):deg2rad(53.7),
-        levrange = 1:15,
+        levrange = 1:15
     )
 
     model_3way = couple(
         FastJX(get_tref(domain)),
         Pollu(),
-        NEI2016MonthlyEmis("mrggrid_withbeis_withrwc", domain),
+        NEI2016MonthlyEmis("mrggrid_withbeis_withrwc", domain)
     )
 
     sys = convert(System, model_3way)

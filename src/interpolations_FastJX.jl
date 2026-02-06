@@ -136,13 +136,14 @@ function FastJX_interpolation_troposphere(t_ref::AbstractFloat; name = :FastJX)
            j_H2COb ~ j_mean_H2COb(T/T_unit, flux_vars);
            j_O31D ~ j_mean_O31D(T/T_unit, flux_vars);
            j_o32OH ~ j_O31D * j_o31D_adj.j_O31D_adj;
-           j_CH3OOH ~ j_mean_CH3OOH(T/T_unit, flux_vars); 
+           j_CH3OOH ~ j_mean_CH3OOH(T/T_unit, flux_vars);
            j_NO2 ~ j_mean_NO2(T/T_unit, flux_vars)]
 
     fjx = System(
         eqs,
         t,
-        [j_H2O2, j_H2COa, j_H2COb, j_o32OH, j_O31D, j_CH3OOH, j_NO2, j_O3, j_NO3b, j_NO3a, j_N2O5, j_ActAld, j_PAN, cosSZA, flux_vars...],
+        [j_H2O2, j_H2COa, j_H2COb, j_o32OH, j_O31D, j_CH3OOH, j_NO2, j_O3,
+            j_NO3b, j_NO3a, j_N2O5, j_ActAld, j_PAN, cosSZA, flux_vars...],
         [lat, long, T, P, H2O, t_ref, c_flux, T_unit, P_unit];
         name = name,
         metadata = Dict(CoupleType => FastJXCoupler),

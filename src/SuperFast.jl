@@ -230,7 +230,7 @@ function SuperFast(; name = :SuperFast, rxn_sys = false)
 
     rx_sys = @network_component SuperFast begin
         @ivs t [unit = u"s"]
-        
+
         @parameters begin
             jO32OH = 2.27e-4, [unit = u"s^-1"]
             jH2O2 = 1.0097e-5, [unit = u"s^-1"]
@@ -293,7 +293,6 @@ function SuperFast(; name = :SuperFast, rxn_sys = false)
         jH2COa, CH2O --> HO2 + HO2 + CO
         jH2COb, CH2O --> CO
         jCH3OOH, CH3OOH --> CH2O + HO2 + OH
-
     end
     rxns = compose(rx_sys, rate_systems)
     if rxn_sys

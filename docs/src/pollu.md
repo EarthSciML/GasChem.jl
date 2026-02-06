@@ -18,8 +18,9 @@ Pollu
 
 The original problem uses concentrations in ppm and time in minutes. The implementation
 converts all rate constants to SI-compatible units (ppb for concentration, seconds for time):
-- First-order rates: divide by 60 (min⁻¹ to s⁻¹)
-- Second-order rates: divide by 60000 (ppm⁻¹ min⁻¹ to ppb⁻¹ s⁻¹)
+
+  - First-order rates: divide by 60 (min⁻¹ to s⁻¹)
+  - Second-order rates: divide by 60000 (ppm⁻¹ min⁻¹ to ppb⁻¹ s⁻¹)
 
 ### State Variables
 
@@ -63,7 +64,7 @@ computed using RADAU5 with true double precision (uround = 1.01e-19). We reprodu
 and compare against the reference values.
 
 ```@example pollu
-using OrdinaryDiffEqRosenbrock, Plots
+using DifferentialEquations, Plots
 
 sys = mtkcompile(model)
 
@@ -88,7 +89,7 @@ ic = [
     sys.SO2 => 7.0,
     sys.SO4 => 0.0,
     sys.NO3 => 0.0,
-    sys.N2O5 => 0.0,
+    sys.N2O5 => 0.0
 ]
 
 tspan = (0.0, 3600.0)  # 60 minutes in seconds
@@ -98,13 +99,14 @@ sol = solve(
     Rosenbrock23(),
     saveat = 1.0,
     abstol = 1e-12,
-    reltol = 1e-12,
+    reltol = 1e-12
 )
 
-p1 = plot(sol.t, sol[sys.NO2], label="NO₂", ylabel="Concentration (ppb)", xlabel="Time (s)")
-plot!(p1, sol.t, sol[sys.NO], label="NO")
-plot!(p1, sol.t, sol[sys.O3], label="O₃")
-plot!(p1, sol.t, sol[sys.HNO3], label="HNO₃")
+p1 = plot(
+    sol.t, sol[sys.NO2], label = "NO₂", ylabel = "Concentration (ppb)", xlabel = "Time (s)")
+plot!(p1, sol.t, sol[sys.NO], label = "NO")
+plot!(p1, sol.t, sol[sys.O3], label = "O₃")
+plot!(p1, sol.t, sol[sys.HNO3], label = "HNO₃")
 title!(p1, "Major Nitrogen and Ozone Species")
 p1
 ```
@@ -112,9 +114,10 @@ p1
 ### Formaldehyde and CO Evolution
 
 ```@example pollu
-p2 = plot(sol.t, sol[sys.CH2O], label="CH₂O", ylabel="Concentration (ppb)", xlabel="Time (s)")
-plot!(p2, sol.t, sol[sys.CO], label="CO")
-plot!(p2, sol.t, sol[sys.ALD], label="ALD")
+p2 = plot(sol.t, sol[sys.CH2O], label = "CH₂O",
+    ylabel = "Concentration (ppb)", xlabel = "Time (s)")
+plot!(p2, sol.t, sol[sys.CO], label = "CO")
+plot!(p2, sol.t, sol[sys.ALD], label = "ALD")
 title!(p2, "Organic Species")
 p2
 ```
@@ -125,9 +128,10 @@ The sulfur budget (SO₂ + SO₄) should be conserved since the only sulfur reac
 
 ```@example pollu
 sulfur_total = sol[sys.SO2] .+ sol[sys.SO4]
-p3 = plot(sol.t, sol[sys.SO2], label="SO₂", ylabel="Concentration (ppb)", xlabel="Time (s)")
-plot!(p3, sol.t, sol[sys.SO4], label="SO₄")
-plot!(p3, sol.t, sulfur_total, label="Total S", linestyle=:dash)
+p3 = plot(
+    sol.t, sol[sys.SO2], label = "SO₂", ylabel = "Concentration (ppb)", xlabel = "Time (s)")
+plot!(p3, sol.t, sol[sys.SO4], label = "SO₄")
+plot!(p3, sol.t, sulfur_total, label = "Total S", linestyle = :dash)
 title!(p3, "Sulfur Budget Conservation")
 p3
 ```

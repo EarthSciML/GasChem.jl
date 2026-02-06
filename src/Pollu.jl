@@ -27,31 +27,55 @@ function Pollu(; name = :Pollu, rxn_sys = false)
     rx_sys = @reaction_network Pollu begin
         @ivs t [unit = u"s"]
         @parameters begin
-            jNO2_O3P = 0.35 / 60.0, [unit = u"s^-1", description = "NO2 photolysis rate (R1)"]
-            k2 = 0.266e2 / (60.0 * 1e3), [unit = u"1/(ppb*s)", description = "NO + O3 rate (R2)"]
-            k3 = 0.123e5 / (60.0 * 1e3), [unit = u"1/(ppb*s)", description = "HO2 + NO rate (R3)"]
-            jH2COa = 0.86e-3 / 60.0, [unit = u"s^-1", description = "CH2O photolysis radical channel (R4)"]
-            jH2COb = 0.82e-3 / 60.0, [unit = u"s^-1", description = "CH2O photolysis molecular channel (R5)"]
-            k6 = 0.15e5 / (60.0 * 1e3), [unit = u"1/(ppb*s)", description = "CH2O + OH rate (R6)"]
-            jALD = 0.13e-3 / 60.0, [unit = u"s^-1", description = "ALD photolysis rate (R7)"]
-            k8 = 0.24e5 / (60.0 * 1e3), [unit = u"1/(ppb*s)", description = "ALD + OH rate (R8)"]
-            k9 = 0.165e5 / (60.0 * 1e3), [unit = u"1/(ppb*s)", description = "C2O3 + NO rate (R9)"]
-            k10 = 0.9e4 / (60.0 * 1e3), [unit = u"1/(ppb*s)", description = "C2O3 + NO2 rate (R10)"]
-            jPAN = 0.22e-1 / 60.0, [unit = u"s^-1", description = "PAN photolysis rate (R11)"]
-            k12 = 0.12e5 / (60.0 * 1e3), [unit = u"1/(ppb*s)", description = "MEO2 + NO rate (R12)"]
-            k13 = 1.88 / 60.0, [unit = u"1/s", description = "CH3O thermal decomposition rate (R13)"]
-            k14 = 0.163e5 / (60.0 * 1e3), [unit = u"1/(ppb*s)", description = "NO2 + OH rate (R14)"]
-            k15 = 0.48e7 / 60.0, [unit = u"s^-1", description = "O3P + O2 + M recombination rate (R15)"]
-            jO3_O1D = 0.35e-3 / 60.0, [unit = u"s^-1", description = "O3 photolysis to O1D (R16)"]
-            jO3_O3P = 0.175e-1 / 60.0, [unit = u"s^-1", description = "O3 photolysis to O3P (R17)"]
+            jNO2_O3P = 0.35 / 60.0,
+            [unit = u"s^-1", description = "NO2 photolysis rate (R1)"]
+            k2 = 0.266e2 / (60.0 * 1e3),
+            [unit = u"1/(ppb*s)", description = "NO + O3 rate (R2)"]
+            k3 = 0.123e5 / (60.0 * 1e3),
+            [unit = u"1/(ppb*s)", description = "HO2 + NO rate (R3)"]
+            jH2COa = 0.86e-3 / 60.0,
+            [unit = u"s^-1", description = "CH2O photolysis radical channel (R4)"]
+            jH2COb = 0.82e-3 / 60.0,
+            [unit = u"s^-1", description = "CH2O photolysis molecular channel (R5)"]
+            k6 = 0.15e5 / (60.0 * 1e3),
+            [unit = u"1/(ppb*s)", description = "CH2O + OH rate (R6)"]
+            jALD = 0.13e-3 / 60.0,
+            [unit = u"s^-1", description = "ALD photolysis rate (R7)"]
+            k8 = 0.24e5 / (60.0 * 1e3),
+            [unit = u"1/(ppb*s)", description = "ALD + OH rate (R8)"]
+            k9 = 0.165e5 / (60.0 * 1e3),
+            [unit = u"1/(ppb*s)", description = "C2O3 + NO rate (R9)"]
+            k10 = 0.9e4 / (60.0 * 1e3),
+            [unit = u"1/(ppb*s)", description = "C2O3 + NO2 rate (R10)"]
+            jPAN = 0.22e-1 / 60.0,
+            [unit = u"s^-1", description = "PAN photolysis rate (R11)"]
+            k12 = 0.12e5 / (60.0 * 1e3),
+            [unit = u"1/(ppb*s)", description = "MEO2 + NO rate (R12)"]
+            k13 = 1.88 / 60.0,
+            [unit = u"1/s", description = "CH3O thermal decomposition rate (R13)"]
+            k14 = 0.163e5 / (60.0 * 1e3),
+            [unit = u"1/(ppb*s)", description = "NO2 + OH rate (R14)"]
+            k15 = 0.48e7 / 60.0,
+            [unit = u"s^-1", description = "O3P + O2 + M recombination rate (R15)"]
+            jO3_O1D = 0.35e-3 / 60.0,
+            [unit = u"s^-1", description = "O3 photolysis to O1D (R16)"]
+            jO3_O3P = 0.175e-1 / 60.0,
+            [unit = u"s^-1", description = "O3 photolysis to O3P (R17)"]
             k18 = 0.1e9 / (60.0), [unit = u"s^-1", description = "O1D + H2O rate (R18)"]
-            k19 = 0.444e12 / 60.0, [unit = u"s^-1", description = "O1D quenching rate (R19)"]
-            k20 = 0.124e4 / (60.0 * 1e3), [unit = u"1/(ppb*s)", description = "SO2 + OH rate (R20)"]
-            jNO3_NO = 0.21e1 / 60.0, [unit = u"s^-1", description = "NO3 photolysis to NO (R21)"]
-            jNO3_NO2 = 0.578e1 / 60.0, [unit = u"s^-1", description = "NO3 photolysis to NO2 (R22)"]
-            k23 = 0.474e-1 / (60.0 * 1e3), [unit = u"1/(ppb*s)", description = "NO2 + O3 rate (R23)"]
-            k24 = 0.178e4 / (60.0 * 1e3), [unit = u"1/(ppb*s)", description = "NO3 + NO2 rate (R24)"]
-            jN2O5 = 0.312e1 / 60.0, [unit = u"s^-1", description = "N2O5 photolysis rate (R25)"]
+            k19 = 0.444e12 / 60.0,
+            [unit = u"s^-1", description = "O1D quenching rate (R19)"]
+            k20 = 0.124e4 / (60.0 * 1e3),
+            [unit = u"1/(ppb*s)", description = "SO2 + OH rate (R20)"]
+            jNO3_NO = 0.21e1 / 60.0,
+            [unit = u"s^-1", description = "NO3 photolysis to NO (R21)"]
+            jNO3_NO2 = 0.578e1 / 60.0,
+            [unit = u"s^-1", description = "NO3 photolysis to NO2 (R22)"]
+            k23 = 0.474e-1 / (60.0 * 1e3),
+            [unit = u"1/(ppb*s)", description = "NO2 + O3 rate (R23)"]
+            k24 = 0.178e4 / (60.0 * 1e3),
+            [unit = u"1/(ppb*s)", description = "NO3 + NO2 rate (R24)"]
+            jN2O5 = 0.312e1 / 60.0,
+            [unit = u"s^-1", description = "N2O5 photolysis rate (R25)"]
         end # The original reaction rate units are in 1/min and 1/(ppm*min).
 
         @species begin
@@ -63,7 +87,8 @@ function Pollu(; name = :Pollu, rxn_sys = false)
             OH(t) = 4e-6, [unit = u"ppb", description = "hydroxyl radical"]
             CH2O(t) = 4e-6, [unit = u"ppb", description = "formaldehyde"]
             CO(t) = 100, [unit = u"ppb", description = "carbon monoxide"]
-            ALD(t) = 1e-11, [unit = u"ppb", description = "lumped non-formaldehyde aldehydes"]
+            ALD(t) = 1e-11,
+            [unit = u"ppb", description = "lumped non-formaldehyde aldehydes"]
             MEO2(t) = 4e-6, [unit = u"ppb", description = "CH3O2 (methyl peroxy radical)"]
             C2O3(t) = 0, [unit = u"ppb", description = "CH3C(O)O2 (acetyl peroxy radical)"]
             CO2(t) = 3.55e5, [unit = u"ppb", description = "carbon dioxide"]
@@ -105,7 +130,6 @@ function Pollu(; name = :Pollu, rxn_sys = false)
         jNO3_NO, NO3 --> NO                        # R21
         jNO3_NO2, NO3 --> NO2 + O3P               # R22
         jN2O5, N2O5 --> NO3 + NO2                  # R25
-
     end
     rxns = rx_sys
     if rxn_sys
