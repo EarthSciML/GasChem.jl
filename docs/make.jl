@@ -27,6 +27,7 @@ makedocs(;
         ],
         "Radiation Fundamentals" => "radiation_fundamentals.md",
         "Stratospheric Chemistry" => "StratosphericChemistry.md",
+        "Climate Forcing" => "climate_forcing.md",
         "Composing models" => "composing_models.md",
         "API" => "api.md"
     ]
