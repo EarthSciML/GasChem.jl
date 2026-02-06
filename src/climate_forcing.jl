@@ -17,7 +17,7 @@ The model includes:
   - Eq. 23.2: ΔT₀ = λ₀ ΔF (no-feedback temperature response)
   - Eq. 23.3: Eᵢ = λᵢ / λ_CO₂ (efficacy of forcing agents)
   - Eq. 23.4: ΔFₑ = ΔFᵢ Eᵢ (effective forcing)
-  - Unrealized warming: ΔT_unrealized = (ΔF - ΔF_r) λ (see p. 1045)
+  - Eq. 23.7: ΔT_unrealized = (ΔF - ΔF_r) λ (unrealized warming, p. 1045)
 
 **Reference**: Seinfeld, J.H. and Pandis, S.N. (2006) *Atmospheric Chemistry and Physics:
 From Air Pollution to Climate Change*, 2nd Edition, Chapter 23, John Wiley & Sons.
@@ -76,8 +76,8 @@ sys = ClimateFeedback()
         # Forcing for realized warming (inverse of Eq. 23.1)
         ΔF_r ~ ΔT_r / λ,
 
-        # Unrealized warming (warming commitment, p. 1045)
-        ΔT_unrealized ~ (ΔF - ΔF_r) * λ,
+        # Eq. 23.7 - Unrealized warming (warming commitment, p. 1045)
+        ΔT_unrealized ~ (ΔF - ΔF_r) * λ
     ]
 
     return System(eqs, t; name)
@@ -143,7 +143,7 @@ sys = GHGForcing()
         ΔF_N2O ~ f_N2O * ΔF_N2O_ref,
         ΔF_O3 ~ f_O3 * ΔF_O3_trop_ref,
         ΔF_halo ~ f_halo * ΔF_halo_ref,
-        ΔF_total ~ ΔF_CO2 + ΔF_CH4 + ΔF_N2O + ΔF_O3 + ΔF_halo,
+        ΔF_total ~ ΔF_CO2 + ΔF_CH4 + ΔF_N2O + ΔF_O3 + ΔF_halo
     ]
 
     return System(eqs, t; name)
@@ -221,7 +221,7 @@ sys = GlobalWarmingPotential()
         AGWP_CO2 ~ a_CO2 * decay_integral_CO2,
 
         # Eq. 23.5 / Problem 23.3 - GWP as ratio of AGWPs
-        GWP ~ AGWP_A / AGWP_CO2,
+        GWP ~ AGWP_A / AGWP_CO2
     ]
 
     return System(eqs, t; name)

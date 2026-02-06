@@ -17,7 +17,7 @@ GWP_exponential
 
 ### Climate Feedback
 
-The climate feedback equations relate radiative forcing perturbations to equilibrium temperature changes with feedbacks (Eqs. 23.1-23.4, and the unrealized warming relation from p. 1045). Note: The basic no-feedback climate sensitivity is implemented in [`ClimateSensitivity`](@ref) (Chapter 4); this component extends it by incorporating feedback processes.
+The climate feedback equations relate radiative forcing perturbations to equilibrium temperature changes with feedbacks (Eqs. 23.1-23.4 and 23.7). Note: The basic no-feedback climate sensitivity is implemented in [`ClimateSensitivity`](@ref) (Chapter 4); this component extends it by incorporating feedback processes.
 
 **Eq. 23.1** - Climate sensitivity with feedbacks:
 
@@ -43,7 +43,7 @@ E_i = \frac{\lambda_i}{\lambda_{CO_2}}
 \Delta F_e = \Delta F_i \cdot E_i
 ```
 
-**Unrealized (committed) warming** (p. 1045):
+**Eq. 23.7** - Unrealized (committed) warming (p. 1045):
 
 ```math
 \Delta T_{\text{unrealized}} = (\Delta F - \Delta F_r) \cdot \lambda
@@ -73,7 +73,8 @@ DataFrame(
     :Name => [string(Symbolics.tosymbol(v, escape = false)) for v in params],
     :Units => [dimension(ModelingToolkit.get_unit(v)) for v in params],
     :Description => [ModelingToolkit.getdescription(v) for v in params],
-    :Default => [ModelingToolkit.hasdefault(v) ? ModelingToolkit.getdefault(v) : missing for v in params])
+    :Default => [ModelingToolkit.hasdefault(v) ? ModelingToolkit.getdefault(v) : missing
+                 for v in params])
 ```
 
 #### Equations
@@ -116,7 +117,8 @@ DataFrame(
     :Name => [string(Symbolics.tosymbol(v, escape = false)) for v in params],
     :Units => [dimension(ModelingToolkit.get_unit(v)) for v in params],
     :Description => [ModelingToolkit.getdescription(v) for v in params],
-    :Default => [ModelingToolkit.hasdefault(v) ? ModelingToolkit.getdefault(v) : missing for v in params])
+    :Default => [ModelingToolkit.hasdefault(v) ? ModelingToolkit.getdefault(v) : missing
+                 for v in params])
 ```
 
 #### Equations
@@ -166,7 +168,8 @@ DataFrame(
     :Name => [string(Symbolics.tosymbol(v, escape = false)) for v in params],
     :Units => [dimension(ModelingToolkit.get_unit(v)) for v in params],
     :Description => [ModelingToolkit.getdescription(v) for v in params],
-    :Default => [ModelingToolkit.hasdefault(v) ? ModelingToolkit.getdefault(v) : missing for v in params])
+    :Default => [ModelingToolkit.hasdefault(v) ? ModelingToolkit.getdefault(v) : missing
+                 for v in params])
 ```
 
 #### Equations
@@ -177,12 +180,47 @@ eqs = equations(gwp_sys)
 
 ## Analysis
 
+### Table 23.1: Greenhouse Gas Properties and GWPs
+
+Table 23.1 from Seinfeld & Pandis (2006) lists key greenhouse gases with their abundances, lifetimes, and 100-year GWPs. Using the exponential decay GWP formula (Problem 23.3), we can reproduce the tabulated GWP values by fitting the relative radiative efficiency parameter `a`. The table below compares computed GWPs against the textbook values for selected species.
+
+```@example climate
+using GasChem, DataFrames
+
+# Species data from Table 23.1 (Seinfeld & Pandis 2006, p. 1044)
+# τ = perturbation lifetime (yr), GWP_ref = tabulated 100-yr GWP
+# a = relative radiative efficiency (fitted to reproduce GWP_ref)
+species_data = [
+    ("CH₄", 12.0, 23, 140.0),
+    ("N₂O", 114.0, 296, 326.0),
+    ("CF₄", 50000.0, 5700, 390.0),
+    ("C₂F₆", 10000.0, 11900, 816.0),
+    ("SF₆", 3200.0, 22200, 1540.0),
+    ("HFC-134a", 13.8, 1300, 692.0),
+    ("CFC-11", 45.0, 4600, 753.0),
+    ("CFC-12", 100.0, 10600, 1162.0),
+    ("CCl₄", 35.0, 1800, 385.0)
+]
+
+names_col = [s[1] for s in species_data]
+τ_col = [s[2] for s in species_data]
+gwp_ref_col = [s[3] for s in species_data]
+gwp_calc_col = [round(GWP_exponential(s[2], s[4], 100.0), digits = 0)
+                for s in species_data]
+
+DataFrame(
+    :Species => names_col,
+    Symbol("Lifetime (yr)") => τ_col,
+    Symbol("GWP₁₀₀ (Table 23.1)") => gwp_ref_col,
+    Symbol("GWP₁₀₀ (Computed)") => gwp_calc_col)
+```
+
 ### GWP Calculations
 
 Using the `GWP_exponential` function to calculate GWPs for different species:
 
 ```@example climate
-using GasChem, Plots
+using Plots
 
 # Species parameters from Table 23.1
 # τ = atmospheric lifetime (years)
@@ -191,15 +229,15 @@ using GasChem, Plots
 # Calculate GWP for CH₄ (τ = 12 yr)
 # Using fitted a value to match tabulated GWP₁₀₀ = 23
 gwp_ch4_100 = GWP_exponential(12.0, 140.0, 100.0)
-println("CH₄ GWP₁₀₀ = $(round(gwp_ch4_100, digits=1))")
+println("CH₄ GWP₁₀₀ = $(round(gwp_ch4_100, digits = 1))")
 
 # N₂O (τ = 114 yr)
 gwp_n2o_100 = GWP_exponential(114.0, 326.0, 100.0)
-println("N₂O GWP₁₀₀ = $(round(gwp_n2o_100, digits=1))")
+println("N₂O GWP₁₀₀ = $(round(gwp_n2o_100, digits = 1))")
 
 # CO₂ relative to itself
 gwp_co2 = GWP_exponential(150.0, 1.0, 100.0)
-println("CO₂ GWP₁₀₀ = $(round(gwp_co2, digits=1))")
+println("CO₂ GWP₁₀₀ = $(round(gwp_co2, digits = 1))")
 ```
 
 ### GWP Time Horizon Dependence (Figure 23.15)
@@ -207,26 +245,28 @@ println("CO₂ GWP₁₀₀ = $(round(gwp_co2, digits=1))")
 GWP values depend strongly on the time horizon chosen. Short-lived species have higher GWPs at short time horizons, while long-lived species have relatively higher GWPs at longer horizons. This reproduces the behavior shown in Figure 23.15 of Seinfeld & Pandis (2006), which uses log-log axes.
 
 ```@example climate
-# Calculate GWP vs time horizon for different species
+# Calculate GWP vs time horizon for species from Table 23.1 and Figure 23.15
+# Using lifetimes from Table 23.1 and fitted radiative efficiencies
 t_horizons = 1:1:500
 
-# HCFC-225ca-like (τ = 2.5 yr)
+# C₂F₆ (τ = 10,000 yr, Table 23.1)
+gwp_c2f6 = [GWP_exponential(10000.0, 816.0, Float64(t)) for t in t_horizons]
+
+# HFC-134a (τ = 13.8 yr, Table 23.1) -- note: Figure 23.15 uses τ ~ 1.4 yr
+# but Table 23.1 lists 13.8 yr. We use the Table 23.1 value.
+gwp_hfc134a = [GWP_exponential(13.8, 692.0, Float64(t)) for t in t_horizons]
+
+# N₂O (τ = 114 yr, Table 23.1; Figure 23.15 labels as ~120 yr)
+gwp_n2o = [GWP_exponential(114.0, 326.0, Float64(t)) for t in t_horizons]
+
+# HCFC-225ca-like (τ = 2.5 yr, as labeled in Figure 23.15)
 gwp_hcfc225 = [GWP_exponential(2.5, 100.0, Float64(t)) for t in t_horizons]
 
-# HFC-134a-like (τ = 1.4 yr, high radiative efficiency)
-gwp_hfc134a = [GWP_exponential(1.4, 3400.0, Float64(t)) for t in t_horizons]
-
-# N₂O-like (τ = 120 yr)
-gwp_n2o = [GWP_exponential(120.0, 326.0, Float64(t)) for t in t_horizons]
-
-# C₂F₆-like (τ = 10000 yr)
-gwp_c2f6 = [GWP_exponential(10000.0, 1000.0, Float64(t)) for t in t_horizons]
-
-p = plot(t_horizons, gwp_c2f6, label = "C₂F₆ (τ~10000 yr)", lw = 2,
+p = plot(t_horizons, gwp_c2f6, label = "C₂F₆ (τ=10000 yr)", lw = 2,
     xscale = :log10, yscale = :log10)
-plot!(p, t_horizons, gwp_hfc134a, label = "HFC-134a (τ~1.4 yr)", lw = 2)
-plot!(p, t_horizons, gwp_n2o, label = "N₂O (τ~120 yr)", lw = 2)
-plot!(p, t_horizons, gwp_hcfc225, label = "HCFC-225ca (τ~2.5 yr)", lw = 2)
+plot!(p, t_horizons, gwp_hfc134a, label = "HFC-134a (τ=13.8 yr)", lw = 2)
+plot!(p, t_horizons, gwp_n2o, label = "N₂O (τ=114 yr)", lw = 2)
+plot!(p, t_horizons, gwp_hcfc225, label = "HCFC-225ca (τ=2.5 yr)", lw = 2)
 xlabel!(p, "Time Horizon (years)")
 ylabel!(p, "Global Warming Potential")
 title!(p, "GWP vs Time Horizon (cf. Figure 23.15)")
