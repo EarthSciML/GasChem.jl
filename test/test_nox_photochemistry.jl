@@ -41,8 +41,8 @@ end
     # 2 equations
     @test length(eqs) == 2
 
-    # 2 parameters: j_NO2, k_NO_O3
-    @test length(params) == 2
+    # 3 parameters: j_NO2, k_NO_O3, + 1 constant (one)
+    @test length(params) == 3
 end
 
 # ===========================================================================
@@ -50,50 +50,44 @@ end
 # ===========================================================================
 @testitem "NOxPhotochemistry: Eq 6.5 O Atom Steady-State" setup=[SP_CH6_Setup] tags=[:sp_ch6] begin
     # [O] = j_NO2 * [NO2] / (k_O_O2_M * [O2] * [M])
-    # At typical conditions:
-    j_NO2 = 8e-3       # s^-1
-    NO2 = 1e10          # molecules/cm^3 (0.4 ppb)
-    k_O_O2_M = 6.0e-34  # cm^6/s
-    O2 = 5.25e18        # molecules/cm^3
-    M = 2.5e19          # molecules/cm^3
+    j_NO2 = 8e-3                    # s⁻¹
+    NO2 = 1e16                       # m⁻³ (0.4 ppb)
+    k_O_O2_M = 6.0e-34 * 1e-12      # m⁶/s
+    O2 = 5.25e24                     # m⁻³
+    M = 2.5e25                       # m⁻³
 
     O_expected = j_NO2 * NO2 / (k_O_O2_M * O2 * M)
 
     # O atoms are very short-lived, concentration should be very low
     @test O_expected > 0
-    @test O_expected < 1e6  # should be on order of ~1e3
-    @test O_expected ≈ 1.016e3 rtol=0.05
+    @test O_expected < 1e12  # should be on order of ~1e9 m⁻³
+    @test O_expected ≈ 1.016e9 rtol=0.05
 end
 
 @testitem "NOxPhotochemistry: Eq 6.6 Leighton Relationship" setup=[SP_CH6_Setup] tags=[:sp_ch6] begin
     # [O3]_pss = j_NO2 * [NO2] / (k_NO_O3 * [NO])
-    # This is the fundamental Leighton relationship
+    j_NO2 = 8e-3                 # s⁻¹
+    k_NO_O3 = 1.8e-14 * 1e-6     # m³/s
 
-    j_NO2 = 8e-3       # s^-1
-    k_NO_O3 = 1.8e-14  # cm^3/s
-
-    # Test at typical urban conditions
-    NO2 = 5e10          # 2 ppb
-    NO = 2.5e10         # 1 ppb
+    # Test at typical urban conditions (m⁻³)
+    NO2 = 5e16           # 2 ppb
+    NO = 2.5e16          # 1 ppb
 
     O3_pss = j_NO2 * NO2 / (k_NO_O3 * NO)
 
     # Photostationary state O3 should be a reasonable tropospheric value
-    # O3_pss ~ 8.9e11 molecules/cm^3 ~ 36 ppb
-    @test O3_pss > 1e11   # > ~4 ppb
-    @test O3_pss < 1e13   # < ~400 ppb
-    @test O3_pss ≈ 8.89e11 rtol=0.05
+    @test O3_pss > 1e17   # > ~4 ppb
+    @test O3_pss < 1e19   # < ~400 ppb
+    @test O3_pss ≈ 8.89e17 rtol=0.05
 end
 
 @testitem "NOxPhotochemistry: Eq 6.7 Photostationary State Parameter" setup=[SP_CH6_Setup] tags=[:sp_ch6] begin
     # Phi = j_NO2 * [NO2] / (k_NO_O3 * [NO] * [O3])
-    # In pure photostationary state, Phi = 1
     j_NO2 = 8e-3
-    k_NO_O3 = 1.8e-14
+    k_NO_O3 = 1.8e-14 * 1e-6
 
-    # At exact photostationary state: O3 = j_NO2*NO2/(k_NO_O3*NO)
-    NO2 = 5e10
-    NO = 2.5e10
+    NO2 = 5e16
+    NO = 2.5e16
     O3_pss = j_NO2 * NO2 / (k_NO_O3 * NO)
 
     # Phi should be exactly 1 when O3 is at the PSS value
@@ -114,14 +108,14 @@ end
 @testitem "NOxPhotochemistry: Eq 6.8 Net O3 Production" setup=[SP_CH6_Setup] tags=[:sp_ch6] begin
     # P_O3 = j_NO2 * [NO2] - k_NO_O3 * [NO] * [O3]
     j_NO2 = 8e-3
-    k_NO_O3 = 1.8e-14
-    NO2 = 5e10
-    NO = 2.5e10
+    k_NO_O3 = 1.8e-14 * 1e-6
+    NO2 = 5e16
+    NO = 2.5e16
 
     # At photostationary state, P_O3 = 0
     O3_pss = j_NO2 * NO2 / (k_NO_O3 * NO)
     P_O3_pss = j_NO2 * NO2 - k_NO_O3 * NO * O3_pss
-    @test abs(P_O3_pss) < 1e-3  # numerically zero
+    @test abs(P_O3_pss) < 1e3  # numerically zero
 
     # Below PSS ozone: net production
     O3_low = O3_pss * 0.5
@@ -142,9 +136,9 @@ end
     params = parameters(sys)
     param_dict = Dict(Symbol(p) => ModelingToolkit.getdefault(p) for p in params if ModelingToolkit.hasdefault(p))
 
-    @test param_dict[:j_NO2] ≈ 8e-3       # s^-1 (typical midday)
-    @test param_dict[:k_O_O2_M] ≈ 6.0e-34  # cm^6/s
-    @test param_dict[:k_NO_O3] ≈ 1.8e-14   # cm^3/s
+    @test param_dict[:j_NO2] ≈ 8e-3                  # s⁻¹
+    @test param_dict[:k_O_O2_M] ≈ 6.0e-34 * 1e-12    # m⁶/s
+    @test param_dict[:k_NO_O3] ≈ 1.8e-14 * 1e-6      # m³/s
 end
 
 @testitem "PhotostationaryState: Rate Constants" setup=[SP_CH6_Setup] tags=[:sp_ch6] begin
@@ -153,22 +147,19 @@ end
     param_dict = Dict(Symbol(p) => ModelingToolkit.getdefault(p) for p in params if ModelingToolkit.hasdefault(p))
 
     @test param_dict[:j_NO2] ≈ 8e-3
-    @test param_dict[:k_NO_O3] ≈ 1.8e-14
+    @test param_dict[:k_NO_O3] ≈ 1.8e-14 * 1e-6
 end
 
 # ===========================================================================
 # Steady-State Tests
 # ===========================================================================
 @testitem "NOxPhotochemistry: Photostationary State Equilibrium" setup=[SP_CH6_Setup] tags=[:sp_ch6] begin
-    # At photostationary state, the NO-NO2-O3 system is in balance.
-    # The production of O3 (NO2 photolysis followed by O + O2 + M) equals
-    # loss (NO + O3), giving P_O3 = 0.
     j_NO2 = 8e-3
-    k_NO_O3 = 1.8e-14
+    k_NO_O3 = 1.8e-14 * 1e-6
 
     # Test several NO2/NO ratios
     for ratio in [0.1, 0.5, 1.0, 2.0, 10.0]
-        NO = 1e10
+        NO = 1e16
         NO2 = ratio * NO
         O3_pss = j_NO2 * NO2 / (k_NO_O3 * NO)
         P_O3 = j_NO2 * NO2 - k_NO_O3 * NO * O3_pss
@@ -180,14 +171,12 @@ end
 # Limiting Behavior Tests
 # ===========================================================================
 @testitem "NOxPhotochemistry: O3 Scales with NO2/NO Ratio" setup=[SP_CH6_Setup] tags=[:sp_ch6] begin
-    # O3_pss = j_NO2/k_NO_O3 * (NO2/NO)
-    # Doubling the NO2/NO ratio should double O3
     j_NO2 = 8e-3
-    k_NO_O3 = 1.8e-14
-    NO = 1e10
+    k_NO_O3 = 1.8e-14 * 1e-6
+    NO = 1e16
 
-    NO2_a = 1e10
-    NO2_b = 2e10
+    NO2_a = 1e16
+    NO2_b = 2e16
 
     O3_a = j_NO2 * NO2_a / (k_NO_O3 * NO)
     O3_b = j_NO2 * NO2_b / (k_NO_O3 * NO)
@@ -196,13 +185,12 @@ end
 end
 
 @testitem "NOxPhotochemistry: High j_NO2 Limit" setup=[SP_CH6_Setup] tags=[:sp_ch6] begin
-    # As j_NO2 increases (stronger sunlight), O3_pss increases
-    k_NO_O3 = 1.8e-14
-    NO2 = 5e10
-    NO = 2.5e10
+    k_NO_O3 = 1.8e-14 * 1e-6
+    NO2 = 5e16
+    NO = 2.5e16
 
-    j_low = 1e-3   # low light
-    j_high = 1e-2  # strong sunlight
+    j_low = 1e-3
+    j_high = 1e-2
 
     O3_low = j_low * NO2 / (k_NO_O3 * NO)
     O3_high = j_high * NO2 / (k_NO_O3 * NO)
@@ -215,12 +203,11 @@ end
 # Qualitative Property Tests
 # ===========================================================================
 @testitem "NOxPhotochemistry: Qualitative - Positive O3_pss" setup=[SP_CH6_Setup] tags=[:sp_ch6] begin
-    # O3_pss must be positive for any positive inputs
     j_NO2 = 8e-3
-    k_NO_O3 = 1.8e-14
+    k_NO_O3 = 1.8e-14 * 1e-6
 
-    for NO in [1e8, 1e10, 1e12]
-        for NO2 in [1e8, 1e10, 1e12]
+    for NO in [1e14, 1e16, 1e18]
+        for NO2 in [1e14, 1e16, 1e18]
             O3_pss = j_NO2 * NO2 / (k_NO_O3 * NO)
             @test O3_pss > 0
         end
@@ -228,21 +215,17 @@ end
 end
 
 @testitem "PhotostationaryState: Deviation Sign" setup=[SP_CH6_Setup] tags=[:sp_ch6] begin
-    # Phi_deviation = Phi - 1
-    # When Phi > 1 (extra oxidants): deviation > 0
-    # When Phi = 1 (pure PSS): deviation = 0
-    # When Phi < 1 (extra reductants): deviation < 0
     j_NO2 = 8e-3
-    k_NO_O3 = 1.8e-14
-    NO = 2.5e10
-    NO2 = 5e10
+    k_NO_O3 = 1.8e-14 * 1e-6
+    NO = 2.5e16
+    NO2 = 5e16
     O3_pss = j_NO2 * NO2 / (k_NO_O3 * NO)
 
     # At PSS: deviation = 0
     Phi = j_NO2 * NO2 / (k_NO_O3 * NO * O3_pss)
     @test Phi - 1 ≈ 0.0 atol=1e-10
 
-    # Below PSS O3: deviation > 0 (extra oxidants converting NO to NO2)
+    # Below PSS O3: deviation > 0
     Phi_above = j_NO2 * NO2 / (k_NO_O3 * NO * (O3_pss * 0.5))
     @test Phi_above - 1 > 0
 

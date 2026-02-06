@@ -39,13 +39,13 @@ mechanisms to create a comprehensive diagnostic model of tropospheric photochemi
 - `co`: COOxidation subsystem (Section 6.3)
 
 # Input Variables
-All species concentrations must be provided as inputs.
+All species concentrations must be provided as inputs [m⁻³].
 
 # Diagnostic outputs:
-- P_O3_net: Net ozone production rate
-- OPE: Ozone production efficiency
-- HOx: Total HOx (OH + HO₂)
-- chain_length: HOx chain length
+- P_O3_net: Net ozone production rate [m⁻³ s⁻¹]
+- OPE: Ozone production efficiency [dimensionless]
+- HOx: Total HOx (OH + HO₂) [m⁻³]
+- chain_length: HOx chain length [dimensionless]
 """
 @component function TroposphericChemistrySystem(; name=:TroposphericChemistrySystem)
     # =========================================================================
@@ -56,30 +56,30 @@ All species concentrations must be provided as inputs.
     co_sys = COOxidation(; name=:co)
 
     # =========================================================================
-    # Parameters (additional parameters for combined diagnostics)
+    # Parameters (additional parameters for combined diagnostics, in SI)
     # =========================================================================
     @parameters begin
         # CH₄ oxidation
-        k_CH4_OH = 6.3e-15, [description = "CH₄ + OH rate constant", unit = u"cm^3/molec/s"]
-        k_CH3O2_NO = 7.7e-12, [description = "CH₃O₂ + NO rate constant", unit = u"cm^3/molec/s"]
+        k_CH4_OH = 6.3e-15 * 1e-6, [description = "CH₄ + OH rate constant (6.3e-15 cm³/molec/s)", unit = u"m^3/s"]
+        k_CH3O2_NO = 7.7e-12 * 1e-6, [description = "CH₃O₂ + NO rate constant (7.7e-12 cm³/molec/s)", unit = u"m^3/s"]
     end
 
     # =========================================================================
-    # Input Variables (species concentrations at combined level)
+    # Input Variables (species concentrations in SI: m⁻³)
     # =========================================================================
     @variables begin
         # Major species
-        O3(t), [description = "Ozone", unit = u"molec/cm^3"]
-        NO(t), [description = "Nitric oxide", unit = u"molec/cm^3"]
-        NO2(t), [description = "Nitrogen dioxide", unit = u"molec/cm^3"]
-        OH(t), [description = "Hydroxyl radical", unit = u"molec/cm^3"]
-        HO2(t), [description = "Hydroperoxy radical", unit = u"molec/cm^3"]
-        CO(t), [description = "Carbon monoxide", unit = u"molec/cm^3"]
-        CH4(t), [description = "Methane", unit = u"molec/cm^3"]
-        CH3O2(t), [description = "Methylperoxy radical", unit = u"molec/cm^3"]
-        H2O(t), [description = "Water vapor", unit = u"molec/cm^3"]
-        M(t), [description = "Total air density", unit = u"molec/cm^3"]
-        O2(t), [description = "Molecular oxygen", unit = u"molec/cm^3"]
+        O3(t), [description = "Ozone", unit = u"m^-3"]
+        NO(t), [description = "Nitric oxide", unit = u"m^-3"]
+        NO2(t), [description = "Nitrogen dioxide", unit = u"m^-3"]
+        OH(t), [description = "Hydroxyl radical", unit = u"m^-3"]
+        HO2(t), [description = "Hydroperoxy radical", unit = u"m^-3"]
+        CO(t), [description = "Carbon monoxide", unit = u"m^-3"]
+        CH4(t), [description = "Methane", unit = u"m^-3"]
+        CH3O2(t), [description = "Methylperoxy radical", unit = u"m^-3"]
+        H2O(t), [description = "Water vapor", unit = u"m^-3"]
+        M(t), [description = "Total air density", unit = u"m^-3"]
+        O2(t), [description = "Molecular oxygen", unit = u"m^-3"]
     end
 
     # =========================================================================
@@ -87,15 +87,15 @@ All species concentrations must be provided as inputs.
     # =========================================================================
     @variables begin
         # Combined diagnostics
-        NOx(t), [description = "Total NOx", unit = u"molec/cm^3"]
-        HOx(t), [description = "Total HOx", unit = u"molec/cm^3"]
-        RO2(t), [description = "Total organic peroxy radicals", unit = u"molec/cm^3"]
-        P_O3_total(t), [description = "Total O₃ production", unit = u"molec/cm^3/s"]
-        L_O3_total(t), [description = "Total O₃ loss", unit = u"molec/cm^3/s"]
-        P_O3_net(t), [description = "Net O₃ tendency", unit = u"molec/cm^3/s"]
+        NOx(t), [description = "Total NOx", unit = u"m^-3"]
+        HOx(t), [description = "Total HOx", unit = u"m^-3"]
+        RO2(t), [description = "Total organic peroxy radicals", unit = u"m^-3"]
+        P_O3_total(t), [description = "Total O₃ production", unit = u"m^-3*s^-1"]
+        L_O3_total(t), [description = "Total O₃ loss", unit = u"m^-3*s^-1"]
+        P_O3_net(t), [description = "Net O₃ tendency", unit = u"m^-3*s^-1"]
         OPE(t), [description = "Ozone production efficiency (dimensionless)", unit = u"1"]
         chain_length(t), [description = "HOx chain length (dimensionless)", unit = u"1"]
-        L_NOx(t), [description = "NOx loss rate", unit = u"molec/cm^3/s"]
+        L_NOx(t), [description = "NOx loss rate", unit = u"m^-3*s^-1"]
     end
 
     # =========================================================================
@@ -153,7 +153,7 @@ All species concentrations must be provided as inputs.
         chain_length ~ co_sys.chain_length,
     ]
 
-    return System(eqs, t; systems=[oh_sys, nox_sys, co_sys], name, checks=false)
+    return System(eqs, t; systems=[oh_sys, nox_sys, co_sys], name)
 end
 
 """
@@ -162,22 +162,24 @@ end
 Returns a dictionary of typical lower troposphere conditions for use
 with the TroposphericChemistrySystem.
 
+All concentrations in SI units (m⁻³).
+
 Based on values from Seinfeld & Pandis Chapter 6.
 """
 function get_typical_conditions()
     return Dict(
-        # Concentrations in molecules cm⁻³
-        :M => 2.5e19,      # Total air at STP
-        :O2 => 5.25e18,    # 21% of M
-        :H2O => 4e17,      # ~1% relative humidity equivalent
-        :O3 => 1e12,       # ~40 ppb
-        :NO => 2.5e9,      # ~0.1 ppb
-        :NO2 => 2.5e10,    # ~1 ppb
-        :CO => 2.5e12,     # ~100 ppb
-        :CH4 => 4.5e13,    # ~1800 ppb
-        :OH => 1e6,        # typical daytime
-        :HO2 => 1e8,       # typical daytime
-        :CH3O2 => 1e8,     # typical daytime
+        # Concentrations in m⁻³ (= molecules/cm³ × 10⁶)
+        :M => 2.5e25,      # Total air at STP
+        :O2 => 5.25e24,    # 21% of M
+        :H2O => 4e23,      # ~1% relative humidity equivalent
+        :O3 => 1e18,       # ~40 ppb
+        :NO => 2.5e15,     # ~0.1 ppb
+        :NO2 => 2.5e16,    # ~1 ppb
+        :CO => 2.5e18,     # ~100 ppb
+        :CH4 => 4.5e19,    # ~1800 ppb
+        :OH => 1e12,       # typical daytime
+        :HO2 => 1e14,      # typical daytime
+        :CH3O2 => 1e14,    # typical daytime
     )
 end
 
@@ -185,20 +187,22 @@ end
     get_urban_conditions()
 
 Returns a dictionary of typical urban conditions with elevated NOx.
+
+All concentrations in SI units (m⁻³).
 """
 function get_urban_conditions()
     return Dict(
-        :M => 2.5e19,
-        :O2 => 5.25e18,
-        :H2O => 4e17,
-        :O3 => 2e12,       # ~80 ppb (can be high in urban areas)
-        :NO => 2.5e11,     # ~10 ppb
-        :NO2 => 7.5e11,    # ~30 ppb
-        :CO => 5e13,       # ~2 ppm
-        :CH4 => 4.5e13,    # ~1800 ppb
-        :OH => 5e5,        # reduced due to high NOx
-        :HO2 => 5e7,       # reduced due to high NOx
-        :CH3O2 => 5e7,
+        :M => 2.5e25,
+        :O2 => 5.25e24,
+        :H2O => 4e23,
+        :O3 => 2e18,       # ~80 ppb (can be high in urban areas)
+        :NO => 2.5e17,     # ~10 ppb
+        :NO2 => 7.5e17,    # ~30 ppb
+        :CO => 5e19,       # ~2 ppm
+        :CH4 => 4.5e19,    # ~1800 ppb
+        :OH => 5e11,       # reduced due to high NOx
+        :HO2 => 5e13,      # reduced due to high NOx
+        :CH3O2 => 5e13,
     )
 end
 
@@ -206,19 +210,21 @@ end
     get_remote_conditions()
 
 Returns a dictionary of typical remote/background conditions with low NOx.
+
+All concentrations in SI units (m⁻³).
 """
 function get_remote_conditions()
     return Dict(
-        :M => 2.5e19,
-        :O2 => 5.25e18,
-        :H2O => 4e17,
-        :O3 => 7.5e11,     # ~30 ppb
-        :NO => 2.5e8,      # ~10 ppt
-        :NO2 => 5e8,       # ~20 ppt
-        :CO => 2e12,       # ~80 ppb
-        :CH4 => 4.5e13,    # ~1800 ppb
-        :OH => 1e6,
-        :HO2 => 2e8,       # higher due to low NOx
-        :CH3O2 => 2e8,
+        :M => 2.5e25,
+        :O2 => 5.25e24,
+        :H2O => 4e23,
+        :O3 => 7.5e17,     # ~30 ppb
+        :NO => 2.5e14,     # ~10 ppt
+        :NO2 => 5e14,      # ~20 ppt
+        :CO => 2e18,       # ~80 ppb
+        :CH4 => 4.5e19,    # ~1800 ppb
+        :OH => 1e12,
+        :HO2 => 2e14,      # higher due to low NOx
+        :CH3O2 => 2e14,
     )
 end

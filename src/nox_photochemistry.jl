@@ -59,51 +59,51 @@ Implements the photostationary state relationships (Eqs. 6.5-6.8) from
 Seinfeld & Pandis Chapter 6.
 
 # Input Variables
-- `NO`: Nitric oxide concentration [molecules cm⁻³]
-- `NO2`: Nitrogen dioxide concentration [molecules cm⁻³]
-- `O3`: Ozone concentration [molecules cm⁻³]
-- `O2`: Molecular oxygen concentration [molecules cm⁻³]
-- `M`: Total air number density [molecules cm⁻³]
+- `NO`: Nitric oxide concentration [m⁻³]
+- `NO2`: Nitrogen dioxide concentration [m⁻³]
+- `O3`: Ozone concentration [m⁻³]
+- `O2`: Molecular oxygen concentration [m⁻³]
+- `M`: Total air number density [m⁻³]
 
 # Output Variables
-- `O`: Ground-state oxygen atom concentration [molecules cm⁻³]
-- `O3_pss`: Photostationary state ozone concentration [molecules cm⁻³]
+- `O`: Ground-state oxygen atom concentration [m⁻³]
+- `O3_pss`: Photostationary state ozone concentration [m⁻³]
 - `Φ`: Photostationary state parameter [dimensionless]
-- `P_O3`: Net ozone production rate [molecules cm⁻³ s⁻¹]
+- `P_O3`: Net ozone production rate [m⁻³ s⁻¹]
 
 # Parameters
 - `j_NO2`: NO₂ photolysis rate [s⁻¹]
-- `k_O_O2_M`: Rate constant for O + O₂ + M → O₃ [cm⁶ molecule⁻² s⁻¹]
-- `k_NO_O3`: Rate constant for NO + O₃ → NO₂ + O₂ [cm³ molecule⁻¹ s⁻¹]
+- `k_O_O2_M`: Rate constant for O + O₂ + M → O₃ [m⁶ s⁻¹]
+- `k_NO_O3`: Rate constant for NO + O₃ → NO₂ + O₂ [m³ s⁻¹]
 
 # Rate Constants at 298 K (from Table B.1)
 - j_NO2 ≈ 8 × 10⁻³ s⁻¹ (typical midday value)
-- k_O_O2_M = 6.0 × 10⁻³⁴ cm⁶ molecule⁻² s⁻¹
-- k_NO_O3 = 1.8 × 10⁻¹⁴ cm³ molecule⁻¹ s⁻¹
+- k_O_O2_M = 6.0 × 10⁻³⁴ cm⁶ molecule⁻² s⁻¹ = 6.0 × 10⁻⁴⁶ m⁶ s⁻¹
+- k_NO_O3 = 1.8 × 10⁻¹⁴ cm³ molecule⁻¹ s⁻¹ = 1.8 × 10⁻²⁰ m³ s⁻¹
 """
 @component function NOxPhotochemistry(; name=:NOxPhotochemistry)
-    # Parameters
+    # Parameters (rate constants converted to SI)
     @parameters begin
         j_NO2 = 8e-3, [description = "NO₂ photolysis rate", unit = u"s^-1"]
-        k_O_O2_M = 6.0e-34, [description = "O + O₂ + M → O₃ rate", unit = u"cm^6/molec^2/s"]
-        k_NO_O3 = 1.8e-14, [description = "NO + O₃ → NO₂ rate", unit = u"cm^3/molec/s"]
+        k_O_O2_M = 6.0e-34 * 1e-12, [description = "O + O₂ + M → O₃ rate (6.0e-34 cm⁶/molec²/s)", unit = u"m^6/s"]
+        k_NO_O3 = 1.8e-14 * 1e-6, [description = "NO + O₃ → NO₂ rate (1.8e-14 cm³/molec/s)", unit = u"m^3/s"]
     end
 
-    # Input variables
+    # Input variables (concentrations in SI: m⁻³)
     @variables begin
-        NO(t), [description = "NO concentration", unit = u"molec/cm^3"]
-        NO2(t), [description = "NO₂ concentration", unit = u"molec/cm^3"]
-        O3(t), [description = "O₃ concentration", unit = u"molec/cm^3"]
-        O2(t), [description = "O₂ concentration", unit = u"molec/cm^3"]
-        M(t), [description = "Total air number density", unit = u"molec/cm^3"]
+        NO(t), [description = "NO concentration", unit = u"m^-3"]
+        NO2(t), [description = "NO₂ concentration", unit = u"m^-3"]
+        O3(t), [description = "O₃ concentration", unit = u"m^-3"]
+        O2(t), [description = "O₂ concentration", unit = u"m^-3"]
+        M(t), [description = "Total air number density", unit = u"m^-3"]
     end
 
     # Output variables
     @variables begin
-        O(t), [description = "O atom concentration", unit = u"molec/cm^3"]
-        O3_pss(t), [description = "Photostationary state O₃", unit = u"molec/cm^3"]
+        O(t), [description = "O atom concentration", unit = u"m^-3"]
+        O3_pss(t), [description = "Photostationary state O₃", unit = u"m^-3"]
         Φ(t), [description = "Photostationary state parameter (dimensionless)", unit = u"1"]
-        P_O3(t), [description = "Net O₃ production rate", unit = u"molec/cm^3/s"]
+        P_O3(t), [description = "Net O₃ production rate", unit = u"m^-3*s^-1"]
     end
 
     # Equations
@@ -121,7 +121,7 @@ Seinfeld & Pandis Chapter 6.
         P_O3 ~ j_NO2 * NO2 - k_NO_O3 * NO * O3,
     ]
 
-    return System(eqs, t; name, checks=false)
+    return System(eqs, t; name)
 end
 
 """
@@ -137,17 +137,21 @@ When Φ < 1: Additional reductants are present
 When Φ = 1: Pure photostationary state (no net ozone production)
 """
 @component function PhotostationaryState(; name=:PhotostationaryState)
+    @constants begin
+        one = 1, [description = "Unity constant for PSS deviation (dimensionless)", unit = u"1"]
+    end
+
     # Parameters
     @parameters begin
         j_NO2 = 8e-3, [description = "NO₂ photolysis rate", unit = u"s^-1"]
-        k_NO_O3 = 1.8e-14, [description = "NO + O₃ → NO₂ rate", unit = u"cm^3/molec/s"]
+        k_NO_O3 = 1.8e-14 * 1e-6, [description = "NO + O₃ → NO₂ rate (1.8e-14 cm³/molec/s)", unit = u"m^3/s"]
     end
 
     # Input variables
     @variables begin
-        NO(t), [description = "NO concentration", unit = u"molec/cm^3"]
-        NO2(t), [description = "NO₂ concentration", unit = u"molec/cm^3"]
-        O3(t), [description = "O₃ concentration", unit = u"molec/cm^3"]
+        NO(t), [description = "NO concentration", unit = u"m^-3"]
+        NO2(t), [description = "NO₂ concentration", unit = u"m^-3"]
+        O3(t), [description = "O₃ concentration", unit = u"m^-3"]
     end
 
     # Output variables
@@ -158,8 +162,8 @@ When Φ = 1: Pure photostationary state (no net ozone production)
 
     eqs = [
         Φ ~ j_NO2 * NO2 / (k_NO_O3 * NO * O3),
-        Φ_deviation ~ Φ - 1,
+        Φ_deviation ~ Φ - one,
     ]
 
-    return System(eqs, t; name, checks=false)
+    return System(eqs, t; name)
 end

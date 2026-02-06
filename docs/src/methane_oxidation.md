@@ -153,7 +153,7 @@ L_OH = k10 * OH
 L_total = L_OH + j11 + j12
 
 fractions = [L_OH / L_total * 100, j11 / L_total * 100, j12 / L_total * 100]
-labels_bar = ["HCHO + OH\n(radical)" "HCHO + hν → HCO + H\n(radical)" "HCHO + hν → H₂ + CO\n(molecular)"]
+labels_bar = ["HCHO + OH\n(radical)", "HCHO + hν → HCO + H\n(radical)", "HCHO + hν → H₂ + CO\n(molecular)"]
 
 bar(labels_bar, fractions,
     ylabel="Fraction of HCHO Loss (%)",

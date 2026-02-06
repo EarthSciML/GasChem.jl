@@ -87,7 +87,7 @@ header = vcat([:Species, :Units], [Symbol(c[1]) for c in conditions])
 
 rows = []
 for s in species
-    ppb_factor = 2.5e10  # molec/cm3 per ppb at STP
+    ppb_factor = 2.5e16  # m⁻³ per ppb at STP
     vals = [c[2][s] for c in conditions]
     ppb_vals = vals ./ ppb_factor
     push!(rows, (
@@ -116,26 +116,26 @@ how net O3 production and OPE vary across a range of NOx levels.
 ```@example combined
 using Plots
 
-# Rate constants at 298 K (from the combined system's subsystems)
-k_HO2_NO = 8.1e-12   # HO2 + NO [cm3/molec/s]
-k_CH3O2_NO = 7.7e-12 # CH3O2 + NO [cm3/molec/s]
-k_OH_NO2 = 1.0e-11   # OH + NO2 [cm3/molec/s]
-k_NO_O3 = 1.8e-14    # NO + O3 [cm3/molec/s]
-k_OH_O3 = 7.3e-14    # OH + O3 [cm3/molec/s]
-k_HO2_O3 = 2.0e-15   # HO2 + O3 [cm3/molec/s]
-k_HO2_HO2 = 2.9e-12  # HO2 + HO2 [cm3/molec/s]
-k_CO_OH = 2.4e-13     # CO + OH [cm3/molec/s]
+# Rate constants at 298 K (SI: m³/s)
+k_HO2_NO = 8.1e-12 * 1e-6   # HO2 + NO [m³/s]
+k_CH3O2_NO = 7.7e-12 * 1e-6 # CH3O2 + NO [m³/s]
+k_OH_NO2 = 1.0e-11 * 1e-6   # OH + NO2 [m³/s]
+k_NO_O3 = 1.8e-14 * 1e-6    # NO + O3 [m³/s]
+k_OH_O3 = 7.3e-14 * 1e-6    # OH + O3 [m³/s]
+k_HO2_O3 = 2.0e-15 * 1e-6   # HO2 + O3 [m³/s]
+k_HO2_HO2 = 2.9e-12 * 1e-6  # HO2 + HO2 [m³/s]
+k_CO_OH = 2.4e-13 * 1e-6     # CO + OH [m³/s]
 
-# Fixed conditions (background)
-CO = 2.5e12     # 100 ppb
-O3 = 1e12       # 40 ppb
-OH = 1e6        # typical daytime
-CH3O2 = 1e8     # typical
-P_OH = 1e6      # molec/cm3/s
+# Fixed conditions (background, SI: m⁻³)
+CO = 2.5e18     # 100 ppb
+O3 = 1e18       # 40 ppb
+OH = 1e12       # typical daytime
+CH3O2 = 1e14    # typical
+P_OH = 1e12     # m⁻³/s
 
 # Vary NO from 10 ppt to 100 ppb
 NO_ppb = 10 .^ range(-2, 2, length=300)
-NO = NO_ppb .* 2.5e10
+NO = NO_ppb .* 2.5e16  # m⁻³
 NO2 = 2 .* NO  # assume NO2/NO ratio ~ 2
 
 # Estimate HO2 from steady state in two regimes
@@ -156,9 +156,9 @@ P_O3_net = P_O3_total .- L_O3_total
 L_NOx = k_OH_NO2 .* OH .* NO2
 OPE = P_O3_total ./ L_NOx
 
-p1 = plot(NO_ppb, P_O3_net ./ 1e6,
+p1 = plot(NO_ppb, P_O3_net ./ 1e12,
     xlabel="NO (ppb)",
-    ylabel="Net P(O₃) (10⁶ molec cm⁻³ s⁻¹)",
+    ylabel="Net P(O₃) (10¹² m⁻³ s⁻¹)",
     title="Net O₃ Production vs NOx",
     xscale=:log10, linewidth=2,
     label="P(O₃)_net", legend=:topleft)
@@ -214,8 +214,8 @@ for (name, cond) in environments
 
     push!(results, (
         Environment = name,
-        NO_ppb = round(NO_val / 2.5e10, sigdigits=3),
-        O3_ppb = round(O3_val / 2.5e10, sigdigits=3),
+        NO_ppb = round(NO_val / 2.5e16, sigdigits=3),
+        O3_ppb = round(O3_val / 2.5e16, sigdigits=3),
         P_O3 = round(p_o3, sigdigits=3),
         OPE = round(ope, sigdigits=3),
         Chain_Length = round(chain, sigdigits=3),
