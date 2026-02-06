@@ -25,6 +25,7 @@ makedocs(;
             "State Variables" => "geoschem/states.md",
             "Parameters" => "geoschem/params.md"
         ],
+        "Radiation Fundamentals" => "radiation_fundamentals.md",
         "Stratospheric Chemistry" => "StratosphericChemistry.md",
         "Composing models" => "composing_models.md",
         "API" => "api.md"
