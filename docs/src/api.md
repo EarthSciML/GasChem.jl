@@ -1,13 +1,4 @@
-## Index
-
-```@index
-```
-
-## API Documentation
-
-```@docs
-GasChem.AtmosphericLifetime
-```
+# API Reference
 
 ```@autodocs
 Modules = [GasChem]

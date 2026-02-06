@@ -35,4 +35,16 @@ include("radiation_fundamentals.jl")
 include("StratosphericChemistry.jl")
 include("climate_forcing.jl")
 
+# Tropospheric chemistry from Seinfeld & Pandis Chapter 6
+include("oh_production.jl")
+include("nox_photochemistry.jl")
+include("co_oxidation.jl")
+include("methane_oxidation.jl")
+include("combined_system.jl")
+
+export OHProduction, NOxPhotochemistry, COOxidation, MethaneOxidation, MethaneOxidationODE
+export PhotostationaryState, OzoneProductionEfficiency
+export TroposphericChemistrySystem
+export TypicalConditions, UrbanConditions, RemoteConditions, get_conditions_dict
+
 end
