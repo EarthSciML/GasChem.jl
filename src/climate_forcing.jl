@@ -252,8 +252,8 @@ GWP = \\frac{a_A \\tau_A (1 - e^{-t_f/\\tau_A})}{a_{CO_2} \\tau_{CO_2} (1 - e^{-
 # Example
 
 ```julia
-# Calculate 100-year GWP for CH₄ (τ = 12 yr, relative efficiency ≈ 72)
-gwp_ch4 = GWP_exponential(12.0, 72.0, 100.0)
+# Calculate 100-year GWP for CH₄ (τ = 12 yr, fitted relative efficiency ≈ 140)
+gwp_ch4 = GWP_exponential(12.0, 140.0, 100.0)
 ```
 
 **Reference**: Seinfeld, J.H. and Pandis, S.N. (2006) *Atmospheric Chemistry and Physics:

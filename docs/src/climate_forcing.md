@@ -240,33 +240,90 @@ gwp_co2 = GWP_exponential(150.0, 1.0, 100.0)
 println("CO₂ GWP₁₀₀ = $(round(gwp_co2, digits = 1))")
 ```
 
+### Radiative Forcing After Pulse Emission (Figure 23.13)
+
+Figure 23.13 shows the instantaneous radiative forcing (W m⁻² kg⁻¹) as a function of time after a pulse release of 1 kg of several greenhouse gases (IPCC 1995). For exponentially decaying species, the forcing decays as ``a_A \exp(-t/\tau_A)``. Note that after 1 year, instantaneous forcings can differ by four orders of magnitude.
+
+```@example climate
+# Reproduce Figure 23.13: Radiative forcing vs time after pulse release
+# For exponentially decaying species: F(t) = a_A × exp(-t/τ_A)
+# Using species lifetimes as labeled in Figure 23.13
+t_years = 1:1:1000
+
+# Radiative forcing decay: a_A × exp(-t/τ_A)
+# a values are in arbitrary units relative to each other (qualitative reproduction)
+forcing_c2f6 = [816.0 * exp(-Float64(t) / 10000.0) for t in t_years]
+forcing_n2o = [326.0 * exp(-Float64(t) / 120.0) for t in t_years]
+forcing_co2 = [1.0 * exp(-Float64(t) / 150.0) for t in t_years]
+forcing_hcfc225 = [100.0 * exp(-Float64(t) / 2.5) for t in t_years]
+forcing_hfc134a = [692.0 * exp(-Float64(t) / 1.4) for t in t_years]
+
+p = plot(t_years, forcing_c2f6, label = "C₂F₆ (τ≈10000 yr)", lw = 2,
+    xscale = :log10, yscale = :log10,
+    ylim = (1e-8, 1e4))
+plot!(p, t_years, forcing_n2o, label = "N₂O (τ≈120 yr)", lw = 2)
+plot!(p, t_years, forcing_co2, label = "CO₂ (τ≈150 yr)", lw = 2)
+plot!(p, t_years, forcing_hcfc225, label = "HCFC-225ca (τ≈2.5 yr)", lw = 2)
+plot!(p, t_years, forcing_hfc134a, label = "HFC-134a (τ≈1.4 yr)", lw = 2)
+xlabel!(p, "Time (years)")
+ylabel!(p, "Instantaneous Radiative Forcing (relative)")
+title!(p, "Radiative Forcing After Pulse Emission (cf. Figure 23.13)")
+p
+```
+
+### Absolute GWP vs Time Horizon (Figure 23.14)
+
+Figure 23.14 shows the time-integrated radiative forcing (absolute GWP, W m⁻² kg⁻¹ yr) for a range of greenhouse gases, computed from the pulse-decay curves of Figure 23.13 (IPCC 1995). The AGWP is the numerator of the GWP expression (Eq. 23.6).
+
+```@example climate
+# Reproduce Figure 23.14: Absolute GWP (time-integrated forcing) vs time horizon
+# AGWP_A = a_A × τ_A × (1 - exp(-t_f/τ_A))
+t_horizons_long = 1:1:1000
+
+agwp_c2f6 = [816.0 * 10000.0 * (1 - exp(-Float64(t) / 10000.0)) for t in t_horizons_long]
+agwp_hfc134a = [692.0 * 1.4 * (1 - exp(-Float64(t) / 1.4)) for t in t_horizons_long]
+agwp_hcfc225 = [100.0 * 2.5 * (1 - exp(-Float64(t) / 2.5)) for t in t_horizons_long]
+agwp_n2o = [326.0 * 120.0 * (1 - exp(-Float64(t) / 120.0)) for t in t_horizons_long]
+agwp_co2 = [1.0 * 150.0 * (1 - exp(-Float64(t) / 150.0)) for t in t_horizons_long]
+
+p = plot(t_horizons_long, agwp_c2f6, label = "C₂F₆ (τ≈10000 yr)", lw = 2,
+    xscale = :log10, yscale = :log10)
+plot!(p, t_horizons_long, agwp_hfc134a, label = "HFC-134a (τ≈1.4 yr)", lw = 2)
+plot!(p, t_horizons_long, agwp_hcfc225, label = "HCFC-225ca (τ≈2.5 yr)", lw = 2)
+plot!(p, t_horizons_long, agwp_n2o, label = "N₂O (τ≈120 yr)", lw = 2)
+plot!(p, t_horizons_long, agwp_co2, label = "CO₂ (τ≈150 yr)", lw = 2)
+xlabel!(p, "Time Horizon (years)")
+ylabel!(p, "Absolute Global Warming Potential (relative)")
+title!(p, "Absolute GWP vs Time Horizon (cf. Figure 23.14)")
+p
+```
+
 ### GWP Time Horizon Dependence (Figure 23.15)
 
 GWP values depend strongly on the time horizon chosen. Short-lived species have higher GWPs at short time horizons, while long-lived species have relatively higher GWPs at longer horizons. This reproduces the behavior shown in Figure 23.15 of Seinfeld & Pandis (2006), which uses log-log axes.
 
 ```@example climate
-# Calculate GWP vs time horizon for species from Table 23.1 and Figure 23.15
-# Using lifetimes from Table 23.1 and fitted radiative efficiencies
+# Calculate GWP vs time horizon for species from Figure 23.15 (IPCC 1995)
+# Using lifetimes as labeled in the figure
 t_horizons = 1:1:500
 
-# C₂F₆ (τ = 10,000 yr, Table 23.1)
+# C₂F₆ (τ ~ 10,000 yr, as labeled in Figure 23.15)
 gwp_c2f6 = [GWP_exponential(10000.0, 816.0, Float64(t)) for t in t_horizons]
 
-# HFC-134a (τ = 13.8 yr, Table 23.1) -- note: Figure 23.15 uses τ ~ 1.4 yr
-# but Table 23.1 lists 13.8 yr. We use the Table 23.1 value.
-gwp_hfc134a = [GWP_exponential(13.8, 692.0, Float64(t)) for t in t_horizons]
+# HFC-134a (τ ~ 1.4 yr, as labeled in Figure 23.15)
+gwp_hfc134a = [GWP_exponential(1.4, 692.0, Float64(t)) for t in t_horizons]
 
-# N₂O (τ = 114 yr, Table 23.1; Figure 23.15 labels as ~120 yr)
-gwp_n2o = [GWP_exponential(114.0, 326.0, Float64(t)) for t in t_horizons]
+# N₂O (τ ~ 120 yr, as labeled in Figure 23.15)
+gwp_n2o = [GWP_exponential(120.0, 326.0, Float64(t)) for t in t_horizons]
 
-# HCFC-225ca-like (τ = 2.5 yr, as labeled in Figure 23.15)
+# HCFC-225ca (τ ~ 2.5 yr, as labeled in Figure 23.15)
 gwp_hcfc225 = [GWP_exponential(2.5, 100.0, Float64(t)) for t in t_horizons]
 
-p = plot(t_horizons, gwp_c2f6, label = "C₂F₆ (τ=10000 yr)", lw = 2,
+p = plot(t_horizons, gwp_c2f6, label = "C₂F₆ (τ≈10000 yr)", lw = 2,
     xscale = :log10, yscale = :log10)
-plot!(p, t_horizons, gwp_hfc134a, label = "HFC-134a (τ=13.8 yr)", lw = 2)
-plot!(p, t_horizons, gwp_n2o, label = "N₂O (τ=114 yr)", lw = 2)
-plot!(p, t_horizons, gwp_hcfc225, label = "HCFC-225ca (τ=2.5 yr)", lw = 2)
+plot!(p, t_horizons, gwp_hfc134a, label = "HFC-134a (τ≈1.4 yr)", lw = 2)
+plot!(p, t_horizons, gwp_n2o, label = "N₂O (τ≈120 yr)", lw = 2)
+plot!(p, t_horizons, gwp_hcfc225, label = "HCFC-225ca (τ≈2.5 yr)", lw = 2)
 xlabel!(p, "Time Horizon (years)")
 ylabel!(p, "Global Warming Potential")
 title!(p, "GWP vs Time Horizon (cf. Figure 23.15)")
