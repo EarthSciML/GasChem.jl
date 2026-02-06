@@ -41,7 +41,7 @@ function Pollu(; name = :Pollu, rxn_sys = false)
             k12 = 0.12e5 / (60.0 * 1e3), [unit = u"1/(ppb*s)", description = "MEO2 + NO rate (R12)"]
             k13 = 1.88 / 60.0, [unit = u"1/s", description = "CH3O thermal decomposition rate (R13)"]
             k14 = 0.163e5 / (60.0 * 1e3), [unit = u"1/(ppb*s)", description = "NO2 + OH rate (R14)"]
-            k15 = 0.48e8 / 60.0, [unit = u"s^-1", description = "O3P + O2 + M recombination rate (R15)"]
+            k15 = 0.48e7 / 60.0, [unit = u"s^-1", description = "O3P + O2 + M recombination rate (R15)"]
             jO3_O1D = 0.35e-3 / 60.0, [unit = u"s^-1", description = "O3 photolysis to O1D (R16)"]
             jO3_O3P = 0.175e-1 / 60.0, [unit = u"s^-1", description = "O3 photolysis to O3P (R17)"]
             k18 = 0.1e9 / (60.0), [unit = u"s^-1", description = "O1D + H2O rate (R18)"]
