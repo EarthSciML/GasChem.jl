@@ -28,7 +28,7 @@ vars = unknowns(model)[1:12]
 using DataFrames
 DataFrame(
     :Name => [string(Symbolics.tosymbol(v, escape = false)) for v in vars],
-    :Units => [ModelingToolkit.get_unit(v) for v in vars],
+    :Units => [dimension(ModelingToolkit.get_unit(v)) for v in vars],
     :Description => [ModelingToolkit.getdescription(v) for v in vars],
     :Default => [ModelingToolkit.getdefault(v) for v in vars])
 ```
@@ -39,7 +39,7 @@ And here are the parameters:
 vars = parameters(model)
 DataFrame(
     :Name => [string(Symbolics.tosymbol(v, escape = false)) for v in vars],
-    :Units => [ModelingToolkit.get_unit(v) for v in vars],
+    :Units => [dimension(ModelingToolkit.get_unit(v)) for v in vars],
     :Description => [ModelingToolkit.getdescription(v) for v in vars],
     :Default => [ModelingToolkit.getdefault(v) for v in vars])
 ```

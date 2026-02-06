@@ -31,7 +31,7 @@ model = Pollu()
 vars = unknowns(model)
 DataFrame(
     :Name => [string(Symbolics.tosymbol(v, escape = false)) for v in vars],
-    :Units => [ModelingToolkit.get_unit(v) for v in vars],
+    :Units => [dimension(ModelingToolkit.get_unit(v)) for v in vars],
     :Description => [ModelingToolkit.getdescription(v) for v in vars],
     :Default => [ModelingToolkit.getdefault(v) for v in vars]
 )
@@ -43,7 +43,7 @@ DataFrame(
 params = parameters(model)
 DataFrame(
     :Name => [string(Symbolics.tosymbol(v, escape = false)) for v in params],
-    :Units => [ModelingToolkit.get_unit(v) for v in params],
+    :Units => [dimension(ModelingToolkit.get_unit(v)) for v in params],
     :Description => [ModelingToolkit.getdescription(v) for v in params],
     :Default => [ModelingToolkit.getdefault(v) for v in params]
 )

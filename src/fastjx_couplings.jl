@@ -83,7 +83,6 @@ end
 function EarthSciMLBase.couple2(c::SuperFastCoupler, p::FastJXCoupler)
     c, p = c.sys, p.sys
     c = param_to_var(
-        #convert(ODESystem, c),
         c,
         :jH2O2,
         :jNO2,
@@ -107,7 +106,6 @@ end
 function EarthSciMLBase.couple2(c::PolluCoupler, p::FastJXCoupler)
     c, p = c.sys, p.sys
     c = param_to_var(
-        #convert(ODESystem, c),
         c,
         :jNO2_O3P,
         :jH2COa,
