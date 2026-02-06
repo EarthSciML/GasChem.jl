@@ -81,7 +81,6 @@ All species concentrations must be provided as inputs [m⁻³].
         OH(t), [description = "Hydroxyl radical", unit = u"m^-3"]
         HO2(t), [description = "Hydroperoxy radical", unit = u"m^-3"]
         CO(t), [description = "Carbon monoxide", unit = u"m^-3"]
-        CH4(t), [description = "Methane", unit = u"m^-3"]
         CH3O2(t), [description = "Methylperoxy radical", unit = u"m^-3"]
         H2O(t), [description = "Water vapor", unit = u"m^-3"]
         M(t), [description = "Total air density", unit = u"m^-3"]

@@ -166,8 +166,8 @@ using Plots, NonlinearSolve
 
 sys_nns = ModelingToolkit.toggle_namespacing(sys, false)
 input_vars = [sys_nns.CH4, sys_nns.CH3, sys_nns.CH3O2, sys_nns.CH3O, sys_nns.CH3OOH,
-              sys_nns.HCHO, sys_nns.HCO, sys_nns.OH, sys_nns.HO2, sys_nns.H,
-              sys_nns.NO, sys_nns.NO2, sys_nns.O, sys_nns.O2, sys_nns.M]
+    sys_nns.HCHO, sys_nns.HCO, sys_nns.OH, sys_nns.HO2, sys_nns.H,
+    sys_nns.NO, sys_nns.NO2, sys_nns.O, sys_nns.O2, sys_nns.M]
 compiled = mtkcompile(sys; inputs = input_vars)
 
 # Fixed conditions (SI: m⁻³)

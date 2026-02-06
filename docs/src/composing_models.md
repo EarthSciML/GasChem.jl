@@ -55,7 +55,8 @@ Here's a simple example:
 
 ```@example 2
 using GasChem, EarthSciData # This will trigger the emission extension
-using Dates, ModelingToolkit, OrdinaryDiffEqDefault, OrdinaryDiffEqRosenbrock, EarthSciMLBase
+using Dates, ModelingToolkit, OrdinaryDiffEqDefault, OrdinaryDiffEqRosenbrock,
+      EarthSciMLBase
 using Plots, DynamicQuantities
 using ModelingToolkit: t
 

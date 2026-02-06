@@ -116,48 +116,63 @@ O3 production increases linearly with NOx. In the VOC-limited regime
 (urban conditions), adding more NOx can actually decrease O3.
 
 This analysis uses the `TroposphericChemistrySystem` to compute how
-net O3 production and OPE vary across a range of NOx levels.
+net O3 production and OPE vary across a range of NOx levels. The HO2
+concentration is estimated from steady-state approximations (Eqs. 6.13
+and 6.18), and the resulting concentrations are fed into the compiled
+system to compute the diagnostics.
 
 ```@example combined
-using Plots
+using Plots, NonlinearSolve
 
-# Rate constants at 298 K (SI: m³/s) — same defaults as TroposphericChemistrySystem parameters
-k_HO2_NO = 8.1e-12 * 1e-6
-k_HO2_HO2 = 2.9e-12 * 1e-6
-k_CO_OH = 2.4e-13 * 1e-6
-k_CH3O2_NO = 7.7e-12 * 1e-6
-k_OH_NO2 = 1.0e-11 * 1e-6
-k_NO_O3 = 1.9e-14 * 1e-6
-k_OH_O3 = 7.3e-14 * 1e-6
-k_HO2_O3 = 2.0e-15 * 1e-6
+# Compile the TroposphericChemistrySystem with all species as inputs
+sys_nns = ModelingToolkit.toggle_namespacing(sys, false)
+input_vars = [sys_nns.O3, sys_nns.NO, sys_nns.NO2, sys_nns.OH, sys_nns.HO2,
+    sys_nns.CO, sys_nns.CH3O2, sys_nns.H2O, sys_nns.M, sys_nns.O2]
+compiled = mtkcompile(sys; inputs = input_vars)
+
+# Extract rate constants from the system parameters for HO2 estimation
+k_HO2_NO_val = Float64(ModelingToolkit.getdefault(sys.co.k_HO2_NO))
+k_HO2_HO2_val = Float64(ModelingToolkit.getdefault(sys.co.k_HO2_HO2))
+k_CO_OH_val = Float64(ModelingToolkit.getdefault(sys.co.k_CO_OH))
 
 # Fixed conditions (background, SI: m⁻³)
 CO_val = 2.5e18     # 100 ppb
 O3_val = 1e18       # 40 ppb
 OH_val = 1e12       # typical daytime
 CH3O2_val = 1e14    # typical
-CH4_val = 4.5e19    # ~1800 ppb
 H2O_val = 4e23
 M_val = 2.5e25
 O2_val = 5.25e24
-P_OH = 1e12         # m⁻³/s (for HO2 estimation)
+P_HOx_est = 1e12    # m⁻³/s (for HO2 estimation from Eq. 6.13)
 
 # Vary NO from 10 ppt to 100 ppb
 NO_ppb = 10 .^ range(-2, 2, length = 300)
 NO_vals = NO_ppb .* 2.5e16  # m⁻³
 NO2_vals = 2 .* NO_vals     # assume NO2/NO ratio ~ 2
 
-# Estimate HO2 from steady state in two regimes
-HO2_high_NOx = k_CO_OH .* CO_val .* OH_val ./ (k_HO2_NO .* NO_vals)
-HO2_low_NOx = sqrt(P_OH / (2 * k_HO2_HO2))
+# Estimate HO2 from steady state (Eqs. 6.13 and 6.18)
+HO2_high_NOx = k_CO_OH_val .* CO_val .* OH_val ./ (k_HO2_NO_val .* NO_vals)
+HO2_low_NOx = sqrt(P_HOx_est / (2 * k_HO2_HO2_val))
 HO2_vals = min.(HO2_high_NOx, HO2_low_NOx)
 
-# Compute diagnostics using rate constants from the combined system
-P_O3_total = k_HO2_NO .* HO2_vals .* NO_vals .+ k_CH3O2_NO .* CH3O2_val .* NO_vals
-L_O3_total = k_NO_O3 .* NO_vals .* O3_val .+ k_OH_O3 .* OH_val .* O3_val .+ k_HO2_O3 .* HO2_vals .* O3_val
-P_O3_net_vals = P_O3_total .- L_O3_total
-L_NOx = k_OH_NO2 .* OH_val .* NO2_vals
-OPE_vals = P_O3_total ./ L_NOx
+# Solve the combined system for each NO level
+prob = NonlinearProblem(compiled,
+    Dict(compiled.O3 => O3_val, compiled.NO => NO_vals[1], compiled.NO2 => NO2_vals[1],
+        compiled.OH => OH_val, compiled.HO2 => HO2_vals[1], compiled.CO => CO_val,
+        compiled.CH3O2 => CH3O2_val, compiled.H2O => H2O_val, compiled.M => M_val,
+        compiled.O2 => O2_val);
+    build_initializeprob = false)
+
+P_O3_net_vals = Float64[]
+OPE_result = Float64[]
+for i in eachindex(NO_ppb)
+    newprob = remake(prob,
+        p = [compiled.NO => NO_vals[i], compiled.NO2 => NO2_vals[i],
+            compiled.HO2 => HO2_vals[i]])
+    sol = solve(newprob)
+    push!(P_O3_net_vals, sol[compiled.P_O3_net])
+    push!(OPE_result, sol[compiled.OPE])
+end
 
 p1 = plot(NO_ppb, P_O3_net_vals ./ 1e12,
     xlabel = "NO (ppb)",
@@ -168,7 +183,7 @@ p1 = plot(NO_ppb, P_O3_net_vals ./ 1e12,
 vline!([0.1], linestyle = :dash, color = :gray, label = "Background NO")
 vline!([10.0], linestyle = :dash, color = :red, label = "Urban NO")
 
-p2 = plot(NO_ppb, OPE_vals,
+p2 = plot(NO_ppb, OPE_result,
     xlabel = "NO (ppb)",
     ylabel = "OPE (mol O₃ / mol NOx)",
     title = "Ozone Production Efficiency",
@@ -192,7 +207,8 @@ environments, consistent with Section 6.3 of Seinfeld & Pandis.
 ### Comparison of Atmospheric Conditions
 
 This table computes key diagnostics for each of the three standard atmospheric
-environments using the rate constants from the `TroposphericChemistrySystem`.
+environments by compiling and solving the `TroposphericChemistrySystem` with
+the conditions from each environment.
 
 ```@example combined
 environments = [
@@ -203,27 +219,22 @@ environments = [
 
 results = []
 for (name, cond) in environments
-    NO_v = cond[:NO]
-    NO2_v = cond[:NO2]
-    OH_v = cond[:OH]
-    HO2_v = cond[:HO2]
-    O3_v = cond[:O3]
-    CH3O2_v = cond[:CH3O2]
-
-    p_o3 = k_HO2_NO * HO2_v * NO_v + k_CH3O2_NO * CH3O2_v * NO_v
-    l_nox = k_OH_NO2 * OH_v * NO2_v
-    ope = p_o3 / l_nox
-    l_hox = k_OH_NO2 * OH_v * NO2_v + 2 * k_HO2_HO2 * HO2_v^2
-    chain = (k_HO2_NO * HO2_v * NO_v) / l_hox
+    env_prob = remake(prob,
+        p = [compiled.O3 => cond[:O3], compiled.NO => cond[:NO],
+            compiled.NO2 => cond[:NO2], compiled.OH => cond[:OH],
+            compiled.HO2 => cond[:HO2], compiled.CO => cond[:CO],
+            compiled.CH3O2 => cond[:CH3O2], compiled.H2O => cond[:H2O],
+            compiled.M => cond[:M], compiled.O2 => cond[:O2]])
+    sol = solve(env_prob)
 
     push!(results,
         (
             Environment = name,
-            NO_ppb = round(NO_v / 2.5e16, sigdigits = 3),
-            O3_ppb = round(O3_v / 2.5e16, sigdigits = 3),
-            P_O3 = round(p_o3, sigdigits = 3),
-            OPE = round(ope, sigdigits = 3),
-            Chain_Length = round(chain, sigdigits = 3)
+            NO_ppb = round(cond[:NO] / 2.5e16, sigdigits = 3),
+            O3_ppb = round(cond[:O3] / 2.5e16, sigdigits = 3),
+            P_O3 = round(sol[compiled.P_O3_total], sigdigits = 3),
+            OPE = round(sol[compiled.OPE], sigdigits = 3),
+            Chain_Length = round(sol[compiled.chain_length], sigdigits = 3)
         ))
 end
 
