@@ -256,7 +256,7 @@ forcing_c2f6 = [816.0 * exp(-Float64(t) / 10000.0) for t in t_years]
 forcing_n2o = [326.0 * exp(-Float64(t) / 120.0) for t in t_years]
 forcing_co2 = [1.0 * exp(-Float64(t) / 150.0) for t in t_years]
 forcing_hcfc225 = [100.0 * exp(-Float64(t) / 2.5) for t in t_years]
-forcing_hfc134a = [692.0 * exp(-Float64(t) / 1.4) for t in t_years]
+forcing_hfc134a = [692.0 * exp(-Float64(t) / 13.8) for t in t_years]
 
 p = plot(t_years, forcing_c2f6, label = "C₂F₆ (τ≈10000 yr)", lw = 2,
     xscale = :log10, yscale = :log10,
@@ -264,7 +264,7 @@ p = plot(t_years, forcing_c2f6, label = "C₂F₆ (τ≈10000 yr)", lw = 2,
 plot!(p, t_years, forcing_n2o, label = "N₂O (τ≈120 yr)", lw = 2)
 plot!(p, t_years, forcing_co2, label = "CO₂ (τ≈150 yr)", lw = 2)
 plot!(p, t_years, forcing_hcfc225, label = "HCFC-225ca (τ≈2.5 yr)", lw = 2)
-plot!(p, t_years, forcing_hfc134a, label = "HFC-134a (τ≈1.4 yr)", lw = 2)
+plot!(p, t_years, forcing_hfc134a, label = "HFC-134a (τ≈13.8 yr)", lw = 2)
 xlabel!(p, "Time (years)")
 ylabel!(p, "Instantaneous Radiative Forcing (relative)")
 title!(p, "Radiative Forcing After Pulse Emission (cf. Figure 23.13)")
@@ -281,14 +281,14 @@ Figure 23.14 shows the time-integrated radiative forcing (absolute GWP, W m⁻²
 t_horizons_long = 1:1:1000
 
 agwp_c2f6 = [816.0 * 10000.0 * (1 - exp(-Float64(t) / 10000.0)) for t in t_horizons_long]
-agwp_hfc134a = [692.0 * 1.4 * (1 - exp(-Float64(t) / 1.4)) for t in t_horizons_long]
+agwp_hfc134a = [692.0 * 13.8 * (1 - exp(-Float64(t) / 13.8)) for t in t_horizons_long]
 agwp_hcfc225 = [100.0 * 2.5 * (1 - exp(-Float64(t) / 2.5)) for t in t_horizons_long]
 agwp_n2o = [326.0 * 120.0 * (1 - exp(-Float64(t) / 120.0)) for t in t_horizons_long]
 agwp_co2 = [1.0 * 150.0 * (1 - exp(-Float64(t) / 150.0)) for t in t_horizons_long]
 
 p = plot(t_horizons_long, agwp_c2f6, label = "C₂F₆ (τ≈10000 yr)", lw = 2,
     xscale = :log10, yscale = :log10)
-plot!(p, t_horizons_long, agwp_hfc134a, label = "HFC-134a (τ≈1.4 yr)", lw = 2)
+plot!(p, t_horizons_long, agwp_hfc134a, label = "HFC-134a (τ≈13.8 yr)", lw = 2)
 plot!(p, t_horizons_long, agwp_hcfc225, label = "HCFC-225ca (τ≈2.5 yr)", lw = 2)
 plot!(p, t_horizons_long, agwp_n2o, label = "N₂O (τ≈120 yr)", lw = 2)
 plot!(p, t_horizons_long, agwp_co2, label = "CO₂ (τ≈150 yr)", lw = 2)
@@ -310,8 +310,8 @@ t_horizons = 1:1:500
 # C₂F₆ (τ ~ 10,000 yr, as labeled in Figure 23.15)
 gwp_c2f6 = [GWP_exponential(10000.0, 816.0, Float64(t)) for t in t_horizons]
 
-# HFC-134a (τ ~ 1.4 yr, as labeled in Figure 23.15)
-gwp_hfc134a = [GWP_exponential(1.4, 692.0, Float64(t)) for t in t_horizons]
+# HFC-134a (τ ~ 13.8 yr, from Table 23.1)
+gwp_hfc134a = [GWP_exponential(13.8, 692.0, Float64(t)) for t in t_horizons]
 
 # N₂O (τ ~ 120 yr, as labeled in Figure 23.15)
 gwp_n2o = [GWP_exponential(120.0, 326.0, Float64(t)) for t in t_horizons]
@@ -321,7 +321,7 @@ gwp_hcfc225 = [GWP_exponential(2.5, 100.0, Float64(t)) for t in t_horizons]
 
 p = plot(t_horizons, gwp_c2f6, label = "C₂F₆ (τ≈10000 yr)", lw = 2,
     xscale = :log10, yscale = :log10)
-plot!(p, t_horizons, gwp_hfc134a, label = "HFC-134a (τ≈1.4 yr)", lw = 2)
+plot!(p, t_horizons, gwp_hfc134a, label = "HFC-134a (τ≈13.8 yr)", lw = 2)
 plot!(p, t_horizons, gwp_n2o, label = "N₂O (τ≈120 yr)", lw = 2)
 plot!(p, t_horizons, gwp_hcfc225, label = "HCFC-225ca (τ≈2.5 yr)", lw = 2)
 xlabel!(p, "Time Horizon (years)")
