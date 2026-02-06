@@ -2,12 +2,12 @@
 
 ## Overview
 
-This module implements the fundamental equations for climate sensitivity, radiative forcing from greenhouse gases, and Global Warming Potentials (GWPs) as presented in Chapter 23 "Climate and Chemical Composition of the Atmosphere" of Seinfeld & Pandis (2006).
+This module implements the fundamental equations for climate sensitivity with feedbacks, radiative forcing from greenhouse gases, and Global Warming Potentials (GWPs) as presented in Chapter 23 "Climate and Chemical Composition of the Atmosphere" of Seinfeld & Pandis (2006).
 
 **Reference**: Seinfeld, J.H. and Pandis, S.N. (2006) *Atmospheric Chemistry and Physics: From Air Pollution to Climate Change*, 2nd Edition, Chapter 23, John Wiley & Sons.
 
 ```@docs
-ClimateSensitivity
+ClimateFeedback
 GHGForcing
 GlobalWarmingPotential
 GWP_exponential
@@ -15,9 +15,9 @@ GWP_exponential
 
 ## Implementation
 
-### Climate Sensitivity
+### Climate Feedback
 
-The climate sensitivity equations relate radiative forcing perturbations to equilibrium temperature changes (Eqs. 23.1-23.4, 23.7).
+The climate feedback equations relate radiative forcing perturbations to equilibrium temperature changes with feedbacks (Eqs. 23.1-23.4, and the unrealized warming relation from p. 1045). Note: The basic no-feedback climate sensitivity is implemented in [`ClimateSensitivity`](@ref) (Chapter 4); this component extends it by incorporating feedback processes.
 
 **Eq. 23.1** - Climate sensitivity with feedbacks:
 
@@ -43,7 +43,7 @@ E_i = \frac{\lambda_i}{\lambda_{CO_2}}
 \Delta F_e = \Delta F_i \cdot E_i
 ```
 
-**Eq. 23.7** - Unrealized (committed) warming:
+**Unrealized (committed) warming** (p. 1045):
 
 ```math
 \Delta T_{\text{unrealized}} = (\Delta F - \Delta F_r) \cdot \lambda
@@ -56,7 +56,7 @@ using GasChem, ModelingToolkit, Symbolics
 using DynamicQuantities
 using DataFrames
 
-sys = ClimateSensitivity()
+sys = ClimateFeedback()
 
 vars = unknowns(sys)
 DataFrame(
@@ -94,6 +94,8 @@ The `GHGForcing` component computes radiative forcing contributions from the maj
 | Tropospheric O₃ | 0.40           |
 | Halocarbons     | 0.34           |
 | **Total**       | **2.83**       |
+
+Note: The well-mixed GHG total (CO₂ + CH₄ + N₂O + halocarbons) is 2.43 W/m² as stated in the text; the total of 2.83 W/m² includes tropospheric O₃ forcing.
 
 #### State Variables
 
@@ -202,31 +204,32 @@ println("CO₂ GWP₁₀₀ = $(round(gwp_co2, digits=1))")
 
 ### GWP Time Horizon Dependence (Figure 23.15)
 
-GWP values depend strongly on the time horizon chosen. Short-lived species have higher GWPs at short time horizons, while long-lived species have relatively higher GWPs at longer horizons. This reproduces the behavior shown in Figure 23.15 of Seinfeld & Pandis (2006).
+GWP values depend strongly on the time horizon chosen. Short-lived species have higher GWPs at short time horizons, while long-lived species have relatively higher GWPs at longer horizons. This reproduces the behavior shown in Figure 23.15 of Seinfeld & Pandis (2006), which uses log-log axes.
 
 ```@example climate
 # Calculate GWP vs time horizon for different species
-t_horizons = 1:5:500
+t_horizons = 1:1:500
 
-# Short-lived species (τ = 2 yr, like some HFCs)
-gwp_short = [GWP_exponential(2.0, 100.0, t) for t in t_horizons]
+# HCFC-225ca-like (τ = 2.5 yr)
+gwp_hcfc225 = [GWP_exponential(2.5, 100.0, Float64(t)) for t in t_horizons]
 
-# Medium-lived (CH₄-like, τ = 12 yr)
-gwp_medium = [GWP_exponential(12.0, 140.0, t) for t in t_horizons]
+# HFC-134a-like (τ = 1.4 yr, high radiative efficiency)
+gwp_hfc134a = [GWP_exponential(1.4, 3400.0, Float64(t)) for t in t_horizons]
 
-# Long-lived (N₂O-like, τ = 114 yr)
-gwp_long = [GWP_exponential(114.0, 326.0, t) for t in t_horizons]
+# N₂O-like (τ = 120 yr)
+gwp_n2o = [GWP_exponential(120.0, 326.0, Float64(t)) for t in t_horizons]
 
-# Very long-lived (SF₆-like, τ = 3200 yr)
-gwp_very_long = [GWP_exponential(3200.0, 1000.0, t) for t in t_horizons]
+# C₂F₆-like (τ = 10000 yr)
+gwp_c2f6 = [GWP_exponential(10000.0, 1000.0, Float64(t)) for t in t_horizons]
 
-p = plot(t_horizons, gwp_short, label = "τ=2 yr (short-lived)", lw = 2)
-plot!(p, t_horizons, gwp_medium, label = "τ=12 yr (CH₄-like)", lw = 2)
-plot!(p, t_horizons, gwp_long, label = "τ=114 yr (N₂O-like)", lw = 2)
-plot!(p, t_horizons, gwp_very_long, label = "τ=3200 yr (SF₆-like)", lw = 2)
+p = plot(t_horizons, gwp_c2f6, label = "C₂F₆ (τ~10000 yr)", lw = 2,
+    xscale = :log10, yscale = :log10)
+plot!(p, t_horizons, gwp_hfc134a, label = "HFC-134a (τ~1.4 yr)", lw = 2)
+plot!(p, t_horizons, gwp_n2o, label = "N₂O (τ~120 yr)", lw = 2)
+plot!(p, t_horizons, gwp_hcfc225, label = "HCFC-225ca (τ~2.5 yr)", lw = 2)
 xlabel!(p, "Time Horizon (years)")
 ylabel!(p, "Global Warming Potential")
-title!(p, "GWP Dependence on Time Horizon (cf. Figure 23.15)")
+title!(p, "GWP vs Time Horizon (cf. Figure 23.15)")
 p
 ```
 

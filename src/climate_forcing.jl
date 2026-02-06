@@ -1,12 +1,15 @@
-export ClimateSensitivity, GlobalWarmingPotential, GWP_exponential, GHGForcing
+export ClimateFeedback, GlobalWarmingPotential, GWP_exponential, GHGForcing
 
 """
 $(TYPEDSIGNATURES)
 
-Climate sensitivity model relating radiative forcing to equilibrium temperature change.
+Climate feedback model relating radiative forcing to equilibrium temperature change with feedbacks.
 
-This model implements the fundamental climate sensitivity equations from Seinfeld & Pandis (2006),
-Chapter 23 "Climate and Chemical Composition of the Atmosphere".
+This model implements the climate sensitivity equations with feedback from Seinfeld & Pandis (2006),
+Chapter 23 "Climate and Chemical Composition of the Atmosphere", Section 23.4.
+
+Note: This extends the basic no-feedback climate sensitivity from Chapter 4 (see
+[`ClimateSensitivity`](@ref)) by incorporating climate feedback processes.
 
 The model includes:
 
@@ -14,7 +17,7 @@ The model includes:
   - Eq. 23.2: ΔT₀ = λ₀ ΔF (no-feedback temperature response)
   - Eq. 23.3: Eᵢ = λᵢ / λ_CO₂ (efficacy of forcing agents)
   - Eq. 23.4: ΔFₑ = ΔFᵢ Eᵢ (effective forcing)
-  - Eq. 23.7: Unrealized warming calculation
+  - Unrealized warming: ΔT_unrealized = (ΔF - ΔF_r) λ (see p. 1045)
 
 **Reference**: Seinfeld, J.H. and Pandis, S.N. (2006) *Atmospheric Chemistry and Physics:
 From Air Pollution to Climate Change*, 2nd Edition, Chapter 23, John Wiley & Sons.
@@ -23,26 +26,17 @@ From Air Pollution to Climate Change*, 2nd Edition, Chapter 23, John Wiley & Son
 
 ```julia
 using GasChem, ModelingToolkit
-sys = ClimateSensitivity()
+sys = ClimateFeedback()
 ```
 """
-@component function ClimateSensitivity(; name = :ClimateSensitivity)
+@component function ClimateFeedback(; name = :ClimateFeedback)
     @constants begin
-        # Radiative forcing for CO₂ doubling (IPCC 2001 best estimate)
+        # Radiative forcing for CO₂ doubling (IPCC 2001 best estimate, p. 1037)
         ΔF_2xCO2 = 3.7,
         [description = "Radiative forcing for CO₂ doubling", unit = u"W/m^2"]
-        # No-feedback temperature increase for 2×CO₂
+        # No-feedback temperature increase for 2×CO₂ (p. 1037-1038)
         ΔT0_2xCO2 = 1.25,
         [description = "No-feedback temperature change for CO₂ doubling", unit = u"K"]
-        # Reference temperature for effective emission
-        T_emission = 255,
-        [description = "Effective emission temperature (blackbody)", unit = u"K"]
-        # Mean surface temperature
-        T_surface = 288, [description = "Mean Earth surface temperature", unit = u"K"]
-        # Mean tropospheric lapse rate
-        Γ = 5.5, [description = "Mean tropospheric lapse rate", unit = u"K/km"]
-        # Effective emission altitude
-        z_emission = 6.0, [description = "Effective emission altitude", unit = u"km"]
     end
 
     @parameters begin
@@ -70,20 +64,20 @@ sys = ClimateSensitivity()
         # Eq. 23.1 - Climate sensitivity relation with feedbacks
         ΔT_s ~ λ * ΔF,
 
-        # No-feedback climate sensitivity (derived from ΔT₀ = 1.2-1.3 K for ΔF = 4 W/m²)
+        # No-feedback climate sensitivity (derived from ΔT₀ = 1.2-1.3 K for ΔF ≈ 3.7 W/m², p. 1040)
         λ_0 ~ ΔT0_2xCO2 / ΔF_2xCO2,
 
         # Eq. 23.2 - No-feedback temperature response
         ΔT_0 ~ λ_0 * ΔF,
 
-        # Eq. 23.4 - Effective forcing (incorporating efficacy)
+        # Eq. 23.4 - Effective forcing (incorporating efficacy, Eq. 23.3)
         ΔF_e ~ ΔF * E_i,
 
         # Forcing for realized warming (inverse of Eq. 23.1)
         ΔF_r ~ ΔT_r / λ,
 
-        # Eq. 23.7 - Unrealized warming (warming commitment)
-        ΔT_unrealized ~ (ΔF - ΔF_r) * λ
+        # Unrealized warming (warming commitment, p. 1045)
+        ΔT_unrealized ~ (ΔF - ΔF_r) * λ,
     ]
 
     return System(eqs, t; name)
@@ -118,9 +112,6 @@ sys = GHGForcing()
         [description = "N₂O forcing since preindustrial", unit = u"W/m^2"]
         ΔF_O3_trop_ref = 0.4, [description = "Tropospheric O₃ forcing", unit = u"W/m^2"]
         ΔF_halo_ref = 0.34, [description = "Halocarbon forcing", unit = u"W/m^2"]
-        # Total well-mixed GHG forcing
-        ΔF_GHG_total_ref = 2.43,
-        [description = "Total well-mixed GHG forcing", unit = u"W/m^2"]
     end
 
     @parameters begin
@@ -131,8 +122,8 @@ sys = GHGForcing()
         f_N2O = 1.0,
         [description = "Scaling factor for N₂O forcing (dimensionless)", unit = u"1"]
         f_O3 = 1.0,
-        [
-            description = "Scaling factor for tropospheric O₃ forcing (dimensionless)", unit = u"1"]
+        [description = "Scaling factor for tropospheric O₃ forcing (dimensionless)",
+            unit = u"1"]
         f_halo = 1.0,
         [description = "Scaling factor for halocarbon forcing (dimensionless)", unit = u"1"]
     end
@@ -152,7 +143,7 @@ sys = GHGForcing()
         ΔF_N2O ~ f_N2O * ΔF_N2O_ref,
         ΔF_O3 ~ f_O3 * ΔF_O3_trop_ref,
         ΔF_halo ~ f_halo * ΔF_halo_ref,
-        ΔF_total ~ ΔF_CO2 + ΔF_CH4 + ΔF_N2O + ΔF_O3 + ΔF_halo
+        ΔF_total ~ ΔF_CO2 + ΔF_CH4 + ΔF_N2O + ΔF_O3 + ΔF_halo,
     ]
 
     return System(eqs, t; name)
@@ -208,8 +199,8 @@ sys = GlobalWarmingPotential()
 
     @variables begin
         GWP(t),
-        [
-            description = "Global Warming Potential relative to CO₂ (dimensionless)", unit = u"1"]
+        [description = "Global Warming Potential relative to CO₂ (dimensionless)",
+            unit = u"1"]
         AGWP_A(t),
         [description = "Absolute GWP of species A", unit = u"s"]
         AGWP_CO2(t), [description = "Absolute GWP of CO₂", unit = u"s"]
@@ -230,7 +221,7 @@ sys = GlobalWarmingPotential()
         AGWP_CO2 ~ a_CO2 * decay_integral_CO2,
 
         # Eq. 23.5 / Problem 23.3 - GWP as ratio of AGWPs
-        GWP ~ AGWP_A / AGWP_CO2
+        GWP ~ AGWP_A / AGWP_CO2,
     ]
 
     return System(eqs, t; name)
@@ -266,7 +257,7 @@ gwp_ch4 = GWP_exponential(12.0, 72.0, 100.0)
 ```
 
 **Reference**: Seinfeld, J.H. and Pandis, S.N. (2006) *Atmospheric Chemistry and Physics:
-From Air Pollution to Climate Change*, 2nd Edition, Chapter 23, Problem 23.3.    # Decay integrals
+From Air Pollution to Climate Change*, 2nd Edition, Chapter 23, Problem 23.3.
 """
 function GWP_exponential(τ_A, a_A, t_f; τ_CO2 = 150.0)
     # Decay integrals
