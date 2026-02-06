@@ -183,7 +183,7 @@ Termolecular rate constants converted from cm⁶/molec²/s to m⁶/s (×10⁻¹�
         # Diagnostic variables
         L_CH4 ~ R1,                            # CH₄ loss = R1
         P_HCHO ~ R6 + R8,                      # HCHO production
-        P_O3_net ~ R17 - R3                   # Simplified net O₃ (production - titration)
+        P_O3_net ~ R15 + R3                   # Net O₃ production = HO₂+NO + CH₃O₂+NO (Eq. 6.9 analog)
     ]
 
     return System(eqs, t; name)
