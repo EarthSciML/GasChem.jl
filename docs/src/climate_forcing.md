@@ -73,7 +73,7 @@ DataFrame(
     :Name => [string(Symbolics.tosymbol(v, escape = false)) for v in params],
     :Units => [dimension(ModelingToolkit.get_unit(v)) for v in params],
     :Description => [ModelingToolkit.getdescription(v) for v in params],
-    :Default => [ModelingToolkit.getdefault(v) for v in params])
+    :Default => [ModelingToolkit.hasdefault(v) ? ModelingToolkit.getdefault(v) : missing for v in params])
 ```
 
 #### Equations
@@ -114,7 +114,7 @@ DataFrame(
     :Name => [string(Symbolics.tosymbol(v, escape = false)) for v in params],
     :Units => [dimension(ModelingToolkit.get_unit(v)) for v in params],
     :Description => [ModelingToolkit.getdescription(v) for v in params],
-    :Default => [ModelingToolkit.getdefault(v) for v in params])
+    :Default => [ModelingToolkit.hasdefault(v) ? ModelingToolkit.getdefault(v) : missing for v in params])
 ```
 
 #### Equations
@@ -164,7 +164,7 @@ DataFrame(
     :Name => [string(Symbolics.tosymbol(v, escape = false)) for v in params],
     :Units => [dimension(ModelingToolkit.get_unit(v)) for v in params],
     :Description => [ModelingToolkit.getdescription(v) for v in params],
-    :Default => [ModelingToolkit.getdefault(v) for v in params])
+    :Default => [ModelingToolkit.hasdefault(v) ? ModelingToolkit.getdefault(v) : missing for v in params])
 ```
 
 #### Equations
