@@ -65,7 +65,9 @@ All species concentrations must be provided as inputs [m⁻³].
     @parameters begin
         # CH₄ oxidation
         k_CH4_OH = 2.45e-12 * exp(-1775 / 298) * 1e-6,
-        [description = "CH₄ + OH rate constant (2.45e-12 exp(-1775/T) cm³/molec/s, Table 6.1 rxn 1)", unit = u"m^3/s"]
+        [
+            description = "CH₄ + OH rate constant (2.45e-12 exp(-1775/T) cm³/molec/s, Table 6.1 rxn 1)",
+            unit = u"m^3/s"]
         k_CH3O2_NO = 7.7e-12 * 1e-6,
         [description = "CH₃O₂ + NO rate constant (7.7e-12 cm³/molec/s)", unit = u"m^3/s"]
     end
