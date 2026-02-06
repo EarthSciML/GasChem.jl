@@ -111,6 +111,35 @@ title!(p1, "Major Nitrogen and Ozone Species")
 p1
 ```
 
+### Reference Solution Table
+
+The following table compares our computed solution at t = 60 minutes against the reference values from Verwer (1994).
+
+```@example pollu
+ref_species = [sys.NO2, sys.NO, sys.O3P, sys.O3, sys.HO2, sys.OH, sys.CH2O,
+    sys.CO, sys.ALD, sys.MEO2, sys.C2O3, sys.CO2, sys.PAN, sys.CH3O,
+    sys.HNO3, sys.O1D, sys.SO2, sys.SO4, sys.NO3, sys.N2O5]
+
+# Reference values at t=60min from Verwer (1994), converted ppm to ppb
+ref_vals = [0.5646255480022769e-01, 0.1342484130422339e+00, 0.4139734331099427e-08,
+    0.5523140207484359e-02, 0.2018977262302196e-06, 0.1464541863493966e-06,
+    0.7784249118997964e-01, 0.3245075353396018e+00, 0.7494013383880406e-02,
+    0.1622293157301561e-07, 0.1135863833257075e-07, 0.2230505975721359e-02,
+    0.2087162882798630e-03, 0.1396921016840158e-04, 0.8964884856898295e-02,
+    0.4352846369330103e-17, 0.6899219696263405e-02, 0.1007803037365946e-03,
+    0.1772146513969984e-05, 0.5682943292316392e-04] .* 1e3  # ppm to ppb
+
+computed = [sol[s][end] for s in ref_species]
+rel_err = abs.(computed .- ref_vals) ./ max.(abs.(ref_vals), 1e-20)
+
+DataFrame(
+    :Species => [string(Symbolics.tosymbol(v, escape=false)) for v in ref_species],
+    Symbol("Reference (ppb)") => ref_vals,
+    Symbol("Computed (ppb)") => computed,
+    Symbol("Relative Error") => rel_err
+)
+```
+
 ### Formaldehyde and CO Evolution
 
 ```@example pollu

@@ -187,9 +187,9 @@ If the keyword argument `rxn_sys` is set to `true`, the function will return a r
 # Example
 
 ```
-using GasChem, EarthSciMLBase, DifferentialEquations, Plots
+using GasChem, EarthSciMLBase, OrdinaryDiffEqRosenbrock, Plots
 rs = SuperFast()
-sol = solve(ODEProblem(mtkcompile(rs), [], (0,360)), AutoTsit5(Rosenbrock23()), saveat=10.0)
+sol = solve(ODEProblem(mtkcompile(rs), [], (0,360)), Rosenbrock23(), saveat=10.0)
 plot(sol)
 ```
 """
