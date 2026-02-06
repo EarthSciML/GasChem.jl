@@ -1,11 +1,11 @@
 @testitem "Pollu Structural Verification" tags = [:pollu] begin
-    using ModelingToolkit
+    using GasChem, ModelingToolkit
     rs = mtkcompile(Pollu())
     @test length(unknowns(rs)) == 20
 end
 
 @testitem "Pollu Reference Solution at t=60min" tags = [:pollu] begin
-    using OrdinaryDiffEqRosenbrock, ModelingToolkit
+    using GasChem, OrdinaryDiffEqRosenbrock, ModelingToolkit
 
     # Reference solution at t=60 minutes (3600 seconds) from Verwer (1994),
     # computed with RADAU5 at high precision, converted from ppm to ppb.
@@ -57,7 +57,7 @@ end
 end
 
 @testitem "Pollu Short Integration" tags = [:pollu] begin
-    using OrdinaryDiffEqRosenbrock, ModelingToolkit
+    using GasChem, OrdinaryDiffEqRosenbrock, ModelingToolkit
     rs = mtkcompile(Pollu())
     ic = [
         rs.NO2 => 0.0, rs.NO => 200.0, rs.O3P => 0.0, rs.O3 => 40.0,
@@ -82,7 +82,7 @@ end
 end
 
 @testitem "Pollu Conservation Properties" tags = [:pollu] begin
-    using OrdinaryDiffEqRosenbrock, ModelingToolkit
+    using GasChem, OrdinaryDiffEqRosenbrock, ModelingToolkit
     rs = mtkcompile(Pollu())
     ic = [
         rs.NO2 => 0.0, rs.NO => 200.0, rs.O3P => 0.0, rs.O3 => 40.0,
@@ -108,7 +108,7 @@ end
 end
 
 @testitem "Couple Pollu and FastJX" tags = [:pollu] begin
-    using EarthSciMLBase
+    using GasChem, EarthSciMLBase
     using OrdinaryDiffEqRosenbrock
     using ModelingToolkit
 
@@ -125,7 +125,7 @@ end
 end
 
 @testitem "Couple Pollu and NEI2016MonthlyEmis" tags = [:pollu] begin
-    using EarthSciMLBase, EarthSciData
+    using GasChem, EarthSciMLBase, EarthSciData
     using Dates, ModelingToolkit
 
     domain = DomainInfo(

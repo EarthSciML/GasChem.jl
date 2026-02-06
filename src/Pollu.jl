@@ -78,28 +78,29 @@ function Pollu(; name = :Pollu, rxn_sys = false)
             [unit = u"s^-1", description = "N2O5 photolysis rate (R25)"]
         end # The original reaction rate units are in 1/min and 1/(ppm*min).
 
+        # Initial conditions from Verwer (1994), converted from ppm to ppb.
         @species begin
-            NO2(t) = 4e-4, [unit = u"ppb", description = "nitrogen dioxide"]
-            NO(t) = 4e-4, [unit = u"ppb", description = "nitric oxide"]
-            O3P(t) = 0, [unit = u"ppb", description = "ground-state atomic oxygen"]
+            NO2(t) = 0.0, [unit = u"ppb", description = "nitrogen dioxide"]
+            NO(t) = 200.0, [unit = u"ppb", description = "nitric oxide"]
+            O3P(t) = 0.0, [unit = u"ppb", description = "ground-state atomic oxygen"]
             O3(t) = 40.0, [unit = u"ppb", description = "ozone"]
-            HO2(t) = 4e-6, [unit = u"ppb", description = "hydroperoxyl radical"]
-            OH(t) = 4e-6, [unit = u"ppb", description = "hydroxyl radical"]
-            CH2O(t) = 4e-6, [unit = u"ppb", description = "formaldehyde"]
-            CO(t) = 100, [unit = u"ppb", description = "carbon monoxide"]
-            ALD(t) = 1e-11,
+            HO2(t) = 0.0, [unit = u"ppb", description = "hydroperoxyl radical"]
+            OH(t) = 0.0, [unit = u"ppb", description = "hydroxyl radical"]
+            CH2O(t) = 100.0, [unit = u"ppb", description = "formaldehyde"]
+            CO(t) = 300.0, [unit = u"ppb", description = "carbon monoxide"]
+            ALD(t) = 10.0,
             [unit = u"ppb", description = "lumped non-formaldehyde aldehydes"]
-            MEO2(t) = 4e-6, [unit = u"ppb", description = "CH3O2 (methyl peroxy radical)"]
-            C2O3(t) = 0, [unit = u"ppb", description = "CH3C(O)O2 (acetyl peroxy radical)"]
-            CO2(t) = 3.55e5, [unit = u"ppb", description = "carbon dioxide"]
-            PAN(t) = 1e-11, [unit = u"ppb", description = "CH3C(O)O2NO2 (peroxy nitrate)"]
-            CH3O(t) = 0, [unit = u"ppb", description = "CH3O (methoxy radical)"]
-            HNO3(t) = 4e-6, [unit = u"ppb", description = "nitric acid"]
-            O1D(t) = 0, [unit = u"ppb", description = "excited-state atomic oxygen"]
-            SO2(t) = 1e-11, [unit = u"ppb", description = "sulfur dioxide"]
-            SO4(t) = 1e-11, [unit = u"ppb", description = "SO4 (sulfate)"]
-            NO3(t) = 4e-6, [unit = u"ppb", description = "nitrate radical"]
-            N2O5(t) = 4e-6, [unit = u"ppb", description = "dinitrogen pentoxide"]
+            MEO2(t) = 0.0, [unit = u"ppb", description = "CH3O2 (methyl peroxy radical)"]
+            C2O3(t) = 0.0, [unit = u"ppb", description = "CH3C(O)O2 (acetyl peroxy radical)"]
+            CO2(t) = 0.0, [unit = u"ppb", description = "carbon dioxide"]
+            PAN(t) = 0.0, [unit = u"ppb", description = "CH3C(O)O2NO2 (peroxy nitrate)"]
+            CH3O(t) = 0.0, [unit = u"ppb", description = "CH3O (methoxy radical)"]
+            HNO3(t) = 0.0, [unit = u"ppb", description = "nitric acid"]
+            O1D(t) = 0.0, [unit = u"ppb", description = "excited-state atomic oxygen"]
+            SO2(t) = 7.0, [unit = u"ppb", description = "sulfur dioxide"]
+            SO4(t) = 0.0, [unit = u"ppb", description = "SO4 (sulfate)"]
+            NO3(t) = 0.0, [unit = u"ppb", description = "nitrate radical"]
+            N2O5(t) = 0.0, [unit = u"ppb", description = "dinitrogen pentoxide"]
         end
 
         #Gas-phase reactions

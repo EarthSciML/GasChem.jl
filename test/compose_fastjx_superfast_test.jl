@@ -1,5 +1,5 @@
 @testitem "2wayCoupling" begin
-    using EarthSciMLBase
+    using GasChem, EarthSciMLBase
     using OrdinaryDiffEqRosenbrock
     using ModelingToolkit
     sol_middle = 39.999599729358856
@@ -12,7 +12,7 @@
 end
 
 @testitem "2wayCoupling" begin
-    using EarthSciMLBase
+    using GasChem, EarthSciMLBase
     using OrdinaryDiffEqRosenbrock
     using ModelingToolkit
     sol_middle = 39.999599729358856

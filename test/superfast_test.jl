@@ -1,5 +1,5 @@
 @testitem "Base case" begin
-    using OrdinaryDiffEqRosenbrock, ModelingToolkit
+    using GasChem, OrdinaryDiffEqRosenbrock, ModelingToolkit
     tspan = (0.0, 360.0)
     answer = 36.4996261281333
 
@@ -16,7 +16,7 @@
 end
 
 @testitem "ISOP sensitivity" begin
-    using OrdinaryDiffEqRosenbrock, ModelingToolkit
+    using GasChem, OrdinaryDiffEqRosenbrock, ModelingToolkit
     tspan = (0.0, 360.0)
     u_isop = 0.07926391932535637
 
@@ -42,7 +42,7 @@ end
 end
 
 @testitem "NO2 sensitivity" begin
-    using OrdinaryDiffEqRosenbrock, ModelingToolkit
+    using GasChem, OrdinaryDiffEqRosenbrock, ModelingToolkit
     tspan = (0.0, 360.0)
     u_no2 = 31.224800547922285
 
@@ -68,7 +68,7 @@ end
 end
 
 @testitem "CO sensitivity" begin
-    using OrdinaryDiffEqRosenbrock, ModelingToolkit
+    using GasChem, OrdinaryDiffEqRosenbrock, ModelingToolkit
     tspan = (0.0, 360.0)
     u_co = -0.4196537139752934
 
@@ -94,7 +94,7 @@ end
 end
 
 @testitem "CH4 sensitivity" begin
-    using OrdinaryDiffEqRosenbrock, ModelingToolkit
+    using GasChem, OrdinaryDiffEqRosenbrock, ModelingToolkit
     tspan = (0.0, 360.0)
     u_ch4 = 0.015422493626878975
 
