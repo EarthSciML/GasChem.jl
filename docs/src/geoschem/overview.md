@@ -14,7 +14,7 @@ First, let's initialize the model and we can also look at the first few ODE equa
 
 ```@example 1
 using GasChem, EarthSciMLBase
-using DifferentialEquations, ModelingToolkit
+using OrdinaryDiffEqDefault, OrdinaryDiffEqRosenbrock, ModelingToolkit
 using DynamicQuantities, Plots
 using ModelingToolkit: t
 
@@ -34,13 +34,13 @@ equations(gc)[(end - 3):end]
 Now, let's run a simulation and plot the results:
 
 ```@example 1
-sys = structural_simplify(gc)
+sys = mtkcompile(gc)
 vals = ModelingToolkit.get_defaults(sys)
 for k in setdiff(unknowns(sys), keys(vals))
     vals[k] = 0 # Set variables with no default to zero.
 end
 prob = ODEProblem(sys, vals, tspan, vals)
-sol = solve(prob, AutoTsit5(Rosenbrock23()))
+sol = solve(prob, Rosenbrock23())
 plot(sol, legend = :outertopright, xlabel = "Time (s)",
     ylabel = "Concentration (ppb)")
 ```

@@ -11,7 +11,7 @@ First, we can look at the reaction equations:
 
 ```@example 1
 using GasChem, EarthSciMLBase, ModelingToolkit
-using DynamicQuantities, DifferentialEquations
+using DynamicQuantities, OrdinaryDiffEqDefault, OrdinaryDiffEqRosenbrock
 using Catalyst
 using Plots
 using ModelingToolkit: t
@@ -49,7 +49,7 @@ DataFrame(
 We can run simulations with the model, optionally changing the initial conditions and parameters. For example, we can change the initial concentration of O₃ to 15 ppb and the temperature to 293K:
 
 ```@example 1
-sys = structural_simplify(model)
+sys = mtkcompile(model)
 
 tspan = (0.0, 3600*24)
 # Change the initial concentration of O₃ to 15 ppb and the temperature to 293K.
@@ -59,7 +59,7 @@ prob = ODEProblem(sys, [sys.O3 => 15], tspan, [sys.T => 293])
 Now we can solve the system and plot the result:
 
 ```@example 1
-sol = solve(prob, AutoTsit5(Rosenbrock23()), saveat = 10.0)
+sol = solve(prob, Rosenbrock23(), saveat = 10.0)
 
 plot(sol, ylim = (0, 50), xlabel = "Time",
     ylabel = "Concentration (ppb)", legend = :outerright)
@@ -69,9 +69,9 @@ Finally let's run some simulations with different values for parameter `T`.
 
 ```@example 1
 sol1 = solve(ODEProblem(sys, [], tspan, [sys.T => 273]),
-    AutoTsit5(Rosenbrock23()), saveat = 10.0)
+    Rosenbrock23(), saveat = 10.0)
 sol2 = solve(ODEProblem(sys, [], tspan, [sys.T => 298]),
-    AutoTsit5(Rosenbrock23()), saveat = 10.0)
+    Rosenbrock23(), saveat = 10.0)
 
 plot([sol1[sys.O3], sol2[sys.O3]], label = ["T=273K" "T=298K"],
     title = "Change of O3 concentration at different temperatures",
