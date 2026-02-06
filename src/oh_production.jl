@@ -95,7 +95,9 @@ This is an algebraic system that computes diagnostic quantities from input conce
 
     # Parameters (rate constants converted from cm³/molecule/s to m³/s)
     @parameters begin
-        j_O3 = 6e-5, [description = "O₃ photolysis rate producing O(¹D) at surface, solar zenith 0°", unit = u"s^-1"]
+        j_O3 = 6e-5,
+        [description = "O₃ photolysis rate producing O(¹D) at surface, solar zenith 0°",
+            unit = u"s^-1"]
         k3_N2 = 2.6e-11 * 1e-6,
         [description = "O(¹D) + N₂ quenching rate (2.6e-11 cm³/molec/s)", unit = u"m^3/s"]
         k3_O2 = 4.0e-11 * 1e-6,

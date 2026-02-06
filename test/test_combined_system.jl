@@ -2,30 +2,30 @@
 # Structural Tests
 # ===========================================================================
 @testitem "TroposphericChemistrySystem: Structural Verification" setup=[SP_CH6_Setup] tags=[:sp_ch6] begin
-    sys = TroposphericChemistrySystem()
+    sys=TroposphericChemistrySystem()
     @test sys isa System
     @test nameof(sys) == :TroposphericChemistrySystem
 
-    vars = unknowns(sys)
-    params = parameters(sys)
-    eqs = equations(sys)
+    vars=unknowns(sys)
+    params=parameters(sys)
+    eqs=equations(sys)
 
     @test length(eqs) > 0
     @test length(vars) > 0
     @test length(params) > 0
 
     # Check key diagnostic variable names at the top level
-    var_names = [string(v) for v in vars]
+    var_names=[string(v) for v in vars]
     for expected in ["NOx", "HOx", "P_O3_net", "OPE", "chain_length", "L_NOx"]
         @test any(n -> contains(n, expected), var_names)
     end
 end
 
 @testitem "TroposphericChemistrySystem: Subsystem Composition" setup=[SP_CH6_Setup] tags=[:sp_ch6] begin
-    sys = TroposphericChemistrySystem()
+    sys=TroposphericChemistrySystem()
 
-    subsystems = ModelingToolkit.get_systems(sys)
-    subsys_names = [nameof(s) for s in subsystems]
+    subsystems=ModelingToolkit.get_systems(sys)
+    subsys_names=[nameof(s) for s in subsystems]
 
     @test :oh in subsys_names
     @test :nox in subsys_names
@@ -34,10 +34,10 @@ end
 end
 
 @testitem "TroposphericChemistrySystem: Subsystem Variable Access" setup=[SP_CH6_Setup] tags=[:sp_ch6] begin
-    sys = TroposphericChemistrySystem()
+    sys=TroposphericChemistrySystem()
 
-    all_vars = unknowns(sys)
-    var_strs = [string(v) for v in all_vars]
+    all_vars=unknowns(sys)
+    var_strs=[string(v) for v in all_vars]
 
     @test any(s -> contains(s, "oh") && contains(s, "O1D"), var_strs)
     @test any(s -> contains(s, "oh") && contains(s, "P_OH"), var_strs)
@@ -49,9 +49,9 @@ end
 # Condition Functions Tests
 # ===========================================================================
 @testitem "TroposphericChemistrySystem: TypicalConditions" setup=[SP_CH6_Setup] tags=[:sp_ch6] begin
-    cond = get_conditions_dict(TypicalConditions())
+    cond=get_conditions_dict(TypicalConditions())
 
-    required_keys = [:M, :O2, :H2O, :O3, :NO, :NO2, :CO, :CH4, :OH, :HO2, :CH3O2]
+    required_keys=[:M, :O2, :H2O, :O3, :NO, :NO2, :CO, :CH4, :OH, :HO2, :CH3O2]
     for key in required_keys
         @test haskey(cond, key)
         @test cond[key] > 0
@@ -71,8 +71,8 @@ end
 end
 
 @testitem "TroposphericChemistrySystem: UrbanConditions vs TypicalConditions" setup=[SP_CH6_Setup] tags=[:sp_ch6] begin
-    typical = get_conditions_dict(TypicalConditions())
-    urban = get_conditions_dict(UrbanConditions())
+    typical=get_conditions_dict(TypicalConditions())
+    urban=get_conditions_dict(UrbanConditions())
 
     @test urban[:NO] > typical[:NO]
     @test urban[:NO2] > typical[:NO2]
@@ -83,8 +83,8 @@ end
 end
 
 @testitem "TroposphericChemistrySystem: RemoteConditions vs TypicalConditions" setup=[SP_CH6_Setup] tags=[:sp_ch6] begin
-    typical = get_conditions_dict(TypicalConditions())
-    remote = get_conditions_dict(RemoteConditions())
+    typical=get_conditions_dict(TypicalConditions())
+    remote=get_conditions_dict(RemoteConditions())
 
     @test remote[:NO] < typical[:NO]
     @test remote[:NO2] < typical[:NO2]
@@ -96,42 +96,42 @@ end
 # Equation Verification: Combined Diagnostics (using NonlinearProblem)
 # ===========================================================================
 @testitem "TroposphericChemistrySystem: NOx = NO + NO2" setup=[SP_CH6_Setup] tags=[:sp_ch6] begin
-    sys = TroposphericChemistrySystem()
-    sys_nns = toggle_namespacing(sys, false)
-    inputs = [sys_nns.O3, sys_nns.NO, sys_nns.NO2, sys_nns.OH, sys_nns.HO2,
-              sys_nns.CO, sys_nns.CH3O2, sys_nns.H2O, sys_nns.M, sys_nns.O2]
-    compiled = mtkcompile(sys; inputs = inputs)
+    sys=TroposphericChemistrySystem()
+    sys_nns=toggle_namespacing(sys, false)
+    inputs=[sys_nns.O3, sys_nns.NO, sys_nns.NO2, sys_nns.OH, sys_nns.HO2,
+        sys_nns.CO, sys_nns.CH3O2, sys_nns.H2O, sys_nns.M, sys_nns.O2]
+    compiled=mtkcompile(sys; inputs = inputs)
 
-    cond = get_conditions_dict(TypicalConditions())
-    u0p = Dict(
-        compiled.O3 => cond[:O3], compiled.NO => cond[:NO], compiled.NO2 => cond[:NO2],
-        compiled.OH => cond[:OH], compiled.HO2 => cond[:HO2], compiled.CO => cond[:CO],
-        compiled.CH3O2 => cond[:CH3O2], compiled.H2O => cond[:H2O],
-        compiled.M => cond[:M], compiled.O2 => cond[:O2],
+    cond=get_conditions_dict(TypicalConditions())
+    u0p=Dict(
+        compiled.O3=>cond[:O3], compiled.NO=>cond[:NO], compiled.NO2=>cond[:NO2],
+        compiled.OH=>cond[:OH], compiled.HO2=>cond[:HO2], compiled.CO=>cond[:CO],
+        compiled.CH3O2=>cond[:CH3O2], compiled.H2O=>cond[:H2O],
+        compiled.M=>cond[:M], compiled.O2=>cond[:O2]
     )
-    prob = NonlinearProblem(compiled, u0p; build_initializeprob = false)
-    sol = solve(prob)
+    prob=NonlinearProblem(compiled, u0p; build_initializeprob = false)
+    sol=solve(prob)
 
     # NOx should equal NO + NO2
     @test sol[compiled.NOx] ≈ cond[:NO] + cond[:NO2] rtol = 1e-6
 end
 
 @testitem "TroposphericChemistrySystem: HOx = OH + HO2" setup=[SP_CH6_Setup] tags=[:sp_ch6] begin
-    sys = TroposphericChemistrySystem()
-    sys_nns = toggle_namespacing(sys, false)
-    inputs = [sys_nns.O3, sys_nns.NO, sys_nns.NO2, sys_nns.OH, sys_nns.HO2,
-              sys_nns.CO, sys_nns.CH3O2, sys_nns.H2O, sys_nns.M, sys_nns.O2]
-    compiled = mtkcompile(sys; inputs = inputs)
+    sys=TroposphericChemistrySystem()
+    sys_nns=toggle_namespacing(sys, false)
+    inputs=[sys_nns.O3, sys_nns.NO, sys_nns.NO2, sys_nns.OH, sys_nns.HO2,
+        sys_nns.CO, sys_nns.CH3O2, sys_nns.H2O, sys_nns.M, sys_nns.O2]
+    compiled=mtkcompile(sys; inputs = inputs)
 
-    cond = get_conditions_dict(TypicalConditions())
-    u0p = Dict(
-        compiled.O3 => cond[:O3], compiled.NO => cond[:NO], compiled.NO2 => cond[:NO2],
-        compiled.OH => cond[:OH], compiled.HO2 => cond[:HO2], compiled.CO => cond[:CO],
-        compiled.CH3O2 => cond[:CH3O2], compiled.H2O => cond[:H2O],
-        compiled.M => cond[:M], compiled.O2 => cond[:O2],
+    cond=get_conditions_dict(TypicalConditions())
+    u0p=Dict(
+        compiled.O3=>cond[:O3], compiled.NO=>cond[:NO], compiled.NO2=>cond[:NO2],
+        compiled.OH=>cond[:OH], compiled.HO2=>cond[:HO2], compiled.CO=>cond[:CO],
+        compiled.CH3O2=>cond[:CH3O2], compiled.H2O=>cond[:H2O],
+        compiled.M=>cond[:M], compiled.O2=>cond[:O2]
     )
-    prob = NonlinearProblem(compiled, u0p; build_initializeprob = false)
-    sol = solve(prob)
+    prob=NonlinearProblem(compiled, u0p; build_initializeprob = false)
+    sol=solve(prob)
 
     # HOx should equal OH + HO2
     @test sol[compiled.HOx] ≈ cond[:OH] + cond[:HO2] rtol = 1e-6
@@ -142,23 +142,23 @@ end
 end
 
 @testitem "TroposphericChemistrySystem: O3 Production Diagnostics" setup=[SP_CH6_Setup] tags=[:sp_ch6] begin
-    sys = TroposphericChemistrySystem()
-    sys_nns = toggle_namespacing(sys, false)
-    inputs = [sys_nns.O3, sys_nns.NO, sys_nns.NO2, sys_nns.OH, sys_nns.HO2,
-              sys_nns.CO, sys_nns.CH3O2, sys_nns.H2O, sys_nns.M, sys_nns.O2]
-    compiled = mtkcompile(sys; inputs = inputs)
+    sys=TroposphericChemistrySystem()
+    sys_nns=toggle_namespacing(sys, false)
+    inputs=[sys_nns.O3, sys_nns.NO, sys_nns.NO2, sys_nns.OH, sys_nns.HO2,
+        sys_nns.CO, sys_nns.CH3O2, sys_nns.H2O, sys_nns.M, sys_nns.O2]
+    compiled=mtkcompile(sys; inputs = inputs)
 
-    cond = get_conditions_dict(TypicalConditions())
-    u0p = Dict(
-        compiled.O3 => cond[:O3], compiled.NO => cond[:NO], compiled.NO2 => cond[:NO2],
-        compiled.OH => cond[:OH], compiled.HO2 => cond[:HO2], compiled.CO => cond[:CO],
-        compiled.CH3O2 => cond[:CH3O2], compiled.H2O => cond[:H2O],
-        compiled.M => cond[:M], compiled.O2 => cond[:O2],
+    cond=get_conditions_dict(TypicalConditions())
+    u0p=Dict(
+        compiled.O3=>cond[:O3], compiled.NO=>cond[:NO], compiled.NO2=>cond[:NO2],
+        compiled.OH=>cond[:OH], compiled.HO2=>cond[:HO2], compiled.CO=>cond[:CO],
+        compiled.CH3O2=>cond[:CH3O2], compiled.H2O=>cond[:H2O],
+        compiled.M=>cond[:M], compiled.O2=>cond[:O2]
     )
-    prob = NonlinearProblem(compiled, u0p; build_initializeprob = false)
-    sol = solve(prob)
+    prob=NonlinearProblem(compiled, u0p; build_initializeprob = false)
+    sol=solve(prob)
 
-    P_O3 = sol[compiled.P_O3_total]
+    P_O3=sol[compiled.P_O3_total]
     @test P_O3 > 0
     @test P_O3 > 1e11
     @test P_O3 < 1e14
@@ -168,23 +168,23 @@ end
 end
 
 @testitem "TroposphericChemistrySystem: NOx Loss Rate" setup=[SP_CH6_Setup] tags=[:sp_ch6] begin
-    sys = TroposphericChemistrySystem()
-    sys_nns = toggle_namespacing(sys, false)
-    inputs = [sys_nns.O3, sys_nns.NO, sys_nns.NO2, sys_nns.OH, sys_nns.HO2,
-              sys_nns.CO, sys_nns.CH3O2, sys_nns.H2O, sys_nns.M, sys_nns.O2]
-    compiled = mtkcompile(sys; inputs = inputs)
+    sys=TroposphericChemistrySystem()
+    sys_nns=toggle_namespacing(sys, false)
+    inputs=[sys_nns.O3, sys_nns.NO, sys_nns.NO2, sys_nns.OH, sys_nns.HO2,
+        sys_nns.CO, sys_nns.CH3O2, sys_nns.H2O, sys_nns.M, sys_nns.O2]
+    compiled=mtkcompile(sys; inputs = inputs)
 
-    cond = get_conditions_dict(TypicalConditions())
-    u0p = Dict(
-        compiled.O3 => cond[:O3], compiled.NO => cond[:NO], compiled.NO2 => cond[:NO2],
-        compiled.OH => cond[:OH], compiled.HO2 => cond[:HO2], compiled.CO => cond[:CO],
-        compiled.CH3O2 => cond[:CH3O2], compiled.H2O => cond[:H2O],
-        compiled.M => cond[:M], compiled.O2 => cond[:O2],
+    cond=get_conditions_dict(TypicalConditions())
+    u0p=Dict(
+        compiled.O3=>cond[:O3], compiled.NO=>cond[:NO], compiled.NO2=>cond[:NO2],
+        compiled.OH=>cond[:OH], compiled.HO2=>cond[:HO2], compiled.CO=>cond[:CO],
+        compiled.CH3O2=>cond[:CH3O2], compiled.H2O=>cond[:H2O],
+        compiled.M=>cond[:M], compiled.O2=>cond[:O2]
     )
-    prob = NonlinearProblem(compiled, u0p; build_initializeprob = false)
-    sol = solve(prob)
+    prob=NonlinearProblem(compiled, u0p; build_initializeprob = false)
+    sol=solve(prob)
 
-    L_NOx_val = sol[compiled.L_NOx]
+    L_NOx_val=sol[compiled.L_NOx]
     @test L_NOx_val > 0
 
     # L_NOx = k_OH_NO2 * OH * NO2 (from the co subsystem rate constant)
@@ -194,23 +194,23 @@ end
 end
 
 @testitem "TroposphericChemistrySystem: OPE Calculation" setup=[SP_CH6_Setup] tags=[:sp_ch6] begin
-    sys = TroposphericChemistrySystem()
-    sys_nns = toggle_namespacing(sys, false)
-    inputs = [sys_nns.O3, sys_nns.NO, sys_nns.NO2, sys_nns.OH, sys_nns.HO2,
-              sys_nns.CO, sys_nns.CH3O2, sys_nns.H2O, sys_nns.M, sys_nns.O2]
-    compiled = mtkcompile(sys; inputs = inputs)
+    sys=TroposphericChemistrySystem()
+    sys_nns=toggle_namespacing(sys, false)
+    inputs=[sys_nns.O3, sys_nns.NO, sys_nns.NO2, sys_nns.OH, sys_nns.HO2,
+        sys_nns.CO, sys_nns.CH3O2, sys_nns.H2O, sys_nns.M, sys_nns.O2]
+    compiled=mtkcompile(sys; inputs = inputs)
 
-    cond = get_conditions_dict(TypicalConditions())
-    u0p = Dict(
-        compiled.O3 => cond[:O3], compiled.NO => cond[:NO], compiled.NO2 => cond[:NO2],
-        compiled.OH => cond[:OH], compiled.HO2 => cond[:HO2], compiled.CO => cond[:CO],
-        compiled.CH3O2 => cond[:CH3O2], compiled.H2O => cond[:H2O],
-        compiled.M => cond[:M], compiled.O2 => cond[:O2],
+    cond=get_conditions_dict(TypicalConditions())
+    u0p=Dict(
+        compiled.O3=>cond[:O3], compiled.NO=>cond[:NO], compiled.NO2=>cond[:NO2],
+        compiled.OH=>cond[:OH], compiled.HO2=>cond[:HO2], compiled.CO=>cond[:CO],
+        compiled.CH3O2=>cond[:CH3O2], compiled.H2O=>cond[:H2O],
+        compiled.M=>cond[:M], compiled.O2=>cond[:O2]
     )
-    prob = NonlinearProblem(compiled, u0p; build_initializeprob = false)
-    sol = solve(prob)
+    prob=NonlinearProblem(compiled, u0p; build_initializeprob = false)
+    sol=solve(prob)
 
-    OPE_val = sol[compiled.OPE]
+    OPE_val=sol[compiled.OPE]
     @test OPE_val > 0
     @test OPE_val > 1
     @test OPE_val < 100
@@ -223,87 +223,87 @@ end
 # Subsystem Coupling Tests (using NonlinearProblem)
 # ===========================================================================
 @testitem "TroposphericChemistrySystem: OH Production Coupling" setup=[SP_CH6_Setup] tags=[:sp_ch6] begin
-    sys = TroposphericChemistrySystem()
-    sys_nns = toggle_namespacing(sys, false)
-    inputs = [sys_nns.O3, sys_nns.NO, sys_nns.NO2, sys_nns.OH, sys_nns.HO2,
-              sys_nns.CO, sys_nns.CH3O2, sys_nns.H2O, sys_nns.M, sys_nns.O2]
-    compiled = mtkcompile(sys; inputs = inputs)
+    sys=TroposphericChemistrySystem()
+    sys_nns=toggle_namespacing(sys, false)
+    inputs=[sys_nns.O3, sys_nns.NO, sys_nns.NO2, sys_nns.OH, sys_nns.HO2,
+        sys_nns.CO, sys_nns.CH3O2, sys_nns.H2O, sys_nns.M, sys_nns.O2]
+    compiled=mtkcompile(sys; inputs = inputs)
 
-    cond = get_conditions_dict(TypicalConditions())
-    u0p = Dict(
-        compiled.O3 => cond[:O3], compiled.NO => cond[:NO], compiled.NO2 => cond[:NO2],
-        compiled.OH => cond[:OH], compiled.HO2 => cond[:HO2], compiled.CO => cond[:CO],
-        compiled.CH3O2 => cond[:CH3O2], compiled.H2O => cond[:H2O],
-        compiled.M => cond[:M], compiled.O2 => cond[:O2],
+    cond=get_conditions_dict(TypicalConditions())
+    u0p=Dict(
+        compiled.O3=>cond[:O3], compiled.NO=>cond[:NO], compiled.NO2=>cond[:NO2],
+        compiled.OH=>cond[:OH], compiled.HO2=>cond[:HO2], compiled.CO=>cond[:CO],
+        compiled.CH3O2=>cond[:CH3O2], compiled.H2O=>cond[:H2O],
+        compiled.M=>cond[:M], compiled.O2=>cond[:O2]
     )
-    prob = NonlinearProblem(compiled, u0p; build_initializeprob = false)
-    sol = solve(prob)
+    prob=NonlinearProblem(compiled, u0p; build_initializeprob = false)
+    sol=solve(prob)
 
     # OH production subsystem should produce valid outputs
-    eps_val = sol[compiled.oh.ε_OH]
+    eps_val=sol[compiled.oh.ε_OH]
     @test eps_val > 0 && eps_val < 1
 
-    P_OH_val = sol[compiled.oh.P_OH]
+    P_OH_val=sol[compiled.oh.P_OH]
     @test P_OH_val > 0
     @test P_OH_val < 1e14
 
-    O1D_val = sol[compiled.oh.O1D]
+    O1D_val=sol[compiled.oh.O1D]
     @test O1D_val > 0
 end
 
 @testitem "TroposphericChemistrySystem: NOx Cycling Coupling" setup=[SP_CH6_Setup] tags=[:sp_ch6] begin
-    sys = TroposphericChemistrySystem()
-    sys_nns = toggle_namespacing(sys, false)
-    inputs = [sys_nns.O3, sys_nns.NO, sys_nns.NO2, sys_nns.OH, sys_nns.HO2,
-              sys_nns.CO, sys_nns.CH3O2, sys_nns.H2O, sys_nns.M, sys_nns.O2]
-    compiled = mtkcompile(sys; inputs = inputs)
+    sys=TroposphericChemistrySystem()
+    sys_nns=toggle_namespacing(sys, false)
+    inputs=[sys_nns.O3, sys_nns.NO, sys_nns.NO2, sys_nns.OH, sys_nns.HO2,
+        sys_nns.CO, sys_nns.CH3O2, sys_nns.H2O, sys_nns.M, sys_nns.O2]
+    compiled=mtkcompile(sys; inputs = inputs)
 
-    cond = get_conditions_dict(TypicalConditions())
-    u0p = Dict(
-        compiled.O3 => cond[:O3], compiled.NO => cond[:NO], compiled.NO2 => cond[:NO2],
-        compiled.OH => cond[:OH], compiled.HO2 => cond[:HO2], compiled.CO => cond[:CO],
-        compiled.CH3O2 => cond[:CH3O2], compiled.H2O => cond[:H2O],
-        compiled.M => cond[:M], compiled.O2 => cond[:O2],
+    cond=get_conditions_dict(TypicalConditions())
+    u0p=Dict(
+        compiled.O3=>cond[:O3], compiled.NO=>cond[:NO], compiled.NO2=>cond[:NO2],
+        compiled.OH=>cond[:OH], compiled.HO2=>cond[:HO2], compiled.CO=>cond[:CO],
+        compiled.CH3O2=>cond[:CH3O2], compiled.H2O=>cond[:H2O],
+        compiled.M=>cond[:M], compiled.O2=>cond[:O2]
     )
-    prob = NonlinearProblem(compiled, u0p; build_initializeprob = false)
-    sol = solve(prob)
+    prob=NonlinearProblem(compiled, u0p; build_initializeprob = false)
+    sol=solve(prob)
 
     # NOx subsystem outputs
-    Phi_val = sol[compiled.nox.Φ]
+    Phi_val=sol[compiled.nox.Φ]
     @test Phi_val > 0
 
-    O3_pss_val = sol[compiled.nox.O3_pss]
+    O3_pss_val=sol[compiled.nox.O3_pss]
     @test O3_pss_val > 0
 
     # The NOx subsystem net O3 production rate
-    P_O3_nox = sol[compiled.nox.P_O3]
+    P_O3_nox=sol[compiled.nox.P_O3]
     # This can be positive or negative depending on conditions (Eq. 6.8)
     @test isfinite(P_O3_nox)
 end
 
 @testitem "TroposphericChemistrySystem: CO Oxidation Coupling" setup=[SP_CH6_Setup] tags=[:sp_ch6] begin
-    sys = TroposphericChemistrySystem()
-    sys_nns = toggle_namespacing(sys, false)
-    inputs = [sys_nns.O3, sys_nns.NO, sys_nns.NO2, sys_nns.OH, sys_nns.HO2,
-              sys_nns.CO, sys_nns.CH3O2, sys_nns.H2O, sys_nns.M, sys_nns.O2]
-    compiled = mtkcompile(sys; inputs = inputs)
+    sys=TroposphericChemistrySystem()
+    sys_nns=toggle_namespacing(sys, false)
+    inputs=[sys_nns.O3, sys_nns.NO, sys_nns.NO2, sys_nns.OH, sys_nns.HO2,
+        sys_nns.CO, sys_nns.CH3O2, sys_nns.H2O, sys_nns.M, sys_nns.O2]
+    compiled=mtkcompile(sys; inputs = inputs)
 
-    cond = get_conditions_dict(TypicalConditions())
-    u0p = Dict(
-        compiled.O3 => cond[:O3], compiled.NO => cond[:NO], compiled.NO2 => cond[:NO2],
-        compiled.OH => cond[:OH], compiled.HO2 => cond[:HO2], compiled.CO => cond[:CO],
-        compiled.CH3O2 => cond[:CH3O2], compiled.H2O => cond[:H2O],
-        compiled.M => cond[:M], compiled.O2 => cond[:O2],
+    cond=get_conditions_dict(TypicalConditions())
+    u0p=Dict(
+        compiled.O3=>cond[:O3], compiled.NO=>cond[:NO], compiled.NO2=>cond[:NO2],
+        compiled.OH=>cond[:OH], compiled.HO2=>cond[:HO2], compiled.CO=>cond[:CO],
+        compiled.CH3O2=>cond[:CH3O2], compiled.H2O=>cond[:H2O],
+        compiled.M=>cond[:M], compiled.O2=>cond[:O2]
     )
-    prob = NonlinearProblem(compiled, u0p; build_initializeprob = false)
-    sol = solve(prob)
+    prob=NonlinearProblem(compiled, u0p; build_initializeprob = false)
+    sol=solve(prob)
 
     # CO oxidation subsystem: net O3 production from CO cycle
-    P_O3_co = sol[compiled.co.P_O3]
+    P_O3_co=sol[compiled.co.P_O3]
     @test P_O3_co > 0  # Should be positive in typical conditions
 
     # HOx loss rate should be positive
-    L_HOx_val = sol[compiled.co.L_HOx]
+    L_HOx_val=sol[compiled.co.L_HOx]
     @test L_HOx_val > 0
 
     # Chain length from CO subsystem should match top-level chain_length
@@ -317,26 +317,26 @@ end
 # Regime Comparison Tests (using NonlinearProblem)
 # ===========================================================================
 @testitem "TroposphericChemistrySystem: NOx-VOC Regime Differences" setup=[SP_CH6_Setup] tags=[:sp_ch6] begin
-    sys = TroposphericChemistrySystem()
-    sys_nns = toggle_namespacing(sys, false)
-    inputs = [sys_nns.O3, sys_nns.NO, sys_nns.NO2, sys_nns.OH, sys_nns.HO2,
-              sys_nns.CO, sys_nns.CH3O2, sys_nns.H2O, sys_nns.M, sys_nns.O2]
-    compiled = mtkcompile(sys; inputs = inputs)
+    sys=TroposphericChemistrySystem()
+    sys_nns=toggle_namespacing(sys, false)
+    inputs=[sys_nns.O3, sys_nns.NO, sys_nns.NO2, sys_nns.OH, sys_nns.HO2,
+        sys_nns.CO, sys_nns.CH3O2, sys_nns.H2O, sys_nns.M, sys_nns.O2]
+    compiled=mtkcompile(sys; inputs = inputs)
 
     function solve_system(compiled, cond)
-        u0p = Dict(
-            compiled.O3 => cond[:O3], compiled.NO => cond[:NO], compiled.NO2 => cond[:NO2],
-            compiled.OH => cond[:OH], compiled.HO2 => cond[:HO2], compiled.CO => cond[:CO],
-            compiled.CH3O2 => cond[:CH3O2], compiled.H2O => cond[:H2O],
-            compiled.M => cond[:M], compiled.O2 => cond[:O2],
+        u0p=Dict(
+            compiled.O3=>cond[:O3], compiled.NO=>cond[:NO], compiled.NO2=>cond[:NO2],
+            compiled.OH=>cond[:OH], compiled.HO2=>cond[:HO2], compiled.CO=>cond[:CO],
+            compiled.CH3O2=>cond[:CH3O2], compiled.H2O=>cond[:H2O],
+            compiled.M=>cond[:M], compiled.O2=>cond[:O2]
         )
-        prob = NonlinearProblem(compiled, u0p; build_initializeprob = false)
+        prob=NonlinearProblem(compiled, u0p; build_initializeprob = false)
         return solve(prob)
     end
 
-    sol_typical = solve_system(compiled, get_conditions_dict(TypicalConditions()))
-    sol_urban = solve_system(compiled, get_conditions_dict(UrbanConditions()))
-    sol_remote = solve_system(compiled, get_conditions_dict(RemoteConditions()))
+    sol_typical=solve_system(compiled, get_conditions_dict(TypicalConditions()))
+    sol_urban=solve_system(compiled, get_conditions_dict(UrbanConditions()))
+    sol_remote=solve_system(compiled, get_conditions_dict(RemoteConditions()))
 
     # All OPE values should be positive
     @test sol_typical[compiled.OPE] > 0
@@ -350,25 +350,25 @@ end
 end
 
 @testitem "TroposphericChemistrySystem: O3 Production Budget Consistency" setup=[SP_CH6_Setup] tags=[:sp_ch6] begin
-    sys = TroposphericChemistrySystem()
-    sys_nns = toggle_namespacing(sys, false)
-    inputs = [sys_nns.O3, sys_nns.NO, sys_nns.NO2, sys_nns.OH, sys_nns.HO2,
-              sys_nns.CO, sys_nns.CH3O2, sys_nns.H2O, sys_nns.M, sys_nns.O2]
-    compiled = mtkcompile(sys; inputs = inputs)
+    sys=TroposphericChemistrySystem()
+    sys_nns=toggle_namespacing(sys, false)
+    inputs=[sys_nns.O3, sys_nns.NO, sys_nns.NO2, sys_nns.OH, sys_nns.HO2,
+        sys_nns.CO, sys_nns.CH3O2, sys_nns.H2O, sys_nns.M, sys_nns.O2]
+    compiled=mtkcompile(sys; inputs = inputs)
 
-    cond = get_conditions_dict(TypicalConditions())
-    u0p = Dict(
-        compiled.O3 => cond[:O3], compiled.NO => cond[:NO], compiled.NO2 => cond[:NO2],
-        compiled.OH => cond[:OH], compiled.HO2 => cond[:HO2], compiled.CO => cond[:CO],
-        compiled.CH3O2 => cond[:CH3O2], compiled.H2O => cond[:H2O],
-        compiled.M => cond[:M], compiled.O2 => cond[:O2],
+    cond=get_conditions_dict(TypicalConditions())
+    u0p=Dict(
+        compiled.O3=>cond[:O3], compiled.NO=>cond[:NO], compiled.NO2=>cond[:NO2],
+        compiled.OH=>cond[:OH], compiled.HO2=>cond[:HO2], compiled.CO=>cond[:CO],
+        compiled.CH3O2=>cond[:CH3O2], compiled.H2O=>cond[:H2O],
+        compiled.M=>cond[:M], compiled.O2=>cond[:O2]
     )
-    prob = NonlinearProblem(compiled, u0p; build_initializeprob = false)
-    sol = solve(prob)
+    prob=NonlinearProblem(compiled, u0p; build_initializeprob = false)
+    sol=solve(prob)
 
-    P_O3_total = sol[compiled.P_O3_total]
-    L_O3_total = sol[compiled.L_O3_total]
-    P_O3_net = sol[compiled.P_O3_net]
+    P_O3_total=sol[compiled.P_O3_total]
+    L_O3_total=sol[compiled.L_O3_total]
+    P_O3_net=sol[compiled.P_O3_net]
 
     @test P_O3_total > 0
     @test L_O3_total > 0
@@ -380,7 +380,7 @@ end
 # ===========================================================================
 @testitem "TroposphericChemistrySystem: Physical Bounds" setup=[SP_CH6_Setup] tags=[:sp_ch6] begin
     for cond_sys in [TypicalConditions(), UrbanConditions(), RemoteConditions()]
-        cond = get_conditions_dict(cond_sys)
+        cond=get_conditions_dict(cond_sys)
         for (key, val) in cond
             @test val > 0
         end
@@ -388,25 +388,26 @@ end
 end
 
 @testitem "TroposphericChemistrySystem: Atmospheric Composition Consistency" setup=[SP_CH6_Setup] tags=[:sp_ch6] begin
-    sys = TroposphericChemistrySystem()
-    sys_nns = toggle_namespacing(sys, false)
-    inputs = [sys_nns.O3, sys_nns.NO, sys_nns.NO2, sys_nns.OH, sys_nns.HO2,
-              sys_nns.CO, sys_nns.CH3O2, sys_nns.H2O, sys_nns.M, sys_nns.O2]
-    compiled = mtkcompile(sys; inputs = inputs)
+    sys=TroposphericChemistrySystem()
+    sys_nns=toggle_namespacing(sys, false)
+    inputs=[sys_nns.O3, sys_nns.NO, sys_nns.NO2, sys_nns.OH, sys_nns.HO2,
+        sys_nns.CO, sys_nns.CH3O2, sys_nns.H2O, sys_nns.M, sys_nns.O2]
+    compiled=mtkcompile(sys; inputs = inputs)
 
     function solve_system(compiled, cond)
-        u0p = Dict(
-            compiled.O3 => cond[:O3], compiled.NO => cond[:NO], compiled.NO2 => cond[:NO2],
-            compiled.OH => cond[:OH], compiled.HO2 => cond[:HO2], compiled.CO => cond[:CO],
-            compiled.CH3O2 => cond[:CH3O2], compiled.H2O => cond[:H2O],
-            compiled.M => cond[:M], compiled.O2 => cond[:O2],
+        u0p=Dict(
+            compiled.O3=>cond[:O3], compiled.NO=>cond[:NO], compiled.NO2=>cond[:NO2],
+            compiled.OH=>cond[:OH], compiled.HO2=>cond[:HO2], compiled.CO=>cond[:CO],
+            compiled.CH3O2=>cond[:CH3O2], compiled.H2O=>cond[:H2O],
+            compiled.M=>cond[:M], compiled.O2=>cond[:O2]
         )
-        prob = NonlinearProblem(compiled, u0p; build_initializeprob = false)
+        prob=NonlinearProblem(compiled, u0p; build_initializeprob = false)
         return solve(prob)
     end
 
-    for (i, cond_sys) in enumerate([TypicalConditions(), UrbanConditions(), RemoteConditions()])
-        cond = get_conditions_dict(cond_sys)
+    for (i,
+        cond_sys) in enumerate([TypicalConditions(), UrbanConditions(), RemoteConditions()])
+        cond=get_conditions_dict(cond_sys)
 
         # O2 should be ~21% of M
         @test cond[:O2] / cond[:M] ≈ 0.21 rtol = 0.01
@@ -421,12 +422,12 @@ end
         @test cond[:HO2] / cond[:OH] > 1
 
         # CH4 is the most abundant reactive hydrocarbon (except urban CO)
-        if i != 2  # not UrbanConditions
+        if i!=2  # not UrbanConditions
             @test cond[:CH4] > cond[:CO]
         end
 
         # Solve the system and verify all computed outputs are positive and finite
-        sol = solve_system(compiled, cond)
+        sol=solve_system(compiled, cond)
 
         @test sol[compiled.NOx] > 0
         @test sol[compiled.HOx] > 0

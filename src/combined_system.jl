@@ -202,7 +202,7 @@ Based on values from Seinfeld & Pandis Chapter 6.
     eqs = [
         M_out ~ M, O2_out ~ O2, H2O_out ~ H2O, O3_out ~ O3,
         NO_out ~ NO, NO2_out ~ NO2, CO_out ~ CO, CH4_out ~ CH4,
-        OH_out ~ OH, HO2_out ~ HO2, CH3O2_out ~ CH3O2,
+        OH_out ~ OH, HO2_out ~ HO2, CH3O2_out ~ CH3O2
     ]
     return System(eqs, t; name)
 end
@@ -244,7 +244,7 @@ All concentrations are parameters in SI units (m⁻³).
     eqs = [
         M_out ~ M, O2_out ~ O2, H2O_out ~ H2O, O3_out ~ O3,
         NO_out ~ NO, NO2_out ~ NO2, CO_out ~ CO, CH4_out ~ CH4,
-        OH_out ~ OH, HO2_out ~ HO2, CH3O2_out ~ CH3O2,
+        OH_out ~ OH, HO2_out ~ HO2, CH3O2_out ~ CH3O2
     ]
     return System(eqs, t; name)
 end
@@ -286,7 +286,7 @@ All concentrations are parameters in SI units (m⁻³).
     eqs = [
         M_out ~ M, O2_out ~ O2, H2O_out ~ H2O, O3_out ~ O3,
         NO_out ~ NO, NO2_out ~ NO2, CO_out ~ CO, CH4_out ~ CH4,
-        OH_out ~ OH, HO2_out ~ HO2, CH3O2_out ~ CH3O2,
+        OH_out ~ OH, HO2_out ~ HO2, CH3O2_out ~ CH3O2
     ]
     return System(eqs, t; name)
 end
@@ -299,7 +299,7 @@ This is a convenience function for use in tests and analysis code.
 """
 function get_conditions_dict(sys)
     params = parameters(sys)
-    result = Dict{Symbol,Float64}()
+    result = Dict{Symbol, Float64}()
     for p in params
         if ModelingToolkit.hasdefault(p)
             result[Symbol(p)] = Float64(ModelingToolkit.getdefault(p))
