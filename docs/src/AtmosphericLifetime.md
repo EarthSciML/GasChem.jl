@@ -895,6 +895,7 @@ These concepts are essential for understanding air quality, climate forcing by g
 ## API Reference
 
 ```@docs
+GasChem.AtmosphericLifetime
 AtmosphericBudget
 SpeciesLifetime
 MultipleRemovalLifetime

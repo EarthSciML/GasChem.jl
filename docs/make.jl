@@ -26,6 +26,16 @@ makedocs(;
             "State Variables" => "geoschem/states.md",
             "Parameters" => "geoschem/params.md"
         ],
+        "Seinfeld & Pandis Ch. 6" => [
+            "OH Production" => "oh_production.md",
+            "NOx Photochemistry" => "nox_photochemistry.md",
+            "CO Oxidation" => "co_oxidation.md",
+            "Methane Oxidation" => "methane_oxidation.md",
+            "Combined System" => "combined_system.md"
+        ],
+        "Radiation Fundamentals" => "radiation_fundamentals.md",
+        "Stratospheric Chemistry" => "StratosphericChemistry.md",
+        "Climate Forcing" => "climate_forcing.md",
         "Composing models" => "composing_models.md",
         "API" => "api.md"
     ]
