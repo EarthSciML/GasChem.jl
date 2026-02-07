@@ -83,7 +83,7 @@ end
 function EarthSciMLBase.couple2(c::SuperFastCoupler, p::FastJXCoupler)
     c, p = c.sys, p.sys
     c = param_to_var(
-        convert(ODESystem, c),
+        c,
         :jH2O2,
         :jNO2,
         :jH2COa,
@@ -98,6 +98,37 @@ function EarthSciMLBase.couple2(c::SuperFastCoupler, p::FastJXCoupler)
          c.jCH3OOH ~ p.j_CH3OOH
          c.jNO2 ~ p.j_NO2
          c.jO32OH ~ p.j_o32OH],
+        c,
+        p
+    )
+end
+
+function EarthSciMLBase.couple2(c::PolluCoupler, p::FastJXCoupler)
+    c, p = c.sys, p.sys
+    c = param_to_var(
+        c,
+        :jNO2_O3P,
+        :jH2COa,
+        :jH2COb,
+        :jALD,
+        :jPAN,
+        :jO3_O1D,
+        :jO3_O3P,
+        :jNO3_NO,
+        :jNO3_NO2,
+        :jN2O5
+    )
+    ConnectorSystem(
+        [c.jNO2_O3P ~ p.j_NO2
+         c.jH2COa ~ p.j_H2COa
+         c.jH2COb ~ p.j_H2COb
+         c.jALD ~ p.j_ActAld
+         c.jPAN ~ p.j_PAN
+         c.jO3_O1D ~ p.j_O31D
+         c.jO3_O3P ~ p.j_O3
+         c.jNO3_NO ~ p.j_NO3b
+         c.jNO3_NO2 ~ p.j_NO3a
+         c.jN2O5 ~ p.j_N2O5],
         c,
         p
     )

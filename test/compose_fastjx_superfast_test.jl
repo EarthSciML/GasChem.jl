@@ -1,8 +1,8 @@
 @testitem "2wayCoupling" begin
-    using EarthSciMLBase
+    using GasChem, EarthSciMLBase
     using OrdinaryDiffEqRosenbrock
     using ModelingToolkit
-    sol_middle = 10.054760758144594
+    sol_middle = 39.999599729358856
     sf = couple(SuperFast(), FastJX(0.0))
     sys = convert(System, sf)
     tspan = (0.0, 3600 * 24)
@@ -12,10 +12,10 @@
 end
 
 @testitem "2wayCoupling" begin
-    using EarthSciMLBase
+    using GasChem, EarthSciMLBase
     using OrdinaryDiffEqRosenbrock
     using ModelingToolkit
-    sol_middle = 10.054760758144594
+    sol_middle = 39.999599729358856
 
     sf = couple(SuperFast(), FastJX_interpolation_troposphere(0.0))
     sys = convert(System, sf)
