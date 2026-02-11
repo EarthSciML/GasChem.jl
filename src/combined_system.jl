@@ -64,12 +64,13 @@ All species concentrations must be provided as inputs [m⁻³].
     # =========================================================================
     @parameters begin
         # CH₄ oxidation
-        k_CH4_OH = 2.45e-12 * exp(-1775 / 298) * 1e-6,
-        [
-            description = "CH₄ + OH rate constant (2.45e-12 exp(-1775/T) cm³/molec/s, Table 6.1 rxn 1)",
-            unit = u"m^3/s"]
-        k_CH3O2_NO = 7.7e-12 * 1e-6,
-        [description = "CH₃O₂ + NO rate constant (7.7e-12 cm³/molec/s)", unit = u"m^3/s"]
+        k_CH4_OH = 2.45e-12 * exp(-1775 / 298) * 1.0e-6,
+            [
+                description = "CH₄ + OH rate constant (2.45e-12 exp(-1775/T) cm³/molec/s, Table 6.1 rxn 1)",
+                unit = u"m^3/s",
+            ]
+        k_CH3O2_NO = 7.7e-12 * 1.0e-6,
+            [description = "CH₃O₂ + NO rate constant (7.7e-12 cm³/molec/s)", unit = u"m^3/s"]
     end
 
     # =========================================================================
@@ -146,7 +147,7 @@ All species concentrations must be provided as inputs [m⁻³].
 
         # Total O₃ loss
         L_O3_total ~
-        nox_sys.k_NO_O3 * NO * O3 + co_sys.k_OH_O3 * OH * O3 + co_sys.k_HO2_O3 * HO2 * O3,
+            nox_sys.k_NO_O3 * NO * O3 + co_sys.k_OH_O3 * OH * O3 + co_sys.k_HO2_O3 * HO2 * O3,
 
         # Net O₃ production
         P_O3_net ~ P_O3_total - L_O3_total,
@@ -158,7 +159,7 @@ All species concentrations must be provided as inputs [m⁻³].
         OPE ~ P_O3_total / L_NOx,
 
         # HOx chain length (from CO oxidation subsystem diagnostic, re-expressed at combined level)
-        chain_length ~ co_sys.chain_length
+        chain_length ~ co_sys.chain_length,
     ]
 
     return System(eqs, t; systems = [oh_sys, nox_sys, co_sys], name)
@@ -177,15 +178,15 @@ Based on values from Seinfeld & Pandis Chapter 6.
     @parameters begin
         M = 2.5e25, [description = "Total air at STP", unit = u"m^-3"]
         O2 = 5.25e24, [description = "O₂, 21% of M", unit = u"m^-3"]
-        H2O = 4e23, [description = "Water vapor, ~50% RH at 298 K", unit = u"m^-3"]
-        O3 = 1e18, [description = "Ozone, ~40 ppb", unit = u"m^-3"]
+        H2O = 4.0e23, [description = "Water vapor, ~50% RH at 298 K", unit = u"m^-3"]
+        O3 = 1.0e18, [description = "Ozone, ~40 ppb", unit = u"m^-3"]
         NO = 2.5e15, [description = "NO, ~0.1 ppb", unit = u"m^-3"]
         NO2 = 2.5e16, [description = "NO₂, ~1 ppb", unit = u"m^-3"]
         CO = 2.5e18, [description = "CO, ~100 ppb", unit = u"m^-3"]
         CH4 = 4.5e19, [description = "CH₄, ~1800 ppb", unit = u"m^-3"]
-        OH = 1e12, [description = "OH, typical daytime", unit = u"m^-3"]
-        HO2 = 1e14, [description = "HO₂, typical daytime", unit = u"m^-3"]
-        CH3O2 = 1e14, [description = "CH₃O₂, typical daytime", unit = u"m^-3"]
+        OH = 1.0e12, [description = "OH, typical daytime", unit = u"m^-3"]
+        HO2 = 1.0e14, [description = "HO₂, typical daytime", unit = u"m^-3"]
+        CH3O2 = 1.0e14, [description = "CH₃O₂, typical daytime", unit = u"m^-3"]
     end
     @variables begin
         M_out(t), [description = "Total air number density", unit = u"m^-3"]
@@ -203,7 +204,7 @@ Based on values from Seinfeld & Pandis Chapter 6.
     eqs = [
         M_out ~ M, O2_out ~ O2, H2O_out ~ H2O, O3_out ~ O3,
         NO_out ~ NO, NO2_out ~ NO2, CO_out ~ CO, CH4_out ~ CH4,
-        OH_out ~ OH, HO2_out ~ HO2, CH3O2_out ~ CH3O2
+        OH_out ~ OH, HO2_out ~ HO2, CH3O2_out ~ CH3O2,
     ]
     return System(eqs, t; name)
 end
@@ -219,15 +220,15 @@ All concentrations are parameters in SI units (m⁻³).
     @parameters begin
         M = 2.5e25, [description = "Total air at STP", unit = u"m^-3"]
         O2 = 5.25e24, [description = "O₂, 21% of M", unit = u"m^-3"]
-        H2O = 4e23, [description = "Water vapor", unit = u"m^-3"]
-        O3 = 2e18, [description = "Ozone, ~80 ppb", unit = u"m^-3"]
+        H2O = 4.0e23, [description = "Water vapor", unit = u"m^-3"]
+        O3 = 2.0e18, [description = "Ozone, ~80 ppb", unit = u"m^-3"]
         NO = 2.5e17, [description = "NO, ~10 ppb", unit = u"m^-3"]
         NO2 = 7.5e17, [description = "NO₂, ~30 ppb", unit = u"m^-3"]
-        CO = 5e19, [description = "CO, ~2 ppm", unit = u"m^-3"]
+        CO = 5.0e19, [description = "CO, ~2 ppm", unit = u"m^-3"]
         CH4 = 4.5e19, [description = "CH₄, ~1800 ppb", unit = u"m^-3"]
-        OH = 5e11, [description = "OH, reduced due to high NOx", unit = u"m^-3"]
-        HO2 = 5e13, [description = "HO₂, reduced due to high NOx", unit = u"m^-3"]
-        CH3O2 = 5e13, [description = "CH₃O₂", unit = u"m^-3"]
+        OH = 5.0e11, [description = "OH, reduced due to high NOx", unit = u"m^-3"]
+        HO2 = 5.0e13, [description = "HO₂, reduced due to high NOx", unit = u"m^-3"]
+        CH3O2 = 5.0e13, [description = "CH₃O₂", unit = u"m^-3"]
     end
     @variables begin
         M_out(t), [description = "Total air number density", unit = u"m^-3"]
@@ -245,7 +246,7 @@ All concentrations are parameters in SI units (m⁻³).
     eqs = [
         M_out ~ M, O2_out ~ O2, H2O_out ~ H2O, O3_out ~ O3,
         NO_out ~ NO, NO2_out ~ NO2, CO_out ~ CO, CH4_out ~ CH4,
-        OH_out ~ OH, HO2_out ~ HO2, CH3O2_out ~ CH3O2
+        OH_out ~ OH, HO2_out ~ HO2, CH3O2_out ~ CH3O2,
     ]
     return System(eqs, t; name)
 end
@@ -261,15 +262,15 @@ All concentrations are parameters in SI units (m⁻³).
     @parameters begin
         M = 2.5e25, [description = "Total air at STP", unit = u"m^-3"]
         O2 = 5.25e24, [description = "O₂, 21% of M", unit = u"m^-3"]
-        H2O = 4e23, [description = "Water vapor", unit = u"m^-3"]
+        H2O = 4.0e23, [description = "Water vapor", unit = u"m^-3"]
         O3 = 7.5e17, [description = "Ozone, ~30 ppb", unit = u"m^-3"]
         NO = 2.5e14, [description = "NO, ~10 ppt", unit = u"m^-3"]
-        NO2 = 5e14, [description = "NO₂, ~20 ppt", unit = u"m^-3"]
-        CO = 2e18, [description = "CO, ~80 ppb", unit = u"m^-3"]
+        NO2 = 5.0e14, [description = "NO₂, ~20 ppt", unit = u"m^-3"]
+        CO = 2.0e18, [description = "CO, ~80 ppb", unit = u"m^-3"]
         CH4 = 4.5e19, [description = "CH₄, ~1800 ppb", unit = u"m^-3"]
-        OH = 1e12, [description = "OH, typical daytime", unit = u"m^-3"]
-        HO2 = 2e14, [description = "HO₂, higher due to low NOx", unit = u"m^-3"]
-        CH3O2 = 2e14, [description = "CH₃O₂", unit = u"m^-3"]
+        OH = 1.0e12, [description = "OH, typical daytime", unit = u"m^-3"]
+        HO2 = 2.0e14, [description = "HO₂, higher due to low NOx", unit = u"m^-3"]
+        CH3O2 = 2.0e14, [description = "CH₃O₂", unit = u"m^-3"]
     end
     @variables begin
         M_out(t), [description = "Total air number density", unit = u"m^-3"]
@@ -287,7 +288,7 @@ All concentrations are parameters in SI units (m⁻³).
     eqs = [
         M_out ~ M, O2_out ~ O2, H2O_out ~ H2O, O3_out ~ O3,
         NO_out ~ NO, NO2_out ~ NO2, CO_out ~ CO, CH4_out ~ CH4,
-        OH_out ~ OH, HO2_out ~ HO2, CH3O2_out ~ CH3O2
+        OH_out ~ OH, HO2_out ~ HO2, CH3O2_out ~ CH3O2,
     ]
     return System(eqs, t; name)
 end

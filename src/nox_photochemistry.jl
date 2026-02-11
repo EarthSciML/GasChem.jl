@@ -88,11 +88,11 @@ Seinfeld & Pandis Chapter 6.
 @component function NOxPhotochemistry(; name = :NOxPhotochemistry)
     # Parameters (rate constants converted to SI)
     @parameters begin
-        j_NO2 = 8e-3, [description = "NO₂ photolysis rate", unit = u"s^-1"]
-        k_O_O2_M = 6.0e-34 * 1e-12,
-        [description = "O + O₂ + M → O₃ rate (6.0e-34 cm⁶/molec²/s)", unit = u"m^6/s"]
-        k_NO_O3 = 1.9e-14 * 1e-6,
-        [description = "NO + O₃ → NO₂ rate (1.9e-14 cm³/molec/s, p. 211)", unit = u"m^3/s"]
+        j_NO2 = 8.0e-3, [description = "NO₂ photolysis rate", unit = u"s^-1"]
+        k_O_O2_M = 6.0e-34 * 1.0e-12,
+            [description = "O + O₂ + M → O₃ rate (6.0e-34 cm⁶/molec²/s)", unit = u"m^6/s"]
+        k_NO_O3 = 1.9e-14 * 1.0e-6,
+            [description = "NO + O₃ → NO₂ rate (1.9e-14 cm³/molec/s, p. 211)", unit = u"m^3/s"]
     end
 
     # Input variables (concentrations in SI: m⁻³)
@@ -124,7 +124,7 @@ Seinfeld & Pandis Chapter 6.
         Φ ~ j_NO2 * NO2 / (k_NO_O3 * NO * O3),
 
         # Equation 6.8: Net ozone production/loss rate
-        P_O3 ~ j_NO2 * NO2 - k_NO_O3 * NO * O3
+        P_O3 ~ j_NO2 * NO2 - k_NO_O3 * NO * O3,
     ]
 
     return System(eqs, t; name)
@@ -145,14 +145,14 @@ When Φ = 1: Pure photostationary state (no net ozone production)
 @component function PhotostationaryState(; name = :PhotostationaryState)
     @constants begin
         one = 1,
-        [description = "Unity constant for PSS deviation (dimensionless)", unit = u"1"]
+            [description = "Unity constant for PSS deviation (dimensionless)", unit = u"1"]
     end
 
     # Parameters
     @parameters begin
-        j_NO2 = 8e-3, [description = "NO₂ photolysis rate", unit = u"s^-1"]
-        k_NO_O3 = 1.9e-14 * 1e-6,
-        [description = "NO + O₃ → NO₂ rate (1.9e-14 cm³/molec/s, p. 211)", unit = u"m^3/s"]
+        j_NO2 = 8.0e-3, [description = "NO₂ photolysis rate", unit = u"s^-1"]
+        k_NO_O3 = 1.9e-14 * 1.0e-6,
+            [description = "NO + O₃ → NO₂ rate (1.9e-14 cm³/molec/s, p. 211)", unit = u"m^3/s"]
     end
 
     # Input variables
@@ -166,12 +166,12 @@ When Φ = 1: Pure photostationary state (no net ozone production)
     @variables begin
         Φ(t), [description = "Photostationary state parameter (dimensionless)", unit = u"1"]
         Φ_deviation(t),
-        [description = "Deviation from photostationary state (dimensionless)", unit = u"1"]
+            [description = "Deviation from photostationary state (dimensionless)", unit = u"1"]
     end
 
     eqs = [
         Φ ~ j_NO2 * NO2 / (k_NO_O3 * NO * O3),
-        Φ_deviation ~ Φ - one
+        Φ_deviation ~ Φ - one,
     ]
 
     return System(eqs, t; name)

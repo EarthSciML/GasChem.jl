@@ -88,26 +88,29 @@ This is an algebraic system that computes diagnostic quantities from input conce
 @component function OHProduction(; name = :OHProduction)
     @constants begin
         two = 2,
-        [
-            description = "Stoichiometric factor: 2 OH per O(¹D)+H₂O reaction (dimensionless)",
-            unit = u"1"]
+            [
+                description = "Stoichiometric factor: 2 OH per O(¹D)+H₂O reaction (dimensionless)",
+                unit = u"1",
+            ]
     end
 
     # Parameters (rate constants converted from cm³/molecule/s to m³/s)
     @parameters begin
-        j_O3 = 6e-5,
-        [description = "O₃ photolysis rate producing O(¹D) at surface, solar zenith 0°",
-            unit = u"s^-1"]
-        k3_N2 = 2.6e-11 * 1e-6,
-        [description = "O(¹D) + N₂ quenching rate (2.6e-11 cm³/molec/s)", unit = u"m^3/s"]
-        k3_O2 = 4.0e-11 * 1e-6,
-        [description = "O(¹D) + O₂ quenching rate (4.0e-11 cm³/molec/s)", unit = u"m^3/s"]
-        k4 = 2.2e-10 * 1e-6,
-        [description = "O(¹D) + H₂O → 2OH rate (2.2e-10 cm³/molec/s)", unit = u"m^3/s"]
+        j_O3 = 6.0e-5,
+            [
+                description = "O₃ photolysis rate producing O(¹D) at surface, solar zenith 0°",
+                unit = u"s^-1",
+            ]
+        k3_N2 = 2.6e-11 * 1.0e-6,
+            [description = "O(¹D) + N₂ quenching rate (2.6e-11 cm³/molec/s)", unit = u"m^3/s"]
+        k3_O2 = 4.0e-11 * 1.0e-6,
+            [description = "O(¹D) + O₂ quenching rate (4.0e-11 cm³/molec/s)", unit = u"m^3/s"]
+        k4 = 2.2e-10 * 1.0e-6,
+            [description = "O(¹D) + H₂O → 2OH rate (2.2e-10 cm³/molec/s)", unit = u"m^3/s"]
         f_N2 = 0.78,
-        [description = "Fraction of air that is N₂ (dimensionless)", unit = u"1"]
+            [description = "Fraction of air that is N₂ (dimensionless)", unit = u"1"]
         f_O2 = 0.21,
-        [description = "Fraction of air that is O₂ (dimensionless)", unit = u"1"]
+            [description = "Fraction of air that is O₂ (dimensionless)", unit = u"1"]
     end
 
     # Input variables (concentrations in SI: m⁻³)
@@ -141,7 +144,7 @@ This is an algebraic system that computes diagnostic quantities from input conce
 
         # Equation 6.3: OH production rate
         # P_OH = j_{O₃→O(¹D)} [O₃] ε_OH = 2 j k₄[H₂O] / (k₃[M] + k₄[H₂O]) [O₃]
-        P_OH ~ j_O3 * O3 * ε_OH
+        P_OH ~ j_O3 * O3 * ε_OH,
     ]
 
     return System(eqs, t; name)

@@ -179,52 +179,52 @@ end
 
 @testitem "2.3 Eq. 2.3: General Lifetime" begin
     # tau = Q / (R + F_out)
-    Q = 1e12      # mol (typical tropospheric burden)
-    R = 1e6       # mol/s
-    F_out = 2e5   # mol/s
+    Q = 1.0e12      # mol (typical tropospheric burden)
+    R = 1.0e6       # mol/s
+    F_out = 2.0e5   # mol/s
 
     expected_tau = Q / (R + F_out)
-    @test expected_tau ≈ 1e12 / 1.2e6 rtol=1e-10
-    @test expected_tau ≈ 833333.33 rtol=1e-5  # ~9.6 days
+    @test expected_tau ≈ 1.0e12 / 1.2e6 rtol = 1.0e-10
+    @test expected_tau ≈ 833333.33 rtol = 1.0e-5  # ~9.6 days
 end
 
 @testitem "2.4 Eq. 2.4-2.5: Removal and Production Lifetimes" begin
     # tau = Q / R = Q / P (at steady state)
-    Q = 1e12      # mol
-    R = 1e6       # mol/s
-    P = 1e6       # mol/s (equal to R at steady state)
+    Q = 1.0e12      # mol
+    R = 1.0e6       # mol/s
+    P = 1.0e6       # mol/s (equal to R at steady state)
 
     tau_removal = Q / R
     tau_production = Q / P
 
     @test tau_removal == tau_production
-    @test tau_removal == 1e6  # seconds
-    @test tau_removal / 86400 ≈ 11.57 rtol=0.01  # ~11.6 days
+    @test tau_removal == 1.0e6  # seconds
+    @test tau_removal / 86400 ≈ 11.57 rtol = 0.01  # ~11.6 days
 end
 
 @testitem "2.5 Eq. 2.6: First-Order Lifetime" begin
     # tau = 1 / lambda
-    lambda = 1e-6  # s^-1
+    lambda = 1.0e-6  # s^-1
 
     tau = 1 / lambda
-    @test tau == 1e6  # seconds
-    @test tau / 86400 ≈ 11.57 rtol=0.01  # ~11.6 days
+    @test tau == 1.0e6  # seconds
+    @test tau / 86400 ≈ 11.57 rtol = 0.01  # ~11.6 days
 
     # Test different rate constants
-    lambda_fast = 1e-4  # s^-1 (fast removal)
-    lambda_slow = 1e-8  # s^-1 (slow removal)
+    lambda_fast = 1.0e-4  # s^-1 (fast removal)
+    lambda_slow = 1.0e-8  # s^-1 (slow removal)
 
     @test (1 / lambda_fast) < (1 / lambda) < (1 / lambda_slow)
 end
 
 @testitem "2.6 Eq. 2.7: Two First-Order Processes" begin
     # tau = 1 / (k_1 + k_2)
-    k_1 = 1e-6    # s^-1
-    k_2 = 2e-6    # s^-1
+    k_1 = 1.0e-6    # s^-1
+    k_2 = 2.0e-6    # s^-1
 
     tau_combined = 1 / (k_1 + k_2)
-    @test tau_combined ≈ 1 / 3e-6 rtol=1e-10
-    @test tau_combined ≈ 333333.33 rtol=1e-5  # ~3.9 days
+    @test tau_combined ≈ 1 / 3.0e-6 rtol = 1.0e-10
+    @test tau_combined ≈ 333333.33 rtol = 1.0e-5  # ~3.9 days
 
     # Verify tau_combined < min(tau_1, tau_2)
     tau_1 = 1 / k_1
@@ -235,26 +235,26 @@ end
 
 @testitem "2.7 Eq. 2.8: Inverse Lifetime Sum" begin
     # 1/tau = 1/tau_1 + 1/tau_2
-    tau_1 = 1e6   # s
-    tau_2 = 5e5   # s
+    tau_1 = 1.0e6   # s
+    tau_2 = 5.0e5   # s
 
-    inverse_tau = 1/tau_1 + 1/tau_2
+    inverse_tau = 1 / tau_1 + 1 / tau_2
     tau_combined = 1 / inverse_tau
 
-    @test tau_combined ≈ tau_1 * tau_2 / (tau_1 + tau_2) rtol=1e-10
-    @test tau_combined ≈ 333333.33 rtol=1e-5
+    @test tau_combined ≈ tau_1 * tau_2 / (tau_1 + tau_2) rtol = 1.0e-10
+    @test tau_combined ≈ 333333.33 rtol = 1.0e-5
 end
 
 @testitem "2.8 Eq. 2.9: Combined Lifetime Formula" begin
     # tau = (tau_1 * tau_2) / (tau_1 + tau_2)
-    tau_1 = 1e6   # s (11.6 days)
-    tau_2 = 5e5   # s (5.8 days)
+    tau_1 = 1.0e6   # s (11.6 days)
+    tau_2 = 5.0e5   # s (5.8 days)
 
     tau_combined = (tau_1 * tau_2) / (tau_1 + tau_2)
-    @test tau_combined ≈ 333333.33 rtol=1e-5  # ~3.9 days
+    @test tau_combined ≈ 333333.33 rtol = 1.0e-5  # ~3.9 days
 
     # Verify equivalence with Eq. 2.8
-    @test tau_combined ≈ 1 / (1/tau_1 + 1/tau_2) rtol=1e-10
+    @test tau_combined ≈ 1 / (1 / tau_1 + 1 / tau_2) rtol = 1.0e-10
 end
 
 @testitem "2.9 Eq. 2.12: OH Reaction Lifetime" begin
@@ -262,35 +262,35 @@ end
 
     # Typical values for methane (CH4)
     k_OH_CH4 = 6.3e-15    # cm^3/(molec*s) at 298 K
-    OH_conc = 1e6         # molec/cm^3 (global average)
+    OH_conc = 1.0e6         # molec/cm^3 (global average)
 
     tau_CH4 = 1 / (k_OH_CH4 * OH_conc)
     tau_CH4_years = tau_CH4 / (365.25 * 86400)
 
-    @test tau_CH4_years ≈ 5.0 rtol=0.1  # ~5 years for CH4
+    @test tau_CH4_years ≈ 5.0 rtol = 0.1  # ~5 years for CH4
 
     # Typical values for CO
     k_OH_CO = 2.4e-13     # cm^3/(molec*s) at 298 K
     tau_CO = 1 / (k_OH_CO * OH_conc)
     tau_CO_days = tau_CO / 86400
 
-    @test tau_CO_days ≈ 48 rtol=0.1  # ~48 days for CO
+    @test tau_CO_days ≈ 48 rtol = 0.1  # ~48 days for CO
 end
 
 @testitem "2.10 Eq. 2.15: Total Lifetime from Removal" begin
     # tau = 1 / (k_d + k_w + k_c + k_t)
 
     # Typical values for a reactive species
-    k_d = 1e-6    # s^-1 (dry deposition)
-    k_w = 5e-7    # s^-1 (wet deposition)
-    k_c = 2e-6    # s^-1 (chemical loss)
-    k_t = 1e-7    # s^-1 (stratospheric transport)
+    k_d = 1.0e-6    # s^-1 (dry deposition)
+    k_w = 5.0e-7    # s^-1 (wet deposition)
+    k_c = 2.0e-6    # s^-1 (chemical loss)
+    k_t = 1.0e-7    # s^-1 (stratospheric transport)
 
     k_total = k_d + k_w + k_c + k_t
     tau_total = 1 / k_total
 
-    @test k_total ≈ 3.6e-6 rtol=1e-10
-    @test tau_total ≈ 277777.78 rtol=1e-5  # ~3.2 days
+    @test k_total ≈ 3.6e-6 rtol = 1.0e-10
+    @test tau_total ≈ 277777.78 rtol = 1.0e-5  # ~3.2 days
 end
 
 #=============================================================================
@@ -301,15 +301,15 @@ end
     # All lifetimes must be positive for positive rate constants
 
     # Test with various positive rate constants
-    for lambda in [1e-10, 1e-6, 1e-2, 1.0]
+    for lambda in [1.0e-10, 1.0e-6, 1.0e-2, 1.0]
         tau = 1 / lambda
         @test tau > 0
         @test isfinite(tau)
     end
 
     # Combined lifetime is always less than individual lifetimes
-    k_1 = 1e-6
-    k_2 = 2e-6
+    k_1 = 1.0e-6
+    k_2 = 2.0e-6
     tau_1 = 1 / k_1
     tau_2 = 1 / k_2
     tau_combined = 1 / (k_1 + k_2)
@@ -368,14 +368,14 @@ end
     compiled = mtkcompile(trop; inputs)
 
     # Set up problem with constant sources
-    k_d_val = 1e-6
-    k_w_val = 5e-7
-    k_c_val = 2e-6
-    k_t_val = 1e-7
+    k_d_val = 1.0e-6
+    k_w_val = 5.0e-7
+    k_c_val = 2.0e-6
+    k_t_val = 1.0e-7
 
-    P_n_val = 1e5
-    P_a_val = 5e4
-    P_c_val = 2e4
+    P_n_val = 1.0e5
+    P_a_val = 5.0e4
+    P_c_val = 2.0e4
 
     Q_0 = 0.0
 
@@ -406,7 +406,7 @@ end
 
     # Check that solution approaches steady state
     Q_final = sol[compiled.Q][end]
-    @test Q_final ≈ Q_ss_expected rtol=0.01
+    @test Q_final ≈ Q_ss_expected rtol = 0.01
 end
 
 #=============================================================================
@@ -415,7 +415,7 @@ end
 
 @testitem "6.1 Methane (CH4) Lifetime" begin
     k_OH = 6.3e-15
-    OH_avg = 1e6
+    OH_avg = 1.0e6
 
     tau_OH = 1 / (k_OH * OH_avg)
     tau_OH_years = tau_OH / (365.25 * 86400)
@@ -426,6 +426,6 @@ end
     tau_soil = 30.0
     tau_strat = 120.0
 
-    tau_total = 1 / (1/tau_OH_actual + 1/tau_soil + 1/tau_strat)
+    tau_total = 1 / (1 / tau_OH_actual + 1 / tau_soil + 1 / tau_strat)
     @test tau_total > 6 && tau_total < 12
 end

@@ -29,7 +29,7 @@ through Planck's constant (h) and the speed of light (c).
     end
 
     @parameters begin
-        λ = 5e-7, [description = "Wavelength (input)", unit = u"m"]
+        λ = 5.0e-7, [description = "Wavelength (input)", unit = u"m"]
     end
 
     @variables begin
@@ -39,7 +39,7 @@ through Planck's constant (h) and the speed of light (c).
 
     eqs = [
         ν ~ c / λ,            # Eq. 4.1b - Frequency-wavelength relation
-        Δε ~ h * ν           # Eq. 4.1a - Energy from frequency
+        Δε ~ h * ν,           # Eq. 4.1a - Energy from frequency
     ]
 
     return System(eqs, t; name)
@@ -80,7 +80,7 @@ temperature T for a given wavelength λ.
 
     @parameters begin
         T = 5800.0, [description = "Temperature (input)", unit = u"K"]
-        λ = 5e-7, [description = "Wavelength (input)", unit = u"m"]
+        λ = 5.0e-7, [description = "Wavelength (input)", unit = u"m"]
     end
 
     @variables begin
@@ -88,7 +88,7 @@ temperature T for a given wavelength λ.
     end
 
     eqs = [
-    # Eq. 4.2 - Planck's law for blackbody radiation
+        # Eq. 4.2 - Planck's law for blackbody radiation
         F_B_λ ~ 2 * π_val * c^2 * h * λ^(-5) / (exp(c * h / (k_B * λ * T)) - 1),
     ]
 
@@ -133,7 +133,7 @@ This gives the wavelength at which the blackbody emission spectrum peaks.
     end
 
     eqs = [
-    # Eq. 4.3 - Wien's displacement law (SI units)
+        # Eq. 4.3 - Wien's displacement law (SI units)
         λ_max ~ b / T,
     ]
 
@@ -175,7 +175,7 @@ The total emissive power of a blackbody integrated over all wavelengths.
     end
 
     eqs = [
-    # Eq. 4.4 - Stefan-Boltzmann law
+        # Eq. 4.4 - Stefan-Boltzmann law
         F_B ~ σ * T^4,
     ]
 
@@ -233,7 +233,7 @@ At equilibrium: F_S = F_L
 
         # At equilibrium, absorbed = emitted
         # Eq. 4.7 can be derived from F_S = F_L, solving for T_e
-        F_S ~ F_L
+        F_S ~ F_L,
     ]
 
     return System(eqs, t; name)
@@ -272,10 +272,10 @@ Implements the climate sensitivity equations (Eqs. 4.8-4.10) from Seinfeld & Pan
 
     @parameters begin
         T_e = 255.0,
-        [description = "Reference equilibrium temperature (input)", unit = u"K"]
+            [description = "Reference equilibrium temperature (input)", unit = u"K"]
         ΔF_S = 4.0, [description = "Change in absorbed solar flux (input)", unit = u"W/m^2"]
         ΔF_L = 0.0,
-        [description = "Change in emitted longwave flux (input)", unit = u"W/m^2"]
+            [description = "Change in emitted longwave flux (input)", unit = u"W/m^2"]
     end
 
     @variables begin
@@ -296,7 +296,7 @@ Implements the climate sensitivity equations (Eqs. 4.8-4.10) from Seinfeld & Pan
         ΔT_e ~ λ_0 * ΔF_net,
 
         # Reference state: F_L from Stefan-Boltzmann
-        F_L ~ σ * T_e^4
+        F_L ~ σ * T_e^4,
     ]
 
     return System(eqs, t; name)
@@ -342,7 +342,7 @@ so positive F_net indicates the planet is gaining energy (warming).
 
         # Eq. 4.11 - TOA energy balance
         # F_net positive means energy gain (warming)
-        F_net ~ F_S - F_L
+        F_net ~ F_S - F_L,
     ]
 
     return System(eqs, t; name)
@@ -378,8 +378,10 @@ This is a composed system that includes:
 
     return System(
         eqs, t;
-        systems = [photon, blackbody, wien, stefan_boltzmann,
-            energy_balance, climate_sensitivity, toa_forcing],
+        systems = [
+            photon, blackbody, wien, stefan_boltzmann,
+            energy_balance, climate_sensitivity, toa_forcing,
+        ],
         name
     )
 end
