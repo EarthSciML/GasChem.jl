@@ -31,7 +31,7 @@ function Pollu(; name = :Pollu, rxn_sys = false)
             [unit=u"s^-1"],
             k2=0.266e2/(60.0*1e3),
             [unit=u"1/(ppb*s)"],
-            k3=0.120e5/(60.0*1e3),
+            k3=0.123e5/(60.0*1e3), # Original value is 0.120e5/(60.0*1e3), but the value is updated to 0.123e5/(60.0*1e3) to match the Fontana codes "https://archimede.uniba.it/~testset/src/problems/pollu.f"
             [unit=u"1/(ppb*s)"],
             jH2COa=0.86e-3/60.0,
             [unit=u"s^-1"],
@@ -158,10 +158,10 @@ function Pollu(; name = :Pollu, rxn_sys = false)
     # See [here](https://docs.juliahub.com/ModelingToolkit/Qmdqu/3.14.0/systems/ReactionSystem/#ModelingToolkit.oderatelaw) 
     # and [here](https://github.com/SciML/Catalyst.jl/issues/311).
     convert(
-        ODESystem,
+        Catalyst.ReactionRateSystem,
         complete(rxns);
         combinatoric_ratelaws = false,
         name = name,
-        metadata = Dict(:coupletype => PolluCoupler)
+        metadata = Dict(CoupleType => PolluCoupler)
     )
 end

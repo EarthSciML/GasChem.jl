@@ -293,10 +293,6 @@ function SuperFast(; name = :SuperFast, rxn_sys = false)
         jH2COa, CH2O --> HO2 + HO2 + CO
         jH2COb, CH2O --> CO
         jCH3OOH, CH3OOH --> CH2O + HO2 + OH
-
-        # Tracer
-        jA, A --> B
-        jB, B --> A
     end
     rxns = compose(rx_sys, rate_systems)
     if rxn_sys
