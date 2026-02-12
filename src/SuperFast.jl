@@ -230,6 +230,7 @@ function SuperFast(; name = :SuperFast, rxn_sys = false)
 
     rx_sys = @network_component SuperFast begin
         @ivs t [unit = u"s"]
+        
         @parameters begin
             jO32OH = 2.27e-4, [unit = u"s^-1"]
             jH2O2 = 1.0097e-5, [unit = u"s^-1"]
@@ -239,26 +240,26 @@ function SuperFast(; name = :SuperFast, rxn_sys = false)
             jCH3OOH = 8.9573e-6, [unit = u"s^-1"]
             T = 280.0, [unit = u"K", description = "Temperature"]
             P = 101325, [unit = u"Pa", description = "Pressure"]
-            O2 = 2.1e8, [isconstantspecies = true, unit = u"ppb"]
+            O2 = 2.095e8, [isconstantspecies = true, unit = u"ppb"]
             CH4 = 1700.0, [isconstantspecies = true, unit = u"ppb"]
-            H2O = 450.0, [isconstantspecies = true, unit = u"ppb"]
+            H2O = 1.839e7, [isconstantspecies = true, unit = u"ppb"]
         end
 
         @species begin
-            O3(t) = 20.0, [unit = u"ppb"]
-            OH(t) = 0.01, [unit = u"ppb"]
-            HO2(t) = 0.01, [unit = u"ppb"]
-            NO(t) = 10.0, [unit = u"ppb"]
-            NO2(t) = 10.0, [unit = u"ppb"]
-            CH3O2(t) = 0.01, [unit = u"ppb"]
-            CH2O(t) = 0.15, [unit = u"ppb"]
-            CO(t) = 275.0, [unit = u"ppb"]
-            CH3OOH(t) = 1.6, [unit = u"ppb"]
+            O3(t) = 40.0, [unit = u"ppb"]
+            OH(t) = 4e-6, [unit = u"ppb"]
+            HO2(t) = 4e-6, [unit = u"ppb"]
+            NO(t) = 4e-4, [unit = u"ppb"]
+            NO2(t) = 4e-4, [unit = u"ppb"]
+            CH3O2(t) = 4e-6, [unit = u"ppb"]
+            CH2O(t) = 4e-6, [unit = u"ppb"]
+            CO(t) = 100, [unit = u"ppb"]
+            CH3OOH(t) = 4e-6, [unit = u"ppb"]
             #DMS(t) = 50.0, [unit = u"ppb"]
             #SO2(t) = 2.0, [unit = u"ppb"]
-            ISOP(t) = 0.15, [unit = u"ppb"]
-            H2O2(t) = 2.34, [unit = u"ppb"]
-            HNO3(t) = 10.0, [unit = u"ppb"]
+            ISOP(t) = 1e-11, [unit = u"ppb"]
+            H2O2(t) = 4e-6, [unit = u"ppb"]
+            HNO3(t) = 4e-6, [unit = u"ppb"]
         end
 
         #Gas-phase reactions

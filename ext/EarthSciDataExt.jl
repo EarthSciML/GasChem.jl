@@ -33,19 +33,13 @@ function EarthSciMLBase.couple2(
         [unit=u"kg/mol", description="Sulfur dioxide molar mass"],
         MW_ISOP=68.12e-3,
         [unit=u"kg/mol", description="Isoprene molar mass"],
+        MW_Air=28.97e-3,
+        [unit=u"kg/mol", description="Molar mass of air"],
         nmolpermol=1e9,
-        [unit=u"ppb", description="nmol/mol, Conversion factor from mol to nmol"],
-        R=8.31446261815324,
-        [unit=u"m^3*Pa/mol/K", description="Ideal gas constant"],)
+        [unit=u"ppb", description="nmol/mol, Conversion factor from mol to nmol"],)
 
-    # Emissions are in units of "kg/m3/s" and need to be converted to "ppb/s" or "nmol/mol/s".
-    # To do this we need to convert kg of emissions to nmol of emissions,
-    # and we need to convert m3 of air to mol of air.
-    # nmol_emissions = kg_emissions * gperkg / MW_emission * nmolpermol = kg / kg/mol * nmol/mol = nmol
-    # mol_air = m3_air / R / T * P = m3 / (m3*Pa/mol/K) / K * Pa = mol
-    # So, the overall conversion is:
-    # nmol_emissions / mol_air = (kg_emissions / MW_emission * nmolpermol) / (m3_air / R / T * P)
-    uconv = nmolpermol * R * c.T / c.P # Conversion factor with MW factored out.
+    # Emissions are in units of "kg/kg air/s" and need to be converted to "ppb/s" or "nmol/mol/s".
+    uconv = nmolpermol * MW_Air # Conversion factor with MW factored out.
     operator_compose(
         convert(System, c),
         e,
@@ -188,6 +182,48 @@ function EarthSciMLBase.couple2(f::GasChem.FastJXCoupler, g::EarthSciData.GEOSFP
         f,
         g
     )
+end
+
+function EarthSciMLBase.couple2(
+    c::GasChem.PolluCoupler,
+    e::EarthSciData.NEI2016MonthlyEmisCoupler
+)
+c, e = c.sys, e.sys
+
+@constants(MW_NO2=46.0055e-3,
+    [unit=u"kg/mol", description="NO2 molar mass"],
+    MW_NO=30.01e-3,
+    [unit=u"kg/mol", description="NO molar mass"],
+    MW_FORM=30.0260e-3,
+    [unit=u"kg/mol", description="Formaldehyde molar mass"],
+    #MW_CH4 = 16.0425e-3, [unit = u"kg/mol", description="Methane molar mass"], # CH4 is currently a constant in SuperFast.
+    MW_CO=28.0101e-3,
+    [unit=u"kg/mol", description="Carbon monoxide molar mass"],
+    # MW_SO2=64.0638e-3,
+    # [unit=u"kg/mol", description="Sulfur dioxide molar mass"],
+    MW_ALD2=44.052e-3,
+    [unit=u"kg/mol", description="Aldehyde molar mass"],
+    # MW_ALDX=58.08e-3,
+    # [unit=u"kg/mol", description="Aldehyde molar mass"],
+    MW_Air=28.97e-3,
+    [unit=u"kg/mol", description="Molar mass of air"],
+    nmolpermol=1e9,
+    [unit=u"ppb", description="nmol/mol, Conversion factor from mol to nmol"],)
+
+# Emissions are in units of "kg/kg air/s" and need to be converted to "ppb/s" or "nmol/mol/s".
+uconv = nmolpermol * MW_Air # Conversion factor with MW factored out.
+operator_compose(
+    convert(ODESystem, c),
+    e,
+    Dict(
+        c.NO2 => e.NO2 => uconv / MW_NO2,
+        c.NO => e.NO => uconv / MW_NO,
+        c.CH2O => e.FORM => uconv / MW_FORM,
+        c.CO => e.CO => uconv / MW_CO,
+        c.ALD => e.ALD2 => uconv / MW_ALD2,
+        # c.ALD => e.ALDX => uconv / MW_ALDX,
+    )
+)
 end
 
 end
