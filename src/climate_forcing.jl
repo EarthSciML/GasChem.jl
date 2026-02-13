@@ -33,31 +33,31 @@ sys = ClimateFeedback()
     @constants begin
         # Radiative forcing for CO₂ doubling (IPCC 2001 best estimate, p. 1037)
         ΔF_2xCO2 = 3.7,
-        [description = "Radiative forcing for CO₂ doubling", unit = u"W/m^2"]
+            [description = "Radiative forcing for CO₂ doubling", unit = u"W/m^2"]
         # No-feedback temperature increase for 2×CO₂ (p. 1037-1038)
         ΔT0_2xCO2 = 1.25,
-        [description = "No-feedback temperature change for CO₂ doubling", unit = u"K"]
+            [description = "No-feedback temperature change for CO₂ doubling", unit = u"K"]
     end
 
     @parameters begin
         ΔF, [description = "Radiative forcing perturbation", unit = u"W/m^2"]
         λ = 0.8,
-        [description = "Climate sensitivity parameter with feedbacks", unit = u"K*m^2/W"]
+            [description = "Climate sensitivity parameter with feedbacks", unit = u"K*m^2/W"]
         λ_CO2 = 0.8,
-        [description = "Climate sensitivity for CO₂ doubling", unit = u"K*m^2/W"]
+            [description = "Climate sensitivity for CO₂ doubling", unit = u"K*m^2/W"]
         E_i = 1.0, [description = "Efficacy of forcing agent (dimensionless)", unit = u"1"]
         ΔT_r = 0.7, [description = "Realized warming to date", unit = u"K"]
     end
 
     @variables begin
         ΔT_s(t),
-        [description = "Equilibrium surface temperature change with feedbacks", unit = u"K"]
+            [description = "Equilibrium surface temperature change with feedbacks", unit = u"K"]
         ΔT_0(t), [description = "Surface temperature change without feedbacks", unit = u"K"]
         λ_0(t), [description = "No-feedback climate sensitivity", unit = u"K*m^2/W"]
         ΔF_e(t), [description = "Effective radiative forcing", unit = u"W/m^2"]
         ΔT_unrealized(t), [description = "Unrealized (committed) warming", unit = u"K"]
         ΔF_r(t),
-        [description = "Forcing corresponding to realized warming", unit = u"W/m^2"]
+            [description = "Forcing corresponding to realized warming", unit = u"W/m^2"]
     end
 
     eqs = [
@@ -77,7 +77,7 @@ sys = ClimateFeedback()
         ΔF_r ~ ΔT_r / λ,
 
         # Eq. 23.7 - Unrealized warming (warming commitment, p. 1045)
-        ΔT_unrealized ~ (ΔF - ΔF_r) * λ
+        ΔT_unrealized ~ (ΔF - ΔF_r) * λ,
     ]
 
     return System(eqs, t; name)
@@ -105,27 +105,29 @@ sys = GHGForcing()
     @constants begin
         # Individual forcings (IPCC 2001, presented in S&P p. 1039)
         ΔF_CO2_ref = 1.46,
-        [description = "CO₂ forcing since preindustrial", unit = u"W/m^2"]
+            [description = "CO₂ forcing since preindustrial", unit = u"W/m^2"]
         ΔF_CH4_ref = 0.48,
-        [description = "CH₄ forcing since preindustrial", unit = u"W/m^2"]
+            [description = "CH₄ forcing since preindustrial", unit = u"W/m^2"]
         ΔF_N2O_ref = 0.15,
-        [description = "N₂O forcing since preindustrial", unit = u"W/m^2"]
+            [description = "N₂O forcing since preindustrial", unit = u"W/m^2"]
         ΔF_O3_trop_ref = 0.4, [description = "Tropospheric O₃ forcing", unit = u"W/m^2"]
         ΔF_halo_ref = 0.34, [description = "Halocarbon forcing", unit = u"W/m^2"]
     end
 
     @parameters begin
         f_CO2 = 1.0,
-        [description = "Scaling factor for CO₂ forcing (dimensionless)", unit = u"1"]
+            [description = "Scaling factor for CO₂ forcing (dimensionless)", unit = u"1"]
         f_CH4 = 1.0,
-        [description = "Scaling factor for CH₄ forcing (dimensionless)", unit = u"1"]
+            [description = "Scaling factor for CH₄ forcing (dimensionless)", unit = u"1"]
         f_N2O = 1.0,
-        [description = "Scaling factor for N₂O forcing (dimensionless)", unit = u"1"]
+            [description = "Scaling factor for N₂O forcing (dimensionless)", unit = u"1"]
         f_O3 = 1.0,
-        [description = "Scaling factor for tropospheric O₃ forcing (dimensionless)",
-            unit = u"1"]
+            [
+                description = "Scaling factor for tropospheric O₃ forcing (dimensionless)",
+                unit = u"1",
+            ]
         f_halo = 1.0,
-        [description = "Scaling factor for halocarbon forcing (dimensionless)", unit = u"1"]
+            [description = "Scaling factor for halocarbon forcing (dimensionless)", unit = u"1"]
     end
 
     @variables begin
@@ -143,7 +145,7 @@ sys = GHGForcing()
         ΔF_N2O ~ f_N2O * ΔF_N2O_ref,
         ΔF_O3 ~ f_O3 * ΔF_O3_trop_ref,
         ΔF_halo ~ f_halo * ΔF_halo_ref,
-        ΔF_total ~ ΔF_CO2 + ΔF_CH4 + ΔF_N2O + ΔF_O3 + ΔF_halo
+        ΔF_total ~ ΔF_CO2 + ΔF_CH4 + ΔF_N2O + ΔF_O3 + ΔF_halo,
     ]
 
     return System(eqs, t; name)
@@ -182,32 +184,36 @@ sys = GlobalWarmingPotential()
         # Effective CO₂ lifetime for GWP calculations (assumed, see p. 1043)
         # 150 years converted to seconds
         τ_CO2 = 150.0 * 365.25 * 24 * 3600,
-        [description = "Effective CO₂ lifetime for GWP calculations (150 yr)", unit = u"s"]
+            [description = "Effective CO₂ lifetime for GWP calculations (150 yr)", unit = u"s"]
         # Radiative efficiency of CO₂ (approximate)
         a_CO2 = 1.0,
-        [description = "Reference radiative efficiency for CO₂ (normalized)", unit = u"1"]
+            [description = "Reference radiative efficiency for CO₂ (normalized)", unit = u"1"]
     end
 
     @parameters begin
         τ_A, [description = "Atmospheric lifetime of species A", unit = u"s"]
         a_A,
-        [description = "Radiative efficiency of species A relative to CO₂ (dimensionless)",
-            unit = u"1"]
+            [
+                description = "Radiative efficiency of species A relative to CO₂ (dimensionless)",
+                unit = u"1",
+            ]
         t_f = 100.0 * 365.25 * 24 * 3600,
-        [description = "Time horizon for GWP calculation (default 100 yr)", unit = u"s"]
+            [description = "Time horizon for GWP calculation (default 100 yr)", unit = u"s"]
     end
 
     @variables begin
         GWP(t),
-        [description = "Global Warming Potential relative to CO₂ (dimensionless)",
-            unit = u"1"]
+            [
+                description = "Global Warming Potential relative to CO₂ (dimensionless)",
+                unit = u"1",
+            ]
         AGWP_A(t),
-        [description = "Absolute GWP of species A", unit = u"s"]
+            [description = "Absolute GWP of species A", unit = u"s"]
         AGWP_CO2(t), [description = "Absolute GWP of CO₂", unit = u"s"]
         decay_integral_A(t),
-        [description = "Time integral of decay function for species A", unit = u"s"]
+            [description = "Time integral of decay function for species A", unit = u"s"]
         decay_integral_CO2(t),
-        [description = "Time integral of decay function for CO₂", unit = u"s"]
+            [description = "Time integral of decay function for CO₂", unit = u"s"]
     end
 
     eqs = [
@@ -221,7 +227,7 @@ sys = GlobalWarmingPotential()
         AGWP_CO2 ~ a_CO2 * decay_integral_CO2,
 
         # Eq. 23.5 / Problem 23.3 - GWP as ratio of AGWPs
-        GWP ~ AGWP_A / AGWP_CO2
+        GWP ~ AGWP_A / AGWP_CO2,
     ]
 
     return System(eqs, t; name)

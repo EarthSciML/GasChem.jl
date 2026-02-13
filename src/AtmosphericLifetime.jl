@@ -65,14 +65,14 @@ diagnostic purposes.
     @variables begin
         Q(t), [description = "Total mass of species in reservoir", unit = u"mol"]
         F_in(t),
-        [description = "Rate of mass inflow from outside reservoir", unit = u"mol/s"]
+            [description = "Rate of mass inflow from outside reservoir", unit = u"mol/s"]
         F_out(t), [description = "Rate of mass outflow from reservoir", unit = u"mol/s"]
         P(t), [description = "Rate of chemical production in reservoir", unit = u"mol/s"]
         R(t), [description = "Rate of chemical removal in reservoir", unit = u"mol/s"]
         net_transport(t),
-        [description = "Net transport contribution (F_in - F_out)", unit = u"mol/s"]
+            [description = "Net transport contribution (F_in - F_out)", unit = u"mol/s"]
         net_chemistry(t),
-        [description = "Net chemistry contribution (P - R)", unit = u"mol/s"]
+            [description = "Net chemistry contribution (P - R)", unit = u"mol/s"]
     end
 
     eqs = [
@@ -81,7 +81,7 @@ diagnostic purposes.
         # Diagnostic: net transport
         net_transport ~ F_in - F_out,
         # Diagnostic: net chemistry
-        net_chemistry ~ P - R
+        net_chemistry ~ P - R,
     ]
 
     return System(eqs, t; name)
@@ -140,12 +140,12 @@ Notes:
         P(t), [description = "Rate of chemical production", unit = u"mol/s"]
         F_out(t), [description = "Rate of mass outflow", unit = u"mol/s"]
         tau_general(t),
-        [description = "General atmospheric lifetime (Eq. 2.3)", unit = u"s"]
+            [description = "General atmospheric lifetime (Eq. 2.3)", unit = u"s"]
         tau_removal(t), [description = "Lifetime from removal rate (Eq. 2.4)", unit = u"s"]
         tau_production(t),
-        [description = "Lifetime from production rate (Eq. 2.5)", unit = u"s"]
+            [description = "Lifetime from production rate (Eq. 2.5)", unit = u"s"]
         tau_first_order(t),
-        [description = "Lifetime from first-order rate constant (Eq. 2.6)", unit = u"s"]
+            [description = "Lifetime from first-order rate constant (Eq. 2.6)", unit = u"s"]
     end
 
     eqs = [
@@ -156,7 +156,7 @@ Notes:
         # Eq. 2.5 - Lifetime from production rate (steady state)
         tau_production ~ Q / P,
         # Eq. 2.6 - Lifetime from first-order rate constant
-        tau_first_order ~ 1 / lambda
+        tau_first_order ~ 1 / lambda,
     ]
 
     return System(eqs, t; name)
@@ -204,18 +204,18 @@ This can be extended to N pathways where:
 @component function MultipleRemovalLifetime(; name = :MultipleRemovalLifetime)
     @parameters begin
         k_1,
-        [description = "First-order rate constant for removal pathway 1", unit = u"s^-1"]
+            [description = "First-order rate constant for removal pathway 1", unit = u"s^-1"]
         k_2,
-        [description = "First-order rate constant for removal pathway 2", unit = u"s^-1"]
+            [description = "First-order rate constant for removal pathway 2", unit = u"s^-1"]
     end
 
     @variables begin
         tau_1(t), [description = "Lifetime for removal pathway 1", unit = u"s"]
         tau_2(t), [description = "Lifetime for removal pathway 2", unit = u"s"]
         tau_combined(t),
-        [description = "Combined lifetime from all pathways (Eq. 2.9)", unit = u"s"]
+            [description = "Combined lifetime from all pathways (Eq. 2.9)", unit = u"s"]
         inverse_tau(t),
-        [description = "Sum of inverse lifetimes (1/tau_1 + 1/tau_2)", unit = u"s^-1"]
+            [description = "Sum of inverse lifetimes (1/tau_1 + 1/tau_2)", unit = u"s^-1"]
     end
 
     eqs = [
@@ -225,7 +225,7 @@ This can be extended to N pathways where:
         # Eq. 2.7 & 2.8 - Inverse lifetime sum
         inverse_tau ~ k_1 + k_2,
         # Eq. 2.9 - Combined lifetime formula
-        tau_combined ~ (tau_1 * tau_2) / (tau_1 + tau_2)
+        tau_combined ~ (tau_1 * tau_2) / (tau_1 + tau_2),
     ]
 
     return System(eqs, t; name)
@@ -264,14 +264,15 @@ with units of s^-1, consistent with Eq. 2.6.
 @component function OHReactionLifetime(; name = :OHReactionLifetime)
     @parameters begin
         k_OH,
-        [
-            description = "Second-order rate constant for OH reaction", unit = u"cm^3/(molec*s)"]
+            [
+                description = "Second-order rate constant for OH reaction", unit = u"cm^3/(molec*s)",
+            ]
     end
 
     @variables begin
         OH_conc(t), [description = "OH radical concentration", unit = u"molec/cm^3"]
         k_eff(t),
-        [description = "Effective first-order rate constant (k_OH * [OH])", unit = u"s^-1"]
+            [description = "Effective first-order rate constant (k_OH * [OH])", unit = u"s^-1"]
         tau_OH(t), [description = "Lifetime due to OH reaction (Eq. 2.12)", unit = u"s"]
     end
 
@@ -279,7 +280,7 @@ with units of s^-1, consistent with Eq. 2.6.
         # Effective first-order rate constant
         k_eff ~ k_OH * OH_conc,
         # Eq. 2.12 - Lifetime due to OH reaction
-        tau_OH ~ 1 / k_eff
+        tau_OH ~ 1 / k_eff,
     ]
 
     return System(eqs, t; name)
@@ -348,15 +349,15 @@ The component computes individual pathway lifetimes for diagnostic purposes:
         P_total(t), [description = "Total production rate", unit = u"mol/s"]
         R_total(t), [description = "Total removal rate", unit = u"mol/s"]
         k_total(t),
-        [description = "Total first-order removal rate constant", unit = u"s^-1"]
+            [description = "Total first-order removal rate constant", unit = u"s^-1"]
         tau_dry(t), [description = "Lifetime against dry deposition", unit = u"s"]
         tau_wet(t), [description = "Lifetime against wet deposition", unit = u"s"]
         tau_chem(t), [description = "Lifetime against chemical loss", unit = u"s"]
         tau_transport(t),
-        [description = "Lifetime against transport to stratosphere", unit = u"s"]
+            [description = "Lifetime against transport to stratosphere", unit = u"s"]
         tau_total(t), [description = "Total atmospheric lifetime (Eq. 2.15)", unit = u"s"]
         tau_production(t),
-        [description = "Lifetime from production (Eq. 2.17)", unit = u"s"]
+            [description = "Lifetime from production (Eq. 2.17)", unit = u"s"]
     end
 
     eqs = [
@@ -376,7 +377,7 @@ The component computes individual pathway lifetimes for diagnostic purposes:
         # Eq. 2.15 - Total lifetime from removal
         tau_total ~ 1 / k_total,
         # Eq. 2.17 - Lifetime from production (valid at steady state)
-        tau_production ~ Q / P_total
+        tau_production ~ Q / P_total,
     ]
 
     return System(eqs, t; name)

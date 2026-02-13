@@ -88,24 +88,25 @@ from Seinfeld & Pandis Chapter 6, including HOx cycling and steady-state relatio
 @component function COOxidation(; name = :COOxidation)
     @constants begin
         two = 2,
-        [
-            description = "Stoichiometric factor for HO₂ self-reaction (dimensionless)", unit = u"1"]
+            [
+                description = "Stoichiometric factor for HO₂ self-reaction (dimensionless)", unit = u"1",
+            ]
     end
 
     # Parameters - Rate constants at 298 K (converted to SI)
     @parameters begin
-        k_CO_OH = 2.4e-13 * 1e-6,
-        [description = "CO + OH rate constant (2.4e-13 cm³/molec/s)", unit = u"m^3/s"]
-        k_HO2_NO = 8.1e-12 * 1e-6,
-        [description = "HO₂ + NO rate constant (8.1e-12 cm³/molec/s)", unit = u"m^3/s"]
-        k_HO2_HO2 = 2.9e-12 * 1e-6,
-        [description = "HO₂ + HO₂ rate constant (2.9e-12 cm³/molec/s)", unit = u"m^3/s"]
-        k_OH_NO2 = 1.0e-11 * 1e-6,
-        [description = "OH + NO₂ + M rate constant (1.0e-11 cm³/molec/s)", unit = u"m^3/s"]
-        k_HO2_O3 = 2.0e-15 * 1e-6,
-        [description = "HO₂ + O₃ rate constant (2.0e-15 cm³/molec/s)", unit = u"m^3/s"]
-        k_OH_O3 = 7.3e-14 * 1e-6,
-        [description = "OH + O₃ rate constant (7.3e-14 cm³/molec/s)", unit = u"m^3/s"]
+        k_CO_OH = 2.4e-13 * 1.0e-6,
+            [description = "CO + OH rate constant (2.4e-13 cm³/molec/s)", unit = u"m^3/s"]
+        k_HO2_NO = 8.1e-12 * 1.0e-6,
+            [description = "HO₂ + NO rate constant (8.1e-12 cm³/molec/s)", unit = u"m^3/s"]
+        k_HO2_HO2 = 2.9e-12 * 1.0e-6,
+            [description = "HO₂ + HO₂ rate constant (2.9e-12 cm³/molec/s)", unit = u"m^3/s"]
+        k_OH_NO2 = 1.0e-11 * 1.0e-6,
+            [description = "OH + NO₂ + M rate constant (1.0e-11 cm³/molec/s)", unit = u"m^3/s"]
+        k_HO2_O3 = 2.0e-15 * 1.0e-6,
+            [description = "HO₂ + O₃ rate constant (2.0e-15 cm³/molec/s)", unit = u"m^3/s"]
+        k_OH_O3 = 7.3e-14 * 1.0e-6,
+            [description = "OH + O₃ rate constant (7.3e-14 cm³/molec/s)", unit = u"m^3/s"]
     end
 
     # Input variables (concentrations in SI: m⁻³)
@@ -148,7 +149,7 @@ from Seinfeld & Pandis Chapter 6, including HOx cycling and steady-state relatio
         P_O3 ~ k_HO2_NO * HO2 * NO - k_OH_O3 * OH * O3 - k_HO2_O3 * HO2 * O3,
 
         # HOx chain length: number of OH-HO₂ cycles before termination
-        chain_length ~ (k_HO2_NO * HO2 * NO) / L_HOx
+        chain_length ~ (k_HO2_NO * HO2 * NO) / L_HOx,
     ]
 
     return System(eqs, t; name)
@@ -181,12 +182,12 @@ From Equations 6.21-6.24:
 """
 @component function OzoneProductionEfficiency(; name = :OzoneProductionEfficiency)
     @parameters begin
-        k_HO2_NO = 8.1e-12 * 1e-6,
-        [description = "HO₂ + NO rate constant (8.1e-12 cm³/molec/s)", unit = u"m^3/s"]
-        k_RO2_NO = 8.0e-12 * 1e-6,
-        [description = "RO₂ + NO rate constant (8.0e-12 cm³/molec/s)", unit = u"m^3/s"]
-        k_OH_NO2 = 1.0e-11 * 1e-6,
-        [description = "OH + NO₂ + M rate constant (1.0e-11 cm³/molec/s)", unit = u"m^3/s"]
+        k_HO2_NO = 8.1e-12 * 1.0e-6,
+            [description = "HO₂ + NO rate constant (8.1e-12 cm³/molec/s)", unit = u"m^3/s"]
+        k_RO2_NO = 8.0e-12 * 1.0e-6,
+            [description = "RO₂ + NO rate constant (8.0e-12 cm³/molec/s)", unit = u"m^3/s"]
+        k_OH_NO2 = 1.0e-11 * 1.0e-6,
+            [description = "OH + NO₂ + M rate constant (1.0e-11 cm³/molec/s)", unit = u"m^3/s"]
     end
 
     # Input variables
@@ -213,7 +214,7 @@ From Equations 6.21-6.24:
         L_NOx ~ k_OH_NO2 * OH * NO2,
 
         # OPE = P(O₃) / L(NOx)
-        OPE ~ P_O3 / L_NOx
+        OPE ~ P_O3 / L_NOx,
     ]
 
     return System(eqs, t; name)

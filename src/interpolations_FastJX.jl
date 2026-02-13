@@ -57,12 +57,15 @@ function flux_eqs_interpolation(csa, P)
     flux_vals = []
     flux_vars = []
     @constants c_flux = 1.0 [
-        unit = u"s^-1", description = "Constant actinic flux (for unit conversion)"]
+        unit = u"s^-1", description = "Constant actinic flux (for unit conversion)",
+    ]
 
-    interpolation_funcs = [flux_interp_1, flux_interp_2, flux_interp_3,
+    interpolation_funcs = [
+        flux_interp_1, flux_interp_2, flux_interp_3,
         flux_interp_4, flux_interp_5, flux_interp_6,
         flux_interp_7, flux_interp_8, flux_interp_9, flux_interp_10, flux_interp_11, flux_interp_12,
-        flux_interp_13, flux_interp_14, flux_interp_15, flux_interp_16, flux_interp_17, flux_interp_18]
+        flux_interp_13, flux_interp_14, flux_interp_15, flux_interp_16, flux_interp_17, flux_interp_18,
+    ]
 
     for i in 1:18
         f = interpolation_funcs[i](P, csa)
@@ -73,7 +76,7 @@ function flux_eqs_interpolation(csa, P)
         push!(flux_vals, f)
     end
 
-    flux_vars, (flux_vars .~ collect(flux_vals) .* c_flux), c_flux # TODO(CT): remove "collect" when https://github.com/SciML/ModelingToolkit.jl/issues/3888 is fixed.
+    return flux_vars, (flux_vars .~ collect(flux_vals) .* c_flux), c_flux # TODO(CT): remove "collect" when https://github.com/SciML/ModelingToolkit.jl/issues/3888 is fixed.
 end
 
 """
@@ -95,7 +98,7 @@ fj = FastJX(DateTime(2000, 1, 1))
 function FastJX_interpolation_troposphere(t_ref::AbstractFloat; name = :FastJX)
     @constants T_unit = 1.0 [
         unit = u"K",
-        description = "Unit temperature (for unit conversion)"
+        description = "Unit temperature (for unit conversion)",
     ]
     @parameters T = 298.0 [unit = u"K", description = "Temperature"]
     @parameters lat = 40.0 [description = "Latitude (Degrees)"]
@@ -120,7 +123,7 @@ function FastJX_interpolation_troposphere(t_ref::AbstractFloat; name = :FastJX)
     @variables j_O3(t) [unit = u"s^-1"]
     @variables cosSZA(t) [description = "Cosine of the solar zenith angle"]
 
-    flux_vars, fluxeqs, c_flux = flux_eqs_interpolation(cosSZA, P/P_unit)
+    flux_vars, fluxeqs, c_flux = flux_eqs_interpolation(cosSZA, P / P_unit)
     j_o31D_adj = adjust_j_o31D(ParentScope(T), ParentScope(P), ParentScope(H2O))
 
     eqs = [cosSZA ~ cos_solar_zenith_angle(t + t_ref, lat, long);
@@ -151,5 +154,5 @@ function FastJX_interpolation_troposphere(t_ref::AbstractFloat; name = :FastJX)
     return flatten(fjx) # Need to do flatten because otherwise coupling doesn't work correctly
 end
 function FastJX_interpolation_troposphere(t_ref::DateTime; kwargs...)
-    FastJX_interpolation_troposphere(datetime2unix(t_ref); kwargs...)
+    return FastJX_interpolation_troposphere(datetime2unix(t_ref); kwargs...)
 end
