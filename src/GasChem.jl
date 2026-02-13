@@ -24,6 +24,7 @@ export AtmosphericBudget, SpeciesLifetime, MultipleRemovalLifetime,
     OHReactionLifetime, TroposphericBudget
 
 include("SuperFast.jl")
+include("Pollu.jl")
 include("geoschem_ratelaws.jl")
 include("geoschem_fullchem.jl")
 include("fastjx_interp.jl")
