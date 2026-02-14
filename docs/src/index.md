@@ -17,6 +17,32 @@ Pkg.add("GasChem")
 
 Currently, we have implemented versions of the SuperFast and GEOS-Chem chemical mechanisms, which can be optionally coupled with the Fast-JX photolysis model, which is also implemented here.
 
+## Seinfeld & Pandis Chapter 6: Chemistry of the Troposphere
+
+GasChem.jl also includes implementations of tropospheric chemistry systems from
+Seinfeld & Pandis "Atmospheric Chemistry and Physics" (2nd Edition), Chapter 6:
+
+  - **[OH Production](@ref oh_production)**: Production of OH radicals from O3 photolysis (Section 6.1)
+  - **[NOx Photochemistry](@ref nox_photochemistry)**: The NOx photochemical cycle and photostationary state (Section 6.2)
+  - **[CO Oxidation](@ref co_oxidation)**: CO oxidation and HOx cycling (Section 6.3)
+  - **[Methane Oxidation](@ref methane_oxidation)**: Complete methane oxidation mechanism (Section 6.4)
+  - **[Combined System](@ref combined_system)**: Integrated tropospheric chemistry model
+
+### Key Concepts
+
+Ozone in the troposphere is produced through the photochemical oxidation of
+volatile organic compounds (VOCs) and CO in the presence of nitrogen oxides (NOx).
+The OH and HO2 radicals (collectively HOx) cycle rapidly, allowing catalytic
+ozone production before termination (mainly OH + NO2 -> HNO3).
+
+Ozone production depends strongly on NOx levels:
+
+  - **High NOx (VOC-limited)**: O3 increases with VOC, decreases with NOx
+  - **Low NOx (NOx-limited)**: O3 increases with NOx
+
+**Reference**: Seinfeld, J.H. and Pandis, S.N. (2006). *Atmospheric Chemistry and Physics:
+From Air Pollution to Climate Change*, 2nd Edition. John Wiley & Sons. Chapter 6.
+
 ## Contributing
 
 ...coming soon

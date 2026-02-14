@@ -8,7 +8,7 @@
     tspan = (0.0, 3600 * 24)
     prob = ODEProblem(sys, [], tspan)
     sol = solve(prob, Rosenbrock23(), saveat = 10.0)
-    @test sol[sys.SuperFast₊O3][4320]≈sol_middle rtol=1e-4
+    @test sol[sys.SuperFast₊O3][4320] ≈ sol_middle rtol = 1.0e-4
 end
 
 @testitem "2wayCoupling" begin
@@ -22,5 +22,5 @@ end
     tspan = (0.0, 3600 * 24)
     prob = ODEProblem(sys, [], tspan)
     sol = solve(prob, Rosenbrock23(), saveat = 10.0)
-    @test sol[sys.SuperFast₊O3][4320]≈sol_middle rtol=1e-4
+    @test sol[sys.SuperFast₊O3][4320] ≈ sol_middle rtol = 1.0e-4
 end

@@ -1,9 +1,4 @@
-## Index
-
-```@index
-```
-
-## API Documentation
+# API Reference
 
 ```@autodocs
 Modules = [GasChem]
