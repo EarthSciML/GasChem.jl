@@ -92,6 +92,6 @@ end
     @test length(unknowns(sys)) ≈ 20
 
     eqs = string(equations(sys))
-    wanteq = "Differential(t)(Pollu₊ALD(t)) ~ Pollu₊NEI2016MonthlyEmis_ALD2(t)"
+    wanteq = "Differential(t, 1)(Pollu₊ALD(t)) ~ Pollu₊NEI2016MonthlyEmis_ALD2(t)"
     @test contains(eqs, wanteq)
 end
