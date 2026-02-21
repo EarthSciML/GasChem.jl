@@ -1,6 +1,6 @@
 name = "GasChem"
 uuid = "58070593-4751-4c87-a5d1-63807d11d76c"
-version = "0.11.0"
+version = "0.12.0"
 authors = ["EarthSciML authors and contributors"]
 
 [deps]
