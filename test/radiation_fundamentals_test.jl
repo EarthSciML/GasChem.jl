@@ -32,7 +32,7 @@ end
 
     # Check pre-compiled system structure
     @test length(equations(photon)) == 2
-    @test length(ModelingToolkit.get_unknowns(photon)) == 2
+    @test length(unknowns(photon)) == 2
     # Verify it compiles successfully
     sys = mtkcompile(photon)
     @test sys !== nothing
@@ -43,7 +43,7 @@ end
 
     # Check pre-compiled system structure
     @test length(equations(balance)) == 3
-    @test length(ModelingToolkit.get_unknowns(balance)) == 3
+    @test length(unknowns(balance)) == 3
     # Verify it compiles successfully
     sys = mtkcompile(balance)
     @test sys !== nothing
@@ -53,7 +53,7 @@ end
     @named bb = BlackbodyRadiation()
 
     @test length(equations(bb)) == 1
-    @test length(ModelingToolkit.get_unknowns(bb)) == 1
+    @test length(unknowns(bb)) == 1
     sys = mtkcompile(bb)
     @test sys !== nothing
 end
@@ -62,7 +62,7 @@ end
     @named wien = WienDisplacement()
 
     @test length(equations(wien)) == 1
-    @test length(ModelingToolkit.get_unknowns(wien)) == 1
+    @test length(unknowns(wien)) == 1
     sys = mtkcompile(wien)
     @test sys !== nothing
 end
@@ -71,7 +71,7 @@ end
     @named sb = StefanBoltzmann()
 
     @test length(equations(sb)) == 1
-    @test length(ModelingToolkit.get_unknowns(sb)) == 1
+    @test length(unknowns(sb)) == 1
     sys = mtkcompile(sb)
     @test sys !== nothing
 end
@@ -80,7 +80,7 @@ end
     @named cs = ClimateSensitivity()
 
     @test length(equations(cs)) == 4
-    @test length(ModelingToolkit.get_unknowns(cs)) == 4
+    @test length(unknowns(cs)) == 4
     sys = mtkcompile(cs)
     @test sys !== nothing
 end
@@ -89,7 +89,7 @@ end
     @named toa = TOARadiativeForcing()
 
     @test length(equations(toa)) == 2
-    @test length(ModelingToolkit.get_unknowns(toa)) == 2
+    @test length(unknowns(toa)) == 2
     sys = mtkcompile(toa)
     @test sys !== nothing
 end

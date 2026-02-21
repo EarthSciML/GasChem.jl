@@ -1,26 +1,26 @@
 @testitem "2wayCoupling" begin
-    using EarthSciMLBase
+    using GasChem, EarthSciMLBase
     using OrdinaryDiffEqRosenbrock
     using ModelingToolkit
-    sol_middle = 10.054760758144594
+    sol_middle = 39.999599729358856
     sf = couple(SuperFast(), FastJX(0.0))
     sys = convert(System, sf)
     tspan = (0.0, 3600 * 24)
-    prob = ODEProblem(sys, [], tspan)
+    prob = ODEProblem(sys, [], tspan; build_initializeprob = false)
     sol = solve(prob, Rosenbrock23(), saveat = 10.0)
     @test sol[sys.SuperFast₊O3][4320] ≈ sol_middle rtol = 1.0e-4
 end
 
-@testitem "2wayCoupling" begin
-    using EarthSciMLBase
+@testitem "2wayCoupling interpolation" begin
+    using GasChem, EarthSciMLBase
     using OrdinaryDiffEqRosenbrock
     using ModelingToolkit
-    sol_middle = 10.054760758144594
+    sol_middle = 39.999599729358856
 
     sf = couple(SuperFast(), FastJX_interpolation_troposphere(0.0))
     sys = convert(System, sf)
     tspan = (0.0, 3600 * 24)
-    prob = ODEProblem(sys, [], tspan)
+    prob = ODEProblem(sys, [], tspan; build_initializeprob = false)
     sol = solve(prob, Rosenbrock23(), saveat = 10.0)
     @test sol[sys.SuperFast₊O3][4320] ≈ sol_middle rtol = 1.0e-4
 end

@@ -30,11 +30,11 @@ jobs:
           version: ${{ matrix.version }}
           arch: ${{ matrix.arch }}
       - uses: julia-actions/cache@v2
-      - name: Install Catalyst.jl fork
+      - name: Install Catalyst.jl master
         run: |
           julia --project=. -e '
             using Pkg
-            Pkg.add(url="https://github.com/ctessum/Catalyst.jl", rev="mtkv10-v2")
+            Pkg.add(url="https://github.com/SciML/Catalyst.jl.git")
           '
       - uses: julia-actions/julia-buildpkg@v1
       - uses: julia-actions/julia-runtest@v1
@@ -60,7 +60,7 @@ jobs:
           julia --project=docs -e '
             using Pkg
             Pkg.rm("GasChem")
-            Pkg.add(url="https://github.com/ctessum/Catalyst.jl", rev="mtkv10-v2")
+            Pkg.add(url="https://github.com/SciML/Catalyst.jl.git")
             Pkg.develop(PackageSpec(path=pwd()))
             Pkg.instantiate()'
       - name: Documentation test

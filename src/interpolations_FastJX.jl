@@ -126,21 +126,23 @@ function FastJX_interpolation_troposphere(t_ref::AbstractFloat; name = :FastJX)
     flux_vars, fluxeqs, c_flux = flux_eqs_interpolation(cosSZA, P / P_unit)
     j_o31D_adj = adjust_j_o31D(ParentScope(T), ParentScope(P), ParentScope(H2O))
 
-    eqs = [cosSZA ~ cos_solar_zenith_angle(t + t_ref, lat, long);
-           fluxeqs;
-           j_ActAld ~ j_mean_ActAld(T/T_unit, flux_vars);
-           j_PAN ~ j_mean_PAN(T/T_unit, flux_vars);
-           j_O3 ~ j_mean_O3(T/T_unit, flux_vars);
-           j_NO3b ~ j_mean_NO3b(T/T_unit, flux_vars);
-           j_NO3a ~ j_mean_NO3a(T/T_unit, flux_vars);
-           j_N2O5 ~ j_mean_N2O5(T/T_unit, flux_vars);
-           j_H2O2 ~ j_mean_H2O2(T/T_unit, flux_vars);
-           j_H2COa ~ j_mean_H2COa(T/T_unit, flux_vars);
-           j_H2COb ~ j_mean_H2COb(T/T_unit, flux_vars);
-           j_O31D ~ j_mean_O31D(T/T_unit, flux_vars);
-           j_o32OH ~ j_O31D * j_o31D_adj.j_O31D_adj;
-           j_CH3OOH ~ j_mean_CH3OOH(T/T_unit, flux_vars); 
-           j_NO2 ~ j_mean_NO2(T/T_unit, flux_vars)]
+    eqs = [
+        cosSZA ~ cos_solar_zenith_angle(t + t_ref, lat, long);
+        fluxeqs;
+        j_ActAld ~ j_mean_ActAld(T / T_unit, flux_vars);
+        j_PAN ~ j_mean_PAN(T / T_unit, flux_vars);
+        j_O3 ~ j_mean_O3(T / T_unit, flux_vars);
+        j_NO3b ~ j_mean_NO3b(T / T_unit, flux_vars);
+        j_NO3a ~ j_mean_NO3a(T / T_unit, flux_vars);
+        j_N2O5 ~ j_mean_N2O5(T / T_unit, flux_vars);
+        j_H2O2 ~ j_mean_H2O2(T / T_unit, flux_vars);
+        j_H2COa ~ j_mean_H2COa(T / T_unit, flux_vars);
+        j_H2COb ~ j_mean_H2COb(T / T_unit, flux_vars);
+        j_O31D ~ j_mean_O31D(T / T_unit, flux_vars);
+        j_o32OH ~ j_O31D * j_o31D_adj.j_O31D_adj;
+        j_CH3OOH ~ j_mean_CH3OOH(T / T_unit, flux_vars);
+        j_NO2 ~ j_mean_NO2(T / T_unit, flux_vars)
+    ]
 
     fjx = System(
         eqs,

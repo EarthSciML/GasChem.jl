@@ -1047,20 +1047,16 @@ function GEOSChemGasPhase(; name = :GEOSChemGasPhase, rxn_sys = false)
             O2 = 2.1e8, [
                 isconstantspecies = true, unit = u"ppb", description = "O2; Molecular oxygen",
             ],
-            N_A = 6.02214076e23,
-            [description = "Avogadro's number"],
-            cm3_m3 = 1.0e6,
-            [description = "Convert m3 to cm3"],
             T = 298.15,
             [unit = u"K", description = "Temperature"],
             P = 101325,
             [unit = u"Pa", description = "Pressure"],
-            num_density = 2.7e19 / N_A * cm3_m3,
+            num_density = 2.7e19 / 6.02214076e23 * 1.0e6, # 6.02214076e23 = Avogadro's number (N_A), 1.0e6 = cm³/m³
             [
                 unit = u"mol/m^3",
                 description = "Number density of air.",
             ],
-            num_density_inv = N_A / cm3_m3,
+            num_density_inv = 6.02214076e23 / 1.0e6, # N_A / cm³_per_m³
             [
                 unit = u"m^3/mol",
                 description = "multiply by num_density to obtain the unitless value of num_density",
@@ -3243,9 +3239,8 @@ function GEOSChemGasPhase(; name = :GEOSChemGasPhase, rxn_sys = false)
     if rxn_sys
         return rxns
     end
-    return sys = convert(
-        Catalyst.ReactionRateSystem,
-        complete(rxns),
+    return Catalyst.ode_model(
+        complete(rxns);
         combinatoric_ratelaws = false,
         name = name,
         metadata = Dict(CoupleType => GEOSChemGasPhaseCoupler)

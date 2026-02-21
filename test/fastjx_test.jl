@@ -1,5 +1,5 @@
 @testsnippet FastJXSetup begin
-    using ModelingToolkit
+    using GasChem, ModelingToolkit
     using SymbolicIndexingInterface: setp, getsym, parameter_values
 
     function get_fluxes(t, lat, lon, P)
@@ -165,22 +165,20 @@ end
 end
 
 @testitem "Ensure Cos SZA is non-allocating" begin
-    using AllocCheck
+    using GasChem, AllocCheck
     @check_allocs checkcos(lat, t, long) = GasChem.cos_solar_zenith_angle(t, lat, long)
     checkcos(0.0, 0.0, 0.0)
     checkcos(0.0f0, 0.0f0, 0.0f0)
 end
 
 @testitem "FastJX Initialization" begin
-    using ModelingToolkit
+    using GasChem, ModelingToolkit
     @test_nowarn mtkcompile(GasChem.FastJX(0.0))
 end
 
 @testitem "Direct Flux" begin
-    using ModelingToolkit
-    @parameters P, csa
-    x = GasChem.calc_direct_fluxes(csa, P)
-    @test substitute(x, Dict(P => 1013525, csa => 0.42255961917649837)) ≈ [
+    using GasChem
+    @test GasChem.calc_direct_fluxes(0.42255961917649837, 1013525) ≈ [
         0.0,
         0.0,
         0.0,
@@ -203,6 +201,7 @@ end
 end
 
 @testitem "Direct Flux 2" begin
+    using GasChem
     t, lat, lon, P = 3600 * 12.0, 30.0, 0.0, 0.9
 
     cos_sza = GasChem.cos_solar_zenith_angle(t, lat, lon)
@@ -225,6 +224,7 @@ end
 end
 
 @testitem "Direct Flux Twilight" begin
+    using GasChem
     P = 1
     cos_sza = -0.1
     @test GasChem.calc_direct_flux(cos_sza, P, 1) ≈ 0.0

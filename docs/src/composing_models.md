@@ -20,7 +20,7 @@ composed_ode = couple(SuperFast(), FastJX(start)) # Compose two models use the "
 
 tspan = (0.0, 3600.0*24*3)
 sys = convert(System, composed_ode) # Define the coupled system
-sol = solve(ODEProblem(sys, [], tspan, []), Rosenbrock23(), saveat = 10.0) # Solve the coupled system
+sol = solve(ODEProblem(sys, [], tspan; build_initializeprob = false), Rosenbrock23(), saveat = 10.0) # Solve the coupled system
 ```
 
 In the composed system, the variable name for O₃ is not `O3` but `superfast₊O3(t)`. So we need some preparation of the result before visualizing.
@@ -75,8 +75,8 @@ sys_noemis = convert(System, model_noemis)
 sys_withemis = convert(System, model_withemis)
 
 tspan = EarthSciMLBase.get_tspan(domain)
-sol_noemis = solve(ODEProblem(sys_noemis, [], tspan, []), Rosenbrock23())
-sol_withemis = solve(ODEProblem(sys_withemis, [], tspan, []), Rosenbrock23())
+sol_noemis = solve(ODEProblem(sys_noemis, [], tspan; build_initializeprob = false), Rosenbrock23())
+sol_withemis = solve(ODEProblem(sys_withemis, [], tspan; build_initializeprob = false), Rosenbrock23())
 
 vars = unknowns(sys_noemis)  # Get the variables in the composed system
 var_dict = Dict(string(var) => var for var in vars)

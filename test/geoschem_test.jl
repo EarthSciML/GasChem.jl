@@ -1,5 +1,5 @@
 @testsnippet GEOSChemGasPhaseSetup begin
-    using EarthSciMLBase
+    using GasChem, EarthSciMLBase
     using OrdinaryDiffEqRosenbrock
     using ModelingToolkit
 
@@ -10,36 +10,18 @@ end
 
 # Unit Test 0: Base case
 @testitem "Base case" setup = [GEOSChemGasPhaseSetup] begin
-    u_0 = [
-        19.995176711847932, 0.002380578760821661, 0.0, 9.428652108253236e-251,
-        5.879149823894928e-6, 0.0, 1.840000000235526e7,
-    ]
-
-    vals = ModelingToolkit.get_defaults(sys)
-    for k in setdiff(unknowns(sys), keys(vals))
-        vals[k] = 0 # Set variables with no default to zero.
-    end
-    prob = ODEProblem(sys, vals, tspan)
+    prob = ODEProblem(sys, [], tspan)
     sol = solve(prob, Rosenbrock23())
-    test0 = [
-        sol[v][end]
-            for v in [sys.O3, sys.NO2, sys.ISOP, sys.O1D, sys.OH, sys.DMS, sys.H2O]
-    ]
-
-    test0 ≈ u_0
+    @test sol[sys.O3][end] > 0
 end
 
 # Unit Test 1: O1D sensitivity to O3
 @testitem "O1D sensitivity to O3" setup = [GEOSChemGasPhaseSetup] begin
     u_1 = 8.160593694128693e-7
 
-    vals = ModelingToolkit.get_defaults(sys)
     @unpack O3, O1D = sys
-    vals[O3] = 20
-    vals[O1D] = 1.0e-6
-    o1 = solve(ODEProblem(sys, vals, tspan), Rosenbrock23())
-    vals[O1D] = 1.0e-6 * 1.1e0
-    o2 = solve(ODEProblem(sys, vals, tspan), Rosenbrock23())
+    o1 = solve(ODEProblem(sys, [O3 => 20, O1D => 1.0e-6], tspan), Rosenbrock23())
+    o2 = solve(ODEProblem(sys, [O3 => 20, O1D => 1.0e-6 * 1.1], tspan), Rosenbrock23())
     test1 = o1[O3][end] - o2[O3][end]
 
     @test test1 ≈ u_1 rtol = 0.001
@@ -49,13 +31,9 @@ end
 @testitem "OH sensitivity to O3" setup = [GEOSChemGasPhaseSetup] begin
     u_2 = 8.209088520061414e-9
 
-    vals = ModelingToolkit.get_defaults(sys)
     @unpack O3, OH = sys
-    vals[O3] = 20
-    vals[OH] = 4.0e-6
-    o1 = solve(ODEProblem(sys, vals, tspan), Rosenbrock23(), abstol = 1.0e-6, reltol = 1.0e-6)
-    vals[OH] = 4.0e-6 * 1.05e0
-    o2 = solve(ODEProblem(sys, vals, tspan), Rosenbrock23(), abstol = 1.0e-6, reltol = 1.0e-6)
+    o1 = solve(ODEProblem(sys, [O3 => 20, OH => 4.0e-6], tspan), Rosenbrock23(), abstol = 1.0e-6, reltol = 1.0e-6)
+    o2 = solve(ODEProblem(sys, [O3 => 20, OH => 4.0e-6 * 1.05], tspan), Rosenbrock23(), abstol = 1.0e-6, reltol = 1.0e-6)
     test2 = o1[O3][end] - o2[O3][end]
 
     @test test2 ≈ u_2 rtol = 0.001
@@ -65,13 +43,9 @@ end
 @testitem "NO2 sensitivity to O3" setup = [GEOSChemGasPhaseSetup] begin
     u_3 = 1.1784680253867919e-7
 
-    vals = ModelingToolkit.get_defaults(sys)
     @unpack O3, NO2 = sys
-    vals[O3] = 20
-    vals[NO2] = 4.0e-4
-    o1 = solve(ODEProblem(sys, vals, tspan), Rosenbrock23(), abstol = 1.0e-6, reltol = 1.0e-6)
-    vals[NO2] = 4.0e-4 * 1.05e0
-    o2 = solve(ODEProblem(sys, vals, tspan), Rosenbrock23(), abstol = 1.0e-6, reltol = 1.0e-6)
+    o1 = solve(ODEProblem(sys, [O3 => 20, NO2 => 4.0e-4], tspan), Rosenbrock23(), abstol = 1.0e-6, reltol = 1.0e-6)
+    o2 = solve(ODEProblem(sys, [O3 => 20, NO2 => 4.0e-4 * 1.05], tspan), Rosenbrock23(), abstol = 1.0e-6, reltol = 1.0e-6)
     test3 = o1[O3][end] - o2[O3][end]
 
     @test test3 ≈ u_3 rtol = 0.01
@@ -81,20 +55,16 @@ end
 @testitem "HO2 sensitivity to O3" setup = [GEOSChemGasPhaseSetup] begin
     u_4 = 1.6049252593575147e-8
 
-    vals = ModelingToolkit.get_defaults(sys)
     @unpack O3, HO2 = sys
-    vals[O3] = 20
-    vals[HO2] = 4.0e-6
-    o1 = solve(ODEProblem(sys, vals, tspan), Rosenbrock23(), abstol = 1.0e-6, reltol = 1.0e-6)
-    vals[HO2] = 4.0e-6 * 1.05e0
-    o2 = solve(ODEProblem(sys, vals, tspan), Rosenbrock23(), abstol = 1.0e-6, reltol = 1.0e-6)
+    o1 = solve(ODEProblem(sys, [O3 => 20, HO2 => 4.0e-6], tspan), Rosenbrock23(), abstol = 1.0e-6, reltol = 1.0e-6)
+    o2 = solve(ODEProblem(sys, [O3 => 20, HO2 => 4.0e-6 * 1.05], tspan), Rosenbrock23(), abstol = 1.0e-6, reltol = 1.0e-6)
     test4 = o1[O3][end] - o2[O3][end]
 
     @test test4 ≈ u_4 rtol = 0.001
 end
 
 @testitem "Compose GEOSChem FastJX" begin
-    using EarthSciMLBase
+    using GasChem, EarthSciMLBase
     using ModelingToolkit
     gc = GEOSChemGasPhase()
     fjx = FastJX(0.0)
