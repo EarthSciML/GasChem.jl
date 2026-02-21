@@ -1051,12 +1051,12 @@ function GEOSChemGasPhase(; name = :GEOSChemGasPhase, rxn_sys = false)
             [unit = u"K", description = "Temperature"],
             P = 101325,
             [unit = u"Pa", description = "Pressure"],
-            num_density = 2.7e19 / 6.02214076e23 * 1.0e6,
+            num_density = 2.7e19 / 6.02214076e23 * 1.0e6, # 6.02214076e23 = Avogadro's number (N_A), 1.0e6 = cm³/m³
             [
                 unit = u"mol/m^3",
                 description = "Number density of air.",
             ],
-            num_density_inv = 6.02214076e23 / 1.0e6,
+            num_density_inv = 6.02214076e23 / 1.0e6, # N_A / cm³_per_m³
             [
                 unit = u"m^3/mol",
                 description = "multiply by num_density to obtain the unitless value of num_density",
