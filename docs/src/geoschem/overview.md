@@ -35,7 +35,7 @@ Now, let's run a simulation and plot the results:
 
 ```@example 1
 sys = mtkcompile(gc)
-prob = ODEProblem(sys, [], tspan)
+prob = ODEProblem(sys, [], tspan; build_initializeprob = false)
 sol = solve(prob, Rosenbrock23())
 plot(sol, legend = :outertopright, xlabel = "Time (s)",
     ylabel = "Concentration (ppb)")
