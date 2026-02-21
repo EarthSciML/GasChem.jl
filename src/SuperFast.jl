@@ -20,7 +20,7 @@ function rate_toppb(t, T, P, a0; name = :rateconvert)
     air_volume = R * T / P #unit in cm^3/mol
     c = A / air_volume * ppb_unit #Convert the second reaction rate value, which corresponds to species with units of molec/cm³, to ppb.
     @variables k(t) [unit = u"(s*ppb)^-1"]
-    return ODESystem([k ~ a0 * c], t, [k], consts; name = name)
+    return ReactionSystem([k ~ a0 * c], t, [k], consts; name = name)
 end
 
 """
@@ -51,7 +51,7 @@ function arrh(t, T, P, a0, b0, c0; name = :arrhenius)
     @variables k(t) [unit = u"(s*ppb)^-1"]
     air_volume = R * T / P #unit in cm^3/mol
     c = A / air_volume * ppb_unit #Convert the second reaction rate value, which corresponds to species with units of molec/cm³, to ppb.
-    return ODESystem([k ~ a0 * exp(c0 / T) * (K_300 / T)^b0 * c], t, [k], consts; name = name)
+    return ReactionSystem([k ~ a0 * exp(c0 / T) * (K_300 / T)^b0 * c], t, [k], consts; name = name)
 end
 
 """
@@ -85,7 +85,7 @@ function arr_3rd(t, T, P, a1, b1, c1, a2, b2, c2, fv; name = :arr_3rdbody)
     blog = log10(xyrat)
     fexp = 1.0 / (1.0 + (blog * blog))
     @variables k(t) [unit = u"(s*ppb)^-1"]
-    return ODESystem(
+    return ReactionSystem(
         [k ~ rlow * (fv^fexp) / (1.0 + xyrat)],
         t,
         [k],
@@ -121,7 +121,7 @@ function rate_2HO2(t, T, P, H2O, a0, c0, a1, c1; name = :rate_HO2HO2)
     @named k1 = arrh(t, T, P, a1, 0.0, c1)
 
     @variables k(t) [unit = u"(s*ppb)^-1"]
-    return ODESystem(
+    return ReactionSystem(
         [
             k ~
                 (k0.k + k1.k * num_density_unitless) *
@@ -167,7 +167,7 @@ function rate_OH_CO(t, T, P; name = :rate_OHCO)
     fexp2 = 1.0 / (1.0 + blog2 * blog2)
     kco2 = klo2.k * 0.6^fexp2 / (1.0 + xyrat2)
     @variables k(t) [unit = u"(s*ppb)^-1"]
-    return ODESystem(
+    return ReactionSystem(
         [k ~ kco1 + kco2],
         t,
         [k],
@@ -198,7 +198,7 @@ If the keyword argument `rxn_sys` is set to `true`, the function will return a r
 ```
 using GasChem, EarthSciMLBase, DifferentialEquations, Plots
 rs = SuperFast()
-sol = solve(ODEProblem(structural_simplify(rs), [], (0,360), [], combinatoric_ratelaws=false), AutoTsit5(Rosenbrock23()), saveat=10.0)
+sol = solve(ODEProblem(mtkcompile(rs), [], (0,360), [], combinatoric_ratelaws=false), AutoTsit5(Rosenbrock23()), saveat=10.0)
 plot(sol)
 ```
 """
@@ -239,7 +239,7 @@ function SuperFast(; name = :SuperFast, rxn_sys = false)
 
     rx_sys = @network_component SuperFast begin
         @ivs t [unit = u"s"]
-        
+
         @parameters begin
             jO32OH = 2.27e-4, [unit = u"s^-1"]
             jH2O2 = 1.0097e-5, [unit = u"s^-1"]
@@ -256,19 +256,19 @@ function SuperFast(; name = :SuperFast, rxn_sys = false)
 
         @species begin
             O3(t) = 40.0, [unit = u"ppb"]
-            OH(t) = 4e-6, [unit = u"ppb"]
-            HO2(t) = 4e-6, [unit = u"ppb"]
-            NO(t) = 4e-4, [unit = u"ppb"]
-            NO2(t) = 4e-4, [unit = u"ppb"]
-            CH3O2(t) = 4e-6, [unit = u"ppb"]
-            CH2O(t) = 4e-6, [unit = u"ppb"]
+            OH(t) = 4.0e-6, [unit = u"ppb"]
+            HO2(t) = 4.0e-6, [unit = u"ppb"]
+            NO(t) = 4.0e-4, [unit = u"ppb"]
+            NO2(t) = 4.0e-4, [unit = u"ppb"]
+            CH3O2(t) = 4.0e-6, [unit = u"ppb"]
+            CH2O(t) = 4.0e-6, [unit = u"ppb"]
             CO(t) = 100, [unit = u"ppb"]
-            CH3OOH(t) = 4e-6, [unit = u"ppb"]
+            CH3OOH(t) = 4.0e-6, [unit = u"ppb"]
             #DMS(t) = 50.0, [unit = u"ppb"]
             #SO2(t) = 2.0, [unit = u"ppb"]
-            ISOP(t) = 1e-11, [unit = u"ppb"]
-            H2O2(t) = 4e-6, [unit = u"ppb"]
-            HNO3(t) = 4e-6, [unit = u"ppb"]
+            ISOP(t) = 1.0e-11, [unit = u"ppb"]
+            H2O2(t) = 4.0e-6, [unit = u"ppb"]
+            HNO3(t) = 4.0e-6, [unit = u"ppb"]
         end
 
         #Gas-phase reactions
@@ -310,8 +310,7 @@ function SuperFast(; name = :SuperFast, rxn_sys = false)
     # We set `combinatoric_ratelaws=false` because we are modeling macroscopic rather than microscopic behavior.
     # See [here](https://docs.juliahub.com/ModelingToolkit/Qmdqu/3.14.0/systems/ReactionSystem/#ModelingToolkit.oderatelaw)
     # and [here](https://github.com/SciML/Catalyst.jl/issues/311).
-    return convert(
-        Catalyst.ReactionRateSystem,
+    return Catalyst.ode_model(
         complete(rxns);
         combinatoric_ratelaws = false,
         name = name,

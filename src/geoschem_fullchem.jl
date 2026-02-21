@@ -3243,9 +3243,8 @@ function GEOSChemGasPhase(; name = :GEOSChemGasPhase, rxn_sys = false)
     if rxn_sys
         return rxns
     end
-    return sys = convert(
-        Catalyst.ReactionRateSystem,
-        complete(rxns),
+    return Catalyst.ode_model(
+        complete(rxns);
         combinatoric_ratelaws = false,
         name = name,
         metadata = Dict(CoupleType => GEOSChemGasPhaseCoupler)

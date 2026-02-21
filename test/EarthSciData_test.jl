@@ -1,5 +1,5 @@
 @testitem "NEI2016Extension3way" begin
-    using EarthSciData
+    using GasChem, EarthSciData
     using Dates, ModelingToolkit, EarthSciMLBase
 
     domain = DomainInfo(
@@ -26,7 +26,7 @@
 end
 
 @testitem "GEOS-FP" begin
-    using EarthSciData
+    using GasChem, EarthSciData
     using Dates, ModelingToolkit, EarthSciMLBase
 
     domain = DomainInfo(
@@ -70,7 +70,7 @@ end
 end
 
 @testitem "GEOSChemGasPhase couplings" begin
-    using EarthSciData
+    using GasChem, EarthSciData
     using Dates, ModelingToolkit, EarthSciMLBase
 
     domain = DomainInfo(

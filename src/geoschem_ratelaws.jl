@@ -18,7 +18,7 @@ function constant_k(t, T, num_density, c; unit = u"ppb^-1*s^-1", name = :constan
     @variables(k(t), [unit = unit])
 
     C = num_density * ppb_unit
-    return ODESystem([k ~ c * C], t, [k], consts; name = name)
+    return ReactionSystem([k ~ c * C], t, [k], consts; name = name)
 end
 
 """
@@ -29,7 +29,7 @@ function constant_k_1(t, c; unit = u"s^-1", name = :constant_k_1)
         c = c, [unit = u"s^-1"]
     end
     @variables(k(t), [unit = unit])
-    return ODESystem([k ~ c], t, [k], consts; name = name)
+    return ReactionSystem([k ~ c], t, [k], consts; name = name)
 end
 
 function regress_T(t, T, num_density, a_0, b_0, T_0; name = :acet_oh)
@@ -45,7 +45,7 @@ function regress_T(t, T, num_density, a_0, b_0, T_0; name = :acet_oh)
     @variables k(t) [unit = u"ppb^-1*s^-1"]
 
     C = num_density * ppb_unit * unit_conv
-    return ODESystem([k ~ (a_0 + b_0 * exp(T_0 / T)) * C], t, [k], consts; name = name)
+    return ReactionSystem([k ~ (a_0 + b_0 * exp(T_0 / T)) * C], t, [k], consts; name = name)
 end
 
 """
@@ -71,7 +71,7 @@ function arrhenius_ppb(
     end
     @variables k(t) [unit = unit]
     C = num_density * ppb_unit * unit_conv
-    return ODESystem([k ~ a0 * exp(c0 / T) * (K_300 / T)^b0 * C], t, [k], consts; name = name)
+    return ReactionSystem([k ~ a0 * exp(c0 / T) * (K_300 / T)^b0 * C], t, [k], consts; name = name)
 end
 
 """
@@ -102,7 +102,7 @@ function arrhenius_ppb_3(
     end
     @variables k(t) [unit = unit]
     C = num_density^2 * ppb_unit^2 * unit_conv
-    return ODESystem([k ~ a0 * exp(c0 / T) * (K_300 / T)^b0 * C], t, [k], consts; name = name)
+    return ReactionSystem([k ~ a0 * exp(c0 / T) * (K_300 / T)^b0 * C], t, [k], consts; name = name)
 end
 
 """
@@ -128,7 +128,7 @@ function arrhenius_mlc_SI(
         unit_conv = 1.0e-6, [unit = u"m^3*molec^-1*s^-1"]
     end
     @variables k(t) [unit = unit]
-    return ODESystem(
+    return ReactionSystem(
         [k ~ a0 * (exp(c0 / T) * (K_300 / T)^b0) * unit_conv], t, [k], consts; name = name
     )
 end
@@ -153,7 +153,7 @@ function arrhenius_mlc_1(t, T, a0, b0, c0; unit = u"s^-1", name = :arrhenius_mlc
         c0 = c0, [unit = u"K"]
     end
     @variables k(t) [unit = unit]
-    return ODESystem([k ~ a0 * exp(c0 / T) * (K_300 / T)^b0], t, [k], consts; name = name)
+    return ReactionSystem([k ~ a0 * exp(c0 / T) * (K_300 / T)^b0], t, [k], consts; name = name)
 end
 
 """
@@ -194,7 +194,7 @@ function arr_3rdbody(
 
     @variables k(t) [unit = unit]
     C = num_density * ppb_unit * unit_conv
-    return ODESystem(
+    return ReactionSystem(
         [k ~ rlow * (fv^fexp) / (1.0 + xyrat) * C],
         t, [k],
         consts;
@@ -239,7 +239,7 @@ function arr_3rdbody_1(
     blog = log10(xyrat)
     fexp = 1.0 / (1.0 + (blog * blog))
     @variables k(t) [unit = unit]
-    return ODESystem(
+    return ReactionSystem(
         [k ~ rlow * (fv^fexp) / (1.0 + xyrat) * unit_conv],
         t,
         [k],
@@ -277,7 +277,7 @@ function rate_HO2HO2(t, T, num_density, H2O, a0, c0, a1, c1; name = :rate_HO2HO2
     @variables k(t) [unit = u"ppb^-1*s^-1"]
     C_H2O = num_density * num_density_unit_inv * ppb_unit
     C = num_density * ppb_unit * unit_conv
-    return ODESystem(
+    return ReactionSystem(
         [
             k ~
                 (k0.k * k_unit_inv + k1.k * k_unit_inv * num_density * num_density_unit_inv) *
@@ -328,7 +328,7 @@ function rate_OHCO(t, T, num_density; name = :rate_OHCO)
 
     @variables k(t) [unit = u"ppb^-1*s^-1"]
     C = num_density * ppb_unit * unit_conv
-    return ODESystem(
+    return ReactionSystem(
         [k ~ kco1 * C + kco2 * C],
         t,
         [k],
@@ -364,7 +364,7 @@ function rate_RO2NO_a1(t, T, num_density, a0, c0; name = :rate_RO2NO_a1)
     end
     C = num_density * ppb_unit * unit_conv
     @variables k(t) [unit = u"ppb^-1*s^-1"]
-    return ODESystem([k ~ a0 * exp(c0 / T) * 3.0e-4 * C], t, [k], consts; name = name)
+    return ReactionSystem([k ~ a0 * exp(c0 / T) * 3.0e-4 * C], t, [k], consts; name = name)
 end
 
 """
@@ -389,7 +389,7 @@ function rate_RO2NO_b1(t, T, num_density, a0, c0; name = :rate_RO2NO_b1)
     end
     @variables k(t) [unit = u"ppb^-1*s^-1"]
     C = num_density * ppb_unit * unit_conv
-    return ODESystem([k ~ a0 * exp(c0 / T) * (1 - fyrno3) * C], t, [k], consts; name = name)
+    return ReactionSystem([k ~ a0 * exp(c0 / T) * (1 - fyrno3) * C], t, [k], consts; name = name)
 end
 
 """
@@ -438,7 +438,7 @@ function rate_RO2NO_a2(t, T, num_density, a0, c0, a1; name = :rate_RO2NO_a2)
         fyrno3 ~ (rarb / (1.0 + rarb))
         k ~ k0.k * k_unit_inv * fyrno3 * C
     ]
-    return ODESystem(
+    return ReactionSystem(
         eqs,
         t,
         [xxyn, aaa, zzyn, rarb, fyrno3, k],
@@ -494,7 +494,7 @@ function rate_RO2NO_b2(t, T, num_density, a0, c0, a1; name = :rate_RO2NO_b2)
         fyrno3 ~ (rarb / (1.0 + rarb))
         k ~ k0.k * k_unit_inv * (1.0 - fyrno3) * C
     ]
-    return ODESystem(
+    return ReactionSystem(
         eqs,
         t,
         vars,
@@ -523,7 +523,7 @@ function tbranch(t, T, num_density, a0, b0, c0, a1, b1, c1; name = :tbranch)
     @named k1 = arrhenius_mlc_SI(t, T, a1, b1, c1)
     @variables k(t) [unit = u"ppb^-1*s^-1"]
     C = num_density * ppb_unit * unit_conv
-    return ODESystem(
+    return ReactionSystem(
         [k ~ (k0.k * k_unit_inv / (1.0 + k1.k * k_unit_inv)) * C],
         t,
         [k],
@@ -562,7 +562,7 @@ function rate_OHHNO3(t, T, num_density, a0, c0, a1, c1, a2, c2; name = :rate_OHH
     k2 = (num_density * num_density_unit_inv) * (k1_5.k * k_unit_inv)
     @variables k(t) [unit = u"ppb^-1*s^-1"]
     C = num_density * ppb_unit * unit_conv
-    return ODESystem(
+    return ReactionSystem(
         [k ~ k0.k * k_unit_inv * C + k2 * C / (1.0 + k2 / (k1.k * k_unit_inv))],
         t,
         [k],
@@ -591,7 +591,7 @@ function eq_const(
     @named k1 = arr_3rdbody(t, T, num_density, a1, b1, 0, a2, b2, 0, fv)  # forwards rxn rate
     consts = @constants unit_conv = 1.0, [unit = unit]
     @variables k(t) [unit = unit]
-    return ODESystem(
+    return ReactionSystem(
         [k ~ k1.k / k0.k * unit_conv], t, [k], consts; systems = [k0, k1], name = name
     )
 end
@@ -614,7 +614,7 @@ function eq_const_1(
     @named k1 = arr_3rdbody(t, T, num_density, a1, b1, 0, a2, b2, 0, fv)  # forwards rxn rate
     consts = @constants unit_conv = 1.0, [unit = unit]
     @variables k(t) [unit = unit]
-    return ODESystem(
+    return ReactionSystem(
         [k ~ k1.k / k0.k * unit_conv], t, [k], consts; systems = [k0, k1], name = name
     )
 end
@@ -632,7 +632,7 @@ function rate_RO2HO2(t, T, num_density, a0, c0, a1; name = :rate_RO2HO2)
     num_density = ParentScope(num_density)
     @named k0 = arrhenius_ppb(t, T, num_density, a0, 0, c0)
     @variables k(t) [unit = u"ppb^-1*s^-1"]
-    return ODESystem(
+    return ReactionSystem(
         [k ~ k0.k * (1.0 - exp(-0.245 * a1))],
         t,
         [k],
@@ -666,7 +666,7 @@ function rate_GLYCOH_a(t, T, num_density, a0; name = :rate_GLYCOH_a)
     glyc_frac = max(glyc_frac, 0.0)
     @variables k(t) [unit = u"ppb^-1*s^-1"]
     C = num_density * ppb_unit * unit_conv
-    return ODESystem([k ~ a0 * glyc_frac * C], t, [k], consts; name = name)
+    return ReactionSystem([k ~ a0 * glyc_frac * C], t, [k], consts; name = name)
 end
 
 """
@@ -691,7 +691,7 @@ function rate_GLYCOH_b(t, T, num_density, a0; name = :rate_GLYCOH_b)
     glyc_frac = max(glyc_frac, 0.0)
     @variables k(t) [unit = u"ppb^-1*s^-1"]
     C = num_density * ppb_unit * unit_conv
-    return ODESystem([k ~ a0 * (1.0 - glyc_frac) * C], t, [k], consts; name = name)
+    return ReactionSystem([k ~ a0 * (1.0 - glyc_frac) * C], t, [k], consts; name = name)
 end
 
 """
@@ -717,7 +717,7 @@ function rate_HACOH_a(t, T, num_density, a0, c0; name = :rate_HACOH_a)
     hac_frac = max(hac_frac, 0.0)
     @variables k(t) [unit = u"ppb^-1*s^-1"]
     C = num_density * ppb_unit * unit_conv
-    return ODESystem(
+    return ReactionSystem(
         [k ~ k0.k * k_unit_inv * hac_frac * C], t, [k], consts; systems = [k0], name = name
     )
 end
@@ -745,7 +745,7 @@ function rate_HACOH_b(t, T, num_density, a0, c0; name = :rate_HACOH_b)
     hac_frac = max(hac_frac, 0.0)
     @variables k(t) [unit = u"ppb^-1*s^-1"]
     C = num_density * ppb_unit * unit_conv
-    return ODESystem(
+    return ReactionSystem(
         [k ~ k0.k * k_unit_inv * (1.0 - hac_frac) * C],
         t, [k], consts; systems = [k0], name = name
     )
@@ -777,7 +777,7 @@ function rate_DMSOH(t, T, num_density, a0, c0, a1, c1; name = :rate_DMSOH)
     @named k1 = arrhenius_mlc_SI(t, T, a1, 0, c1)
     @variables k(t) [unit = u"ppb^-1*s^-1"]
     C = num_density * ppb_unit * unit_conv
-    return ODESystem(
+    return ReactionSystem(
         #[k ~ unit_conv * (k0.k * num_density * c2) / (1 / one_s + k1.k * c2)],
         [
             k ~
@@ -819,7 +819,7 @@ function rate_GLYXNO3(t, T, num_density, a0, c0; name = :rate_GLYXNO3)
     @variables k(t) [unit = u"ppb^-1*s^-1"]
     O2 = num_density * num_density_unit_inv * 0.2095
     C = num_density * ppb_unit * unit_conv
-    return ODESystem(
+    return ReactionSystem(
         [k ~ k0.k * k_unit_inv * (O2 + 3.5e+18) / (2.0 * O2 + 3.5e+18) * C],
         t,
         [k],
@@ -845,7 +845,7 @@ function arrplus_mlc_1(t, T, a0, b0, c0, d0, e0; unit = u"s^-1", name = :arrplus
         k(t), [unit = unit]
         kx(t), [unit = unit]
     end
-    return ODESystem(
+    return ReactionSystem(
         [
             kx ~ a0 * (d0 + (T * e0)) * exp(-b0 / T) * (T / K_300)^c0
             k ~ max(kx, zero)
@@ -876,7 +876,7 @@ function arrplus_ppb(
     end
     @variables(k(t), [unit = unit], kx(t), [unit = unit])
     C = num_density * ppb_unit * unit_conv
-    return ODESystem(
+    return ReactionSystem(
         [
             kx ~ a0 * (d0 + (T * e0)) * exp(-b0 / T) * (T / K_300)^c0 * C
             k ~ max(kx, zero)
@@ -908,7 +908,7 @@ function tunplus_mlc_1(t, T, a0, b0, c0, d0, e0; unit = u"s^-1", name = :tunplus
         k0(t), [unit = unit],
         k(t), [unit = unit],
     )
-    return ODESystem(
+    return ReactionSystem(
         [
             k0 ~ a0 * (d0 + (T * e0)) * exp(b0 / T) * exp(c0 / T^3)
             k ~ max(k0, zero)
@@ -943,7 +943,7 @@ function tunplus_ppb(
     end
     @variables(k0(t), [unit = unit], k(t), [unit = unit])
     C = num_density * ppb_unit * unit_conv
-    return ODESystem(
+    return ReactionSystem(
         [
             k0 ~ a0 * (d0 + (T * e0)) * exp(b0 / T) * exp(c0 / T^3) * C
             k ~ max(k0, zero)
@@ -977,7 +977,7 @@ function rate_ISO1(t, T, num_density, a0, b0, c0, d0, e0, f0, g0; name = :rate_I
     k2 = c0 * k0 / (k0 + k1)
     @variables k(t) [unit = u"ppb^-1*s^-1"]
     C = num_density * ppb_unit * unit_conv
-    return ODESystem([k ~ a0 * exp(b0 / T) * (1.0 - k2) * C], t, [k], consts; name = name)
+    return ReactionSystem([k ~ a0 * exp(b0 / T) * (1.0 - k2) * C], t, [k], consts; name = name)
 end
 
 """
@@ -1007,7 +1007,7 @@ function rate_ISO2(t, T, num_density, a0, b0, c0, d0, e0, f0, g0; name = :rate_I
     k2 = c0 * k0 / (k0 + k1)
     @variables k(t) [unit = u"ppb^-1*s^-1"]
     C = num_density * ppb_unit * unit_conv
-    return ODESystem([k ~ a0 * exp(b0 / T) * k2 * C], t, [k], consts; name = name)
+    return ReactionSystem([k ~ a0 * exp(b0 / T) * k2 * C], t, [k], consts; name = name)
 end
 
 """
@@ -1042,7 +1042,7 @@ function rate_EPO(t, T, num_density, a1, e1, m1; name = :rate_EPO)
     k1 = 1.0 / (m1 * num_density * num_density_unit_inv + 1.0)
     @variables k(t) [unit = u"ppb^-1*s^-1"]
     C = num_density * ppb_unit * unit_conv
-    return ODESystem([k ~ a1 * exp(e1 / T) * k1 * C], t, [k], consts; name = name)
+    return ReactionSystem([k ~ a1 * exp(e1 / T) * k1 * C], t, [k], consts; name = name)
 end
 
 """
@@ -1073,7 +1073,7 @@ function rate_PAN_abab(
     nc = 0.75 - 1.27 * (log10(cf))
     f = 10.0^(log10(cf) / (1.0 + (log10(kr) / nc)^2))
     @variables k(t) [unit = unit]
-    return ODESystem([k ~ k0 * k1 * f / (k0 + k1) * unit_conv], t, [k], consts; name = name)
+    return ReactionSystem([k ~ k0 * k1 * f / (k0 + k1) * unit_conv], t, [k], consts; name = name)
 end
 
 """
@@ -1105,7 +1105,7 @@ function rate_PAN_acac(t, T, num_density, a0, c0, a1, c1, cf; name = :rate_PAN_a
     f = 10.0^(log10(cf) / (1.0 + (log10(kr) / nc)^2)) # no unit
     @variables k(t) [unit = u"ppb^-1*s^-1"]
     C = num_density * ppb_unit * unit_conv
-    return ODESystem([k ~ k0 * k1 * f / (k0 + k1) * C], t, [k], consts; name = name)
+    return ReactionSystem([k ~ k0 * k1 * f / (k0 + k1) * C], t, [k], consts; name = name)
 end
 
 """
@@ -1166,7 +1166,7 @@ function rate_NIT(t, T, num_density, a0, b0, c0, n, x0, y0; name = :rate_NIT)
         kx ~ k4 * exp(b0 / T) * k3 * C
         k ~ max(kx, zero)
     ]
-    return ODESystem(eqs, t, vars, consts; name = name)
+    return ReactionSystem(eqs, t, vars, consts; name = name)
 end
 
 """
@@ -1228,5 +1228,5 @@ function rate_ALK(t, T, num_density, a0, b0, c0, n, x0, y0; name = :rate_ALK)
         kx ~ k4 * exp(b0 / T) * k3 * C
         k ~ max(kx, zero)
     ]
-    return ODESystem(eqs, t, vars, consts; name = name)
+    return ReactionSystem(eqs, t, vars, consts; name = name)
 end

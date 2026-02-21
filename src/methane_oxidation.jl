@@ -375,5 +375,5 @@ for termolecular reactions (reactions 2, 6, 13, 14, 17).
     # Convert the reaction network to an ODE system.
     # combinatoric_ratelaws=false: use macroscopic rate laws (rate = k*[A]*[B])
     # rather than microscopic (rate = k*[A]*[B]/2 for A+A reactions).
-    convert(Catalyst.ReactionRateSystem, complete(rn); combinatoric_ratelaws = false, name = name)
+    Catalyst.ode_model(complete(rn); combinatoric_ratelaws = false, name = name)
 end
