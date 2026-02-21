@@ -15,11 +15,7 @@ tspan = (0.0, 60.0*60*24*4) # 4 day simulation
 
 # Run a simulation with constant temperature and pressure.
 sys = mtkcompile(GEOSChemGasPhase())
-vals = ModelingToolkit.get_defaults(sys)
-for k in setdiff(unknowns(sys), keys(vals))
-    vals[k] = 0 # Set variables with no default to zero.
-end
-prob = ODEProblem(sys, vals, tspan, vals)
+prob = ODEProblem(sys, [], tspan)
 sol1 = solve(prob, Rosenbrock23())
 
 # Now, convert parameters to variables so we can change them over time.
@@ -39,11 +35,7 @@ sys2 = extend(sys2, System(eqs, t; name = :var_T))
 
 # Run the simulation again.
 sys2 = mtkcompile(sys2)
-vals = ModelingToolkit.get_defaults(sys2)
-for k in setdiff(unknowns(sys2), keys(vals))
-    vals[k] = 0 # Set variables with no default to zero.
-end
-prob = ODEProblem(sys2, vals, tspan, vals)
+prob = ODEProblem(sys2, [], tspan)
 sol2 = solve(prob, Rosenbrock23())
 
 # Plot the results

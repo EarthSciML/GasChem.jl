@@ -35,11 +35,7 @@ Now, let's run a simulation and plot the results:
 
 ```@example 1
 sys = mtkcompile(gc)
-vals = ModelingToolkit.get_defaults(sys)
-for k in setdiff(unknowns(sys), keys(vals))
-    vals[k] = 0 # Set variables with no default to zero.
-end
-prob = ODEProblem(sys, vals, tspan, vals)
+prob = ODEProblem(sys, [], tspan)
 sol = solve(prob, Rosenbrock23())
 plot(sol, legend = :outertopright, xlabel = "Time (s)",
     ylabel = "Concentration (ppb)")
