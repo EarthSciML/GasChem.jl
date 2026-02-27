@@ -41,13 +41,6 @@ jobs:
         with:
           token: "${{ secrets.GITHUB_TOKEN }}"
 
-      - name: "Install Catalyst.jl master"
-        run: |
-          julia --project=. -e '
-            using Pkg
-            Pkg.add(url="https://github.com/SciML/Catalyst.jl.git")
-          '
-
       - uses: julia-actions/julia-buildpkg@v1
 
       - name: "Run tests"

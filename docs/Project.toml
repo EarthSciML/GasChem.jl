@@ -27,3 +27,6 @@ OrdinaryDiffEqDefault = "1"
 OrdinaryDiffEqRosenbrock = "1"
 Plots = "1"
 Symbolics = "7"
+
+[sources]
+Catalyst = {url = "https://github.com/SciML/Catalyst.jl.git", rev = "master"}

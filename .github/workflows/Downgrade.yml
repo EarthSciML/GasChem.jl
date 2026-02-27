@@ -42,15 +42,9 @@ jobs:
           version: ${{ matrix.version }}
       - uses: julia-actions/julia-downgrade-compat@v2
         with:
-          skip: Pkg,TOML,Statistics,Random,Catalyst
+          skip: Pkg,TOML,Statistics,Random
       - uses: julia-actions/cache@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Install Catalyst.jl master
-        run: |
-          julia --project=. -e '
-            using Pkg
-            Pkg.add(url="https://github.com/SciML/Catalyst.jl.git")
-          '
       - uses: julia-actions/julia-buildpkg@v1
       - uses: julia-actions/julia-runtest@v1
