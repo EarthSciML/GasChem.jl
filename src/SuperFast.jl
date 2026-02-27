@@ -288,18 +288,18 @@ function SuperFast(; name = :SuperFast, rxn_sys = false)
         jH2COb, CH2O --> CO
         jCH3OOH, CH3OOH --> CH2O + HO2 + OH
     end
-    rxns = compose(rx_sys, rate_systems)
     if rxn_sys
-        return rxns
+        return compose(rx_sys, [ReactionSystem(sys; name = nameof(sys)) for sys in rate_systems])
     end
     # We set `combinatoric_ratelaws=false` because we are modeling macroscopic rather than microscopic behavior.
     # See [here](https://docs.juliahub.com/ModelingToolkit/Qmdqu/3.14.0/systems/ReactionSystem/#ModelingToolkit.oderatelaw)
     # and [here](https://github.com/SciML/Catalyst.jl/issues/311).
-    convert(
-        Catalyst.ReactionRateSystem,
-        complete(rxns);
+    # Convert the reaction system to ODE, then compose with rate subsystems at the ODE level.
+    ode_sys = Catalyst.ode_model(
+        complete(rx_sys);
         combinatoric_ratelaws = false,
         name = name,
-        metadata = Dict(CoupleType => SuperFastCoupler)
+        metadata = Dict(CoupleType => SuperFastCoupler),
     )
+    compose(ode_sys, rate_systems)
 end

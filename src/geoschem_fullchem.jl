@@ -2845,15 +2845,15 @@ function GEOSChemGasPhase(; name = :GEOSChemGasPhase, rxn_sys = false)
         j_165, BENZP --> BENZO#==2021/09/29; Bates2021b; KHB,MSL==#
         j_166, NPHEN --> HNO2 + CO + CO2 + AROMP4 + HO2#==2021/09/29; Bates2021b; KHB,MSL==#
     end
-    rxns = compose(rx_sys, rate_systems)
     if rxn_sys
-        return rxns
+        return compose(rx_sys, [ReactionSystem(sys; name = nameof(sys)) for sys in rate_systems])
     end
-    sys = convert(
-        Catalyst.ReactionRateSystem,
-        complete(rxns),
+    # Convert the reaction system to ODE, then compose with rate subsystems at the ODE level.
+    ode_sys = Catalyst.ode_model(
+        complete(rx_sys);
         combinatoric_ratelaws = false,
         name = name,
-        metadata = Dict(CoupleType => GEOSChemGasPhaseCoupler)
+        metadata = Dict(CoupleType => GEOSChemGasPhaseCoupler),
     )
+    compose(ode_sys, rate_systems)
 end

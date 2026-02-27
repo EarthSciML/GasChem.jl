@@ -20,16 +20,19 @@ EarthSciData = "a293c155-435f-439d-9c11-a083b6b47337"
 [extensions]
 EarthSciDataExt = "EarthSciData"
 
+[sources]
+Catalyst = {url = "https://github.com/SciML/Catalyst.jl.git", rev = "master"}
+
 [compat]
 AllocCheck = "0.2"
 BSON = "0.3.9"
-Catalyst = "16"
+Catalyst = "15"
 DocStringExtensions = "0.9.5"
 DynamicQuantities = "1"
-EarthSciData = "0.14"
-EarthSciMLBase = "0.24"
+EarthSciData = "0.15"
+EarthSciMLBase = "0.25"
 Interpolations = "0.16"
-ModelingToolkit = "10"
+ModelingToolkit = "11"
 OrdinaryDiffEqRosenbrock = "1.10.1"
 SciMLBase = "2.114.0"
 StaticArrays = "1.9"

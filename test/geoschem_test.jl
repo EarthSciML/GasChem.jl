@@ -6,6 +6,22 @@
     tspan = (0.0, 360.0)
     sys = GEOSChemGasPhase()
     sys = mtkcompile(sys)
+
+    # Helper to replace removed ModelingToolkit.get_defaults in MTK v11
+    function _get_defaults(sys)
+        d = Dict{Any,Any}()
+        for v in unknowns(sys)
+            if ModelingToolkit.hasdefault(v)
+                d[v] = ModelingToolkit.getdefault(v)
+            end
+        end
+        for p in parameters(sys)
+            if ModelingToolkit.hasdefault(p)
+                d[p] = ModelingToolkit.getdefault(p)
+            end
+        end
+        return d
+    end
 end
 
 # Unit Test 0: Base case
@@ -13,7 +29,7 @@ end
     u_0 = [19.995176711847932, 0.002380578760821661, 0.0, 9.428652108253236e-251, 
     5.879149823894928e-6, 0.0, 1.840000000235526e7]
 
-    vals = ModelingToolkit.get_defaults(sys)
+    vals = _get_defaults(sys)
     for k in setdiff(unknowns(sys), keys(vals))
         vals[k] = 0 # Set variables with no default to zero.
     end
@@ -29,7 +45,7 @@ end
 @testitem "O1D sensitivity to O3" setup=[GEOSChemGasPhaseSetup] begin
     u_1 = 8.160593694128693e-7
 
-    vals = ModelingToolkit.get_defaults(sys)
+    vals = _get_defaults(sys)
     @unpack O3, O1D = sys
     vals[O3] = 20
     vals[O1D] = 1E-6
@@ -45,7 +61,7 @@ end
 @testitem "OH sensitivity to O3" setup=[GEOSChemGasPhaseSetup] begin
     u_2 = 8.209088520061414e-9
 
-    vals = ModelingToolkit.get_defaults(sys)
+    vals = _get_defaults(sys)
     @unpack O3, OH = sys
     vals[O3] = 20
     vals[OH] = 4E-6
@@ -61,7 +77,7 @@ end
 @testitem "NO2 sensitivity to O3" setup=[GEOSChemGasPhaseSetup] begin
     u_3 =  1.1784680253867919e-7
 
-    vals = ModelingToolkit.get_defaults(sys)
+    vals = _get_defaults(sys)
     @unpack O3, NO2 = sys
     vals[O3] = 20
     vals[NO2] = 4E-4
@@ -77,7 +93,7 @@ end
 @testitem "HO2 sensitivity to O3" setup=[GEOSChemGasPhaseSetup] begin
     u_4 = 1.6049252593575147e-8
 
-    vals = ModelingToolkit.get_defaults(sys)
+    vals = _get_defaults(sys)
     @unpack O3, HO2 = sys
     vals[O3] = 20
     vals[HO2] = 4E-6
