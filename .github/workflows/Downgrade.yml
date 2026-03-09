@@ -43,7 +43,7 @@ jobs:
       - uses: julia-actions/julia-downgrade-compat@v2
         with:
           skip: Pkg,TOML,Statistics,Random
-      - uses: julia-actions/cache@v2
+      - uses: julia-actions/cache@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
       - uses: julia-actions/julia-buildpkg@v1
