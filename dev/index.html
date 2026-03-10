@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Home · GasChem.jl</title><meta name="title" content="Home · GasChem.jl"/><meta property="og:title" content="Home · GasChem.jl"/><meta property="twitter:title" content="Home · GasChem.jl"/><meta name="description" content="Documentation for GasChem.jl."/><meta property="og:description" content="Documentation for GasChem.jl."/><meta property="twitter:description" content="Documentation for GasChem.jl."/><meta property="og:url" content="https://gaschem.earthsci.dev/"/><meta property="twitter:url" content="https://gaschem.earthsci.dev/"/><link rel="canonical" href="https://gaschem.earthsci.dev/"/><script data-outdated-warner src="assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="assets/documenter.js"></script><script src="search_index.js"></script><script src="siteinfo.js"></script><script src="../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href>GasChem.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li class="is-active"><a class="tocitem" href>Home</a><ul class="internal"><li><a class="tocitem" href="#Installation"><span>Installation</span></a></li><li><a class="tocitem" href="#Features"><span>Features</span></a></li><li><a class="tocitem" href="#Seinfeld-and-Pandis-Chapter-6:-Chemistry-of-the-Troposphere"><span>Seinfeld &amp; Pandis Chapter 6: Chemistry of the Troposphere</span></a></li><li><a class="tocitem" href="#Contributing"><span>Contributing</span></a></li><li><a class="tocitem" href="#Reproducibility"><span>Reproducibility</span></a></li></ul></li><li><a class="tocitem" href="AtmosphericLifetime/">Atmospheric Lifetime</a></li><li><a class="tocitem" href="superfast/">SuperFast</a></li><li><span class="tocitem">GEOS-Chem</span><ul><li><a class="tocitem" href="geoschem/overview/">Overview</a></li><li><a class="tocitem" href="geoschem/states/">State Variables</a></li><li><a class="tocitem" href="geoschem/params/">Parameters</a></li></ul></li><li><span class="tocitem">Seinfeld &amp; Pandis Ch. 6</span><ul><li><a class="tocitem" href="oh_production/">OH Production</a></li><li><a class="tocitem" href="nox_photochemistry/">NOx Photochemistry</a></li><li><a class="tocitem" href="co_oxidation/">CO Oxidation</a></li><li><a class="tocitem" href="methane_oxidation/">Methane Oxidation</a></li><li><a class="tocitem" href="combined_system/">Combined System</a></li></ul></li><li><a class="tocitem" href="radiation_fundamentals/">Radiation Fundamentals</a></li><li><a class="tocitem" href="StratosphericChemistry/">Stratospheric Chemistry</a></li><li><a class="tocitem" href="climate_forcing/">Climate Forcing</a></li><li><a class="tocitem" href="composing_models/">Composing models</a></li><li><a class="tocitem" href="api/">API</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href>Home</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Home</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/EarthSciML/GasChem.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/EarthSciML/GasChem.jl/blob/main/docs/src/index.md#" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="GasChem:-Gas-Phase-Atmospheric-Chemical-Mechanisms"><a class="docs-heading-anchor" href="#GasChem:-Gas-Phase-Atmospheric-Chemical-Mechanisms">GasChem: Gas-Phase Atmospheric Chemical Mechanisms</a><a id="GasChem:-Gas-Phase-Atmospheric-Chemical-Mechanisms-1"></a><a class="docs-heading-anchor-permalink" href="#GasChem:-Gas-Phase-Atmospheric-Chemical-Mechanisms" title="Permalink"></a></h1><h2 id="Installation"><a class="docs-heading-anchor" href="#Installation">Installation</a><a id="Installation-1"></a><a class="docs-heading-anchor-permalink" href="#Installation" title="Permalink"></a></h2><p>To install GasChem.jl, use the Julia package manager:</p><pre><code class="language-julia hljs">using Pkg
 Pkg.add(&quot;GasChem&quot;)</code></pre><h2 id="Features"><a class="docs-heading-anchor" href="#Features">Features</a><a id="Features-1"></a><a class="docs-heading-anchor-permalink" href="#Features" title="Permalink"></a></h2><p>Currently, we have implemented versions of the SuperFast and GEOS-Chem chemical mechanisms, which can be optionally coupled with the Fast-JX photolysis model, which is also implemented here.</p><h2 id="Seinfeld-and-Pandis-Chapter-6:-Chemistry-of-the-Troposphere"><a class="docs-heading-anchor" href="#Seinfeld-and-Pandis-Chapter-6:-Chemistry-of-the-Troposphere">Seinfeld &amp; Pandis Chapter 6: Chemistry of the Troposphere</a><a id="Seinfeld-and-Pandis-Chapter-6:-Chemistry-of-the-Troposphere-1"></a><a class="docs-heading-anchor-permalink" href="#Seinfeld-and-Pandis-Chapter-6:-Chemistry-of-the-Troposphere" title="Permalink"></a></h2><p>GasChem.jl also includes implementations of tropospheric chemistry systems from Seinfeld &amp; Pandis &quot;Atmospheric Chemistry and Physics&quot; (2nd Edition), Chapter 6:</p><ul><li><strong><a href="oh_production/#oh_production">OH Production</a></strong>: Production of OH radicals from O3 photolysis (Section 6.1)</li><li><strong><a href="nox_photochemistry/#nox_photochemistry">NOx Photochemistry</a></strong>: The NOx photochemical cycle and photostationary state (Section 6.2)</li><li><strong><a href="co_oxidation/#co_oxidation">CO Oxidation</a></strong>: CO oxidation and HOx cycling (Section 6.3)</li><li><strong><a href="methane_oxidation/#methane_oxidation">Methane Oxidation</a></strong>: Complete methane oxidation mechanism (Section 6.4)</li><li><strong><a href="combined_system/#combined_system">Combined System</a></strong>: Integrated tropospheric chemistry model</li></ul><h3 id="Key-Concepts"><a class="docs-heading-anchor" href="#Key-Concepts">Key Concepts</a><a id="Key-Concepts-1"></a><a class="docs-heading-anchor-permalink" href="#Key-Concepts" title="Permalink"></a></h3><p>Ozone in the troposphere is produced through the photochemical oxidation of volatile organic compounds (VOCs) and CO in the presence of nitrogen oxides (NOx). The OH and HO2 radicals (collectively HOx) cycle rapidly, allowing catalytic ozone production before termination (mainly OH + NO2 -&gt; HNO3).</p><p>Ozone production depends strongly on NOx levels:</p><ul><li><strong>High NOx (VOC-limited)</strong>: O3 increases with VOC, decreases with NOx</li><li><strong>Low NOx (NOx-limited)</strong>: O3 increases with NOx</li></ul><p><strong>Reference</strong>: Seinfeld, J.H. and Pandis, S.N. (2006). <em>Atmospheric Chemistry and Physics: From Air Pollution to Climate Change</em>, 2nd Edition. John Wiley &amp; Sons. Chapter 6.</p><h2 id="Contributing"><a class="docs-heading-anchor" href="#Contributing">Contributing</a><a id="Contributing-1"></a><a class="docs-heading-anchor-permalink" href="#Contributing" title="Permalink"></a></h2><p>...coming soon</p><h2 id="Reproducibility"><a class="docs-heading-anchor" href="#Reproducibility">Reproducibility</a><a id="Reproducibility-1"></a><a class="docs-heading-anchor-permalink" href="#Reproducibility" title="Permalink"></a></h2><details><summary>The documentation of this EarthSciML package was built using these direct dependencies,</summary><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Status `~/work/GasChem.jl/GasChem.jl/docs/Project.toml`
-  [479239e8] Catalyst v15.0.11 `https://github.com/SciML/Catalyst.jl.git#master`
+  [479239e8] Catalyst v16.0.0
   [a93c6f00] DataFrames v1.8.1
   [e30172f5] Documenter v1.17.0
-  [06fc5a27] DynamicQuantities v1.11.0
-  [a293c155] EarthSciData v0.15.1
+  [06fc5a27] DynamicQuantities v1.12.0
+  [a293c155] EarthSciData v0.15.5
   [e53f1632] EarthSciMLBase v0.25.1
   [58070593] GasChem v0.11.0 `~/work/GasChem.jl/GasChem.jl`
-  [961ee093] ModelingToolkit v11.13.0
+  [961ee093] ModelingToolkit v11.14.0
   [8913a72c] NonlinearSolve v4.16.0
   [50262376] OrdinaryDiffEqDefault v1.13.0
   [43230ef6] OrdinaryDiffEqRosenbrock v1.25.0
@@ -37,7 +37,7 @@ Environment:
   [66dad0bd] AliasTables v1.1.3
   [dce04be8] ArgCheck v2.5.0
   [ec485272] ArnoldiMethod v0.4.0
-  [4fba245c] ArrayInterface v7.22.0
+  [4fba245c] ArrayInterface v7.23.0
   [4c555306] ArrayLayouts v1.12.2
   [13072b0f] AxisAlgorithms v1.1.0
   [fbb218c0] BSON v0.3.9
@@ -53,7 +53,7 @@ Environment:
   [179af706] CFTime v0.2.5
   [2a0fbf3d] CPUSummary v0.2.7
   [96374032] CRlibm v1.0.2
-  [479239e8] Catalyst v15.0.11 `https://github.com/SciML/Catalyst.jl.git#master`
+  [479239e8] Catalyst v16.0.0
   [d360d2e6] ChainRulesCore v1.26.0
   [0b6fb165] ChunkCodecCore v1.0.1
   [4c0bbee4] ChunkCodecLibZlib v1.0.0
@@ -99,8 +99,8 @@ Environment:
   [e30172f5] Documenter v1.17.0
   [5b8099bc] DomainSets v0.7.16
   [7c1d4256] DynamicPolynomials v0.6.4
-  [06fc5a27] DynamicQuantities v1.11.0
-  [a293c155] EarthSciData v0.15.1
+  [06fc5a27] DynamicQuantities v1.12.0
+  [a293c155] EarthSciData v0.15.5
   [e53f1632] EarthSciMLBase v0.25.1
   [4e289a0a] EnumX v1.0.7
   [f151be2c] EnzymeCore v0.8.18
@@ -152,9 +152,10 @@ Environment:
   [1019f520] JLFzf v0.1.11
   [692b3bcd] JLLWrappers v1.7.1
   [682c06a0] JSON v1.4.0
+  [0f8b85d8] JSON3 v1.14.3
   [ae98c720] Jieko v0.2.1
   [ccbc3e58] JumpProcesses v9.23.1
-  [ba0b0d4f] Krylov v0.10.5
+  [ba0b0d4f] Krylov v0.10.6
   [8ac3fa9e] LRUCache v1.6.2
   [b964fa9f] LaTeXStrings v1.4.0
   [23fbe1c1] Latexify v0.16.10
@@ -174,8 +175,8 @@ Environment:
 ⌅ [fa8bd995] MetaGraphsNext v0.7.5
   [128add7d] MicroCollections v0.2.0
   [e1d29d7a] Missings v1.2.0
-  [961ee093] ModelingToolkit v11.13.0
-  [7771a370] ModelingToolkitBase v1.20.0
+  [961ee093] ModelingToolkit v11.14.0
+  [7771a370] ModelingToolkitBase v1.21.0
   [6bb917b9] ModelingToolkitTearing v1.6.0
   [2e0e35c7] Moshi v0.3.7
   [46d2c3a1] MuladdMacro v0.2.4
@@ -192,7 +193,7 @@ Environment:
   [4d8831e6] OpenSSL v1.6.1
   [bac558e1] OrderedCollections v1.8.1
   [6ad6398a] OrdinaryDiffEqBDF v1.22.0
-  [bbf590c4] OrdinaryDiffEqCore v3.16.0
+  [bbf590c4] OrdinaryDiffEqCore v3.17.0
   [50262376] OrdinaryDiffEqDefault v1.13.0
   [4302a76b] OrdinaryDiffEqDifferentiation v2.2.1
   [127b3ac7] OrdinaryDiffEqNonlinearSolve v1.23.0
@@ -263,6 +264,7 @@ Environment:
   [2913bbd2] StatsBase v0.34.10
   [7792a7ef] StrideArraysCore v0.5.8
   [892a3eda] StringManipulation v0.4.4
+  [856f2bd8] StructTypes v1.11.0
   [ec057cc2] StructUtils v2.6.3
   [2efcf032] SymbolicIndexingInterface v0.3.46
   [19f23fe9] SymbolicLimits v1.1.0
@@ -288,6 +290,7 @@ Environment:
   [41fe7b60] Unzip v0.2.0
   [d30d5f5c] WeakCacheSets v0.1.0
   [efce3f68] WoodburyMatrices v1.1.0
+  [a5390f91] ZipFile v0.10.1
   [0b7ba130] Blosc_jll v1.21.7+0
   [6e34b625] Bzip2_jll v1.0.9+0
   [4e9b3aee] CRlibm_jll v1.0.1+0
@@ -439,4 +442,4 @@ Environment:
   [8e850b90] libblastrampoline_jll v5.15.0+0
   [8e850ede] nghttp2_jll v1.64.0+1
   [3f19e933] p7zip_jll v17.7.0+0
-Info Packages marked with ⌅ have new versions available but compatibility constraints restrict them from upgrading. To see why use `status --outdated -m`</code></pre></details><p>You can also download the <a href="https://github.com/EarthSciML/GasChem.jl/tree/gh-pages/v0.11.0/assets/Manifest.toml">manifest</a> file and the <a href="https://github.com/EarthSciML/GasChem.jl/tree/gh-pages/v0.11.0/assets/Project.toml">project</a> file.</p></article><nav class="docs-footer"><a class="docs-footer-nextpage" href="AtmosphericLifetime/">Atmospheric Lifetime »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.17.0 on <span class="colophon-date" title="Friday 6 March 2026 04:10">Friday 6 March 2026</span>. Using Julia version 1.12.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+Info Packages marked with ⌅ have new versions available but compatibility constraints restrict them from upgrading. To see why use `status --outdated -m`</code></pre></details><p>You can also download the <a href="https://github.com/EarthSciML/GasChem.jl/tree/gh-pages/v0.11.0/assets/Manifest.toml">manifest</a> file and the <a href="https://github.com/EarthSciML/GasChem.jl/tree/gh-pages/v0.11.0/assets/Project.toml">project</a> file.</p></article><nav class="docs-footer"><a class="docs-footer-nextpage" href="AtmosphericLifetime/">Atmospheric Lifetime »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.17.0 on <span class="colophon-date" title="Tuesday 10 March 2026 00:11">Tuesday 10 March 2026</span>. Using Julia version 1.12.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
