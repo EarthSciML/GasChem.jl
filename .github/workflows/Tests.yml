@@ -56,7 +56,7 @@ jobs:
           directories: "src,ext"
 
       - name: "Report Coverage with Codecov"
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v6
         with:
           files: lcov.info
           token: "${{ secrets.CODECOV_TOKEN }}"
