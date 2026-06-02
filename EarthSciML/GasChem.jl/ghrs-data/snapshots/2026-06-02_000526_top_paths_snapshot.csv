@@ -1,0 +1,11 @@
+url_path,views_total,views_unique
+/EarthSciML/GasChem.jl,4,3
+/EarthSciML/GasChem.jl/tree/main/src,2,2
+/EarthSciML/GasChem.jl/blob/main/src/Fast-JX.jl,2,1
+/EarthSciML/GasChem.jl/tree/main/ext,2,1
+/EarthSciML/GasChem.jl/actions/runs/21771161723,1,1
+/EarthSciML/GasChem.jl/blob/e268175f10ce60e557e0b20a757458f9af6daf21/src/geoschem_ratelaws.jl,1,1
+/EarthSciML/GasChem.jl/blob/main/.gitignore,1,1
+/EarthSciML/GasChem.jl/blob/main/LICENSE,1,1
+/EarthSciML/GasChem.jl/blob/main/docs/src/methane_oxidation.md,1,1
+/EarthSciML/GasChem.jl/blob/main/ext/EarthSciDataExt.jl,1,1
