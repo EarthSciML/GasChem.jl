@@ -176,6 +176,13 @@ end
     @test_nowarn mtkcompile(GasChem.FastJX(0.0))
 end
 
+@testitem "FastJX_interpolation_troposphere Initialization" begin
+    using GasChem, ModelingToolkit
+    @test_nowarn mtkcompile(GasChem.FastJX_interpolation_troposphere(0.0))                    # mech=:all (default)
+    @test_nowarn mtkcompile(GasChem.FastJX_interpolation_troposphere(0.0; mech = :superfast))
+    @test_throws ArgumentError GasChem.FastJX_interpolation_troposphere(0.0; mech = :nope)
+end
+
 @testitem "Direct Flux" begin
     using GasChem
     @test GasChem.calc_direct_fluxes(0.42255961917649837, 1013525) ≈ [
