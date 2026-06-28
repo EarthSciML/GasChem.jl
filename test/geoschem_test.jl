@@ -29,18 +29,24 @@ end
 
 # Unit Test 2: OH sensitivity to O3
 @testitem "OH sensitivity to O3" setup = [GEOSChemGasPhaseSetup] begin
-    # Tight solver tolerance: this O3 difference is ~1e-8 on top of O3 ~ 20, so at
-    # the previous reltol=1e-6 it sat ~700x below the solver's accuracy floor and
-    # measured numerical residue (it drifted with dependency updates). At 1e-10 it
-    # is converged (stable to <0.05% at 1e-11).
-    u_2 = 1.616686162719816e-8
+    # Finite-difference O3 sensitivity to initial OH. This is a near-cancellation
+    # quantity (a small difference of two O3 ~ 20 endpoints), so reproducibility
+    # needs two things: (1) a tight solver tolerance (reltol=1e-10) so each O3
+    # endpoint is accurate well below the difference, and (2) a perturbation large
+    # enough that the resulting O3 difference sits far above the solver accuracy
+    # floor (reltol * O3 ~ 2e-9). A 50% OH perturbation puts the signal ~80x above
+    # the floor (vs ~8x for the old 5%, where it was near-floor and drifted ~2x with
+    # dependency updates); the response is linear, so this is still a clean
+    # sensitivity. Converged to <0.06% between reltol 1e-10 and 1e-11, so rtol=0.01
+    # has ample margin while still catching any real chemistry regression.
+    u_2 = 1.6170403327464555e-7
 
     @unpack O3, OH = sys
     o1 = solve(ODEProblem(sys, [O3 => 20, OH => 4.0e-6], tspan), Rosenbrock23(), abstol = 1.0e-10, reltol = 1.0e-10)
-    o2 = solve(ODEProblem(sys, [O3 => 20, OH => 4.0e-6 * 1.05], tspan), Rosenbrock23(), abstol = 1.0e-10, reltol = 1.0e-10)
+    o2 = solve(ODEProblem(sys, [O3 => 20, OH => 4.0e-6 * 1.5], tspan), Rosenbrock23(), abstol = 1.0e-10, reltol = 1.0e-10)
     test2 = o1[O3][end] - o2[O3][end]
 
-    @test test2 ≈ u_2 rtol = 0.001
+    @test test2 ≈ u_2 rtol = 0.01
 end
 
 # Unit Test 3: NO2 sensitivity to O3
@@ -57,16 +63,17 @@ end
 
 # Unit Test 4: HO2 sensitivity to O3
 @testitem "HO2 sensitivity to O3" setup = [GEOSChemGasPhaseSetup] begin
-    # Tight solver tolerance for the same reason as the OH sensitivity test above
-    # (sub-floor O3 difference at reltol=1e-6); converged at 1e-10.
-    u_4 = 1.597602761194139e-8
+    # Same near-cancellation construction as the OH sensitivity test above: tight
+    # solver tolerance plus a 50% perturbation to put the O3 difference ~80x above
+    # the solver accuracy floor (converged to <0.001% between reltol 1e-10 and 1e-11).
+    u_4 = 1.5975674827473085e-7
 
     @unpack O3, HO2 = sys
     o1 = solve(ODEProblem(sys, [O3 => 20, HO2 => 4.0e-6], tspan), Rosenbrock23(), abstol = 1.0e-10, reltol = 1.0e-10)
-    o2 = solve(ODEProblem(sys, [O3 => 20, HO2 => 4.0e-6 * 1.05], tspan), Rosenbrock23(), abstol = 1.0e-10, reltol = 1.0e-10)
+    o2 = solve(ODEProblem(sys, [O3 => 20, HO2 => 4.0e-6 * 1.5], tspan), Rosenbrock23(), abstol = 1.0e-10, reltol = 1.0e-10)
     test4 = o1[O3][end] - o2[O3][end]
 
-    @test test4 ≈ u_4 rtol = 0.001
+    @test test4 ≈ u_4 rtol = 0.01
 end
 
 @testitem "Compose GEOSChem FastJX" begin
