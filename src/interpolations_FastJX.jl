@@ -53,7 +53,7 @@ flux_interp_18(P, csa) = interpolations_18_const[18](ustrip(P), ustrip(csa))
 @register_symbolic flux_interp_18(P, csa)
 
 # Symbolic equations for actinic flux
-function flux_eqs_interpolation(csa, P)
+function flux_eqs_interpolation(csa, P, solf)
     flux_vals = []
     flux_vars = []
     @constants c_flux = 1.0 [
@@ -76,7 +76,7 @@ function flux_eqs_interpolation(csa, P)
         push!(flux_vals, f)
     end
 
-    return flux_vars, (flux_vars .~ collect(flux_vals) .* c_flux), c_flux # TODO(CT): remove "collect" when https://github.com/SciML/ModelingToolkit.jl/issues/3888 is fixed.
+    return flux_vars, (flux_vars .~ collect(flux_vals) .* c_flux .* solf), c_flux # TODO(CT): remove "collect" when https://github.com/SciML/ModelingToolkit.jl/issues/3888 is fixed.
 end
 
 """
@@ -123,7 +123,7 @@ function FastJX_interpolation_troposphere(t_ref::AbstractFloat; name = :FastJX)
     @variables j_O3(t) [unit = u"s^-1"]
     @variables cosSZA(t) [description = "Cosine of the solar zenith angle"]
 
-    flux_vars, fluxeqs, c_flux = flux_eqs_interpolation(cosSZA, P / P_unit)
+    flux_vars, fluxeqs, c_flux = flux_eqs_interpolation(cosSZA, P / P_unit, solar_flux_factor(t + t_ref))
     j_o31D_adj = adjust_j_o31D(ParentScope(T), ParentScope(P), ParentScope(H2O))
 
     eqs = [
