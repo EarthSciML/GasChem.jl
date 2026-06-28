@@ -29,11 +29,15 @@ end
 
 # Unit Test 2: OH sensitivity to O3
 @testitem "OH sensitivity to O3" setup = [GEOSChemGasPhaseSetup] begin
-    u_2 = 8.209088520061414e-9
+    # Tight solver tolerance: this O3 difference is ~1e-8 on top of O3 ~ 20, so at
+    # the previous reltol=1e-6 it sat ~700x below the solver's accuracy floor and
+    # measured numerical residue (it drifted with dependency updates). At 1e-10 it
+    # is converged (stable to <0.05% at 1e-11).
+    u_2 = 1.616686162719816e-8
 
     @unpack O3, OH = sys
-    o1 = solve(ODEProblem(sys, [O3 => 20, OH => 4.0e-6], tspan), Rosenbrock23(), abstol = 1.0e-6, reltol = 1.0e-6)
-    o2 = solve(ODEProblem(sys, [O3 => 20, OH => 4.0e-6 * 1.05], tspan), Rosenbrock23(), abstol = 1.0e-6, reltol = 1.0e-6)
+    o1 = solve(ODEProblem(sys, [O3 => 20, OH => 4.0e-6], tspan), Rosenbrock23(), abstol = 1.0e-10, reltol = 1.0e-10)
+    o2 = solve(ODEProblem(sys, [O3 => 20, OH => 4.0e-6 * 1.05], tspan), Rosenbrock23(), abstol = 1.0e-10, reltol = 1.0e-10)
     test2 = o1[O3][end] - o2[O3][end]
 
     @test test2 ≈ u_2 rtol = 0.001
@@ -53,11 +57,13 @@ end
 
 # Unit Test 4: HO2 sensitivity to O3
 @testitem "HO2 sensitivity to O3" setup = [GEOSChemGasPhaseSetup] begin
-    u_4 = 1.6049252593575147e-8
+    # Tight solver tolerance for the same reason as the OH sensitivity test above
+    # (sub-floor O3 difference at reltol=1e-6); converged at 1e-10.
+    u_4 = 1.597602761194139e-8
 
     @unpack O3, HO2 = sys
-    o1 = solve(ODEProblem(sys, [O3 => 20, HO2 => 4.0e-6], tspan), Rosenbrock23(), abstol = 1.0e-6, reltol = 1.0e-6)
-    o2 = solve(ODEProblem(sys, [O3 => 20, HO2 => 4.0e-6 * 1.05], tspan), Rosenbrock23(), abstol = 1.0e-6, reltol = 1.0e-6)
+    o1 = solve(ODEProblem(sys, [O3 => 20, HO2 => 4.0e-6], tspan), Rosenbrock23(), abstol = 1.0e-10, reltol = 1.0e-10)
+    o2 = solve(ODEProblem(sys, [O3 => 20, HO2 => 4.0e-6 * 1.05], tspan), Rosenbrock23(), abstol = 1.0e-10, reltol = 1.0e-10)
     test4 = o1[O3][end] - o2[O3][end]
 
     @test test4 ≈ u_4 rtol = 0.001
