@@ -174,8 +174,13 @@ Fast-JX photolysis using **interpolated** actinic fluxes from a precomputed
 direct-beam radiative-transfer integral of [`FastJX`](@ref). The
 temperature-dependent cross sections and quantum yields are applied identically
 to [`FastJX`](@ref), so the only approximation relative to the online scheme is
-the flux interpolation. The shipped table spans ~10-1000 hPa (flux held flat
+the flux interpolation. The included table spans ~10-1000 hPa (flux held flat
 above the table top), so this targets tropospheric / lower-stratospheric columns.
+
+# Arguments
+
+  - `t_ref`: reference time for the model, either a `DateTime` or a Unix timestamp
+    (in seconds).
 
 `mech` selects which photolysis rates are exposed:
 
@@ -194,11 +199,13 @@ fj = FastJX_interpolation_troposphere(DateTime(2000, 1, 1))                    #
 fj = FastJX_interpolation_troposphere(DateTime(2000, 1, 1); mech = :superfast)
 ```
 """
-function FastJX_interpolation_troposphere(t_ref::AbstractFloat; name = :FastJX,
-        domaininfo = nothing, mech::Symbol = :all)
+function FastJX_interpolation_troposphere(
+        t_ref::AbstractFloat; name = :FastJX,
+        domaininfo = nothing, mech::Symbol = :all
+    )
     jlist = mech === :all ? _FJX_INTERP_J_FULL :
-            mech === :superfast ? _FJX_INTERP_J_SUPERFAST :
-            throw(ArgumentError("`mech` must be :all or :superfast, got :$(mech)"))
+        mech === :superfast ? _FJX_INTERP_J_SUPERFAST :
+        throw(ArgumentError("`mech` must be :all or :superfast, got :$(mech)"))
 
     consts = @constants begin
         T_unit = 1.0, [unit = u"K", description = "Unit temperature (for unit conversion)"]
@@ -244,7 +251,7 @@ function FastJX_interpolation_troposphere(t_ref::AbstractFloat; name = :FastJX,
         [params; consts; c_flux];
         name = name,
         metadata = isnothing(domaininfo) ? Dict(CoupleType => FastJXCoupler) :
-                   Dict(CoupleType => FastJXCoupler, SysDomainInfo => domaininfo),
+            Dict(CoupleType => FastJXCoupler, SysDomainInfo => domaininfo),
         systems = [j_o31D_adj]
     )
     return flatten(fjx) # Need to do flatten because otherwise coupling doesn't work correctly
