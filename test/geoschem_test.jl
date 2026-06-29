@@ -113,5 +113,34 @@ end
         @test contains(string(j_eqs), eq)
     end
 
+    # Photolysis-completion (Option B): 62 organic surrogate channels added on top of the
+    # original 63. Hydroperoxides -> /CH3OOH/, organic & alkyl nitrates -> /CH3NO3/, plus 13
+    # dedicated Cloud-J v7.3e cross-sections (ONIT1/ETNO3/.../ENOL). j_80 (ETP) keeps the 0.5
+    # j-factor and is checked separately below.
+    new_parent = Dict(
+        78 => "CH3NO3", 79 => "CH3OOH", 81 => "CH3OOH", 82 => "CH3OOH", 83 => "CH3OOH",
+        84 => "CH3OOH", 85 => "CH3OOH", 86 => "HMHP", 87 => "CH3OOH", 88 => "MGlyxl",
+        89 => "CH3NO3", 90 => "MGlyxl", 91 => "PrAld", 92 => "CH3OOH", 93 => "CH3OOH",
+        94 => "ENOL", 95 => "CH3OOH", 96 => "CH3OOH", 97 => "CH3OOH", 98 => "CH3NO3",
+        99 => "CH3OOH", 105 => "H2O2", 106 => "ICN", 107 => "ETHLN", 108 => "MVKN",
+        109 => "MACRN", 110 => "MACRNP", 111 => "ONIT1", 112 => "ONIT1", 113 => "ONIT1",
+        135 => "ETNO3", 136 => "IPRNO3", 137 => "NPRNO3", 138 => "CH3OOH", 139 => "CH3OOH",
+        140 => "CH3OOH", 141 => "CH3OOH", 142 => "CH3OOH", 143 => "CH3OOH", 144 => "CH3OOH",
+        145 => "CH3OOH", 146 => "ONIT1", 147 => "ONIT1", 148 => "ONIT1", 149 => "ONIT1",
+        150 => "NITP", 151 => "CH3OOH", 152 => "ONIT1", 153 => "PrAld", 154 => "CH3OOH",
+        155 => "HP2", 156 => "CH3OOH", 157 => "CH3OOH", 158 => "CH3OOH", 159 => "ONIT1",
+        160 => "MACRNP", 161 => "PrAld", 162 => "CH3OOH", 164 => "CH3OOH", 165 => "CH3OOH",
+        166 => "CH3NO3",
+    )
+    for (n, par) in new_parent
+        @test contains(string(j_eqs), "GEOSChemGasPhase₊j_$(n)(t) ~ FastJX₊j_$(par)(t)")
+    end
+    # ETP (j_80) carries GEOS-Chem's 0.5 j-factor on the CH3OOH surrogate.
+    @test any(
+        e -> contains(e, "GEOSChemGasPhase₊j_80(t) ~") && contains(e, "0.5") &&
+            contains(e, "FastJX₊j_CH3OOH(t)"),
+        j_eqs
+    )
+
     @test_nowarn convert(System, gf_coupled)
 end
