@@ -106,7 +106,7 @@ end
     # Implied equilibrium gas (c + du/k_mt) must be physically bounded by the species' OWN
     # total. Guards against feeding the solver swapped totals (e.g. sulfate in the nitrate
     # slot), which would let "gas nitrate" track the sulfate total and exceed total nitrate.
-    kmt = 0.01
+    kmt = 1 / 300   # matches the IsorropiaOp() default k_mt
     @test -1.0e-6 <= 1.0 + duM[row("HNO3"), mid...] / kmt <= 1.22 + 1.0e-3   # total NO3 = 1.22 ppb
     @test -1.0e-6 <= 7.0 + duM[row("NH3"), mid...] / kmt <= 7.34 + 1.0e-3    # total NHx = 7.34 ppb
 end
@@ -142,7 +142,7 @@ end
     @test duM[row("NIT"), mid...] < 0
     # Equilibrium gas bounded by the total (catches swapped sulfate/nitrate totals: with the
     # swap, sulfate-rich would drive "gas nitrate" toward the larger sulfate total).
-    kmt = 0.01
+    kmt = 1 / 300   # matches the IsorropiaOp() default k_mt
     @test -1.0e-6 <= 0.5 + duM[row("HNO3"), mid...] / kmt <= 1.5 + 1.0e-3    # total NO3 = 1.5 ppb
     @test -1.0e-6 <= 1.0 + duM[row("NH3"), mid...] / kmt <= 1.5 + 1.0e-3     # total NHx = 1.5 ppb
 end

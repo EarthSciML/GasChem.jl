@@ -1,7 +1,7 @@
 export IsorropiaOp
 
 """
-    IsorropiaOp(; k_mt = 1.0e-2)
+    IsorropiaOp(; k_mt = 1 / 300)
 
 An [`EarthSciMLBase.Operator`](@ref) that couples the GEOS-Chem gas phase to the
 ISORROPIA II inorganic aerosol thermodynamic-equilibrium model
@@ -25,8 +25,9 @@ The relaxation rate `k_mt` [s⁻¹] is integrated explicitly in the Strang outer
 so it must satisfy `k_mt · Δt ≤ 1` for stability — `k_mt · Δt > 1` overshoots and can
 drive a species negative. **Set `k_mt = 1/Δt`** (where `Δt` is the operator-split step
 in seconds) to reach equilibrium in one step, i.e. GEOS-Chem's instantaneous-equilibrium
-behaviour. The default `1.0e-2` suits `Δt ≲ 100 s`; for a CTM with e.g. a 600 s step pass
-`IsorropiaOp(k_mt = 1/600)`.
+behaviour. The default `1/300` s⁻¹ matches the common 300 s Strang step (`k_mt·Δt = 1`);
+for a different operator-split step pass `IsorropiaOp(k_mt = 1/Δt)` — required when
+`Δt > 300 s`, otherwise the step overshoots.
 
 The actual implementation lives in the `AerosolExt` package extension (it requires
 `Aerosol`); load both `GasChem` and `Aerosol` to use it:
@@ -45,4 +46,4 @@ dominant fine-mode NH₄–NO₃–SO₄(–H₂O) aerosol.
 struct IsorropiaOp <: EarthSciMLBase.Operator
     k_mt::Float64
 end
-IsorropiaOp(; k_mt = 1.0e-2) = IsorropiaOp(k_mt)
+IsorropiaOp(; k_mt = 1 / 300) = IsorropiaOp(k_mt)
