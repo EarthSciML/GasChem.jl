@@ -102,6 +102,12 @@ end
     @test duM[row("NH4"), mid...] > 0
     @test duM[row("HNO3"), mid...] < 0
     @test duM[row("NIT"), mid...] > 0
+    # Implied equilibrium gas (c + du/k_mt) must be physically bounded by the species' OWN
+    # total. Guards against feeding the solver swapped totals (e.g. sulfate in the nitrate
+    # slot), which would let "gas nitrate" track the sulfate total and exceed total nitrate.
+    kmt = 0.01
+    @test -1.0e-6 <= 1.0 + duM[row("HNO3"), mid...] / kmt <= 1.22 + 1.0e-3   # total NO3 = 1.22 ppb
+    @test -1.0e-6 <= 7.0 + duM[row("NH3"), mid...] / kmt <= 7.34 + 1.0e-3    # total NHx = 7.34 ppb
 end
 
 @testitem "ISORROPIA op: sulfate-rich regime converges and partitions correctly" setup = [IsorropiaOpSetup] begin
@@ -133,4 +139,9 @@ end
     @test duM[row("NH4"), mid...] > 0
     @test duM[row("HNO3"), mid...] > 0
     @test duM[row("NIT"), mid...] < 0
+    # Equilibrium gas bounded by the total (catches swapped sulfate/nitrate totals: with the
+    # swap, sulfate-rich would drive "gas nitrate" toward the larger sulfate total).
+    kmt = 0.01
+    @test -1.0e-6 <= 0.5 + duM[row("HNO3"), mid...] / kmt <= 1.5 + 1.0e-3    # total NO3 = 1.5 ppb
+    @test -1.0e-6 <= 1.0 + duM[row("NH3"), mid...] / kmt <= 1.5 + 1.0e-3     # total NHx = 1.5 ppb
 end

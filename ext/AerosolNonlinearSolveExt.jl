@@ -166,7 +166,7 @@ function EarthSciMLBase.get_odefunction(
             ppb2m = 1.0e-9 * P / (_ISO_RG * T)            # ppb -> mol m^-3
             RH = clamp(H2O * 1.0e-9 * P / _iso_esat(T), 0.01, 0.99)
             ok, gHNO3, gNH3 = _iso_ternary(
-                (HNO3 + NIT) * ppb2m, (NH3 + NH4) * ppb2m, SO4 * ppb2m, T, RH)
+                SO4 * ppb2m, (NH3 + NH4) * ppb2m, (HNO3 + NIT) * ppb2m, T, RH)
             if ok
                 # Relax each gas toward its equilibrium partial concentration; the paired
                 # aerosol species takes the mirror tendency so total nitrate (HNO3+NIT) and
