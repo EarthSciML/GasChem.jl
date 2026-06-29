@@ -97,4 +97,8 @@ end
         occursin(r"(GEOSFP|GEOSChemGasPhase).*T.*~.*FastJX.*T"i, eqs)
     @test occursin(r"GEOSChemGasPhase.*j_11.*~.*FastJX.*j_NO2"i, eqs) ||
         occursin(r"FastJX.*j_NO2.*~.*GEOSChemGasPhase.*j_11"i, eqs)
+
+    # NEI ammonia emission feeds GEOS-Chem NH3 (anthropogenic + fertilizer sectors), the
+    # source NH3 for the ISORROPIA aerosol partition (IsorropiaOp).
+    @test occursin("NEI2016MonthlyEmis_NH3", string(equations(sys)))
 end

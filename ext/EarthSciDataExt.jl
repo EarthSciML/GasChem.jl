@@ -83,6 +83,8 @@ function EarthSciMLBase.couple2(
         [unit = u"kg/mol", description = "Sulfur dioxide molar mass"],
         MW_ISOP = 68.12e-3,
         [unit = u"kg/mol", description = "Isoprene molar mass"],
+        MW_NH3 = 17.031e-3,
+        [unit = u"kg/mol", description = "Ammonia molar mass"],
         MW_Air = 28.97e-3,
         [unit = u"kg/mol", description = "Molar mass of air"],
         nmolpermol = 1.0e9,
@@ -106,7 +108,14 @@ function EarthSciMLBase.couple2(
             c.CO => e.CO => uconv / MW_CO,
             c.SO2 => e.SO2 => uconv / MW_SO2,
             c.SO2 => e.SULF => uconv / MW_SO2,
-            c.ISOP => e.ISOP => uconv / MW_ISOP
+            c.ISOP => e.ISOP => uconv / MW_ISOP,
+            # NEI ammonia: the merged grid keeps anthropogenic (livestock/other, `NH3`) and
+            # fertilizer (`NH3_FERT`) sectors separate, so sum both into total NH3 — same
+            # two-source pattern as SO2+SULF above. NH3 feeds the ISORROPIA aerosol partition
+            # (IsorropiaOp). (If a NEI product reports NH3 inclusive of fertilizer, drop the
+            # NH3_FERT term to avoid double-counting.)
+            c.NH3 => e.NH3 => uconv / MW_NH3,
+            c.NH3 => e.NH3_FERT => uconv / MW_NH3
         )
     )
 end
