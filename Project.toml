@@ -18,11 +18,9 @@ SymbolicIndexingInterface = "2efcf032-c050-4f8e-a9bb-153293bab1f5"
 [weakdeps]
 Aerosol = "8510b696-cc45-4a64-84d0-47f429ca1505"
 EarthSciData = "a293c155-435f-439d-9c11-a083b6b47337"
-NonlinearSolve = "8913a72c-1f9b-4ce2-8d82-65094dcecaec"
 
 [extensions]
 AerosolExt = "Aerosol"
-AerosolNonlinearSolveExt = ["Aerosol", "NonlinearSolve"]
 EarthSciDataExt = "EarthSciData"
 
 [compat]

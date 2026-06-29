@@ -1,13 +1,14 @@
-# Tests for the GasChem↔Aerosol ISORROPIA operator (AerosolNonlinearSolveExt):
-#   - operator-split coupling of GEOS-Chem to Aerosol.IsorropiaEquilibrium (ISORROPIA II)
+# Tests for the GasChem↔Aerosol ISORROPIA operator (GasChem.IsorropiaOp, implemented in the
+# AerosolExt extension):
+#   - operator-split coupling of GEOS-Chem to inorganic aerosol thermodynamic equilibrium
 #   - repartitions total nitrate (HNO3 ⇌ NIT) and ammonium (NH3 ⇌ NH4) toward equilibrium
 #
-# These require Aerosol (IsorropiaEquilibrium) + NonlinearSolve, so they exercise the
-# AerosolNonlinearSolveExt weak-dependency extension; run locally against the dev'd Aerosol
-# fork until an Aerosol release with IsorropiaEquilibrium is available.
+# These require Aerosol, so they exercise the AerosolExt weak-dependency extension; run
+# locally against the dev'd Aerosol fork until an Aerosol release with IsorropiaEquilibrium
+# is available.
 
 @testsnippet IsorropiaOpSetup begin
-    using GasChem, Aerosol, NonlinearSolve, EarthSciMLBase, ModelingToolkit, DomainSets
+    using GasChem, Aerosol, EarthSciMLBase, ModelingToolkit, DomainSets
     using ModelingToolkit: t_nounits as t, D_nounits as D
 
     # Minimal inorganic-gas host exposing the species the operator reads. The parent name is
@@ -52,7 +53,7 @@
 end
 
 @testitem "ISORROPIA op: extension loads and registers operator methods" setup = [IsorropiaOpSetup] begin
-    @test Base.get_extension(GasChem, :AerosolNonlinearSolveExt) !== nothing
+    @test Base.get_extension(GasChem, :AerosolExt) !== nothing
     @test hasmethod(
         EarthSciMLBase.get_odefunction,
         Tuple{IsorropiaOp, Any, Any, Any, DomainInfo, Any, Any, Any})

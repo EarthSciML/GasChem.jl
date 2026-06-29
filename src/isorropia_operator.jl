@@ -11,16 +11,22 @@ toward thermodynamic equilibrium given the sulfate load, temperature, and humidi
 
 This is the EarthSciML idiom for an instantaneous-equilibrium process: rather than
 adding the ~30 nonlinear equilibrium constraints to the gas-phase ODE as a stiff DAE,
-the operator solves the equilibrium per grid cell once per Strang step (with a
-warm-started Newton solve) and returns a mass-transfer tendency
+the operator solves the equilibrium per grid cell once per Strang step (a
+regime-decomposed 1-D bisection on `[H⁺]`, globally convergent — see the extension)
+and returns a mass-transfer tendency
 
     du(X) = k_mt * (X_eq - X)
 
 that relaxes each species toward its equilibrium partition while conserving the
 totals (`d[HNO3]/dt + d[NIT]/dt = 0`, `d[NH3]/dt + d[NH4]/dt = 0`). This mirrors
-GEOS-Chem's dynamic gas–aerosol mass transfer. The relaxation rate `k_mt` [s⁻¹]
-should be fast relative to transport but slow enough to remain non-stiff in the
-operator slot.
+GEOS-Chem's dynamic gas–aerosol mass transfer.
+
+The relaxation rate `k_mt` [s⁻¹] is integrated explicitly in the Strang outer step,
+so it must satisfy `k_mt · Δt ≤ 1` for stability — `k_mt · Δt > 1` overshoots and can
+drive a species negative. **Set `k_mt = 1/Δt`** (where `Δt` is the operator-split step
+in seconds) to reach equilibrium in one step, i.e. GEOS-Chem's instantaneous-equilibrium
+behaviour. The default `1.0e-2` suits `Δt ≲ 100 s`; for a CTM with e.g. a 600 s step pass
+`IsorropiaOp(k_mt = 1/600)`.
 
 The actual implementation lives in the `AerosolExt` package extension (it requires
 `Aerosol`); load both `GasChem` and `Aerosol` to use it:
