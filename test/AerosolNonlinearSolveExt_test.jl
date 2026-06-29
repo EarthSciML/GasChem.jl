@@ -29,6 +29,20 @@
                 P ~ 101325.0 - 100.0 * lev],             # per-cell pressure [Pa]
             t; name)
     end
+    # Sulfate-rich (acidic) composition [ppb]: the regime where the monolithic ISORROPIA
+    # solve failed (spurious roots) but the regime+bisection solve converges. Excess sulfate
+    # ⇒ ammonia condenses onto the acidic aerosol while nitrate is driven to the gas phase.
+    function InorgGasHostRich(; name = :gas)
+        @variables(HNO3(t)=0.5, NIT(t)=1.0, NH3(t)=1.0, NH4(t)=0.5, SO4(t)=4.0, H2O(t)=2.48e7,
+            T(t), P(t))
+        @parameters lon=0.0 lat=0.0 lev=1.0
+        System(
+            [D(HNO3) ~ 0.0, D(NIT) ~ 0.0, D(NH3) ~ 0.0, D(NH4) ~ 0.0, D(SO4) ~ 0.0,
+                D(H2O) ~ 1.0e-30 * lon,
+                T ~ 298.0 + 0.5 * lat,
+                P ~ 101325.0 - 100.0 * lev],
+            t; name)
+    end
     function small_domain()
         @parameters lon lat lev
         indep = t ∈ Interval(0.0, 3600.0)
@@ -80,12 +94,43 @@ end
         @test duM[row("SO4"), I] == 0
     end
 
-    # Centre cell (lon=lat=0 ⇒ T=298 K, RH≈0.8): ammonia-rich / sulfate-poor, the regime where
-    # ISORROPIA converges. Both gases condense onto the aerosol (NH3↓/NH4↑, HNO3↓/NIT↑) and the
-    # operator does nonzero, physically-signed mass transfer.
+    # Centre cell (lon=lat=0 ⇒ T=298 K, RH≈0.8): ammonia-rich / sulfate-poor. Both gases
+    # condense onto the aerosol (NH3↓/NH4↑, HNO3↓/NIT↑) and the operator does nonzero,
+    # physically-signed mass transfer.
     mid = (2, 2, 1)
     @test duM[row("NH3"), mid...] < 0
     @test duM[row("NH4"), mid...] > 0
     @test duM[row("HNO3"), mid...] < 0
     @test duM[row("NIT"), mid...] > 0
+end
+
+@testitem "ISORROPIA op: sulfate-rich regime converges and partitions correctly" setup = [IsorropiaOpSetup] begin
+    domain = small_domain()
+    csys = couple(InorgGasHostRich(), IsorropiaOp(), domain)
+    mtk = convert(System, csys)
+    sc, ca = EarthSciMLBase._prepare_coord_sys(mtk, domain)
+    pp = EarthSciMLBase.default_params(sc)
+    u = EarthSciMLBase.init_u(sc, domain)
+    opf = EarthSciMLBase.nonstiff_ops(csys, sc, ca, domain, reshape(u, :), pp, MapBroadcast())
+    du = zero(reshape(u, :))
+    opf(du, reshape(u, :), pp, 0.0)
+    duM = reshape(du, length(unknowns(sc)), size(domain)...)
+    sy = EarthSciMLBase.var2symbol.(unknowns(sc))
+    row(n) = findfirst(s -> endswith(string(s), "₊" * n), sy)
+
+    # Conservation + non-volatile sulfate in every cell (this regime made the old monolithic
+    # solver return spurious roots; the regime+bisection solve converges here).
+    for I in CartesianIndices(size(domain))
+        @test duM[row("HNO3"), I] + duM[row("NIT"), I] ≈ 0 atol = 1.0e-12
+        @test duM[row("NH3"), I] + duM[row("NH4"), I] ≈ 0 atol = 1.0e-12
+        @test duM[row("SO4"), I] == 0
+    end
+
+    # Sulfate-rich (SO4=4 vs NHx=1.5 ppb): ammonia condenses onto the acidic aerosol
+    # (NH3↓/NH4↑) while nitrate is driven to the gas phase (HNO3↑/NIT↓).
+    mid = (2, 2, 1)
+    @test duM[row("NH3"), mid...] < 0
+    @test duM[row("NH4"), mid...] > 0
+    @test duM[row("HNO3"), mid...] > 0
+    @test duM[row("NIT"), mid...] < 0
 end
