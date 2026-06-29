@@ -35,11 +35,17 @@ end
 # Temperature/pressure variable to read per grid cell (coupled from the meteorology, e.g.
 # GEOSFP — appears as an observed variable; search unknowns and observed equations).
 function _iso_metvar(mtk_sys, name)
+    # Find a per-cell met variable ending in "₊name" among the coupled system's unknowns and
+    # observed variables. T and P come from the meteorology (GEOSFP): in a full CTM T is
+    # coupled onto GEOSChemGasPhase₊T while the per-cell pressure is carried by a sibling
+    # (e.g. FastJX₊P) — the GEOSChem↔GEOSFP coupling param_to_var's T + num_density but not P,
+    # so GEOSChemGasPhase₊P stays a scalar parameter. All such met variables trace back to the
+    # same GEOSFP field, so matching by suffix gives the correct per-cell value.
     cands = vcat(unknowns(mtk_sys), [eq.lhs for eq in observed(mtk_sys)])
     i = findfirst(v -> endswith(_iso_name(v), "₊" * name), cands)
     i === nothing && error(
-        "IsorropiaOp: meteorology variable ending in `₊$name` not found — couple a met " *
-        "source (e.g. GEOSFP) so $name is available per grid cell")
+        "IsorropiaOp: per-cell meteorology variable ending in `₊$name` not found — couple a " *
+        "met source (e.g. GEOSFP, plus FastJX for per-cell pressure) so $name is available per grid cell")
     cands[i]
 end
 
