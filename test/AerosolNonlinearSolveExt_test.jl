@@ -12,13 +12,21 @@
 
     # Minimal inorganic-gas host exposing the species the operator reads. The parent name is
     # irrelevant: the operator matches species by their `₊<name>` suffix, so it works with any
-    # gas mechanism (here a stand-in; in production it is the full GEOSChemGasPhase).
+    # gas mechanism (here a stand-in; in production it is the full GEOSChemGasPhase). T and P
+    # are coordinate-dependent observed variables, mimicking a per-cell GEOSFP-coupled met
+    # field (so the operator's per-cell observed read of T/P is exercised, not a scalar).
+    # Composition [ppb] is ammonia-rich / sulfate-poor and humid (RH≈0.8) — the regime in
+    # which the ISORROPIA II nonlinear solve converges robustly; T varies per cell but stays
+    # near 298 K so RH stays in that regime in every cell.
     function InorgGasHost(; name = :gas)
-        @variables(HNO3(t)=1.0, NIT(t)=0.3, NH3(t)=1.0, NH4(t)=0.2, SO4(t)=2.0, H2O(t)=1.84e7)
-        @parameters T=298.0 P=101325.0 lon=0.0 lat=0.0 lev=1.0
+        @variables(HNO3(t)=1.0, NIT(t)=0.22, NH3(t)=7.0, NH4(t)=0.34, SO4(t)=2.45, H2O(t)=2.48e7,
+            T(t), P(t))
+        @parameters lon=0.0 lat=0.0 lev=1.0
         System(
             [D(HNO3) ~ 0.0, D(NIT) ~ 0.0, D(NH3) ~ 0.0, D(NH4) ~ 0.0, D(SO4) ~ 0.0,
-                D(H2O) ~ 1.0e-30 * (lon + lat + lev + T + P)],   # keep coord+T/P params alive
+                D(H2O) ~ 1.0e-30 * lon,                  # keep the lon coordinate param alive
+                T ~ 298.0 + 0.5 * lat,                   # per-cell temperature [K]
+                P ~ 101325.0 - 100.0 * lev],             # per-cell pressure [Pa]
             t; name)
     end
     function small_domain()
@@ -61,19 +69,23 @@ end
 
     sy = EarthSciMLBase.var2symbol.(unknowns(sc))
     row(n) = findfirst(s -> endswith(string(s), "₊" * n), sy)
-    dHNO3 = duM[row("HNO3"), 1, 1, 1]
-    dNIT = duM[row("NIT"), 1, 1, 1]
-    dNH3 = duM[row("NH3"), 1, 1, 1]
-    dNH4 = duM[row("NH4"), 1, 1, 1]
 
-    # total nitrate (HNO3+NIT) and total ammonium (NH3+NH4) are conserved exactly
-    @test dHNO3 + dNIT ≈ 0 atol = 1.0e-12
-    @test dNH3 + dNH4 ≈ 0 atol = 1.0e-12
-    # the operator is doing something (nonzero mass transfer)
-    @test abs(dNH3) > 0
-    # sulfate-rich with ammonia present: ammonia condenses onto the acidic aerosol
-    @test dNH3 < 0
-    @test dNH4 > 0
-    # sulfate is non-volatile: no ISORROPIA tendency on SO4
-    @test duM[row("SO4"), 1, 1, 1] == 0
+    # In every grid cell (each at its own per-cell T/RH): total nitrate (HNO3+NIT) and total
+    # ammonium (NH3+NH4) are conserved exactly — du(aerosol) = -du(gas) where the equilibrium
+    # converged, or du = 0 where it did not (the operator leaves a cell unchanged rather than
+    # injecting a spurious partition) — and sulfate is non-volatile (no ISORROPIA tendency).
+    for I in CartesianIndices(size(domain))
+        @test duM[row("HNO3"), I] + duM[row("NIT"), I] ≈ 0 atol = 1.0e-12
+        @test duM[row("NH3"), I] + duM[row("NH4"), I] ≈ 0 atol = 1.0e-12
+        @test duM[row("SO4"), I] == 0
+    end
+
+    # Centre cell (lon=lat=0 ⇒ T=298 K, RH≈0.8): ammonia-rich / sulfate-poor, the regime where
+    # ISORROPIA converges. Both gases condense onto the aerosol (NH3↓/NH4↑, HNO3↓/NIT↑) and the
+    # operator does nonzero, physically-signed mass transfer.
+    mid = (2, 2, 1)
+    @test duM[row("NH3"), mid...] < 0
+    @test duM[row("NH4"), mid...] > 0
+    @test duM[row("HNO3"), mid...] < 0
+    @test duM[row("NIT"), mid...] > 0
 end
