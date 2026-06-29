@@ -17,26 +17,43 @@ end
 
 # Unit Test 1: O1D sensitivity to O3
 @testitem "O1D sensitivity to O3" setup = [GEOSChemGasPhaseSetup] begin
-    u_1 = 8.160593694128693e-7
+    # Near-cancellation finite-difference sensitivity (a small difference of two O3 ~ 20
+    # endpoints), handled the same way as the OH/HO2 tests below: a tight solver tolerance
+    # (reltol=1e-10) puts each endpoint well below the difference, and a 50% perturbation
+    # lifts the O3 difference far above the solver accuracy floor (reltol * O3 ~ 2e-9). At
+    # the old default tolerance + 10% perturbation the signal was below the floor (i.e.
+    # noise), which drifted with dependency/structural changes; with reltol=1e-10 it is a
+    # converged, reproducible value and rtol=0.01 has ample margin.
+    u_1 = -4.411157021877443e-7
 
     @unpack O3, O1D = sys
-    o1 = solve(ODEProblem(sys, [O3 => 20, O1D => 1.0e-6], tspan), Rosenbrock23())
-    o2 = solve(ODEProblem(sys, [O3 => 20, O1D => 1.0e-6 * 1.1], tspan), Rosenbrock23())
+    o1 = solve(ODEProblem(sys, [O3 => 20, O1D => 1.0e-6], tspan), Rosenbrock23(), abstol = 1.0e-10, reltol = 1.0e-10)
+    o2 = solve(ODEProblem(sys, [O3 => 20, O1D => 1.0e-6 * 1.5], tspan), Rosenbrock23(), abstol = 1.0e-10, reltol = 1.0e-10)
     test1 = o1[O3][end] - o2[O3][end]
 
-    @test test1 ≈ u_1 rtol = 0.001
+    @test test1 ≈ u_1 rtol = 0.01
 end
 
 # Unit Test 2: OH sensitivity to O3
 @testitem "OH sensitivity to O3" setup = [GEOSChemGasPhaseSetup] begin
-    u_2 = 8.209088520061414e-9
+    # Finite-difference O3 sensitivity to initial OH. This is a near-cancellation
+    # quantity (a small difference of two O3 ~ 20 endpoints), so reproducibility
+    # needs two things: (1) a tight solver tolerance (reltol=1e-10) so each O3
+    # endpoint is accurate well below the difference, and (2) a perturbation large
+    # enough that the resulting O3 difference sits far above the solver accuracy
+    # floor (reltol * O3 ~ 2e-9). A 50% OH perturbation puts the signal ~80x above
+    # the floor (vs ~8x for the old 5%, where it was near-floor and drifted ~2x with
+    # dependency updates); the response is linear, so this is still a clean
+    # sensitivity. Converged to <0.06% between reltol 1e-10 and 1e-11, so rtol=0.01
+    # has ample margin while still catching any real chemistry regression.
+    u_2 = 1.6170403327464555e-7
 
     @unpack O3, OH = sys
-    o1 = solve(ODEProblem(sys, [O3 => 20, OH => 4.0e-6], tspan), Rosenbrock23(), abstol = 1.0e-6, reltol = 1.0e-6)
-    o2 = solve(ODEProblem(sys, [O3 => 20, OH => 4.0e-6 * 1.05], tspan), Rosenbrock23(), abstol = 1.0e-6, reltol = 1.0e-6)
+    o1 = solve(ODEProblem(sys, [O3 => 20, OH => 4.0e-6], tspan), Rosenbrock23(), abstol = 1.0e-10, reltol = 1.0e-10)
+    o2 = solve(ODEProblem(sys, [O3 => 20, OH => 4.0e-6 * 1.5], tspan), Rosenbrock23(), abstol = 1.0e-10, reltol = 1.0e-10)
     test2 = o1[O3][end] - o2[O3][end]
 
-    @test test2 ≈ u_2 rtol = 0.001
+    @test test2 ≈ u_2 rtol = 0.01
 end
 
 # Unit Test 3: NO2 sensitivity to O3
@@ -53,14 +70,17 @@ end
 
 # Unit Test 4: HO2 sensitivity to O3
 @testitem "HO2 sensitivity to O3" setup = [GEOSChemGasPhaseSetup] begin
-    u_4 = 1.6049252593575147e-8
+    # Same near-cancellation construction as the OH sensitivity test above: tight
+    # solver tolerance plus a 50% perturbation to put the O3 difference ~80x above
+    # the solver accuracy floor (converged to <0.001% between reltol 1e-10 and 1e-11).
+    u_4 = 1.5975674827473085e-7
 
     @unpack O3, HO2 = sys
-    o1 = solve(ODEProblem(sys, [O3 => 20, HO2 => 4.0e-6], tspan), Rosenbrock23(), abstol = 1.0e-6, reltol = 1.0e-6)
-    o2 = solve(ODEProblem(sys, [O3 => 20, HO2 => 4.0e-6 * 1.05], tspan), Rosenbrock23(), abstol = 1.0e-6, reltol = 1.0e-6)
+    o1 = solve(ODEProblem(sys, [O3 => 20, HO2 => 4.0e-6], tspan), Rosenbrock23(), abstol = 1.0e-10, reltol = 1.0e-10)
+    o2 = solve(ODEProblem(sys, [O3 => 20, HO2 => 4.0e-6 * 1.5], tspan), Rosenbrock23(), abstol = 1.0e-10, reltol = 1.0e-10)
     test4 = o1[O3][end] - o2[O3][end]
 
-    @test test4 ≈ u_4 rtol = 0.001
+    @test test4 ≈ u_4 rtol = 0.01
 end
 
 @testitem "Compose GEOSChem FastJX" begin
