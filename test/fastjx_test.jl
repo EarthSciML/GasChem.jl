@@ -249,3 +249,30 @@ end
     @test GasChem.calc_direct_flux(cos_sza, P, 9) ≈ 0.0
     @test GasChem.calc_direct_flux(cos_sza, P, 18) ≈ 4.908683888514731e16
 end
+
+#   Dedicated cross-sections added for the organic photolysis-completion channels (Option B):
+#   13 Cloud-J v7.3e σ for organic nitrates / hydroperoxides / isoprene-oxidation products.
+@testitem "GEOSChem dedicated photolysis cross-sections" setup = [FastJXSetup] begin
+    # Reference j = Σ flux·σ(T)·ϕ at the top-of-atmosphere flux used by the other unit tests.
+    fluxes = get_fluxes(3600 * 12.0, 30.0, 0.0, 0.9)
+    expected = Dict(
+        :ONIT1 => 1.2879551602032073e-5, :ETNO3 => 0.00035574512324203873,
+        :IPRNO3 => 0.000426503946987196, :NPRNO3 => 0.0004035466117803549,
+        :MVKN => 0.00016795574750408425, :MACRN => 0.0005696433077568555,
+        :MACRNP => 0.00015608234645796674, :ICN => 0.0003326633053236463,
+        :ETHLN => 0.0002499367255213189, :NITP => 6.766986252962223e-5,
+        :HMHP => 3.835302279140898e-5, :HP2 => 0.00010958712986581257,
+        :ENOL => 0.00033785045579737445,
+    )
+    for (s, val) in expected
+        jf = getfield(GasChem, Symbol("j_mean_", s))
+        @test jf(298.0, fluxes) ≈ val rtol = 1.0e-3
+    end
+    # Two-temperature cross-sections (ETNO3, IPRNO3) must actually interpolate in T.
+    @test GasChem.j_mean_ETNO3(240.0, fluxes) != GasChem.j_mean_ETNO3(298.0, fluxes)
+    @test GasChem.j_mean_IPRNO3(240.0, fluxes) != GasChem.j_mean_IPRNO3(298.0, fluxes)
+    # Diurnal: at surface pressure the slant-path airmass zeroes the direct beam at night.
+    night = get_fluxes(3600 * 0.0, 30.0, 0.0, 101325.0)
+    @test GasChem.j_mean_ONIT1(298.0, night) == 0.0
+    @test GasChem.j_mean_HP2(298.0, night) == 0.0
+end

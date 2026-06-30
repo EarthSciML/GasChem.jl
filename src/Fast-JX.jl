@@ -994,6 +994,82 @@ const σ_BrCl_interp = create_fjx_interp(
     ]
 )
 
+# === GEOS-Chem Cloud-J v7.3e dedicated cross-sections (photolysis completion, Option B) ===
+# Dedicated σ for organic nitrates / hydroperoxides / isoprene-oxidation products that
+# GEOS-Chem 14.1.1 photolyzed via generic surrogates (CH3OOH / CH3NO3). The 18-bin layout
+# was verified against the port's σ_CH3OOH (17/18 bins identical; bin 17 is a minor v7.3e
+# revision), so these values share the port's bin grid and are directly usable.
+# ONIT1 (dedicated cross-section, GEOS-Chem Cloud-J v7.3e)
+const ϕ_ONIT1_jx = 1.0f0
+const σ_ONIT1 = SA_F32[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1.099e-20, 4.532e-21, 1.951e-21, 7.55e-22, 3.3e-22, 0, 0]
+const σ_ONIT1_interp = [(T) -> σ_ONIT1[i] for i in 1:18]
+
+# ETNO3 (dedicated cross-section, GEOS-Chem Cloud-J v7.3e)
+const ϕ_ETNO3_jx = 1.0f0
+const σ_ETNO3_interp = create_fjx_interp([240.0f0, 298.0f0],
+    [
+        SA_F32[1.667e-17, 1.602e-17, 1.513e-17, 1.389e-17, 9.456e-18, 4.923e-18, 4e-18, 2.127e-18, 3.47e-20, 7.726e-20, 1.134e-19, 6.854e-21, 3.033e-21, 1.299e-21, 5.169e-22, 6.655e-23, 0, 0],
+        SA_F32[1.667e-17, 1.602e-17, 1.513e-17, 1.389e-17, 9.456e-18, 4.923e-18, 4e-18, 2.127e-18, 4.065e-20, 8.057e-20, 1.159e-19, 8.938e-21, 4.157e-21, 1.914e-21, 8.239e-22, 1.246e-22, 0, 0],
+    ])
+
+# IPRNO3 (dedicated cross-section, GEOS-Chem Cloud-J v7.3e)
+const ϕ_IPRNO3_jx = 1.0f0
+const σ_IPRNO3_interp = create_fjx_interp([240.0f0, 298.0f0],
+    [
+        SA_F32[1.61e-17, 1.702e-17, 1.619e-17, 1.508e-17, 1.07e-17, 5.987e-18, 4.98e-18, 2.65e-18, 4.545e-20, 1.059e-19, 1.503e-19, 9.44e-21, 4.364e-21, 1.959e-21, 8.569e-22, 1.177e-22, 1.212e-24, 0],
+        SA_F32[1.61e-17, 1.702e-17, 1.619e-17, 1.508e-17, 1.07e-17, 5.987e-18, 4.98e-18, 2.65e-18, 5.23e-20, 1.101e-19, 1.537e-19, 1.242e-20, 6.091e-21, 2.921e-21, 1.392e-21, 2.235e-22, 1.212e-24, 0],
+    ])
+
+# NPRNO3 (dedicated cross-section, GEOS-Chem Cloud-J v7.3e)
+const ϕ_NPRNO3_jx = 1.0f0
+const σ_NPRNO3 = SA_F32[1.767e-17, 1.703e-17, 1.617e-17, 1.501e-17, 1.063e-17, 5.889e-18, 4.89e-18, 2.622e-18, 4.401e-20, 8.938e-20, 1.372e-19, 9.851e-21, 4.296e-21, 1.915e-21, 8.314e-22, 2.135e-22, 0, 0]
+const σ_NPRNO3_interp = [(T) -> σ_NPRNO3[i] for i in 1:18]
+
+# MVKN (dedicated cross-section, GEOS-Chem Cloud-J v7.3e)
+const ϕ_MVKN_jx = 1.0f0
+const σ_MVKN = SA_F32[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9.601e-20, 6.372e-20, 4.202e-20, 2.535e-20, 4.86e-21, 0, 0]
+const σ_MVKN_interp = [(T) -> σ_MVKN[i] for i in 1:18]
+
+# MACRN (dedicated cross-section, GEOS-Chem Cloud-J v7.3e)
+const ϕ_MACRN_jx = 1.0f0
+const σ_MACRN = SA_F32[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1.328e-19, 1.262e-19, 1.113e-19, 1.01e-19, 6.449e-20, 0, 0]
+const σ_MACRN_interp = [(T) -> σ_MACRN[i] for i in 1:18]
+
+# MACRNP (dedicated cross-section, GEOS-Chem Cloud-J v7.3e)
+const ϕ_MACRNP_jx = 1.0f0
+const σ_MACRNP = SA_F32[0, 0, 0, 0, 0, 7.8e-20, 7.205e-20, 5.625e-20, 6.79e-21, 6.85e-21, 5.358e-21, 3.46e-20, 3.242e-20, 2.843e-20, 2.567e-20, 1.63e-20, 1.734e-23, 0]
+const σ_MACRNP_interp = [(T) -> σ_MACRNP[i] for i in 1:18]
+
+# ICN (dedicated cross-section, GEOS-Chem Cloud-J v7.3e)
+const ϕ_ICN_jx = 1.0f0
+const σ_ICN = SA_F32[0, 0, 0, 0, 0, 0, 0, 0, 1.733e-21, 5.229e-21, 9.629e-21, 1.55e-20, 2.62e-20, 2.945e-20, 3.337e-20, 3.625e-20, 7.3e-21, 0]
+const σ_ICN_interp = [(T) -> σ_ICN[i] for i in 1:18]
+
+# ETHLN (dedicated cross-section, GEOS-Chem Cloud-J v7.3e)
+const ϕ_ETHLN_jx = 1.0f0
+const σ_ETHLN = SA_F32[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6.902e-20, 6.428e-20, 5.734e-20, 4.883e-20, 2.272e-20, 0, 0]
+const σ_ETHLN_interp = [(T) -> σ_ETHLN[i] for i in 1:18]
+
+# NITP (dedicated cross-section, GEOS-Chem Cloud-J v7.3e)
+const ϕ_NITP_jx = 1.0f0
+const σ_NITP = SA_F32[0, 0, 0, 0, 0, 3.12e-19, 2.882e-19, 2.25e-19, 2.716e-20, 2.74e-20, 2.143e-20, 1.661e-20, 8.052e-21, 4.354e-21, 2.452e-21, 1.053e-21, 6.973e-23, 0]
+const σ_NITP_interp = [(T) -> σ_NITP[i] for i in 1:18]
+
+# HMHP (dedicated cross-section, GEOS-Chem Cloud-J v7.3e)
+const ϕ_HMHP_jx = 1.0f0
+const σ_HMHP = SA_F32[0, 0, 0, 0, 0, 2.184e-19, 2.017e-19, 1.575e-19, 1.901e-20, 1.918e-20, 1.5e-20, 3.937e-21, 2.464e-21, 1.682e-21, 1.188e-21, 5.061e-22, 4.881e-23, 0]
+const σ_HMHP_interp = [(T) -> σ_HMHP[i] for i in 1:18]
+
+# HP2 (dedicated cross-section, GEOS-Chem Cloud-J v7.3e)
+const ϕ_HP2_jx = 1.0f0
+const σ_HP2 = SA_F32[0, 0, 0, 0, 0, 6.24e-19, 5.764e-19, 4.5e-19, 5.432e-20, 5.48e-20, 4.286e-20, 1.125e-20, 7.04e-21, 4.806e-21, 3.394e-21, 1.446e-21, 1.395e-22, 0]
+const σ_HP2_interp = [(T) -> σ_HP2[i] for i in 1:18]
+
+# ENOL (dedicated cross-section, GEOS-Chem Cloud-J v7.3e)
+const ϕ_ENOL_jx = 1.0f0
+const σ_ENOL = SA_F32[0, 0, 0, 0, 0, 0, 0, 0, 1.375e-20, 1.085e-20, 1.305e-20, 1.6e-20, 2.125e-20, 2.61e-20, 3.045e-20, 3.295e-20, 8.25e-21, 0]
+const σ_ENOL_interp = [(T) -> σ_ENOL[i] for i in 1:18]
+
 """
     cos_solar_zenith_angle(lat, t, long)
 
@@ -1205,6 +1281,20 @@ j_mean_NO3a(T, fluxes) = j_mean(σ_NO3_interp, ϕ_NO3_jx, T, fluxes) .* 0.886
 j_mean_NO3b(T, fluxes) = j_mean(σ_NO3_interp, ϕ_NO3_jx, T, fluxes) .* 0.114
 j_mean_Acetb(T, fluxes) = j_mean(σ_Acetb_interp, ϕ_Acetb_jx, T, fluxes)
 j_mean_BrCl(T, fluxes) = j_mean(σ_BrCl_interp, ϕ_BrCl_jx, T, fluxes)
+# dedicated v7.3e cross-sections (photolysis completion, Option B)
+j_mean_ONIT1(T, fluxes) = j_mean(σ_ONIT1_interp, ϕ_ONIT1_jx, T, fluxes)
+j_mean_ETNO3(T, fluxes) = j_mean(σ_ETNO3_interp, ϕ_ETNO3_jx, T, fluxes)
+j_mean_IPRNO3(T, fluxes) = j_mean(σ_IPRNO3_interp, ϕ_IPRNO3_jx, T, fluxes)
+j_mean_NPRNO3(T, fluxes) = j_mean(σ_NPRNO3_interp, ϕ_NPRNO3_jx, T, fluxes)
+j_mean_MVKN(T, fluxes) = j_mean(σ_MVKN_interp, ϕ_MVKN_jx, T, fluxes)
+j_mean_MACRN(T, fluxes) = j_mean(σ_MACRN_interp, ϕ_MACRN_jx, T, fluxes)
+j_mean_MACRNP(T, fluxes) = j_mean(σ_MACRNP_interp, ϕ_MACRNP_jx, T, fluxes)
+j_mean_ICN(T, fluxes) = j_mean(σ_ICN_interp, ϕ_ICN_jx, T, fluxes)
+j_mean_ETHLN(T, fluxes) = j_mean(σ_ETHLN_interp, ϕ_ETHLN_jx, T, fluxes)
+j_mean_NITP(T, fluxes) = j_mean(σ_NITP_interp, ϕ_NITP_jx, T, fluxes)
+j_mean_HMHP(T, fluxes) = j_mean(σ_HMHP_interp, ϕ_HMHP_jx, T, fluxes)
+j_mean_HP2(T, fluxes) = j_mean(σ_HP2_interp, ϕ_HP2_jx, T, fluxes)
+j_mean_ENOL(T, fluxes) = j_mean(σ_ENOL_interp, ϕ_ENOL_jx, T, fluxes)
 
 """
     adjust_j_O31D(T, P, H2O)
@@ -1372,6 +1462,20 @@ function FastJX(t_ref::AbstractFloat; name = :FastJX, domaininfo = nothing)
         j_NO3b(t), [unit = u"s^-1"]
         j_Acetb(t), [unit = u"s^-1"]
         j_BrCl(t), [unit = u"s^-1"]
+        # dedicated v7.3e cross-sections (photolysis completion, Option B)
+        j_ONIT1(t), [unit = u"s^-1"]
+        j_ETNO3(t), [unit = u"s^-1"]
+        j_IPRNO3(t), [unit = u"s^-1"]
+        j_NPRNO3(t), [unit = u"s^-1"]
+        j_MVKN(t), [unit = u"s^-1"]
+        j_MACRN(t), [unit = u"s^-1"]
+        j_MACRNP(t), [unit = u"s^-1"]
+        j_ICN(t), [unit = u"s^-1"]
+        j_ETHLN(t), [unit = u"s^-1"]
+        j_NITP(t), [unit = u"s^-1"]
+        j_HMHP(t), [unit = u"s^-1"]
+        j_HP2(t), [unit = u"s^-1"]
+        j_ENOL(t), [unit = u"s^-1"]
     end
 
     flux = flux_sys(ParentScope(cosSZA), ParentScope(P) / ParentScope(P_unit), solar_flux_factor(t + ParentScope(t_ref)))
@@ -1444,7 +1548,21 @@ function FastJX(t_ref::AbstractFloat; name = :FastJX, domaininfo = nothing)
         j_NO3a ~ j_mean_NO3a(T / T_unit, flux_vars);
         j_NO3b ~ j_mean_NO3b(T / T_unit, flux_vars);
         j_Acetb ~ j_mean_Acetb(T / T_unit, flux_vars);
-        j_BrCl ~ j_mean_BrCl(T / T_unit, flux_vars)
+        j_BrCl ~ j_mean_BrCl(T / T_unit, flux_vars);
+        # dedicated v7.3e cross-sections (photolysis completion, Option B)
+        j_ONIT1 ~ j_mean_ONIT1(T / T_unit, flux_vars);
+        j_ETNO3 ~ j_mean_ETNO3(T / T_unit, flux_vars);
+        j_IPRNO3 ~ j_mean_IPRNO3(T / T_unit, flux_vars);
+        j_NPRNO3 ~ j_mean_NPRNO3(T / T_unit, flux_vars);
+        j_MVKN ~ j_mean_MVKN(T / T_unit, flux_vars);
+        j_MACRN ~ j_mean_MACRN(T / T_unit, flux_vars);
+        j_MACRNP ~ j_mean_MACRNP(T / T_unit, flux_vars);
+        j_ICN ~ j_mean_ICN(T / T_unit, flux_vars);
+        j_ETHLN ~ j_mean_ETHLN(T / T_unit, flux_vars);
+        j_NITP ~ j_mean_NITP(T / T_unit, flux_vars);
+        j_HMHP ~ j_mean_HMHP(T / T_unit, flux_vars);
+        j_HP2 ~ j_mean_HP2(T / T_unit, flux_vars);
+        j_ENOL ~ j_mean_ENOL(T / T_unit, flux_vars)
     ]
 
     fjx = System(
