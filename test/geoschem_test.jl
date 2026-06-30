@@ -135,3 +135,27 @@ end
 
     @test_nowarn convert(System, gf_coupled)
 end
+
+@testitem "Compose GEOSChem FastJX_interpolation_troposphere" begin
+    using GasChem, EarthSciMLBase
+    using ModelingToolkit
+
+    # Photolysis connection equations produced when coupling GEOSChemGasPhase to a
+    # given Fast-JX constructor.
+    function jconnections(fjx)
+        gf = convert(System, couple(GEOSChemGasPhase(), fjx), compile = false)
+        sort(filter(eq -> contains(eq, r"^GEOSChemGasPhase₊j_"), string.(equations(gf))))
+    end
+
+    online = jconnections(FastJX(0.0))
+    interp = jconnections(FastJX_interpolation_troposphere(0.0))   # mech=:all (full set)
+
+    # With `mech=:all` the interpolated Fast-JX must wire the *same* GEOS-Chem
+    # photolysis connections as the online `FastJX`; the `mech=:superfast` subset
+    # (the historical default) only exposes the SuperFast species and cannot.
+    @test !isempty(interp)
+    @test interp == online
+
+    # And the fully-coupled, compiled system must build.
+    @test_nowarn convert(System, couple(GEOSChemGasPhase(), FastJX_interpolation_troposphere(0.0)))
+end

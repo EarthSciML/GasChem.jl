@@ -79,78 +79,179 @@ function flux_eqs_interpolation(csa, P, solf)
     return flux_vars, (flux_vars .~ collect(flux_vals) .* c_flux .* solf), c_flux # TODO(CT): remove "collect" when https://github.com/SciML/ModelingToolkit.jl/issues/3888 is fixed.
 end
 
+# Photolysis species exposed by the interpolated Fast-JX, as (name, cross-section
+# function) pairs. `:all` is the complete set (couples to the full
+# `GEOSChemGasPhase` mechanism); `:superfast` is the reduced set used by
+# `SuperFast` / `Pollu`. `j_o32OH` (= j_O31D adjusted for the O(1D) + H2O branch)
+# is always added separately, so `:O31D` must be present in either list.
+const _FJX_INTERP_J_FULL = [
+    (:ActAld, j_mean_ActAld),
+    (:PAN, j_mean_PAN),
+    (:O3, j_mean_O3),
+    (:NO3b, j_mean_NO3b),
+    (:NO3a, j_mean_NO3a),
+    (:N2O5, j_mean_N2O5),
+    (:H2O2, j_mean_H2O2),
+    (:H2COa, j_mean_H2COa),
+    (:H2COb, j_mean_H2COb),
+    (:O31D, j_mean_O31D),
+    (:CH3OOH, j_mean_CH3OOH),
+    (:NO2, j_mean_NO2),
+    (:HOCl, j_mean_HOCl),
+    (:MeAcr, j_mean_MeAcr),
+    (:H1301, j_mean_H1301),
+    (:CFCl3, j_mean_CFCl3),
+    (:NO, j_mean_NO),
+    (:Glyxlc, j_mean_Glyxlc),
+    (:F114, j_mean_F114),
+    (:CH3NO3, j_mean_CH3NO3),
+    (:CHBr3, j_mean_CHBr3),
+    (:F123, j_mean_F123),
+    (:CHF2Cl, j_mean_CHF2Cl),
+    (:OClO, j_mean_OClO),
+    (:H1211, j_mean_H1211),
+    (:BrO, j_mean_BrO),
+    (:CH3Cl, j_mean_CH3Cl),
+    (:MEKeto, j_mean_MEKeto),
+    (:H2402, j_mean_H2402),
+    (:PrAld, j_mean_PrAld),
+    (:MeVKa, j_mean_MeVKa),
+    (:MeVKb, j_mean_MeVKb),
+    (:MeVKc, j_mean_MeVKc),
+    (:ClNO3b, j_mean_ClNO3b),
+    (:F113, j_mean_F113),
+    (:HNO4, j_mean_HNO4),
+    (:ClO, j_mean_ClO),
+    (:CH2Br2, j_mean_CH2Br2),
+    (:OCS, j_mean_OCS),
+    (:F142b, j_mean_F142b),
+    (:F115, j_mean_F115),
+    (:CF3I, j_mean_CF3I),
+    (:Glyxla, j_mean_Glyxla),
+    (:CCl4, j_mean_CCl4),
+    (:Cl2, j_mean_Cl2),
+    (:CH3I, j_mean_CH3I),
+    (:HNO2, j_mean_HNO2),
+    (:Aceta, j_mean_Aceta),
+    (:MeCCl3, j_mean_MeCCl3),
+    (:Cl2O2, j_mean_Cl2O2),
+    (:CH3Br, j_mean_CH3Br),
+    (:HNO3, j_mean_HNO3),
+    (:CF2Cl2, j_mean_CF2Cl2),
+    (:Glyxlb, j_mean_Glyxlb),
+    (:F141b, j_mean_F141b),
+    (:ClNO3a, j_mean_ClNO3a),
+    (:CH2Cl2, j_mean_CH2Cl2),
+    (:O2, j_mean_O2),
+    (:BrNO3, j_mean_BrNO3),
+    (:GlyAld, j_mean_GlyAld),
+    (:MGlyxl, j_mean_MGlyxl),
+    (:HOBr, j_mean_HOBr),
+    (:Acetb, j_mean_Acetb),
+    (:BrCl, j_mean_BrCl),
+]
+
+const _FJX_INTERP_J_SUPERFAST = [
+    (:H2O2, j_mean_H2O2),
+    (:H2COa, j_mean_H2COa),
+    (:H2COb, j_mean_H2COb),
+    (:O31D, j_mean_O31D),
+    (:CH3OOH, j_mean_CH3OOH),
+    (:NO2, j_mean_NO2),
+    (:ActAld, j_mean_ActAld),
+    (:PAN, j_mean_PAN),
+    (:NO3b, j_mean_NO3b),
+    (:NO3a, j_mean_NO3a),
+    (:N2O5, j_mean_N2O5),
+    (:O3, j_mean_O3),
+]
+
 """
-Description: This is a box model used to calculate the photolysis reaction rate constant using the Fast-JX scheme
-(Neu, J. L., Prather, M. J., and Penner, J. E. (2007), Global atmospheric chemistry: Integrating over fractional cloud cover, J. Geophys. Res., 112, D11306, doi:10.1029/2006JD008007.)
+    FastJX_interpolation_troposphere(t_ref; name=:FastJX, domaininfo=nothing, mech=:all)
 
-Argument:
+Fast-JX photolysis using **interpolated** actinic fluxes from a precomputed
+`(pressure, cosSZA)` table (`flux_eqs_interpolation`) rather than the online
+direct-beam radiative-transfer integral of [`FastJX`](@ref). The
+temperature-dependent cross sections and quantum yields are applied identically
+to [`FastJX`](@ref), so the only approximation relative to the online scheme is
+the flux interpolation. The included table spans ~10-1000 hPa (flux held flat
+above the table top), so this targets tropospheric / lower-stratospheric columns.
 
-  - `t_ref`: Reference time for the model, can be a `DateTime` or a Unix timestamp (in seconds).
+# Arguments
+
+  - `t_ref`: reference time for the model, either a `DateTime` or a Unix timestamp
+    (in seconds).
+
+`mech` selects which photolysis rates are exposed:
+
+  - `:all` (default) -- the complete set, so this couples to the full
+    `GEOSChemGasPhase` mechanism in addition to `SuperFast` / `Pollu`.
+  - `:superfast` -- the reduced set needed by `SuperFast` / `Pollu`.
+
+Both share the same flux table and cross sections, so any species present in both
+produces identical j-values. Passing a `DomainInfo` attaches it as `SysDomainInfo`
+metadata, mirroring [`FastJX`](@ref).
 
 # Example
 
-Build Fast-JX model:
-
 ```julia
-fj = FastJX(DateTime(2000, 1, 1))
+fj = FastJX_interpolation_troposphere(DateTime(2000, 1, 1))                    # full set
+fj = FastJX_interpolation_troposphere(DateTime(2000, 1, 1); mech = :superfast)
 ```
 """
-function FastJX_interpolation_troposphere(t_ref::AbstractFloat; name = :FastJX)
-    @constants T_unit = 1.0 [
-        unit = u"K",
-        description = "Unit temperature (for unit conversion)",
-    ]
-    @parameters T = 298.0 [unit = u"K", description = "Temperature"]
-    @parameters lat = 40.0 [description = "Latitude (Degrees)"]
-    @parameters long = -97.0 [description = "Longitude (Degrees)"]
-    @parameters P = 101325 [unit = u"Pa", description = "Pressure"]
-    @constants P_unit = 1.0 [unit = u"Pa", description = "Unit pressure"]
-    @parameters H2O = 450 [unit = u"ppb"]
-    @parameters t_ref = t_ref [unit = u"s", description = "Reference Unix time"]
+function FastJX_interpolation_troposphere(
+        t_ref::AbstractFloat; name = :FastJX,
+        domaininfo = nothing, mech::Symbol = :all
+    )
+    jlist = mech === :all ? _FJX_INTERP_J_FULL :
+        mech === :superfast ? _FJX_INTERP_J_SUPERFAST :
+        throw(ArgumentError("`mech` must be :all or :superfast, got :$(mech)"))
 
-    @variables j_H2O2(t) [unit = u"s^-1"]
-    @variables j_H2COa(t) [unit = u"s^-1"]
-    @variables j_H2COb(t) [unit = u"s^-1"]
-    @variables j_O31D(t) [unit = u"s^-1"]
-    @variables j_o32OH(t) [unit = u"s^-1"]
-    @variables j_CH3OOH(t) [unit = u"s^-1"]
-    @variables j_NO2(t) [unit = u"s^-1"]
-    @variables j_ActAld(t) [unit = u"s^-1"]
-    @variables j_PAN(t) [unit = u"s^-1"]
-    @variables j_NO3b(t) [unit = u"s^-1"]
-    @variables j_NO3a(t) [unit = u"s^-1"]
-    @variables j_N2O5(t) [unit = u"s^-1"]
-    @variables j_O3(t) [unit = u"s^-1"]
+    consts = @constants begin
+        T_unit = 1.0, [unit = u"K", description = "Unit temperature (for unit conversion)"]
+        P_unit = 1.0, [unit = u"Pa", description = "Unit pressure"]
+    end
+    params = @parameters begin
+        T = 298.0, [unit = u"K", description = "Temperature"]
+        lat = 40.0, [description = "Latitude (Degrees)"]
+        long = -97.0, [description = "Longitude (Degrees)"]
+        P = 101325, [unit = u"Pa", description = "Pressure"]
+        H2O = 450, [unit = u"ppb"]
+        t_ref = t_ref, [unit = u"s", description = "Reference Unix time"]
+    end
     @variables cosSZA(t) [description = "Cosine of the solar zenith angle"]
+    @variables j_o32OH(t) [unit = u"s^-1"]
 
     flux_vars, fluxeqs, c_flux = flux_eqs_interpolation(cosSZA, P / P_unit, solar_flux_factor(t + t_ref))
     j_o31D_adj = adjust_j_o31D(ParentScope(T), ParentScope(P), ParentScope(H2O))
 
+    # Build the requested j-variables and their cross-section equations.
+    jvars = Num[]
+    jeqs = Equation[]
+    for (sp, meanf) in jlist
+        nm = Symbol(:j_, sp)
+        v = only(@variables $nm(t) [unit = u"s^-1"])
+        push!(jvars, v)
+        push!(jeqs, v ~ meanf(T / T_unit, flux_vars))
+    end
+    iO31D = findfirst(p -> p[1] === :O31D, jlist)
+    @assert iO31D !== nothing "species list must include :O31D (needed for j_o32OH)"
+
     eqs = [
         cosSZA ~ cos_solar_zenith_angle(t + t_ref, lat, long);
         fluxeqs;
-        j_ActAld ~ j_mean_ActAld(T / T_unit, flux_vars);
-        j_PAN ~ j_mean_PAN(T / T_unit, flux_vars);
-        j_O3 ~ j_mean_O3(T / T_unit, flux_vars);
-        j_NO3b ~ j_mean_NO3b(T / T_unit, flux_vars);
-        j_NO3a ~ j_mean_NO3a(T / T_unit, flux_vars);
-        j_N2O5 ~ j_mean_N2O5(T / T_unit, flux_vars);
-        j_H2O2 ~ j_mean_H2O2(T / T_unit, flux_vars);
-        j_H2COa ~ j_mean_H2COa(T / T_unit, flux_vars);
-        j_H2COb ~ j_mean_H2COb(T / T_unit, flux_vars);
-        j_O31D ~ j_mean_O31D(T / T_unit, flux_vars);
-        j_o32OH ~ j_O31D * j_o31D_adj.j_O31D_adj;
-        j_CH3OOH ~ j_mean_CH3OOH(T / T_unit, flux_vars);
-        j_NO2 ~ j_mean_NO2(T / T_unit, flux_vars)
+        j_o32OH ~ jvars[iO31D] * j_o31D_adj.j_O31D_adj;
+        jeqs...
     ]
 
     fjx = System(
         eqs,
         t,
-        [j_H2O2, j_H2COa, j_H2COb, j_o32OH, j_O31D, j_CH3OOH, j_NO2, j_O3, j_NO3b, j_NO3a, j_N2O5, j_ActAld, j_PAN, cosSZA, flux_vars...],
-        [lat, long, T, P, H2O, t_ref, c_flux, T_unit, P_unit];
+        [cosSZA; j_o32OH; jvars; flux_vars],
+        [params; consts; c_flux];
         name = name,
-        metadata = Dict(CoupleType => FastJXCoupler),
+        metadata = isnothing(domaininfo) ? Dict(CoupleType => FastJXCoupler) :
+            Dict(CoupleType => FastJXCoupler, SysDomainInfo => domaininfo),
         systems = [j_o31D_adj]
     )
     return flatten(fjx) # Need to do flatten because otherwise coupling doesn't work correctly
@@ -158,3 +259,5 @@ end
 function FastJX_interpolation_troposphere(t_ref::DateTime; kwargs...)
     return FastJX_interpolation_troposphere(datetime2unix(t_ref); kwargs...)
 end
+FastJX_interpolation_troposphere(domain::DomainInfo; kwargs...) =
+    FastJX_interpolation_troposphere(get_tref(domain); domaininfo = domain, kwargs...)
