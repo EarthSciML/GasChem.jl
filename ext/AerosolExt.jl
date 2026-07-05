@@ -432,6 +432,13 @@ function _iso_ternary(TSO4, TNH, TNO3, T, RH; nouter = 40, nbisect = 30, tol = 1
         W_w = W_new
         converged && break
     end
+    # Anion cap (electroneutrality of the CONDENSED phase, GEOS-Chem convention):
+    # aerosol ammonium is the sulfate/nitrate-BOUND NH4; NH4+ balanced only by
+    # aqueous OH- (dissolved ammonia) is not aerosol and stays in the gas budget.
+    # Without this cap the ZSR water <-> NH4 feedback admits a spurious NH4OH-rich
+    # root in NH3-rich / anion-poor cells (observed: 83 ppb NH4 over < 9 ppb of
+    # available anion charge in the CONUS A/B run).
+    c_NH4 = min(c_NH4, 2 * c_SO4 + c_HSO4 + c_NO3)
     g_HNO3 = TNO3 - c_NO3
     g_NH3 = TNH - c_NH4
     ok = isfinite(g_HNO3) && isfinite(g_NH3)
