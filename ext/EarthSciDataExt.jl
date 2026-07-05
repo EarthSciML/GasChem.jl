@@ -99,6 +99,25 @@ function EarthSciMLBase.couple2(
         [unit = u"kg/mol", description = "Isoprene molar mass"],
         MW_NH3 = 17.031e-3,
         [unit = u"kg/mol", description = "Ammonia molar mass"],
+        MW_SULF = 98.079e-3, [unit = u"kg/mol", description = "H2SO4; Sulfuric acid"],
+        MW_C2H4 = 28.054e-3, [unit = u"kg/mol", description = "C2H4; Ethylene"],
+        MW_C2H6 = 30.070e-3, [unit = u"kg/mol", description = "C2H6; Ethane"],
+        MW_C2H2 = 26.038e-3, [unit = u"kg/mol", description = "C2H2; Acetylene"],
+        MW_C3H8 = 44.096e-3, [unit = u"kg/mol", description = "C3H8; Propane"],
+        MW_TOLU = 92.141e-3, [unit = u"kg/mol", description = "C7H8; Toluene"],
+        MW_MOH = 32.042e-3, [unit = u"kg/mol", description = "CH3OH; Methanol"],
+        MW_EOH = 46.069e-3, [unit = u"kg/mol", description = "C2H5OH; Ethanol"],
+        MW_NAP = 128.174e-3, [unit = u"kg/mol", description = "C10H8; Naphthalene"],
+        MW_HNO2 = 47.014e-3, [unit = u"kg/mol", description = "HONO; Nitrous acid"],
+        MW_HCl = 36.461e-3, [unit = u"kg/mol", description = "HCl; Hydrochloric acid"],
+        MW_Cl2 = 70.906e-3, [unit = u"kg/mol", description = "Cl2; Molecular chlorine"],
+        MW_CO2 = 44.010e-3, [unit = u"kg/mol", description = "CO2; Carbon dioxide"],
+        MW_N2O = 44.013e-3, [unit = u"kg/mol", description = "N2O; Nitrous oxide"],
+        MW_XYLE = 106.167e-3, [unit = u"kg/mol", description = "C8H10; Xylene (lumped)"],
+        MW_MTPA = 136.234e-3, [unit = u"kg/mol", description = "C10H16; Monoterpenes"],
+        MW_RCHO = 58.080e-3, [unit = u"kg/mol", description = "C2H5CHO; Propionaldehyde"],
+        MW_PRPE = 42.081e-3, [unit = u"kg/mol", description = "C3H6; Propylene"],
+        MW_MEK = 72.107e-3, [unit = u"kg/mol", description = "C4H8O; Methyl ethyl ketone"],
         MW_Air = 28.97e-3,
         [unit = u"kg/mol", description = "Molar mass of air"],
         nmolpermol = 1.0e9,
@@ -126,11 +145,28 @@ function EarthSciMLBase.couple2(
             c.CH4 => e.CH4 => uconv / MW_CH4,
             c.CO => e.CO => uconv / MW_CO,
             c.SO2 => e.SO2 => uconv / MW_SO2,
-            # SULF is NEI's direct sulfate emission; mapping it into SO2 is a known
-            # mis-mapping kept temporarily so total S is conserved — remapped to SO4
-            # by the geoschem-emis-coupling-completion merge (d8589a86, SULF→SO4).
-            c.SO2 => e.SULF => uconv / MW_SO2,
+            c.SO4 => e.SULF => uconv / MW_SULF,   # direct sulfate emission -> SO4 (d8589a86 fix; was mis-mapped to SO2)
             c.ISOP => e.ISOP => uconv / MW_ISOP,
+            # --- geoschem-emis-coupling-completion (d8589a86): the 16 remaining NEI
+            #     species the upstream coupling dropped ---
+            c.C2H4 => e.ETH => uconv / MW_C2H4,
+            c.C2H6 => e.ETHA => uconv / MW_C2H6,
+            c.C2H2 => e.ETHY => uconv / MW_C2H2,
+            c.C3H8 => e.PRPA => uconv / MW_C3H8,
+            c.TOLU => e.TOL => uconv / MW_TOLU,
+            c.MOH => e.MEOH => uconv / MW_MOH,
+            c.EOH => e.ETOH => uconv / MW_EOH,
+            c.NAP => e.NAPH => uconv / MW_NAP,
+            c.HNO2 => e.HONO => uconv / MW_HNO2,
+            c.HCl => e.HCL => uconv / MW_HCl,
+            c.Cl2 => e.CL2 => uconv / MW_Cl2,
+            c.CO2 => e.CO2_INV => uconv / MW_CO2,
+            c.N2O => e.N2O_INV => uconv / MW_N2O,
+            c.XYLE => e.XYLMN => uconv / MW_XYLE,
+            c.MTPA => e.TERP => uconv / MW_MTPA,
+            c.RCHO => e.ALDX => uconv / MW_RCHO,
+            c.PRPE => e.OLE => uconv / MW_PRPE,
+            c.MEK => e.KET => uconv / MW_MEK,
             # NEI ammonia: the merged grid keeps anthropogenic (livestock/other, `NH3`) and
             # fertilizer (`NH3_FERT`) sectors separate, so sum both into total NH3 — same
             # two-source pattern as SO2+SULF above. NH3 feeds the ISORROPIA aerosol partition
@@ -182,16 +218,39 @@ function EarthSciMLBase.couple2(
     )
     c, gfp = c.sys, gfp.sys
 
-    #TODO(CT): Add missing couplings.
-    c = param_to_var(c, :T, :num_density)
+    # Note on P vs SuperFast:
+    # P is defined as @parameter but unused in any reaction rate (num_density
+    # is used instead), so the compiler strips it. Use GEOSFP₊P directly.
+    #
+    # H2O is a constant species (@parameter with isconstantspecies=true, DEFFIX
+    # behavior — gold 0107228a) coupled from GEOSFP meteorology via param_to_var,
+    # same as SuperFast. This drives the explicit O1D + H2O --> 2OH OH source with
+    # real per-cell humidity instead of a frozen boundary-layer constant.
+    # (Ported from geoschem-emis-coupling-completion d8589a86.)
     @constants(
         R = 8.31446261815324,
         [unit = u"m^3*Pa/mol/K", description = "Ideal gas constant"],
+        T_inv = 1,
+        [unit = u"K^-1", description = "Inverse of temperature"],
+        P_inv = 1,
+        [unit = u"Pa^-1", description = "Inverse of pressure"],
+        ppb_unit = 1,
+        [unit = u"ppb"],
     )
+    function water_concentration_ppb(RH, p, T)
+        Tc = T - 273.15
+        es_hPa = 6.112 * exp((17.62 * Tc) / (Tc + 243.12))
+        es = es_hPa * 100.0          # Convert hPa to Pa
+        e = RH * es                  # Actual water vapor partial pressure
+        return (e / p) * 1.0e9       # ppb
+    end
+
+    c = param_to_var(c, :T, :num_density, :H2O)
     return ConnectorSystem(
         [
             c.T ~ gfp.I3₊T,
             c.num_density ~ (gfp.P / R / gfp.I3₊T),
+            c.H2O ~ water_concentration_ppb(gfp.A3dyn₊RH, gfp.P * P_inv, gfp.I3₊T * T_inv) * ppb_unit,
         ], c, gfp
     )
 end
