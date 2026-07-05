@@ -162,6 +162,135 @@ function EarthSciMLBase.couple2(
     )
 end
 
+"""
+    couple2(c::SuperFastCoupler, cc::CloudChemistryFixedpHCoupler)
+
+SuperFast counterpart of the GEOS-Chem ↔ CloudChemistryFixedpH coupling above. The reduced
+SuperFast mechanism carries SO2/SO4/H2O2/O3/HNO3 (SO2/SO4 re-enabled for aerosol coupling),
+so the same in-cloud sulfate driver applies: the aqueous S(IV)+H2O2 oxidation rate `R_H2O2`
+becomes the gas-phase rate constant `k_cld1` of SuperFast's `SO2 + H2O2 -> SO4` reaction.
+"""
+function EarthSciMLBase.couple2(
+        c::GasChem.SuperFastCoupler,
+        cc::Aerosol.CloudChemistryFixedpHCoupler
+    )
+    c, cc = c.sys, cc.sys
+    # NOTE (differs from the GEOS-Chem method above): the SuperFast↔GEOSFP coupling
+    # param_to_var's T *and* P (EarthSciDataExt.jl `param_to_var(c, :T, :P, :H2O)`),
+    # whereas the GEOS-Chem↔GEOSFP coupling leaves P a scalar parameter. So here T and P
+    # must be referenced as the *variable* forms (param_to_var them below) — otherwise the
+    # raw-parameter T/P references collide with the met coupling's T(t)/P(t)
+    # ("duplicate names SuperFast₊T and SuperFast₊T(t)").
+    c = param_to_var(c, :T, :P)
+
+    @constants(
+        inv_ppb = 1.0e-9,
+        [unit = u"1", description = "ppb number -> mole fraction"],
+        ppb_per1 = 1.0e9,
+        [unit = u"ppb", description = "mole fraction -> ppb"],
+        R_gas = 8.31446,
+        [unit = u"m^3*Pa/mol/K", description = "Gas constant"],
+        rho_w_inv = 1.0e-6,
+        [unit = u"m^3/g", description = "Inverse water density (LWC conversion)"],
+        FC = 1.0,
+        [unit = u"1", description = "Cloud fraction (prescribed; use GEOSFP A3cld in a CTM)"],
+        L_cld = 0.3,
+        [unit = u"g/m^3", description = "In-cloud liquid water content (prescribed)"],
+        pH_cld = 4.5,
+        [unit = u"1", description = "Cloud droplet pH (prescribed; H2O2 path is pH-insensitive)"],
+        Fe_cld = 1.0e-9,
+        [unit = u"mol/m^3", description = "Fe(III) (prescribed ~0; H2O2 path unaffected)"],
+        Mn_cld = 1.0e-9,
+        [unit = u"mol/m^3", description = "Mn(II) (prescribed ~0)"],
+        co2_frac = 4.0e-4,
+        [unit = u"1", description = "CO2 mole fraction (~400 ppm)"],
+        floor_c = 1.0e-3,
+        [unit = u"ppb", description = "Denominator guard"],
+    )
+
+    # in-cloud liquid water volume mixing ratio (dimensionless)
+    w_L = rho_w_inv * L_cld
+    # aqueous oxidation rate (mol/m^3/s) -> gas-phase loss rate (ppb/s), per S&P Eq. 7.75
+    Lpp(R) = ppb_per1 * w_L * R_gas * c.T * R / c.P
+
+    c = param_to_var(c, :k_cld1)
+    return ConnectorSystem(
+        [
+            cc.T ~ c.T,
+            cc.pH_input ~ pH_cld,
+            cc.L ~ L_cld,
+            cc.xi_SO2 ~ c.SO2 * inv_ppb,
+            cc.Fe_III ~ Fe_cld,
+            cc.Mn_II ~ Mn_cld,
+            cc.p_SO2 ~ c.SO2 * inv_ppb * c.P,
+            cc.p_H2O2 ~ c.H2O2 * inv_ppb * c.P,
+            cc.p_O3 ~ c.O3 * inv_ppb * c.P,
+            cc.p_HNO3 ~ c.HNO3 * inv_ppb * c.P,
+            cc.p_CO2 ~ co2_frac * c.P,
+            # NH3 partial pressure from the mechanism (the SF-aerosol port carries NH3;
+            # pH_input is prescribed, but feed the real NH3 so the aqueous speciation
+            # sees it rather than a hard-wired zero).
+            cc.p_NH3 ~ c.NH3 * inv_ppb * c.P,
+            c.k_cld1 ~ FC * Lpp(cc.R_H2O2) / ((c.SO2 + floor_c) * (c.H2O2 + floor_c)),
+        ],
+        c, cc
+    )
+end
+
+"""
+    couple2(c::SuperFastCoupler, a::AerosolDistributionCoupler)
+
+SuperFast counterpart of the GEOS-Chem ↔ AerosolDistribution heterogeneous-uptake coupling
+above. Drives SuperFast's `k_het_*` first-order uptake rate constants from the aerosol
+surface-area concentration `a.S_t` (kinetic-limit reactive uptake, k = S_t·c̄·γ/4). SuperFast
+carries N2O5/NO3 (added for this coupling) plus HO2/NO2, so the same four uptake sinks apply.
+"""
+function EarthSciMLBase.couple2(
+        c::GasChem.SuperFastCoupler,
+        a::Aerosol.AerosolDistributionCoupler
+    )
+    c, a = c.sys, a.sys
+
+    @constants(
+        k_B = 1.380649e-23,
+        [unit = u"J/K", description = "Boltzmann constant"],
+        N_A = 6.02214076e23,
+        [unit = u"mol^-1", description = "Avogadro constant"],
+        MW_N2O5 = 0.10801,
+        [unit = u"kg/mol", description = "N2O5 molar mass"],
+        MW_HO2 = 0.03301,
+        [unit = u"kg/mol", description = "HO2 molar mass"],
+        MW_NO2 = 0.046006,
+        [unit = u"kg/mol", description = "NO2 molar mass"],
+        MW_NO3 = 0.062004,
+        [unit = u"kg/mol", description = "NO3 molar mass"],
+        gamma_N2O5 = 0.02,
+        [unit = u"1", description = "N2O5 reactive uptake coefficient (representative)"],
+        gamma_HO2 = 0.2,
+        [unit = u"1", description = "HO2 reactive uptake coefficient (representative, Mao2013)"],
+        gamma_NO2 = 1.0e-4,
+        [unit = u"1", description = "NO2 reactive uptake coefficient (representative)"],
+        gamma_NO3 = 0.01,
+        [unit = u"1", description = "NO3 reactive uptake coefficient (representative)"],
+    )
+
+    # Mean molecular speed (kinetic theory, S&P Eq. 12.24) at the gas-phase temperature.
+    c_bar(MW) = sqrt(8 * k_B * c.T * N_A / (π * MW))
+
+    # param_to_var includes :T because the SuperFast↔GEOSFP coupling makes T a variable (see
+    # the cloud couple2 note); referencing raw-parameter T here would collide with T(t).
+    c = param_to_var(c, :k_het_N2O5, :k_het_HO2, :k_het_NO2, :k_het_NO3, :T)
+    return ConnectorSystem(
+        [
+            c.k_het_N2O5 ~ a.S_t * c_bar(MW_N2O5) * gamma_N2O5 / 4,
+            c.k_het_HO2 ~ a.S_t * c_bar(MW_HO2) * gamma_HO2 / 4,
+            c.k_het_NO2 ~ a.S_t * c_bar(MW_NO2) * gamma_NO2 / 4,
+            c.k_het_NO3 ~ a.S_t * c_bar(MW_NO3) * gamma_NO3 / 4,
+        ],
+        c, a
+    )
+end
+
 # =============================================================================
 # ISORROPIA II operator (GasChem.IsorropiaOp) — operator-split coupling of the
 # GEOS-Chem gas phase to inorganic aerosol thermodynamic equilibrium.
@@ -209,8 +338,11 @@ function _iso_metvar(mtk_sys, name)
     cands[i]
 end
 
-# State species the operator reads from / writes to.
-const _ISO_SPECIES = ("HNO3", "NIT", "NH3", "NH4", "SO4", "H2O")
+# State species the operator reads from / writes to. H2O is NOT among them: it is a
+# met-coupled constant species (isconstantspecies parameter; GEOSFP RH via the
+# SuperFast/GEOSChem↔GEOSFP couple2), read per-cell through the coordinate-observed
+# function alongside T and P — see `get_needed_vars` / the `h2o_const` fallback below.
+const _ISO_SPECIES = ("HNO3", "NIT", "NH3", "NH4", "SO4")
 
 # --- ISORROPIA II thermodynamic constants (van't Hoff, SI; from Aerosol's Table 2) ---
 const _ISO_T0 = 298.15
@@ -235,7 +367,7 @@ Nenes 2007) for given totals [mol m^-3], temperature [K] and relative humidity [
 is not finite. Globally convergent: a bracketed bisection on [H+] (the charge-balance residual
 is monotone in [H+]) wrapped in an activity/water fixed-point.
 """
-function _iso_ternary(TSO4, TNH, TNO3, T, RH; nouter = 40, nbisect = 60, tol = 1.0e-5)
+function _iso_ternary(TSO4, TNH, TNO3, T, RH; nouter = 40, nbisect = 30, tol = 1.0e-5)
     K1 = _iso_vh(_ISO_K1..., T)
     K2 = _iso_vh(_ISO_K21..., T) * _iso_vh(_ISO_K22..., T)
     K4 = _iso_vh(_ISO_K4..., T)
@@ -246,6 +378,7 @@ function _iso_ternary(TSO4, TNH, TNO3, T, RH; nouter = 40, nbisect = 60, tol = 1
     c_SO4 = 0.9TSO4; c_HSO4 = 0.1TSO4; c_NO3 = 0.5TNO3; c_NH4 = 0.9TNH
     W_w = max(Aerosol._iso2_zsr_water(RH, 0.0, c_NH4, c_SO4, c_HSO4, c_NO3, 0.0, 0.0, 0.0, 0.0), 1.0e-15)
     m_H = 1.0e-7
+    first_outer = true
     for _ in 1:nouter
         I_s = max(0.5 * (m_H + c_NH4 / W_w + 4 * c_SO4 / W_w + c_HSO4 / W_w + c_NO3 / W_w + Kw * RH / m_H), 1.0e-12)
         gH2SO4 = _iso_gamma(-0.1, 2, I_s, T); gHHSO4 = _iso_gamma(8.0, 1, I_s, T)
@@ -260,13 +393,28 @@ function _iso_ternary(TSO4, TNH, TNO3, T, RH; nouter = 40, nbisect = 60, tol = 1
             mNH4 = KRT2 * TNH / (mOH * γr + KRT2 * W_w)
             (mH + mNH4) - (2mSO4 + mHSO4 + mNO3 + mOH)
         end
+        # Bisection bracket on log10[H+]. PERF: after the first outer iteration [H+]
+        # moves little between activity/water updates, so try a warm ±1.5-decade
+        # bracket around the previous root before falling back to the full range —
+        # this cuts the bisection count ~3x at identical precision. nbisect=30 keeps
+        # ~17/2^30 ≈ 2e-8-decade resolution on the full range (tol is 1e-5; result
+        # changes are <1e-6 relative vs the previous nbisect=60 — verified).
         lo, hi = -14.0, 3.0
+        if !first_outer
+            wlo = log10(m_H) - 1.5
+            whi = log10(m_H) + 1.5
+            if wlo > lo && whi < hi && resid(10.0^wlo) < 0 && resid(10.0^whi) >= 0
+                lo, hi = wlo, whi
+            end
+        end
+        first_outer = false
         if resid(10.0^lo) * resid(10.0^hi) > 0
             m_H = resid(10.0^lo) < 0 ? 10.0^hi : 10.0^lo
         else
             for _ in 1:nbisect
                 mid = 0.5 * (lo + hi)
                 resid(10.0^mid) < 0 ? (lo = mid) : (hi = mid)
+                hi - lo < 1.0e-7 && break   # ~2.3e-7 relative on [H+]: beyond tol needs
             end
             m_H = 10.0^(0.5 * (lo + hi))
         end
@@ -288,10 +436,25 @@ function _iso_ternary(TSO4, TNH, TNO3, T, RH; nouter = 40, nbisect = 60, tol = 1
     return (ok, g_HNO3, g_NH3)
 end
 
+# H2O among the OBSERVED equations only (`build_coord_observed_function` cannot read
+# unknowns): in a full CTM the met coupling (param_to_var + `c.H2O ~ RH-driven`) makes
+# H2O an observed variable — the preferred read path. Returns `nothing` when absent.
+function _iso_observed_or_nothing(mtk_sys, name)
+    obs = [eq.lhs for eq in observed(mtk_sys)]
+    i = findfirst(v -> endswith(_iso_name(v), "₊" * name), obs)
+    i === nothing ? nothing : obs[i]
+end
+
 function EarthSciMLBase.get_needed_vars(::GasChem.IsorropiaOp, csys, mtk_sys, domain::DomainInfo)
-    # T and P are read per-cell through the coordinate-observed function; species are state
-    # variables read directly from the state vector by index.
-    [_iso_metvar(mtk_sys, "T"), _iso_metvar(mtk_sys, "P")]
+    # T, P (and H2O when met-coupled/observed) are read per-cell through the
+    # coordinate-observed function; species are state variables read by index.
+    # H2O read priority (resolved in `get_odefunction`): observed (met-coupled CTM)
+    # → state index (mechanisms carrying H2O as a dynamic species) → isconstantspecies
+    # parameter default (standalone, no met).
+    vars = [_iso_metvar(mtk_sys, "T"), _iso_metvar(mtk_sys, "P")]
+    h2o = _iso_observed_or_nothing(mtk_sys, "H2O")
+    h2o === nothing || push!(vars, h2o)
+    vars
 end
 
 function EarthSciMLBase.get_odefunction(
@@ -301,28 +464,80 @@ function EarthSciMLBase.get_odefunction(
     ncell = prod(sz)
     nrows = length(unknowns(mtk_sys))
 
-    # Per-cell temperature and pressure via the coordinate-observed function.
-    obs_f = EarthSciMLBase.build_coord_observed_function(
-        mtk_sys, coord_args, EarthSciMLBase.get_needed_vars(op, csys, mtk_sys, domain))
+    # Per-cell temperature, pressure (and, when met-coupled, H2O) via the
+    # coordinate-observed function.
+    needed = EarthSciMLBase.get_needed_vars(op, csys, mtk_sys, domain)
+    has_h2o_obs = length(needed) == 3
+    obs_f = EarthSciMLBase.build_coord_observed_function(mtk_sys, coord_args, needed)
     c1, c2, c3 = EarthSciMLBase.concrete_grid(domain)
-    obscache = similar(domain.u_proto, 2)
+    # One observed-cache per thread: the cell loop below is `Threads.@threads :static`
+    # (cells write disjoint du rows, `_iso_ternary` is a pure function, and :static
+    # scheduling pins iterations to threads so threadid-indexed caches are safe).
+    # Size by `maxthreadid()` (≥ nthreads(); includes interactive/GC threads that a
+    # loop iteration may legitimately report via threadid()).
+    obscaches = [similar(domain.u_proto, length(needed)) for _ in 1:Threads.maxthreadid()]
 
     # State-vector rows for the species we read/repartition.
     syms = EarthSciMLBase.var2symbol.(unknowns(mtk_sys))
     ix = Dict(n => _iso_find(syms, n) for n in _ISO_SPECIES)
 
+    # H2O read fallbacks when it is not observed/met-coupled: a dynamic H2O state
+    # (mechanisms that carry H2O as a species), else the isconstantspecies parameter
+    # default (standalone SuperFast/GEOSChem without met coupling).
+    ix_h2o = has_h2o_obs ? nothing :
+             findfirst(s -> endswith(string(s), "₊H2O"), syms)
+    h2o_const = if has_h2o_obs || ix_h2o !== nothing
+        0.0
+    else
+        ps = ModelingToolkit.parameters(mtk_sys)
+        ip = findfirst(p_ -> endswith(_iso_name(p_), "₊H2O"), ps)
+        ip === nothing && error(
+            "IsorropiaOp: H2O not found among observed variables, state unknowns, or " *
+            "parameters — the mechanism must carry H2O (met-coupled, as a species, or as " *
+            "an isconstantspecies parameter)")
+        Float64(ModelingToolkit.getdefault(ps[ip]))
+    end
+
+    # Non-convergence diagnostics: cells where `_iso_ternary` returned ok=false get a zero
+    # tendency (correct/conservative), but a persistently high count signals a regime the
+    # solve mishandles — surfaced once per simulated hour so CTM logs show it.
+    noconv = Threads.Atomic{Int}(0)
+    ncalls = Threads.Atomic{Int}(0)
+    next_report = Ref(-Inf)
+
     function run(du, u, p, t)
         u = reshape(u, nrows, sz...)
         du = reshape(du, nrows, sz...)
-        for j in 1:ncell
-            obs_f(obscache, view(u, :, II[j]), p, t, c1[j], c2[j], c3[j])
-            T, P = obscache
+        if t >= next_report[]
+            if noconv[] > 0
+                @info "IsorropiaOp: $(noconv[]) non-converged cell-solves of $(ncalls[]) since last report" t
+            end
+            Threads.atomic_xchg!(noconv, 0)
+            Threads.atomic_xchg!(ncalls, 0)
+            next_report[] = t + 3600.0
+        end
+        Threads.@threads :static for j in 1:ncell
+            obscache = obscaches[Threads.threadid()]
             HNO3 = u[ix["HNO3"], II[j]]
             NIT = u[ix["NIT"], II[j]]
             NH3 = u[ix["NH3"], II[j]]
             NH4 = u[ix["NH4"], II[j]]
             SO4 = u[ix["SO4"], II[j]]
-            H2O = u[ix["H2O"], II[j]]
+            # Skip gate: with essentially no inorganic N mass to repartition (< 1e-4 ppb
+            # combined), the equilibrium tendency is numerically 0 — skip the expensive
+            # ternary solve (clean-air columns are the common case aloft).
+            if NH3 + NH4 + HNO3 + NIT < 1.0e-4
+                du[ix["HNO3"], II[j]] = 0.0
+                du[ix["NIT"], II[j]] = 0.0
+                du[ix["NH3"], II[j]] = 0.0
+                du[ix["NH4"], II[j]] = 0.0
+                continue
+            end
+            obs_f(obscache, view(u, :, II[j]), p, t, c1[j], c2[j], c3[j])
+            T = obscache[1]
+            P = obscache[2]
+            H2O = has_h2o_obs ? obscache[3] :
+                  (ix_h2o !== nothing ? u[ix_h2o, II[j]] : h2o_const)
             ppb2m = 1.0e-9 * P / (_ISO_RG * T)            # ppb -> mol m^-3
             RH = clamp(H2O * 1.0e-9 * P / _iso_esat(T), 0.01, 0.99)
             ok, gHNO3, gNH3 = _iso_ternary(
@@ -339,11 +554,13 @@ function EarthSciMLBase.get_odefunction(
                 du[ix["NH3"], II[j]] = dNH3
                 du[ix["NH4"], II[j]] = -dNH3
             else
+                Threads.atomic_add!(noconv, 1)
                 du[ix["HNO3"], II[j]] = 0.0
                 du[ix["NIT"], II[j]] = 0.0
                 du[ix["NH3"], II[j]] = 0.0
                 du[ix["NH4"], II[j]] = 0.0
             end
+            Threads.atomic_add!(ncalls, 1)
         end
         return reshape(du, :)
     end

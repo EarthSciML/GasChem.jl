@@ -44,6 +44,21 @@
                 P ~ 101325.0 - 100.0 * lev],
             t; name)
     end
+    # Host with H2O as a met-like OBSERVED variable (the full-CTM configuration after the
+    # SuperFast/GEOSChem↔GEOSFP couple2 param_to_var's H2O and drives it from RH): H2O varies
+    # per cell with lat, so the op's observed read path — and its per-cell RH sensitivity —
+    # is exercised, guarding against a stuck/constant H2O regression.
+    function InorgGasHostMetH2O(; name = :gas)
+        @variables(HNO3(t)=1.0, NIT(t)=0.22, NH3(t)=7.0, NH4(t)=0.34, SO4(t)=2.45,
+            H2O(t), T(t), P(t))
+        @parameters lon=0.0 lat=0.0 lev=1.0
+        System(
+            [D(HNO3) ~ 0.0, D(NIT) ~ 0.0, D(NH3) ~ 0.0, D(NH4) ~ 0.0, D(SO4) ~ 0.0,
+                H2O ~ 2.48e7 * (1.0 + 0.3 * lat) + 1.0e-30 * lon,  # per-cell met-like H2O (RH varies with lat)
+                T ~ 298.0 + 0.0 * lat,
+                P ~ 101325.0 - 100.0 * lev],
+            t; name)
+    end
     function small_domain()
         @parameters lon lat lev
         indep = t ∈ Interval(0.0, 3600.0)
@@ -63,10 +78,17 @@ end
 
 @testitem "ISORROPIA op: GEOS-Chem exposes the required species" begin
     using GasChem, ModelingToolkit
-    us = string.(unknowns(convert(System, GEOSChemGasPhase())))
-    for n in ("HNO3", "NIT", "NH3", "NH4", "SO4", "H2O")
+    sys = convert(System, GEOSChemGasPhase())
+    us = string.(unknowns(sys))
+    # The five repartitioned species must be state variables.
+    for n in ("HNO3", "NIT", "NH3", "NH4", "SO4")
         @test "$n(t)" in us
     end
+    # H2O is read via the op's tri-level fallback (observed → state → constant parameter),
+    # so it may be a dynamic species (pre-DEFFIX GC) or an isconstantspecies parameter
+    # (DEFFIX / SuperFast) — either must be present.
+    pnames = string.(ModelingToolkit.parameters(sys))
+    @test "H2O(t)" in us || any(p -> p == "H2O" || endswith(p, "₊H2O"), pnames)
 end
 
 @testitem "ISORROPIA op: runs, conserves totals, partitions correctly" setup = [IsorropiaOpSetup] begin
@@ -145,4 +167,40 @@ end
     kmt = 1 / 300   # matches the IsorropiaOp() default k_mt
     @test -1.0e-6 <= 0.5 + duM[row("HNO3"), mid...] / kmt <= 1.5 + 1.0e-3    # total NO3 = 1.5 ppb
     @test -1.0e-6 <= 1.0 + duM[row("NH3"), mid...] / kmt <= 1.5 + 1.0e-3     # total NHx = 1.5 ppb
+end
+
+@testitem "ISORROPIA op: reads met-coupled (observed) H2O per cell" setup = [IsorropiaOpSetup] begin
+    domain = small_domain()
+    csys = couple(InorgGasHostMetH2O(), IsorropiaOp(), domain)
+    mtk = convert(System, csys)
+    sc, ca = EarthSciMLBase._prepare_coord_sys(mtk, domain)
+
+    # H2O must be OBSERVED here (met-coupled configuration), not a state unknown —
+    # this exercises the op's preferred observed read path.
+    @test !any(s -> endswith(string(s), "₊H2O"),
+        EarthSciMLBase.var2symbol.(unknowns(sc)))
+
+    pp = EarthSciMLBase.default_params(sc)
+    u = EarthSciMLBase.init_u(sc, domain)
+    opf = EarthSciMLBase.nonstiff_ops(csys, sc, ca, domain, reshape(u, :), pp, MapBroadcast())
+    du = zero(reshape(u, :))
+    opf(du, reshape(u, :), pp, 0.0)
+    duM = reshape(du, length(unknowns(sc)), size(domain)...)
+    sy = EarthSciMLBase.var2symbol.(unknowns(sc))
+    row(n) = findfirst(s -> endswith(string(s), "₊" * n), sy)
+
+    # Conservation in every cell, as always.
+    for I in CartesianIndices(size(domain))
+        @test duM[row("HNO3"), I] + duM[row("NIT"), I] ≈ 0 atol = 1.0e-12
+        @test duM[row("NH3"), I] + duM[row("NH4"), I] ≈ 0 atol = 1.0e-12
+        @test duM[row("SO4"), I] == 0
+    end
+
+    # RH sensitivity: H2O (hence RH) varies with lat, so the equilibrium partitioning must
+    # differ between the dry (lat=-1, H2O≈1.74e7) and humid (lat=+1, H2O≈3.22e7) rows.
+    # A stuck/constant H2O read (the regression this guards) would make them identical.
+    dry = (2, 1, 1)     # (lon, lat, lev) grid indices: lat=-1
+    hum = (2, 3, 1)     # lat=+1
+    @test duM[row("HNO3"), dry...] != duM[row("HNO3"), hum...]
+    @test abs(duM[row("HNO3"), dry...]) + abs(duM[row("HNO3"), hum...]) > 0
 end

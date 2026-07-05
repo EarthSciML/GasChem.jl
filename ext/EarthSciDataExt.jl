@@ -32,6 +32,10 @@ function EarthSciMLBase.couple2(
         [unit = u"kg/mol", description = "Carbon monoxide molar mass"],
         MW_SO2 = 64.0638e-3,
         [unit = u"kg/mol", description = "Sulfur dioxide molar mass"],
+        MW_SULF = 98.079e-3,
+        [unit = u"kg/mol", description = "Sulfuric acid (NEI SULF sulfate emission) molar mass"],
+        MW_NH3 = 17.031e-3,
+        [unit = u"kg/mol", description = "Ammonia molar mass"],
         MW_ISOP = 68.12e-3,
         [unit = u"kg/mol", description = "Isoprene molar mass"],
         MW_Air = 28.97e-3,
@@ -41,18 +45,28 @@ function EarthSciMLBase.couple2(
     )
 
     # Emissions are in units of "kg/kg air/s" and need to be converted to "ppb/s" or "nmol/mol/s".
+    # NOTE: the translate table is a VECTOR of pairs, not a Dict — `c.NH3` appears twice
+    # (NH3 + NH3_FERT sectors) and a Dict would silently keep only the last entry
+    # (`operator_compose`'s `normalize_translate(::AbstractVector)` + `findall` handle
+    # duplicate left-hand species natively).
     uconv = nmolpermol * MW_Air # Conversion factor with MW factored out.
     return operator_compose(
         convert(System, c),
         e,
-        Dict(
+        [
             c.NO2 => e.NO2 => uconv / MW_NO2,
             c.NO => e.NO => uconv / MW_NO,
             c.CH2O => e.FORM => uconv / MW_FORM,
             #c.CH4 => e.CH4 => uconv / MW_CH4, # CH4 is currently a constant in SuperFast.
             c.CO => e.CO => uconv / MW_CO,
-            c.ISOP => e.ISOP => uconv / MW_ISOP
-        )
+            c.ISOP => e.ISOP => uconv / MW_ISOP,
+            # SF-aerosol port: SO2 (gas) + SULF (direct sulfate) + NH3 (livestock/other +
+            # fertilizer sectors) feed the het/cloud/ISORROPIA components.
+            c.SO2 => e.SO2 => uconv / MW_SO2,
+            c.SO4 => e.SULF => uconv / MW_SULF,
+            c.NH3 => e.NH3 => uconv / MW_NH3,
+            c.NH3 => e.NH3_FERT => uconv / MW_NH3
+        ]
     )
 end
 
@@ -94,10 +108,15 @@ function EarthSciMLBase.couple2(
     # Emissions are in units of "kg/kg_air/s" and need to be converted to "ppb/s" or "nmol/mol/s".
     uconv = nmolpermol * MW_Air
     #TODO(CT): Add missing couplings.
+    # NOTE: the translate table is a VECTOR of pairs, not a Dict. With a Dict, the duplicate
+    # left-hand species below (c.SO2 ×2, c.NH3 ×2) silently collapsed last-wins — dropping
+    # the e.SO2 gas emission (~98% of NEI sulfur) and the livestock e.NH3 sector entirely.
+    # `operator_compose` handles duplicate left-hand entries natively for vectors
+    # (`normalize_translate(::AbstractVector)` + `findall`).
     return operator_compose(
         convert(System, c),
         e,
-        Dict(
+        [
             c.ACET => e.ACET => uconv / MW_ACET,
             c.ALD2 => e.ALD2 => uconv / MW_ALD2,
             c.BENZ => e.BENZ => uconv / MW_BENZ,
@@ -107,6 +126,9 @@ function EarthSciMLBase.couple2(
             c.CH4 => e.CH4 => uconv / MW_CH4,
             c.CO => e.CO => uconv / MW_CO,
             c.SO2 => e.SO2 => uconv / MW_SO2,
+            # SULF is NEI's direct sulfate emission; mapping it into SO2 is a known
+            # mis-mapping kept temporarily so total S is conserved — remapped to SO4
+            # by the geoschem-emis-coupling-completion merge (d8589a86, SULF→SO4).
             c.SO2 => e.SULF => uconv / MW_SO2,
             c.ISOP => e.ISOP => uconv / MW_ISOP,
             # NEI ammonia: the merged grid keeps anthropogenic (livestock/other, `NH3`) and
@@ -116,7 +138,7 @@ function EarthSciMLBase.couple2(
             # NH3_FERT term to avoid double-counting.)
             c.NH3 => e.NH3 => uconv / MW_NH3,
             c.NH3 => e.NH3_FERT => uconv / MW_NH3
-        )
+        ]
     )
 end
 
@@ -138,6 +160,10 @@ function EarthSciMLBase.couple2(c::GasChem.SuperFastCoupler, g::EarthSciData.GEO
         return (e / p) * 1.0e9       # ppb
     end
 
+    # H2O is met-coupled (gold design): an isconstantspecies parameter param_to_var'd here
+    # and driven from GEOSFP RH. IsorropiaOp reads it per-cell through its
+    # coordinate-observed function (AerosolExt.jl), so it does NOT need H2O in the state
+    # vector — the observed `c.H2O ~ ...` equation is exactly what it consumes.
     c = param_to_var(c, :T, :P, :H2O)
     return ConnectorSystem(
         [
