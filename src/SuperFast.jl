@@ -259,6 +259,8 @@ function SuperFast(; name = :SuperFast, rxn_sys = false)
             # Heterogeneous / in-cloud rate constants — default 0 (inert) unless set by an
             # Aerosol module coupling (param_to_var'd in the couple2). SF-aerosol extension.
             k_cld1 = 0.0, [unit = u"(s*ppb)^-1", description = "in-cloud SO2+H2O2->SO4 rate (from CloudChemistryFixedpH coupling)"]
+            LWC_cld = 4.5e-5, [unit = u"kg/m^3", description = "grid-mean liquid water content (met-coupled from GEOSFP A3cld QL x rho_air; default 4.5e-5 kg/m3 = prior interim FC*L equivalent). SI-canonical unit (DynamicQuantities scale matching); used in the cloud-reaction rate so the compiler retains it."]
+            inv_LWC_ref = 22222.22, [unit = u"m^3/kg", description = "1/(4.5e-5 kg/m^3): normalizes LWC_cld so the default reproduces the prior prescribed-cloud rate"]
             # Heterogeneous uptake first-order rate constants (from the AerosolDistribution coupling,
             # k = S_t * c_bar * gamma / 4). Default 0 => inert in bare SuperFast.
             k_het_N2O5 = 0.0, [unit = u"s^-1", description = "N2O5 hydrolysis uptake (-> 2 HNO3)"]
@@ -278,12 +280,12 @@ function SuperFast(; name = :SuperFast, rxn_sys = false)
             CO(t) = 100, [unit = u"ppb"]
             CH3OOH(t) = 4.0e-6, [unit = u"ppb"]
             #DMS(t) = 50.0, [unit = u"ppb"]
-            SO2(t) = 2.0, [unit = u"ppb"]              # SO2 gas; clean-background IC for aerosol/sulfur coupling
+            SO2(t) = 0.05, [unit = u"ppb"]             # SO2 gas; clean-background IC for aerosol/sulfur coupling
             SO4(t) = 0.0, [unit = u"ppb"]              # aerosol sulfate (in-cloud SO2 oxidation product + ISORROPIA)
             ISOP(t) = 1.0e-11, [unit = u"ppb"]
             H2O2(t) = 4.0e-6, [unit = u"ppb"]
             HNO3(t) = 4.0e-6, [unit = u"ppb"]
-            NH3(t) = 1.0, [unit = u"ppb"]              # ammonia (ISORROPIA inorganic aerosol thermodynamics)
+            NH3(t) = 0.1, [unit = u"ppb"]              # ammonia; clean-background IC (ISORROPIA inorganic aerosol thermodynamics)
             NH4(t) = 0.0, [unit = u"ppb"]              # aerosol ammonium (ISORROPIA partitions NH3<->NH4)
             NIT(t) = 0.0, [unit = u"ppb"]              # aerosol nitrate (ISORROPIA partitions HNO3<->NIT)
             N2O5(t) = 0.0, [unit = u"ppb"]             # dinitrogen pentoxide (heterogeneous hydrolysis -> 2 HNO3)
@@ -317,7 +319,7 @@ function SuperFast(; name = :SuperFast, rxn_sys = false)
         # In-cloud sulfate: aqueous S(IV) + H2O2 -> S(VI). Rate constant k_cld1 is supplied by
         # the CloudChemistryFixedpH coupling (aqueous R_H2O2 -> gas-phase loss frequency); it is
         # 0 when that module is not coupled, so this reaction is inert in bare SuperFast.
-        k_cld1, SO2 + H2O2 --> SO4
+        k_cld1 * LWC_cld * inv_LWC_ref, SO2 + H2O2 --> SO4
 
         # Heterogeneous uptake on aerosol surfaces. First-order rate constants k_het_* are supplied
         # by the AerosolDistribution coupling (0 when uncoupled, so inert in bare SuperFast).
