@@ -1082,6 +1082,10 @@ function GEOSChemGasPhase(; name = :GEOSChemGasPhase, rxn_sys = false)
             [unit = u"ppb^-1*s^-1", description = "Seasalt rate constant"],
             k_cld1 = 0,
             [unit = u"ppb^-1*s^-1", description = "Cloud rate constant"],
+            LWC_cld = 4.5e-5,
+            [unit = u"kg/m^3", description = "grid-mean LWC (met-coupled from GEOSFP A3cld QL x rho_air; default 4.5e-5 kg/m3 = prior FC*L equivalent). SI-canonical unit; in the cloud-reaction rate so the compiler retains it."],
+            inv_LWC_ref = 22222.22,
+            [unit = u"m^3/kg", description = "1/(4.5e-5 kg/m^3) normalization for LWC_cld"],
             k_cld2 = 0,
             [unit = u"ppb^-1*s^-1", description = "Cloud rate constant"],
             k_cld3 = 0,
@@ -1439,7 +1443,7 @@ function GEOSChemGasPhase(; name = :GEOSChemGasPhase, rxn_sys = false)
         #
         # Cloud
         # S(IV) --> S(VI)
-        k_cld1, SO2 + H2O2 --> SO4
+        k_cld1 * LWC_cld * inv_LWC_ref, SO2 + H2O2 --> SO4
         k_cld2, SO2 + O3 --> SO4
         k_cld3, SO2 --> SO4 #==Mn & Fe catalysis + HET_DROP_CHEM()==#
         #

@@ -200,12 +200,23 @@ function EarthSciMLBase.couple2(c::GasChem.SuperFastCoupler, g::EarthSciData.GEO
     # and driven from GEOSFP RH. IsorropiaOp reads it per-cell through its
     # coordinate-observed function (AerosolExt.jl), so it does NOT need H2O in the state
     # vector — the observed `c.H2O ~ ...` equation is exactly what it consumes.
-    c = param_to_var(c, :T, :P, :H2O)
+    @constants(
+        MWair = 0.028964,
+        [unit = u"kg/mol", description = "Molar mass of air"],
+        R_lwc = 8.31446261815324,
+        [unit = u"m^3*Pa/mol/K", description = "Ideal gas constant (LWC conversion)"],
+    )
+    c = param_to_var(c, :T, :P, :H2O, :LWC_cld)
     return ConnectorSystem(
         [
             c.T ~ g.I3₊T,
             c.P ~ g.P,
             c.H2O ~ water_concentration_ppb(g.A3dyn₊RH, g.P * P_inv, g.I3₊T * T_inv) * ppb_unit,
+            # cloud gating (science audit): grid-mean LWC from met scales the in-cloud
+            # SO2+H2O2 rate (the mechanism multiplies k_cld1 by LWC_cld/LWC_ref).
+            # QL [kg/kg] x rho_air [g/m^3] = grid-mean LWC [g/m^3]; QL~0 in ice/no-cloud
+            # cells gates the channel off (implicit temperature cutoff).
+            c.LWC_cld ~ g.A3cld₊QL * g.P * MWair / (R_lwc * g.I3₊T),
         ],
         c,
         g
@@ -245,12 +256,18 @@ function EarthSciMLBase.couple2(
         return (e / p) * 1.0e9       # ppb
     end
 
-    c = param_to_var(c, :T, :num_density, :H2O)
+    @constants(
+        MWair = 0.028964,
+        [unit = u"kg/mol", description = "Molar mass of air"],
+    )
+    c = param_to_var(c, :T, :num_density, :H2O, :LWC_cld)
     return ConnectorSystem(
         [
             c.T ~ gfp.I3₊T,
             c.num_density ~ (gfp.P / R / gfp.I3₊T),
             c.H2O ~ water_concentration_ppb(gfp.A3dyn₊RH, gfp.P * P_inv, gfp.I3₊T * T_inv) * ppb_unit,
+            # cloud gating (science audit): see SuperFast coupling note above.
+            c.LWC_cld ~ gfp.A3cld₊QL * gfp.P * MWair / (R * gfp.I3₊T),
         ], c, gfp
     )
 end
