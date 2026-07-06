@@ -349,4 +349,65 @@ function EarthSciMLBase.couple2(
     )
 end
 
+
+# ============================================================================
+# NEI 2016 INLINE elevated point-source emissions (EarthSciData#211): EGU power
+# plants etc. that the 2-D surface merge excludes. The inline emission variables
+# are already in mixing-ratio rate (kg/kg/s) after the loader's per-layer flux
+# normalization, so the mole->ppb conversion is the SAME uconv/MW as the surface
+# NEI coupling. Only the (elevated) vertical placement differs, and that lives
+# entirely inside the emissions System's wrapper. ptegu carries SO2/NO/NO2/CO/NH3
+# as moles/s (the default coupled set); VOC/PM extensions go through `species`.
+# ============================================================================
+function _inline_emis_constants()
+    @constants(
+        MW_SO2 = 64.0638e-3, [unit = u"kg/mol", description = "SO2 molar mass"],
+        MW_NO = 30.006e-3, [unit = u"kg/mol", description = "NO molar mass"],
+        MW_NO2 = 46.0055e-3, [unit = u"kg/mol", description = "NO2 molar mass"],
+        MW_CO = 28.0101e-3, [unit = u"kg/mol", description = "CO molar mass"],
+        MW_NH3 = 17.031e-3, [unit = u"kg/mol", description = "NH3 molar mass"],
+        MW_Air = 28.97e-3, [unit = u"kg/mol", description = "Molar mass of air"],
+        nmolpermol = 1.0e9, [unit = u"ppb", description = "nmol/mol conversion"],
+    )
+    return (; MW_SO2, MW_NO, MW_NO2, MW_CO, MW_NH3, MW_Air, nmolpermol)
+end
+
+function EarthSciMLBase.couple2(
+        c::GasChem.SuperFastCoupler,
+        e::EarthSciData.NEI2016InlineEmisCoupler
+    )
+    c, e = c.sys, e.sys
+    k = _inline_emis_constants()
+    uconv = k.nmolpermol * k.MW_Air
+    return operator_compose(
+        convert(System, c), e,
+        [
+            c.SO2 => e.SO2 => uconv / k.MW_SO2,
+            c.NO => e.NO => uconv / k.MW_NO,
+            c.NO2 => e.NO2 => uconv / k.MW_NO2,
+            c.CO => e.CO => uconv / k.MW_CO,
+            c.NH3 => e.NH3 => uconv / k.MW_NH3,
+        ]
+    )
+end
+
+function EarthSciMLBase.couple2(
+        c::GasChem.GEOSChemGasPhaseCoupler,
+        e::EarthSciData.NEI2016InlineEmisCoupler
+    )
+    c, e = c.sys, e.sys
+    k = _inline_emis_constants()
+    uconv = k.nmolpermol * k.MW_Air
+    return operator_compose(
+        convert(System, c), e,
+        [
+            c.SO2 => e.SO2 => uconv / k.MW_SO2,
+            c.NO => e.NO => uconv / k.MW_NO,
+            c.NO2 => e.NO2 => uconv / k.MW_NO2,
+            c.CO => e.CO => uconv / k.MW_CO,
+            c.NH3 => e.NH3 => uconv / k.MW_NH3,
+        ]
+    )
+end
+
 end
