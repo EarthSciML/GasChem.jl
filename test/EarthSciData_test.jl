@@ -117,3 +117,25 @@ end
     obs = string.([e.lhs for e in ModelingToolkit.observed(csys)])
     @test any(o -> endswith(o, "₊H2O(t)"), obs)
 end
+
+
+@testitem "GEOS-Chem<->NEI: SULF->SO4 and gas SO2 restored" begin
+    using EarthSciMLBase, EarthSciData, Dates, ModelingToolkit
+    using EarthSciMLBase: DomainInfo
+    t0 = DateTime(2016, 3, 10)
+    dom = DomainInfo(t0, t0 + Hour(3) + Hour(36);
+        lonrange = deg2rad(-88):deg2rad(0.625):deg2rad(-86),
+        latrange = deg2rad(32):deg2rad(0.5):deg2rad(33.5),
+        levrange = 1:2, u_proto = zeros(Float64, 1, 1, 1, 1))
+    gfp = EarthSciData.GEOSFP("0.25x0.3125", dom)
+    nei = EarthSciData.NEI2016MonthlyEmis("mrggrid_withbeis_withrwc", dom)
+    csys = convert(System, couple(dom, GEOSChemGasPhase(), nei, gfp))
+    eqs = ModelingToolkit.equations(csys)
+    isdiff(e, sp) = occursin("Differential", string(e.lhs)) &&
+                    occursin(Regex("GEOSChemGasPhase.$(sp)\\("), string(e.lhs))
+    so2eq = string(only(filter(e -> isdiff(e, "SO2"), eqs)))
+    so4eq = string(only(filter(e -> isdiff(e, "SO4"), eqs)))
+    @test occursin("SO2", so2eq)                     # gas SO2 emission arrives
+    @test occursin("SULF", so4eq)                    # direct sulfate -> SO4 ...
+    @test !occursin("SULF", so2eq)                   # ... and NOT mis-mapped into SO2
+end
