@@ -17,7 +17,7 @@
     )
 
     sys = convert(System, model_3way)
-    @test length(unknowns(sys)) ≈ 12
+    @test length(unknowns(sys)) ≈ 19
 
     eqs = string(equations(sys))
     # Check that formaldehyde (CH2O) equation includes NEI2016 emissions term
@@ -45,7 +45,7 @@ end
 
     sys = convert(System, model_3way)
 
-    @test length(unknowns(sys)) ≈ 12
+    @test length(unknowns(sys)) ≈ 19
 
     eqs = string(observed(sys))
     # Check that expected couplings exist using lenient patterns

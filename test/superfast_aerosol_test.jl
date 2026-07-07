@@ -3,7 +3,7 @@
 # (CloudChemistryFixedpH, AerosolDistribution) mirroring the GEOS-Chem templates.
 
 @testsnippet SFAeroSetup begin
-    using GasChem, Aerosol, EarthSciMLBase, ModelingToolkit, OrdinaryDiffEq
+    using GasChem, Aerosol, EarthSciMLBase, ModelingToolkit, OrdinaryDiffEqRosenbrock
     using ModelingToolkit: t_nounits as t, D_nounits as D
     const Interval = EarthSciMLBase.DomainSets.Interval
 
