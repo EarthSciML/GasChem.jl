@@ -118,8 +118,9 @@ function EarthSciMLBase.couple2(
         [unit = u"m^3*Pa/mol/K", description = "Gas constant"],
         rho_w_inv = 1.0e-6,
         [unit = u"m^3/g", description = "Inverse water density (LWC conversion)"],
-        FC = 1.0,
-        [unit = u"1", description = "Cloud fraction (prescribed; use GEOSFP A3cld in a CTM)"],
+        FC = 0.15,
+        [unit = u"1",
+            description = "Cloud fraction (prescribed climatological mean; interim until coupled from GEOSFP A3cld CLOUD)"],
         L_cld = 0.3,
         [unit = u"g/m^3", description = "In-cloud liquid water content (prescribed)"],
         pH_cld = 4.5,
@@ -192,8 +193,9 @@ function EarthSciMLBase.couple2(
         [unit = u"m^3*Pa/mol/K", description = "Gas constant"],
         rho_w_inv = 1.0e-6,
         [unit = u"m^3/g", description = "Inverse water density (LWC conversion)"],
-        FC = 1.0,
-        [unit = u"1", description = "Cloud fraction (prescribed; use GEOSFP A3cld in a CTM)"],
+        FC = 0.15,
+        [unit = u"1",
+            description = "Cloud fraction (prescribed climatological mean; interim until coupled from GEOSFP A3cld CLOUD)"],
         L_cld = 0.3,
         [unit = u"g/m^3", description = "In-cloud liquid water content (prescribed)"],
         pH_cld = 4.5,
@@ -530,10 +532,15 @@ function EarthSciMLBase.get_odefunction(
             NH3 = u[ix["NH3"], II[j]]
             NH4 = u[ix["NH4"], II[j]]
             SO4 = u[ix["SO4"], II[j]]
-            # Skip gate: with essentially no inorganic N mass to repartition (< 1e-4 ppb
-            # combined), the equilibrium tendency is numerically 0 — skip the expensive
-            # ternary solve (clean-air columns are the common case aloft).
-            if NH3 + NH4 + HNO3 + NIT < 1.0e-4
+            # Skip gates — the equilibrium tendency is numerically 0 when either
+            # (a) there is essentially no inorganic N at all (< 1e-4 ppb combined), or
+            # (b) there is no aerosol-forming anion material (SO4 + total nitrate +
+            #     existing NH4 < 1e-3 ppb): with no anions everything stays gas and the
+            #     partition is trivial. Case (b) is ALSO the degenerate-composition
+            #     regime where the activity/water fixed point often fails to converge
+            #     (it can burn all 40 outer iterations) for a bounded
+            #     |du| <= k_mt*1e-3 ppb/s ≈ 3e-6 ppb/s answer of ~0.
+            if (NH3 + NH4 + HNO3 + NIT < 1.0e-4) || (SO4 + HNO3 + NIT + NH4 < 1.0e-3)
                 du[ix["HNO3"], II[j]] = 0.0
                 du[ix["NIT"], II[j]] = 0.0
                 du[ix["NH3"], II[j]] = 0.0
