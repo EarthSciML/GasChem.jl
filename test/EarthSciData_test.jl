@@ -121,3 +121,22 @@ end
     nh3eq = string(only(filter(e -> isdiff(e, "NH3"), eqs)))
     @test occursin("NH3_FERT", nh3eq) && occursin("₊NH3(t)", nh3eq)  # both NH3 sectors
 end
+
+
+@testitem "GEOS-Chem coupled invariants: met-driven H2O" begin
+    using EarthSciMLBase, EarthSciData, Dates, ModelingToolkit
+    using EarthSciMLBase: DomainInfo
+    t0 = DateTime(2016, 3, 10)
+    dom = DomainInfo(t0, t0 + Hour(3) + Hour(36);
+        lonrange = deg2rad(-88):deg2rad(0.625):deg2rad(-86),
+        latrange = deg2rad(32):deg2rad(0.5):deg2rad(33.5),
+        levrange = 1:2, u_proto = zeros(Float64, 1, 1, 1, 1))
+    gfp = EarthSciData.GEOSFP("0.25x0.3125", dom)
+    nei = EarthSciData.NEI2016MonthlyEmis("mrggrid_withbeis_withrwc", dom)
+    csys = convert(System, couple(dom, GEOSChemGasPhase(), nei, gfp))
+    us = string.(unknowns(csys))
+    # H2O is a met-driven constant species (parameter -> observed), not a state
+    @test !any(u -> u == "H2O(t)" || endswith(u, "₊H2O(t)"), us)
+    obs = string.([e.lhs for e in ModelingToolkit.observed(csys)])
+    @test any(o -> endswith(o, "₊H2O(t)"), obs)
+end
