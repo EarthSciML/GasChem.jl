@@ -131,7 +131,7 @@ function EarthSciMLBase.couple2(
             c.SO2 => e.SO2 => uconv / MW_SO2,
             c.SO4 => e.SULF => uconv / MW_SULF,   # NEI SULF is direct sulfate emission -> SO4
             c.ISOP => e.ISOP => uconv / MW_ISOP,
-            # --- the 16 remaining NEI species not yet in the base coupling ---
+            # --- the 18 remaining NEI species not yet in the base coupling ---
             c.C2H4 => e.ETH => uconv / MW_C2H4,
             c.C2H6 => e.ETHA => uconv / MW_C2H6,
             c.C2H2 => e.ETHY => uconv / MW_C2H2,
