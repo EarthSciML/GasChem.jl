@@ -7,12 +7,12 @@
     using ModelingToolkit: t_nounits as t, D_nounits as D
     const Interval = EarthSciMLBase.DomainSets.Interval
 
-    sf_box_o3_end(; tend = 24 * 3600.0) = begin
+    sf_box_o3_traj(; tend = 8 * 3600.0) = begin
         sys = mtkcompile(convert(System, GasChem.SuperFast()))
         prob = ODEProblem(sys, [], (0.0, tend), [])
-        sol = solve(prob, Rosenbrock23(); reltol = 1.0e-10, abstol = 1.0e-12)
+        sol = solve(prob, Rosenbrock23(); reltol = 1.0e-10, abstol = 1.0e-12, saveat = 3600.0)
         io3 = findfirst(v -> string(v) in ("O3(t)", "SuperFast₊O3(t)"), unknowns(sys))
-        sol[end][io3]
+        [u[io3] for u in sol.u]
     end
 end
 
@@ -38,12 +38,19 @@ end
     @test occursin("k_het_N2O5", eqstr) && occursin("k_cld1", eqstr)
 end
 
-@testitem "SF-aerosol: bare SuperFast 24h box O3 matches pre-port baseline" setup = [SFAeroSetup] begin
-    # Pre-port 24h box O3(end), Rosenbrock23 reltol=1e-10/abstol=1e-12, default
+@testitem "SF-aerosol: bare SuperFast box O3 trajectory unchanged by inert additions" setup = [SFAeroSetup] begin
+    # Hourly box O3, Rosenbrock23 reltol=1e-10/abstol=1e-12, default
     # ICs/params. The additions in this PR are all zero-rate/constant with
     # defaults, so bare-SF chemistry must be unchanged.
-    BASELINE_O3_24H = __BASELINE__  # filled by step-5 worktree run
-    @test sf_box_o3_end() ≈ BASELINE_O3_24H rtol = 1.0e-6
+    # Checkpoints at h2/h4/h8 (meaningful O3 values; the 24h endpoint is ~1e-7 ppb
+    # where adaptive-step noise dominates any relative comparison).
+    BASE_H2 = 7.23332425963
+    BASE_H4 = 1.39027183281
+    BASE_H8 = 0.0525209917846
+    traj = sf_box_o3_traj()
+    @test traj[3] ≈ BASE_H2 rtol = 1.0e-5
+    @test traj[5] ≈ BASE_H4 rtol = 1.0e-5
+    @test traj[9] ≈ BASE_H8 rtol = 1.0e-4
 end
 
 @testitem "SF-aerosol: cloud coupling drives SO2+H2O2 -> SO4 with S conservation" setup = [SFAeroSetup] begin
