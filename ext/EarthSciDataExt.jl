@@ -179,16 +179,38 @@ function EarthSciMLBase.couple2(
     )
     c, gfp = c.sys, gfp.sys
 
-    #TODO(CT): Add missing couplings.
-    c = param_to_var(c, :T, :num_density)
+    # Note on P vs SuperFast:
+    # P is defined as @parameter but unused in any reaction rate (num_density
+    # is used instead), so the compiler strips it. Use GEOSFP₊P directly.
+    #
+    # H2O is a constant species (@parameter with isconstantspecies=true, the
+    # GEOS-Chem met-driven fixed-species treatment) coupled from GEOSFP meteorology via param_to_var,
+    # same as SuperFast. This drives the explicit O1D + H2O --> 2OH OH source with
+    # real per-cell humidity instead of a frozen boundary-layer constant.
     @constants(
         R = 8.31446261815324,
         [unit = u"m^3*Pa/mol/K", description = "Ideal gas constant"],
+        T_inv = 1,
+        [unit = u"K^-1", description = "Inverse of temperature"],
+        P_inv = 1,
+        [unit = u"Pa^-1", description = "Inverse of pressure"],
+        ppb_unit = 1,
+        [unit = u"ppb"],
     )
+    function water_concentration_ppb(RH, p, T)
+        Tc = T - 273.15
+        es_hPa = 6.112 * exp((17.62 * Tc) / (Tc + 243.12))
+        es = es_hPa * 100.0          # Convert hPa to Pa
+        e = RH * es                  # Actual water vapor partial pressure
+        return (e / p) * 1.0e9       # ppb
+    end
+
+    c = param_to_var(c, :T, :num_density, :H2O)
     return ConnectorSystem(
         [
             c.T ~ gfp.I3₊T,
             c.num_density ~ (gfp.P / R / gfp.I3₊T),
+            c.H2O ~ water_concentration_ppb(gfp.A3dyn₊RH, gfp.P * P_inv, gfp.I3₊T * T_inv) * ppb_unit,
         ], c, gfp
     )
 end
