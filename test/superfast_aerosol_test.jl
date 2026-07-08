@@ -5,6 +5,7 @@
 @testsnippet SFAeroSetup begin
     using GasChem, Aerosol, EarthSciMLBase, ModelingToolkit, OrdinaryDiffEqRosenbrock
     using ModelingToolkit: t_nounits as t, D_nounits as D
+    using DynamicQuantities
     const Interval = EarthSciMLBase.DomainSets.Interval
 
     sf_box_o3_traj(; tend = 8 * 3600.0) = begin
@@ -13,6 +14,28 @@
         sol = solve(prob, Rosenbrock23(); reltol = 1.0e-10, abstol = 1.0e-12, saveat = 3600.0)
         io3 = findfirst(v -> string(v) in ("O3(t)", "SuperFast₊O3(t)"), unknowns(sys))
         [u[io3] for u in sol.u]
+    end
+
+    # Minimal met stand-in that binds SuperFast's T/P the way the production GEOSFP
+    # coupling does (EarthSciDataExt: `param_to_var(c, :T, :P, :H2O)` + connector
+    # equations). The cloud/het couple2s reference T/P in *variable* form by design
+    # (see the NOTE in ext/AerosolExt.jl), so coupling them WITHOUT a met source
+    # leaves T(t)/P(t) unbound and the coupled system is intentionally unbalanced.
+    struct SFTestMetCoupler
+        sys::Any
+    end
+    function SFTestMet()
+        @parameters T_met = 280.0 [unit = u"K"]
+        @parameters P_met = 101325.0 [unit = u"Pa"]
+        @variables T(t) = 280.0 [unit = u"K"]
+        @variables P(t) = 101325.0 [unit = u"Pa"]
+        System([T ~ T_met, P ~ P_met], t; name = :sftestmet,
+            metadata = Dict(EarthSciMLBase.CoupleType => SFTestMetCoupler))
+    end
+    function EarthSciMLBase.couple2(c::GasChem.SuperFastCoupler, m::SFTestMetCoupler)
+        c, m = c.sys, m.sys
+        c = EarthSciMLBase.param_to_var(c, :T, :P)
+        EarthSciMLBase.ConnectorSystem([c.T ~ m.T, c.P ~ m.P], c, m)
     end
 end
 
@@ -54,24 +77,24 @@ end
 end
 
 @testitem "SF-aerosol: cloud coupling drives SO2+H2O2 -> SO4 with S conservation" setup = [SFAeroSetup] begin
-    csys = couple(GasChem.SuperFast(), Aerosol.CloudChemistryFixedpH())
-    sys = mtkcompile(convert(System, csys))
+    csys = couple(GasChem.SuperFast(), Aerosol.CloudChemistryFixedpH(), SFTestMet())
+    sys = convert(System, csys)  # convert compiles by default; double mtkcompile errors on MTK ≥ v11
     us = unknowns(sys)
     ix(n) = findfirst(v -> endswith(string(v), "₊$n(t)") || string(v) == "$n(t)", us)
-    u0 = ModelingToolkit.get_defaults(sys)
-    prob = ODEProblem(sys, [], (0.0, 6 * 3600.0), [])
-    # boost SO2/H2O2 so the in-cloud channel visibly converts S within 6h
-    prob.u0[ix("SO2")] = 5.0
-    prob.u0[ix("H2O2")] = 2.0
+    sSO2 = us[ix("SO2")]; sH2O2 = us[ix("H2O2")]; sSO4 = us[ix("SO4")]
+    # boost SO2/H2O2 so the in-cloud channel visibly converts S within 6h.
+    # Symbolic u0 overrides + symbolic solution indexing: positional prob.u0
+    # ordering is not guaranteed to match unknowns(sys) on MTK ≥ v11.
+    prob = ODEProblem(sys, [sSO2 => 5.0, sH2O2 => 2.0], (0.0, 6 * 3600.0))
     sol = solve(prob, Rosenbrock23(); reltol = 1.0e-8, abstol = 1.0e-10)
-    so2e = sol[end][ix("SO2")]; so4e = sol[end][ix("SO4")]
+    so2e = sol[sSO2][end]; so4e = sol[sSO4][end]
     @test so4e > 1.5                      # substantial sulfate formed
-    @test so2e + so4e ≈ 5.0 + sol[1][ix("SO4")] rtol = 1.0e-4   # total S conserved
+    @test so2e + so4e ≈ 5.0 + sol[sSO4][1] rtol = 1.0e-4   # total S conserved
 end
 
 @testitem "SF-aerosol: AerosolDistribution coupling exposes k_het_* via S_t" setup = [SFAeroSetup] begin
-    csys = couple(GasChem.SuperFast(), Aerosol.AerosolDistribution())
-    sys = mtkcompile(convert(System, csys))
+    csys = couple(GasChem.SuperFast(), Aerosol.AerosolDistribution(), SFTestMet())
+    sys = convert(System, csys)  # convert compiles by default; double mtkcompile errors on MTK ≥ v11
     obs = string.([eq.lhs for eq in observed(sys)])
     for k in ("k_het_N2O5", "k_het_HO2", "k_het_NO2", "k_het_NO3")
         @test any(o -> occursin(k, o), obs)
@@ -80,18 +103,13 @@ end
 end
 
 @testitem "SF-aerosol: triple coupling compiles without duplicate names + conserves" setup = [SFAeroSetup] begin
-    # Mimic the CTM met coupling (EarthSciDataExt param_to_var(c,:T,:P,:H2O)) with a
-    # stand-in so the three-way param_to_var(:T) collision (met + cloud + aerosol
-    # couplings on the same SuperFast instance) is exercised without GEOSFP data.
-    sf = GasChem.SuperFast()
-    sfv = EarthSciMLBase.param_to_var(convert(System, sf), :T, :P, :H2O)
-    @named testmet = System(Equation[], ModelingToolkit.t_nounits)
-    # (The met stand-in only needs the param_to_var side effect on SuperFast; the real
-    #  collision surface is SuperFast(T,P as variables) + cloud/aerosol couple2s.)
-    csys = couple(sf, Aerosol.CloudChemistryFixedpH(), Aerosol.AerosolDistribution(),
-        GasChem.IsorropiaOp())
+    # SFTestMet plays the CTM met coupling's role (param_to_var(c,:T,:P) + connector
+    # equations), so the three-way param_to_var(:T) collision surface (met + cloud +
+    # aerosol couplings on the same SuperFast instance) is exercised without GEOSFP data.
+    csys = couple(GasChem.SuperFast(), Aerosol.CloudChemistryFixedpH(),
+        Aerosol.AerosolDistribution(), GasChem.IsorropiaOp(), SFTestMet())
     sys = try
-        mtkcompile(convert(System, csys))
+        convert(System, csys)  # convert compiles by default; double mtkcompile errors on MTK ≥ v11
     catch e
         @error "triple coupling failed to compile" exception = e
         nothing
