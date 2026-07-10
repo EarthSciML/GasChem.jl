@@ -1053,6 +1053,19 @@ end
 # get information about the type and units of the output.
 cos_solar_zenith_angle(t::DynamicQuantities.Quantity, lat, long) = 1.0
 
+# Earth-Sun distance solar-flux factor (GEOS-Chem fast_jx_mod.F90 SOLAR_JX SOLFX):
+# the +/-3.4% annual variation in top-of-atmosphere actinic flux with Earth-Sun
+# distance. GEOS-Chem applies SOLF = 1 - 0.034*cos((NDAY-172)*2*pi/365) to every
+# wavelength band's TOA flux in PHOTO_JX. `t` here is absolute Unix time (t + t_ref).
+function solar_flux_factor(t)
+    DOY = dayofyear(Dates.unix2datetime(t))
+    return 1.0 - 0.034 * cos((DOY - 172) * 2.0 * pi / 365.0)
+end
+@register_symbolic solar_flux_factor(t)
+
+# Dummy function for unit validation (dimensionless factor).
+solar_flux_factor(t::DynamicQuantities.Quantity) = 1.0
+
 function calc_direct_flux(CSZA, P, i::Int)
     # calculate direct flux attenuation factor
     single_direct_flux_factor = direct_solar_beam_box_singlewavelength(
@@ -1101,14 +1114,17 @@ function fluxvars(sys::System)
 end
 
 # Symbolic equations for actinic flux
-function flux_sys(csa, P)
+function flux_sys(csa, P, solf)
     @constants c_flux = 1.0 [
         unit = u"s^-1",
         description = "Constant actinic flux (for unit conversion)",
     ]
     flux_vals = [calc_direct_flux(csa, P, i) for i in 1:18]
     flux_vars = fluxvars()
-    eqs = flux_vars .~ flux_vals .* c_flux
+    # Scale every band's TOA flux by the Earth-Sun distance factor (GEOS-Chem SOLFX).
+    # `solf` is precomputed at the system level (like `csa`), so this helper takes
+    # the factor, not raw time.
+    eqs = flux_vars .~ flux_vals .* c_flux .* solf
     return System(eqs, t, flux_vars, [c_flux], name = :ActinicFlux)
 end
 
@@ -1358,7 +1374,7 @@ function FastJX(t_ref::AbstractFloat; name = :FastJX, domaininfo = nothing)
         j_BrCl(t), [unit = u"s^-1"]
     end
 
-    flux = flux_sys(ParentScope(cosSZA), ParentScope(P) / ParentScope(P_unit))
+    flux = flux_sys(ParentScope(cosSZA), ParentScope(P) / ParentScope(P_unit), solar_flux_factor(t + ParentScope(t_ref)))
     flux_vars = fluxvars(flux)
     j_o31D_adj = adjust_j_o31D(ParentScope(T), ParentScope(P), ParentScope(H2O))
 
