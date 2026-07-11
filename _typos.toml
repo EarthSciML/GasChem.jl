@@ -18,3 +18,4 @@ setp = "setp"      # Function from SymbolicIndexingInterface.jl
 
 # Author names from referenced papers
 Jenkin = "Jenkin"  # M. E. Jenkin (atmospheric chemistry researcher)
+Strang = "Strang"  # Gilbert Strang (Strang operator splitting)
