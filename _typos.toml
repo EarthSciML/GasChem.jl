@@ -6,6 +6,7 @@
 ONO = "ONO"  # Organic Nitrate Oxygen / Nitrogen monoxide
 ETO = "ETO"  # Ethylene Oxide
 MEK = "MEK"  # Methyl Ethyl Ketone
+KET = "KET"  # NEI/CB6 lumped ketones species key
 TRO = "TRO"  # Tropospheric species
 
 # Scientific code conventions
