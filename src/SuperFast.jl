@@ -251,7 +251,20 @@ function SuperFast(; name = :SuperFast, rxn_sys = false)
             P = 101325, [unit = u"Pa", description = "Pressure"]
             O2 = 2.095e8, [isconstantspecies = true, unit = u"ppb"]
             CH4 = 1700.0, [isconstantspecies = true, unit = u"ppb"]
+            # H2O stays a met-coupled constant species: the SuperFast↔GEOSFP
+            # couple2 param_to_var's it and drives it from GEOSFP RH. ISORROPIA reads H2O
+            # per-cell via its coordinate-observed function (see AerosolExt.jl), NOT by
+            # state index, so H2O must NOT be an integrated @species.
             H2O = 1.839e7, [isconstantspecies = true, unit = u"ppb"]
+            # Heterogeneous / in-cloud rate constants — default 0 (inert) unless set by an
+            # Aerosol module coupling (param_to_var'd in the couple2). SF-aerosol extension.
+            k_cld1 = 0.0, [unit = u"(s*ppb)^-1", description = "in-cloud SO2+H2O2->SO4 rate (from CloudChemistryFixedpH coupling)"]
+            # Heterogeneous uptake first-order rate constants (from the AerosolDistribution coupling,
+            # k = S_t * c_bar * gamma / 4). Default 0 => inert in bare SuperFast.
+            k_het_N2O5 = 0.0, [unit = u"s^-1", description = "N2O5 hydrolysis uptake (-> 2 HNO3)"]
+            k_het_HO2 = 0.0, [unit = u"s^-1", description = "HO2 uptake (HOx sink)"]
+            k_het_NO2 = 0.0, [unit = u"s^-1", description = "NO2 uptake (-> HNO3)"]
+            k_het_NO3 = 0.0, [unit = u"s^-1", description = "NO3 uptake (-> HNO3)"]
         end
 
         @species begin
@@ -265,10 +278,16 @@ function SuperFast(; name = :SuperFast, rxn_sys = false)
             CO(t) = 100, [unit = u"ppb"]
             CH3OOH(t) = 4.0e-6, [unit = u"ppb"]
             #DMS(t) = 50.0, [unit = u"ppb"]
-            #SO2(t) = 2.0, [unit = u"ppb"]
+            SO2(t) = 2.0, [unit = u"ppb"]              # SO2 gas; clean-background IC for aerosol/sulfur coupling
+            SO4(t) = 0.0, [unit = u"ppb"]              # aerosol sulfate (in-cloud SO2 oxidation product + ISORROPIA)
             ISOP(t) = 1.0e-11, [unit = u"ppb"]
             H2O2(t) = 4.0e-6, [unit = u"ppb"]
             HNO3(t) = 4.0e-6, [unit = u"ppb"]
+            NH3(t) = 1.0, [unit = u"ppb"]              # ammonia (ISORROPIA inorganic aerosol thermodynamics)
+            NH4(t) = 0.0, [unit = u"ppb"]              # aerosol ammonium (ISORROPIA partitions NH3<->NH4)
+            NIT(t) = 0.0, [unit = u"ppb"]              # aerosol nitrate (ISORROPIA partitions HNO3<->NIT)
+            N2O5(t) = 0.0, [unit = u"ppb"]             # dinitrogen pentoxide (heterogeneous hydrolysis -> 2 HNO3)
+            NO3(t) = 0.0, [unit = u"ppb"]              # nitrate radical (heterogeneous uptake -> HNO3)
         end
 
         #Gas-phase reactions
@@ -294,6 +313,25 @@ function SuperFast(; name = :SuperFast, rxn_sys = false)
         arr(T, P, 2.7e-11, 0.0, 390.0), ISOP + OH --> ISOP + 0.5OH #{Isoprene chemistry parameterized from UCI for ISOP + OH}
         arr(T, P, 5.59e-15, 0.0, -1814.0),
             ISOP + O3 --> 0.87CH2O + 1.86CH3O2 + 0.06HO2 + 0.05CO   #{Isoprene chemistry parameterized from LLNL-IMPACT for ISOP + O3}
+
+        # In-cloud sulfate: aqueous S(IV) + H2O2 -> S(VI). Rate constant k_cld1 is supplied by
+        # the CloudChemistryFixedpH coupling (aqueous R_H2O2 -> gas-phase loss frequency); it is
+        # 0 when that module is not coupled, so this reaction is inert in bare SuperFast.
+        k_cld1, SO2 + H2O2 --> SO4
+
+        # Heterogeneous uptake on aerosol surfaces. First-order rate constants k_het_* are supplied
+        # by the AerosolDistribution coupling (0 when uncoupled, so inert in bare SuperFast).
+        # NOTE (dead-by-construction): reduced SuperFast has NO gas-phase production of N2O5 or
+        # NO3 (no NO2+O3→NO3 and no NO3+NO2⇌N2O5), so with IC=0 both stay exactly 0 and the
+        # k_het_N2O5 / k_het_NO3 channels never fire — they are wired here so the uptake sinks
+        # activate automatically if a mechanism that produces N2O5/NO3 is added.
+        # HO2/NO2 uptake are live HOx/NOx sinks.
+        # (NO2 uptake simplified to 0.5 HNO3: GEOS-Chem's 0.5 HNO3 + 0.5 HONO branch drops the
+        #  HONO, which SuperFast does not carry.)
+        k_het_N2O5, N2O5 --> 2HNO3
+        k_het_HO2, HO2 --> 0.5H2O2
+        k_het_NO2, NO2 --> 0.5HNO3
+        k_het_NO3, NO3 --> HNO3
 
         #photolysis reactions
         jO32OH, O3 --> 2OH #simplified reaction of: O3 --> O2 + O1d; O1d + H2O --> 2OH

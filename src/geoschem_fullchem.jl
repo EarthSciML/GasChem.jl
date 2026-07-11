@@ -920,6 +920,10 @@ function GEOSChemGasPhase(; name = :GEOSChemGasPhase, rxn_sys = false)
             [unit = u"ppb", description = "NIT; Fine mode inorganic nitrate"],
             NITs(t) = 0.0,
             [unit = u"ppb", description = "NITs; Coarse mode inorganic nitrate"],
+            NH3(t) = 1.0e-3,
+            [unit = u"ppb", description = "NH3; Ammonia"],
+            NH4(t) = 0.0,
+            [unit = u"ppb", description = "NH4; Fine mode ammonium"],
             NO(t) = 4.0e-4,
             [unit = u"ppb", description = "NO; Nitric oxide"],
             NO2(t) = 4.0e-4,
@@ -1088,6 +1092,14 @@ function GEOSChemGasPhase(; name = :GEOSChemGasPhase, rxn_sys = false)
             [unit = u"s^-1", description = "HMS rate constant"],
             k_cld6 = 0,
             [unit = u"ppb^-1*s^-1", description = "HMS rate constant"],
+            k_het_N2O5 = 0,
+            [unit = u"s^-1", description = "Heterogeneous N2O5 uptake rate constant (aerosol + cloud), first-order in N2O5"],
+            k_het_HO2 = 0,
+            [unit = u"s^-1", description = "Heterogeneous HO2 uptake rate constant (HOx sink), first-order in HO2"],
+            k_het_NO2 = 0,
+            [unit = u"s^-1", description = "Heterogeneous NO2 uptake rate constant, first-order in NO2"],
+            k_het_NO3 = 0,
+            [unit = u"s^-1", description = "Heterogeneous NO3 uptake rate constant, first-order in NO3"],
             j_2 = 0,
             [unit = u"s^-1", description = "Photolysis rate constant"],
             j_3 = 0,
@@ -2905,6 +2917,23 @@ function GEOSChemGasPhase(; name = :GEOSChemGasPhase, rxn_sys = false)
         # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         # %%%%% Heterogeneous chemistry reactions                               %%%%%
         # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        #
+        # N2O5 heterogeneous hydrolysis (re-enabled): N2O5 + H2O(aq) --> 2 HNO3, the
+        # dominant nighttime NOx sink.  In GEOS-Chem the first-order uptake frequency
+        # is computed from aerosol surface area via State_Het, which this gas-phase
+        # port lacks; here it is exposed as the parameter `k_het_N2O5` (default 0 =
+        # inert, mirroring the k_cld / k_mt coupling seam) and supplied by the
+        # Aerosol.jl coupling (k = A*c_bar*gamma/4) or set directly by the user.  H2O
+        # is the untracked water bath, so it is omitted from the reactants (matching
+        # the `N2O5uptkByCloud` form).  Self-gates to night since N2O5 is photolyzed
+        # and thermally decomposed by day.
+        k_het_N2O5, N2O5 --> 2HNO3
+        # Further first-order aerosol/cloud uptake (same coupling seam, default 0):
+        #   HO2 -> H2O is a HOx sink; H2O is an untracked input, so it is written as a
+        #   pure sink (HO2 -> ∅).  NO2 -> 0.5 HNO3 + 0.5 HNO2 and NO3 -> HNO3.
+        k_het_HO2, HO2 --> ∅
+        k_het_NO2, NO2 --> 0.5HNO3 + 0.5HNO2
+        k_het_NO3, NO3 --> HNO3
         #
         # HO2uptk1stOrd( State_Het ), HO2 --> H2O #==2013/03/22; Paulot2009; FP,EAM,JMAO,MJE==#
         # NO2uptk1stOrdAndCloud( State_Het ), NO2 --> 0.500HNO3 + 0.500HNO2
