@@ -48,9 +48,9 @@ end
     # H2O must NOT be a state (met-coupled isconstantspecies parameter)
     @test !any(u -> u == "H2O(t)" || endswith(u, "₊H2O(t)"), us)
     ps = ModelingToolkit.parameters(rs)
-    pn = string.(ps)
+    pnames = string.(ps)
     for k in ("k_cld1", "k_het_N2O5", "k_het_HO2", "k_het_NO2", "k_het_NO3", "H2O")
-        i = findfirst(p -> p == k || endswith(p, "₊" * k), pn)
+        i = findfirst(p -> p == k || endswith(p, "₊" * k), pnames)
         @test i !== nothing
         if startswith(k, "k_")
             @test Float64(ModelingToolkit.getdefault(ps[i])) == 0.0   # inert default
