@@ -17,7 +17,7 @@
     )
 
     sys = convert(System, model_3way)
-    @test length(unknowns(sys)) ≈ 12
+    @test length(unknowns(sys)) ≈ 19
 
     eqs = string(equations(sys))
     # Check that formaldehyde (CH2O) equation includes NEI2016 emissions term
@@ -45,7 +45,7 @@ end
 
     sys = convert(System, model_3way)
 
-    @test length(unknowns(sys)) ≈ 12
+    @test length(unknowns(sys)) ≈ 19
 
     eqs = string(observed(sys))
     # Check that expected couplings exist using lenient patterns
@@ -97,4 +97,46 @@ end
         occursin(r"(GEOSFP|GEOSChemGasPhase).*T.*~.*FastJX.*T"i, eqs)
     @test occursin(r"GEOSChemGasPhase.*j_11.*~.*FastJX.*j_NO2"i, eqs) ||
         occursin(r"FastJX.*j_NO2.*~.*GEOSChemGasPhase.*j_11"i, eqs)
+
+    # NEI ammonia emission feeds GEOS-Chem NH3 (anthropogenic + fertilizer sectors), the
+    # source NH3 for the ISORROPIA aerosol partition (IsorropiaOp).
+    @test occursin("NEI2016MonthlyEmis_NH3", string(equations(sys)))
+end
+
+
+@testitem "GEOS-Chem<->NEI: both NH3 sectors survive the translate table" begin
+    using EarthSciMLBase, EarthSciData, Dates, ModelingToolkit
+    using EarthSciMLBase: DomainInfo
+    t0 = DateTime(2016, 3, 10)
+    dom = DomainInfo(t0, t0 + Hour(3) + Hour(36);
+        lonrange = deg2rad(-88):deg2rad(0.625):deg2rad(-86),
+        latrange = deg2rad(32):deg2rad(0.5):deg2rad(33.5),
+        levrange = 1:2, u_proto = zeros(Float64, 1, 1, 1, 1))
+    gfp = EarthSciData.GEOSFP("0.25x0.3125", dom)
+    nei = EarthSciData.NEI2016MonthlyEmis("mrggrid_withbeis_withrwc", dom)
+    csys = convert(System, couple(dom, GEOSChemGasPhase(), nei, gfp))
+    eqs = ModelingToolkit.equations(csys)
+    isdiff(e, sp) = occursin("Differential", string(e.lhs)) &&
+                    occursin(Regex("GEOSChemGasPhase.$(sp)\\("), string(e.lhs))
+    nh3eq = string(only(filter(e -> isdiff(e, "NH3"), eqs)))
+    @test occursin("NH3_FERT", nh3eq) && occursin("₊NH3(t)", nh3eq)  # both NH3 sectors
+end
+
+
+@testitem "GEOS-Chem coupled invariants: met-driven H2O" begin
+    using EarthSciMLBase, EarthSciData, Dates, ModelingToolkit
+    using EarthSciMLBase: DomainInfo
+    t0 = DateTime(2016, 3, 10)
+    dom = DomainInfo(t0, t0 + Hour(3) + Hour(36);
+        lonrange = deg2rad(-88):deg2rad(0.625):deg2rad(-86),
+        latrange = deg2rad(32):deg2rad(0.5):deg2rad(33.5),
+        levrange = 1:2, u_proto = zeros(Float64, 1, 1, 1, 1))
+    gfp = EarthSciData.GEOSFP("0.25x0.3125", dom)
+    nei = EarthSciData.NEI2016MonthlyEmis("mrggrid_withbeis_withrwc", dom)
+    csys = convert(System, couple(dom, GEOSChemGasPhase(), nei, gfp))
+    us = string.(unknowns(csys))
+    # H2O is a met-driven constant species (parameter -> observed), not a state
+    @test !any(u -> u == "H2O(t)" || endswith(u, "₊H2O(t)"), us)
+    obs = string.([e.lhs for e in ModelingToolkit.observed(csys)])
+    @test any(o -> endswith(o, "₊H2O(t)"), obs)
 end
