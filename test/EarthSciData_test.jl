@@ -137,5 +137,5 @@ end
     so4eq = string(only(filter(e -> isdiff(e, "SO4"), eqs)))
     @test occursin("SO2", so2eq)                     # gas SO2 emission arrives
     @test occursin("SULF", so4eq)                    # direct sulfate -> SO4 ...
-    @test !occursin("SULF", so2eq)                   # ... and NOT mis-mapped into SO2
+    @test !occursin("SULF", so2eq)                   # ... and NOT wrongly mapped into SO2
 end
