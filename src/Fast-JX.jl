@@ -22,7 +22,18 @@ const WL = SA_F32[
     574,
 ]
 
-# Top of the atmosphere solar flux in 18 bins
+# Top of the atmosphere solar flux in 18 bins (Cloud-J v8.0 SPhot, #/cm2/s).
+# Bins 17–18 previously held legacy Fast-JX v7.x fluxes (1.547e16 / 2.131e17)
+# while every photolysis cross-section in this file is Cloud-J v8.0 (e.g. the NO2
+# 300K row and the NO3 190/298c rows match Cloud-J's FJX_spec.dat digit-for-digit).
+# Cloud-J v8.0 restructured bins 17–18 (345-485-778 nm), giving fluxes
+# 4.721e16 / 1.488e17. Bin 17 (429 nm) contributes ~80% of the J_NO2 integral,
+# so the stale v7.x value made J_NO2 ≈ 0.47× the physical value (TOA, φ=1:
+# 4.26e-3 → 9.17e-3 s⁻¹); it also affects J_NO3 (whose v8.0 σ lives entirely in
+# bins 17–18). Only NO2/NO3 and stratospheric halogens have non-negligible
+# bin 17–18 cross-sections, so no UV J-value changes.
+# (The WL effective-wavelength labels below stay at 380/574: WL is used only to
+#  name the F_<wl> flux variables, not in any J-value computation.)
 const top_flux = SA_F32[
     1.391e+12,
     1.627e+12,
@@ -40,8 +51,8 @@ const top_flux = SA_F32[
     5.045e+14,
     8.902e+14,
     3.853e+15,
-    1.547e+16,
-    2.131e+17,
+    4.721e+16,
+    1.488e+17,
 ]
 
 #   Cross sections and quantum yield from GEOS-CHEM "FJX_spec.dat" for photo-reactive species included in SuperFast:
