@@ -13,6 +13,11 @@ end
 
 const interpolations_18_const = tuple(interpolations_18_troposphere...)
 
+# Fast-JX species whose cross-section tables are PRESSURE-interpolated
+# (SQQ='p' in FJX_spec.dat: rows p177/p566/p999 hPa) — see Fast-JX.jl.
+const _FJX_PRESSURE_AXIS_J = (:MeVKa, :MeVKb, :MeVKc, :Aceta, :ActAld, :MGlyxl,
+    :MEKeto, :Glyxla, :Glyxlb, :Glyxlc)  # all 8 FJX_spec.dat p-prefixed blocks
+
 # Create symbolic wrapper functions for each interpolation
 flux_interp_1(P, csa) = interpolations_18_const[1](ustrip(P), ustrip(csa))
 flux_interp_2(P, csa) = interpolations_18_const[2](ustrip(P), ustrip(csa))
@@ -232,7 +237,13 @@ function FastJX_interpolation_troposphere(
         nm = Symbol(:j_, sp)
         v = only(@variables $nm(t) [unit = u"s^-1"])
         push!(jvars, v)
-        push!(jeqs, v ~ meanf(T / T_unit, flux_vars))
+        # Pressure-interpolated Fast-JX species (FJX_spec.dat p177/p566/p999 rows,
+        # hPa): their sigma axes are pressures, so pass P in hPa, not temperature.
+        if sp in _FJX_PRESSURE_AXIS_J
+            push!(jeqs, v ~ meanf(P / P_unit / 100, flux_vars))
+        else
+            push!(jeqs, v ~ meanf(T / T_unit, flux_vars))
+        end
     end
     iO31D = findfirst(p -> p[1] === :O31D, jlist)
     @assert iO31D !== nothing "species list must include :O31D (needed for j_o32OH)"
