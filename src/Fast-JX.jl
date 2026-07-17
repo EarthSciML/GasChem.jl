@@ -1131,7 +1131,7 @@ j_mean_N2O5(T, fluxes) = j_mean(σ_N2O5_interp, ϕ_N2O5_jx, T, fluxes)
 j_mean_H1301(T, fluxes) = j_mean(σ_H1301_interp, ϕ_H1301_jx, T, fluxes)
 j_mean_CFCl3(T, fluxes) = j_mean(σ_CFCl3_interp, ϕ_CFCl3_jx, T, fluxes)
 j_mean_NO(T, fluxes) = j_mean(σ_NO_interp, ϕ_NO_jx, T, fluxes)
-j_mean_Glyxlc(T, fluxes) = j_mean(σ_Glyxlc_interp, ϕ_Glyxlc_jx, T, fluxes)
+j_mean_Glyxlc(p_hPa, fluxes) = j_mean(σ_Glyxlc_interp, ϕ_Glyxlc_jx, p_hPa, fluxes)
 j_mean_F114(T, fluxes) = j_mean(σ_F114_interp, ϕ_F114_jx, T, fluxes)
 j_mean_CH3NO3(T, fluxes) = j_mean(σ_CH3NO3_interp, ϕ_CH3NO3_jx, T, fluxes)
 j_mean_CHBr3(T, fluxes) = j_mean(σ_CHBr3_interp, ϕ_CHBr3_jx, T, fluxes)
@@ -1141,7 +1141,7 @@ j_mean_OClO(T, fluxes) = j_mean(σ_OClO_interp, ϕ_OClO_jx, T, fluxes)
 j_mean_H1211(T, fluxes) = j_mean(σ_H1211_interp, ϕ_H1211_jx, T, fluxes)
 j_mean_BrO(T, fluxes) = j_mean(σ_BrO_interp, ϕ_BrO_jx, T, fluxes)
 j_mean_CH3Cl(T, fluxes) = j_mean(σ_CH3Cl_interp, ϕ_CH3Cl_jx, T, fluxes)
-j_mean_MEKeto(T, fluxes) = j_mean(σ_MEKeto_interp, ϕ_MEKeto_jx, T, fluxes)
+j_mean_MEKeto(p_hPa, fluxes) = j_mean(σ_MEKeto_interp, ϕ_MEKeto_jx, p_hPa, fluxes)
 j_mean_PAN(T, fluxes) = j_mean(σ_PAN_interp, ϕ_PAN_jx, T, fluxes)
 j_mean_H2402(T, fluxes) = j_mean(σ_H2402_interp, ϕ_H2402_jx, T, fluxes)
 j_mean_PrAld(T, fluxes) = j_mean(σ_PrAld_interp, ϕ_PrAld_jx, T, fluxes)
@@ -1165,7 +1165,7 @@ j_mean_F142b(T, fluxes) = j_mean(σ_F142b_interp, ϕ_F142b_jx, T, fluxes)
 j_mean_F115(T, fluxes) = j_mean(σ_F115_interp, ϕ_F115_jx, T, fluxes)
 j_mean_O31D(T, fluxes) = j_mean(σ_O3_interp, ϕ_O31D_interp, T, fluxes)
 j_mean_CF3I(T, fluxes) = j_mean(σ_CF3I_interp, ϕ_CF3I_jx, T, fluxes)
-j_mean_Glyxla(T, fluxes) = j_mean(σ_Glyxla_interp, ϕ_Glyxla_jx, T, fluxes)
+j_mean_Glyxla(p_hPa, fluxes) = j_mean(σ_Glyxla_interp, ϕ_Glyxla_jx, p_hPa, fluxes)
 j_mean_CCl4(T, fluxes) = j_mean(σ_CCl4_interp, ϕ_CCl4_jx, T, fluxes)
 j_mean_Cl2(T, fluxes) = j_mean(σ_Cl2_interp, ϕ_Cl2_jx, T, fluxes)
 j_mean_CH3I(T, fluxes) = j_mean(σ_CH3I_interp, ϕ_CH3I_jx, T, fluxes)
@@ -1177,7 +1177,7 @@ j_mean_Cl2O2(T, fluxes) = j_mean(σ_Cl2O2_interp, ϕ_Cl2O2_jx, T, fluxes)
 j_mean_CH3Br(T, fluxes) = j_mean(σ_CH3Br_interp, ϕ_CH3Br_jx, T, fluxes)
 j_mean_HNO3(T, fluxes) = j_mean(σ_HNO3_interp, ϕ_HNO3_jx, T, fluxes)
 j_mean_CF2Cl2(T, fluxes) = j_mean(σ_CF2Cl2_interp, ϕ_CF2Cl2_jx, T, fluxes)
-j_mean_Glyxlb(T, fluxes) = j_mean(σ_Glyxlb_interp, ϕ_Glyxlb_jx, T, fluxes)
+j_mean_Glyxlb(p_hPa, fluxes) = j_mean(σ_Glyxlb_interp, ϕ_Glyxlb_jx, p_hPa, fluxes)
 j_mean_F141b(T, fluxes) = j_mean(σ_F141b_interp, ϕ_F141b_jx, T, fluxes)
 j_mean_O3(T, fluxes) = j_mean(σ_O3_interp, ϕ_O3_jx, T, fluxes)
 j_mean_ClNO3a(T, fluxes) = j_mean(σ_ClNO3a_interp, ϕ_ClNO3a_jx, T, fluxes)
@@ -1380,7 +1380,7 @@ function FastJX(t_ref::AbstractFloat; name = :FastJX, domaininfo = nothing)
         j_H1301 ~ j_mean_H1301(T / T_unit, flux_vars);
         j_CFCl3 ~ j_mean_CFCl3(T / T_unit, flux_vars);
         j_NO ~ j_mean_NO(T / T_unit, flux_vars);
-        j_Glyxlc ~ j_mean_Glyxlc(T / T_unit, flux_vars);
+        j_Glyxlc ~ j_mean_Glyxlc(P / P_unit / 100, flux_vars);
         j_F114 ~ j_mean_F114(T / T_unit, flux_vars);
         j_CH3NO3 ~ j_mean_CH3NO3(T / T_unit, flux_vars);
         j_CHBr3 ~ j_mean_CHBr3(T / T_unit, flux_vars);
@@ -1390,7 +1390,7 @@ function FastJX(t_ref::AbstractFloat; name = :FastJX, domaininfo = nothing)
         j_H1211 ~ j_mean_H1211(T / T_unit, flux_vars);
         j_BrO ~ j_mean_BrO(T / T_unit, flux_vars);
         j_CH3Cl ~ j_mean_CH3Cl(T / T_unit, flux_vars);
-        j_MEKeto ~ j_mean_MEKeto(T / T_unit, flux_vars);
+        j_MEKeto ~ j_mean_MEKeto(P / P_unit / 100, flux_vars);
         j_PAN ~ j_mean_PAN(T / T_unit, flux_vars);
         j_H2402 ~ j_mean_H2402(T / T_unit, flux_vars);
         j_PrAld ~ j_mean_PrAld(T / T_unit, flux_vars);
@@ -1408,7 +1408,7 @@ function FastJX(t_ref::AbstractFloat; name = :FastJX, domaininfo = nothing)
         j_F115 ~ j_mean_F115(T / T_unit, flux_vars);
         j_O31D ~ j_mean_O31D(T / T_unit, flux_vars);
         j_CF3I ~ j_mean_CF3I(T / T_unit, flux_vars);
-        j_Glyxla ~ j_mean_Glyxla(T / T_unit, flux_vars);
+        j_Glyxla ~ j_mean_Glyxla(P / P_unit / 100, flux_vars);
         j_CCl4 ~ j_mean_CCl4(T / T_unit, flux_vars);
         j_Cl2 ~ j_mean_Cl2(T / T_unit, flux_vars);
         j_CH3I ~ j_mean_CH3I(T / T_unit, flux_vars);
@@ -1419,7 +1419,7 @@ function FastJX(t_ref::AbstractFloat; name = :FastJX, domaininfo = nothing)
         j_CH3Br ~ j_mean_CH3Br(T / T_unit, flux_vars);
         j_HNO3 ~ j_mean_HNO3(T / T_unit, flux_vars);
         j_CF2Cl2 ~ j_mean_CF2Cl2(T / T_unit, flux_vars);
-        j_Glyxlb ~ j_mean_Glyxlb(T / T_unit, flux_vars);
+        j_Glyxlb ~ j_mean_Glyxlb(P / P_unit / 100, flux_vars);
         j_F141b ~ j_mean_F141b(T / T_unit, flux_vars);
         j_O3 ~ j_mean_O3(T / T_unit, flux_vars);
         j_ClNO3a ~ j_mean_ClNO3a(T / T_unit, flux_vars);

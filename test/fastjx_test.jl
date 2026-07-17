@@ -161,7 +161,9 @@ end
     j_Glyxlc_value = j_Glyxlc_func(prob)
 
     @test j_Glyxlc_value ≈
-        GasChem.j_mean_Glyxlc(298.0, get_fluxes(3600 * 12.0, 40.0, -97.0, 101325)) rtol = 1.0e-6
+        # Glyxlc is a pressure-interpolated FJX species: the built system evaluates
+        # its sigma at P/100 hPa (= 1013.25 for P=101325 Pa), not at temperature.
+        GasChem.j_mean_Glyxlc(101325 / 100, get_fluxes(3600 * 12.0, 40.0, -97.0, 101325)) rtol = 1.0e-6
 end
 
 @testitem "Ensure Cos SZA is non-allocating" begin

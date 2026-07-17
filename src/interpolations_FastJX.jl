@@ -15,7 +15,8 @@ const interpolations_18_const = tuple(interpolations_18_troposphere...)
 
 # Fast-JX species whose cross-section tables are PRESSURE-interpolated
 # (SQQ='p' in FJX_spec.dat: rows p177/p566/p999 hPa) — see Fast-JX.jl.
-const _FJX_PRESSURE_AXIS_J = (:MeVKa, :MeVKb, :MeVKc, :Aceta, :ActAld, :MGlyxl)
+const _FJX_PRESSURE_AXIS_J = (:MeVKa, :MeVKb, :MeVKc, :Aceta, :ActAld, :MGlyxl,
+    :MEKeto, :Glyxla, :Glyxlb, :Glyxlc)  # all 8 FJX_spec.dat p-prefixed blocks
 
 # Create symbolic wrapper functions for each interpolation
 flux_interp_1(P, csa) = interpolations_18_const[1](ustrip(P), ustrip(csa))
