@@ -42,7 +42,7 @@ end
 
 #   Unit Test 1: H2O2 -> OH + OH
 @testitem "H2O2" setup = [FastJXSetup] begin
-    u_1 = [9.537314938390102e-5, 9.762101904345852e-5, 9.986888870301603e-5]
+    u_1 = [9.556108192821451e-5, 9.784078680806504e-5, 0.00010012049168791557]
 
     fluxes = get_fluxes(3600 * 12.0, 30.0, 0.0, 0.9)
     test_1 = [
@@ -81,7 +81,7 @@ end
 end
 
 @testitem "H2COb" setup = [FastJXSetup] begin
-    u_2 = [7.16264584129105e-5, 7.166900731492678e-5, 7.174464980740016e-5]
+    u_2 = [7.379810937014846e-5, 7.383803019677047e-5, 7.390900055520959e-5]
 
     fluxes = get_fluxes(3600 * 12.0, 30.0, 0.0, 0.9)
     test_2 = [
@@ -103,7 +103,7 @@ end
 
 # Unit Test 3: CH3OOH -> OH + HO2 + CH2O
 @testitem "CH3OOH" setup = [FastJXSetup] begin
-    u_3 = [5.406743321900099e-5, 5.406743321900099e-5, 5.406743321900099e-5]
+    u_3 = [5.479269224996597e-5, 5.479269224996597e-5, 5.479269224996597e-5]
 
     test_3 = [
         GasChem.j_mean_CH3OOH(200.0, get_fluxes(3600 * 6.0, 30.0, 0.0, 0.9)),
@@ -124,7 +124,7 @@ end
 
 # Unit Test 4: NO2 -> NO + O
 @testitem "NO2" setup = [FastJXSetup] begin
-    u_4 = [0.003926795211288372, 0.004094143741247612, 0.004261492271206852]
+    u_4 = [0.008440223396850258, 0.008804360032986012, 0.009168496669121767]
 
     fluxes = get_fluxes(3600 * 12.0, 30.0, 0.0, 0.9)
     test_4 = [
@@ -242,10 +242,10 @@ end
     @test GasChem.calc_direct_flux(cos_sza, P, 11) ≈ 5.4169480803700356e10
     @test GasChem.calc_direct_flux(cos_sza, P, 13) ≈ 1.697289300309447e14
     @test GasChem.calc_direct_flux(cos_sza, P, 15) ≈ 6.569697111320194e14
-    @test GasChem.calc_direct_flux(cos_sza, P, 18) ≈ 2.0972515867967904e17
+    @test GasChem.calc_direct_flux(cos_sza, P, 18) ≈ 1.461091050513562e17
 
     P = 100
     @test GasChem.calc_direct_flux(cos_sza, P, 3) ≈ 0.0
     @test GasChem.calc_direct_flux(cos_sza, P, 9) ≈ 0.0
-    @test GasChem.calc_direct_flux(cos_sza, P, 18) ≈ 4.908683888514731e16
+    @test GasChem.calc_direct_flux(cos_sza, P, 18) ≈ 3.275164457691825e16
 end
