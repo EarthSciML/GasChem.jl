@@ -202,8 +202,8 @@ end
         7.162608365510285e12,
         4.381532157326822e13,
         5.5736656209660256e14,
-        5.378272528516121e15,
-        1.6978055609093792e17,
+        2.3314577436356748e16,  # bin 17: Cloud-J v8.0 flux (4.721e16) + v8 Rayleigh/O3 @429nm
+        1.2131944868309216e17,  # bin 18: v8.0 flux (1.488e17) + v8 Rayleigh/O3 @631nm
     ]
 end
 
@@ -222,7 +222,7 @@ end
     @test GasChem.calc_direct_flux(cos_sza, P, 12) ≈ 5.88900011606016e14
     @test GasChem.calc_direct_flux(cos_sza, P, 14) ≈ 5.04500011925504e14
     @test GasChem.calc_direct_flux(cos_sza, P, 16) ≈ 3.853000128856064e15
-    @test GasChem.calc_direct_flux(cos_sza, P, 18) ≈ 2.1310000789140275e17
+    @test GasChem.calc_direct_flux(cos_sza, P, 18) ≈ 1.488000009633792e17  # Cloud-J v8.0 bin-18 TOA flux
 
     P = 100
     @test GasChem.calc_direct_flux(cos_sza, P, 1) ≈ 3.0643508503689505e6
