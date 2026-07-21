@@ -22,7 +22,12 @@ const WL = SA_F32[
     574,
 ]
 
-# Top of the atmosphere solar flux in 18 bins (Cloud-J v8.0 SPhot, #/cm2/s).
+# Top of the atmosphere solar flux in 18 bins (#/cm2/s).
+# Provenance is mixed and only bins 17–18 were touched here: bins 1–16 are the
+# pre-existing table, which differs from Cloud-J v8.0's SPhot rows by up to ~0.5%
+# (e.g. bin 6 4.68e12 vs v8's 4.655e12, bin 4 9.278e11 vs 9.238e11) and is
+# presumably an earlier SUSIM vintage. Do not read this block as "validated
+# against v8.0" — only 17–18 have been.
 # Bins 17–18 previously held legacy Fast-JX v7.x fluxes (1.547e16 / 2.131e17)
 # while every photolysis cross-section in this file is Cloud-J v8.0 (e.g. the NO2
 # 300K row and the NO3 190/298c rows match Cloud-J's FJX_spec.dat digit-for-digit).
@@ -32,8 +37,14 @@ const WL = SA_F32[
 # 4.26e-3 → 9.17e-3 s⁻¹); it also affects J_NO3 (whose v8.0 σ lives entirely in
 # bins 17–18). Only NO2/NO3 and stratospheric halogens have non-negligible
 # bin 17–18 cross-sections, so no UV J-value changes.
-# (The WL effective-wavelength labels below stay at 380/574: WL is used only to
-#  name the F_<wl> flux variables, not in any J-value computation.)
+# The WL labels above stay at 380/574 so the exported flux variables keep their
+# names. WL never enters a J-value computation (its only uses are Symbol("F_", …)
+# and the matching `description` string), so this is a labelling issue, not a
+# numerical one — but it IS a labelling error: bins 17–18 now carry Cloud-J v8.0's
+# 345-485 / 485-778 nm bands, whose effective wavelengths are 429 / 631 nm. Anyone
+# using F_380/F_574 for a wavelength-dependent calculation would be off by +49/+57
+# nm. Renaming them to F_429/F_631 is the right fix but is a breaking interface
+# change, so it is deliberately left out of this numerical bug-fix branch.
 const top_flux = SA_F32[
     1.391e+12,
     1.627e+12,
