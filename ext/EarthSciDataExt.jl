@@ -101,6 +101,8 @@ function EarthSciMLBase.couple2(
         MW_MTPA = 136.234e-3, [unit = u"kg/mol", description = "C10H16; Monoterpenes"],
         MW_RCHO = 58.080e-3, [unit = u"kg/mol", description = "C2H5CHO; Propionaldehyde"],
         MW_PRPE = 42.081e-3, [unit = u"kg/mol", description = "C3H6; Propylene"],
+        MW_ALK4 = 58.12e-3, [unit = u"kg/mol", description = "Lumped C4+C5 alkanes (GC species_database MW_g)"],
+        MW_HNO4 = 79.01e-3, [unit = u"kg/mol", description = "HNO4; Peroxynitric acid"],
         MW_MEK = 72.107e-3, [unit = u"kg/mol", description = "C4H8O; Methyl ethyl ketone"],
         MW_Air = 28.97e-3,
         [unit = u"kg/mol", description = "Molar mass of air"],
@@ -149,6 +151,13 @@ function EarthSciMLBase.couple2(
             c.MTPA => e.TERP => uconv / MW_MTPA,
             c.RCHO => e.ALDX => uconv / MW_RCHO,
             c.PRPE => e.OLE => uconv / MW_PRPE,
+            # NEI variables GEOS-Chem maps but this table did not. HEMCO applies only
+            # temporal/spatial scale factors to each (26 = time-of-day, 212/213 = NEI99
+            # day-of-week, 254 = VOC year scale, 1007 = CONUS mask) — no mass or carbon
+            # conversion — so these are plain mass -> mole conversions like the rest.
+            c.ALK4 => e.PAR => uconv / MW_ALK4,    # HEMCO EPA16_ALK4__*PAR; ALK4 had ZERO anthropogenic emission
+            c.PRPE => e.IOLE => uconv / MW_PRPE,   # HEMCO maps both OLE and IOLE to PRPE
+            c.HNO4 => e.PNA => uconv / MW_HNO4,    # HEMCO EPA16_HNO4__*PNA
             c.MEK => e.KET => uconv / MW_MEK,
         ]
     )
