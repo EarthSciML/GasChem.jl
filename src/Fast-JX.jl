@@ -22,7 +22,29 @@ const WL = SA_F32[
     574,
 ]
 
-# Top of the atmosphere solar flux in 18 bins
+# Top of the atmosphere solar flux in 18 bins (#/cm2/s).
+# Provenance is mixed and only bins 17–18 were touched here: bins 1–16 are the
+# pre-existing table, which differs from Cloud-J v8.0's SPhot rows by up to ~0.5%
+# (e.g. bin 6 4.68e12 vs v8's 4.655e12, bin 4 9.278e11 vs 9.238e11) and is
+# presumably an earlier SUSIM vintage. Do not read this block as "validated
+# against v8.0" — only 17–18 have been.
+# Bins 17–18 previously held legacy Fast-JX v7.x fluxes (1.547e16 / 2.131e17)
+# while every photolysis cross-section in this file is Cloud-J v8.0 (e.g. the NO2
+# 300K row and the NO3 190/298c rows match Cloud-J's FJX_spec.dat digit-for-digit).
+# Cloud-J v8.0 restructured bins 17–18 (345-485-778 nm), giving fluxes
+# 4.721e16 / 1.488e17. Bin 17 (429 nm) contributes ~80% of the J_NO2 integral,
+# so the stale v7.x value made J_NO2 ≈ 0.47× the physical value (TOA, φ=1:
+# 4.26e-3 → 9.17e-3 s⁻¹); it also affects J_NO3 (whose v8.0 σ lives entirely in
+# bins 17–18). Only NO2/NO3 and stratospheric halogens have non-negligible
+# bin 17–18 cross-sections, so no UV J-value changes.
+# The WL labels above stay at 380/574 so the exported flux variables keep their
+# names. WL never enters a J-value computation (its only uses are Symbol("F_", …)
+# and the matching `description` string), so this is a labelling issue, not a
+# numerical one — but it IS a labelling error: bins 17–18 now carry Cloud-J v8.0's
+# 345-485 / 485-778 nm bands, whose effective wavelengths are 429 / 631 nm. Anyone
+# using F_380/F_574 for a wavelength-dependent calculation would be off by +49/+57
+# nm. Renaming them to F_429/F_631 is the right fix but is a breaking interface
+# change, so it is deliberately left out of this numerical bug-fix branch.
 const top_flux = SA_F32[
     1.391e+12,
     1.627e+12,
@@ -40,8 +62,8 @@ const top_flux = SA_F32[
     5.045e+14,
     8.902e+14,
     3.853e+15,
-    1.547e+16,
-    2.131e+17,
+    4.721e+16,
+    1.488e+17,
 ]
 
 #   Cross sections and quantum yield from GEOS-CHEM "FJX_spec.dat" for photo-reactive species included in SuperFast:
@@ -1131,7 +1153,7 @@ j_mean_N2O5(T, fluxes) = j_mean(σ_N2O5_interp, ϕ_N2O5_jx, T, fluxes)
 j_mean_H1301(T, fluxes) = j_mean(σ_H1301_interp, ϕ_H1301_jx, T, fluxes)
 j_mean_CFCl3(T, fluxes) = j_mean(σ_CFCl3_interp, ϕ_CFCl3_jx, T, fluxes)
 j_mean_NO(T, fluxes) = j_mean(σ_NO_interp, ϕ_NO_jx, T, fluxes)
-j_mean_Glyxlc(T, fluxes) = j_mean(σ_Glyxlc_interp, ϕ_Glyxlc_jx, T, fluxes)
+j_mean_Glyxlc(p_hPa, fluxes) = j_mean(σ_Glyxlc_interp, ϕ_Glyxlc_jx, p_hPa, fluxes)
 j_mean_F114(T, fluxes) = j_mean(σ_F114_interp, ϕ_F114_jx, T, fluxes)
 j_mean_CH3NO3(T, fluxes) = j_mean(σ_CH3NO3_interp, ϕ_CH3NO3_jx, T, fluxes)
 j_mean_CHBr3(T, fluxes) = j_mean(σ_CHBr3_interp, ϕ_CHBr3_jx, T, fluxes)
@@ -1141,13 +1163,19 @@ j_mean_OClO(T, fluxes) = j_mean(σ_OClO_interp, ϕ_OClO_jx, T, fluxes)
 j_mean_H1211(T, fluxes) = j_mean(σ_H1211_interp, ϕ_H1211_jx, T, fluxes)
 j_mean_BrO(T, fluxes) = j_mean(σ_BrO_interp, ϕ_BrO_jx, T, fluxes)
 j_mean_CH3Cl(T, fluxes) = j_mean(σ_CH3Cl_interp, ϕ_CH3Cl_jx, T, fluxes)
-j_mean_MEKeto(T, fluxes) = j_mean(σ_MEKeto_interp, ϕ_MEKeto_jx, T, fluxes)
+j_mean_MEKeto(p_hPa, fluxes) = j_mean(σ_MEKeto_interp, ϕ_MEKeto_jx, p_hPa, fluxes)
 j_mean_PAN(T, fluxes) = j_mean(σ_PAN_interp, ϕ_PAN_jx, T, fluxes)
 j_mean_H2402(T, fluxes) = j_mean(σ_H2402_interp, ϕ_H2402_jx, T, fluxes)
 j_mean_PrAld(T, fluxes) = j_mean(σ_PrAld_interp, ϕ_PrAld_jx, T, fluxes)
-j_mean_MeVKa(T, fluxes) = j_mean(σ_MeVK_interp, ϕ_MeVK_jx, T, fluxes) .* 0.6
-j_mean_MeVKb(T, fluxes) = j_mean(σ_MeVK_interp, ϕ_MeVK_jx, T, fluxes) .* 0.2
-j_mean_MeVKc(T, fluxes) = j_mean(σ_MeVK_interp, ϕ_MeVK_jx, T, fluxes) .* 0.2
+# NB: MeVK, Aceta, ActAld and MGlyxl are Fast-JX PRESSURE-interpolated species
+# (FJX_spec.dat rows p177/p566/p999, in hPa; Cloud-J JRATET dispatches these on
+# the SQQ='p' flag and interpolates sigma over mid-layer PRESSURE, not T).
+# Their j_mean wrappers therefore take pressure in hPa; passing temperature
+# evaluated sigma at 'P = T Kelvin hPa' (~288 hPa at the surface), inflating
+# e.g. J_ActAld ~2.4x at 1013 hPa.
+j_mean_MeVKa(p_hPa, fluxes) = j_mean(σ_MeVK_interp, ϕ_MeVK_jx, p_hPa, fluxes) .* 0.6
+j_mean_MeVKb(p_hPa, fluxes) = j_mean(σ_MeVK_interp, ϕ_MeVK_jx, p_hPa, fluxes) .* 0.2
+j_mean_MeVKc(p_hPa, fluxes) = j_mean(σ_MeVK_interp, ϕ_MeVK_jx, p_hPa, fluxes) .* 0.2
 j_mean_ClNO3b(T, fluxes) = j_mean(σ_ClNO3b_interp, ϕ_ClNO3b_jx, T, fluxes)
 j_mean_F113(T, fluxes) = j_mean(σ_F113_interp, ϕ_F113_jx, T, fluxes)
 j_mean_HNO4(T, fluxes) = j_mean(σ_HNO4_interp, ϕ_HNO4_jx, T, fluxes)
@@ -1159,23 +1187,23 @@ j_mean_F142b(T, fluxes) = j_mean(σ_F142b_interp, ϕ_F142b_jx, T, fluxes)
 j_mean_F115(T, fluxes) = j_mean(σ_F115_interp, ϕ_F115_jx, T, fluxes)
 j_mean_O31D(T, fluxes) = j_mean(σ_O3_interp, ϕ_O31D_interp, T, fluxes)
 j_mean_CF3I(T, fluxes) = j_mean(σ_CF3I_interp, ϕ_CF3I_jx, T, fluxes)
-j_mean_Glyxla(T, fluxes) = j_mean(σ_Glyxla_interp, ϕ_Glyxla_jx, T, fluxes)
+j_mean_Glyxla(p_hPa, fluxes) = j_mean(σ_Glyxla_interp, ϕ_Glyxla_jx, p_hPa, fluxes)
 j_mean_CCl4(T, fluxes) = j_mean(σ_CCl4_interp, ϕ_CCl4_jx, T, fluxes)
 j_mean_Cl2(T, fluxes) = j_mean(σ_Cl2_interp, ϕ_Cl2_jx, T, fluxes)
 j_mean_CH3I(T, fluxes) = j_mean(σ_CH3I_interp, ϕ_CH3I_jx, T, fluxes)
 j_mean_HNO2(T, fluxes) = j_mean(σ_HNO2_interp, ϕ_HNO2_jx, T, fluxes)
-j_mean_Aceta(T, fluxes) = j_mean(σ_Aceta_interp, ϕ_Aceta_jx, T, fluxes)
+j_mean_Aceta(p_hPa, fluxes) = j_mean(σ_Aceta_interp, ϕ_Aceta_jx, p_hPa, fluxes)
 j_mean_N2O(T, fluxes) = j_mean(σ_N2O_interp, ϕ_N2O_jx, T, fluxes)
 j_mean_MeCCl3(T, fluxes) = j_mean(σ_MeCCl3_interp, ϕ_MeCCl3_jx, T, fluxes)
 j_mean_Cl2O2(T, fluxes) = j_mean(σ_Cl2O2_interp, ϕ_Cl2O2_jx, T, fluxes)
 j_mean_CH3Br(T, fluxes) = j_mean(σ_CH3Br_interp, ϕ_CH3Br_jx, T, fluxes)
 j_mean_HNO3(T, fluxes) = j_mean(σ_HNO3_interp, ϕ_HNO3_jx, T, fluxes)
 j_mean_CF2Cl2(T, fluxes) = j_mean(σ_CF2Cl2_interp, ϕ_CF2Cl2_jx, T, fluxes)
-j_mean_Glyxlb(T, fluxes) = j_mean(σ_Glyxlb_interp, ϕ_Glyxlb_jx, T, fluxes)
+j_mean_Glyxlb(p_hPa, fluxes) = j_mean(σ_Glyxlb_interp, ϕ_Glyxlb_jx, p_hPa, fluxes)
 j_mean_F141b(T, fluxes) = j_mean(σ_F141b_interp, ϕ_F141b_jx, T, fluxes)
 j_mean_O3(T, fluxes) = j_mean(σ_O3_interp, ϕ_O3_jx, T, fluxes)
 j_mean_ClNO3a(T, fluxes) = j_mean(σ_ClNO3a_interp, ϕ_ClNO3a_jx, T, fluxes)
-j_mean_ActAld(T, fluxes) = j_mean(σ_ActAld_interp, ϕ_ActAld_jx, T, fluxes)
+j_mean_ActAld(p_hPa, fluxes) = j_mean(σ_ActAld_interp, ϕ_ActAld_jx, p_hPa, fluxes)
 j_mean_CH2Cl2(T, fluxes) = j_mean(σ_CH2Cl2_interp, ϕ_CH2Cl2_jx, T, fluxes)
 j_mean_O2(T, fluxes) = j_mean(σ_O2_interp, ϕ_O2_jx, T, fluxes)
 j_mean_BrNO3(T, fluxes) = j_mean(σ_BrNO3_interp, ϕ_BrNO3_jx, T, fluxes)
@@ -1183,7 +1211,7 @@ j_mean_NO2(T, fluxes) = j_mean(σ_NO2_interp, ϕ_NO2_jx, T, fluxes)
 j_mean_CH3OOH(T, fluxes) = j_mean(σ_CH3OOH_interp, ϕ_CH3OOH_jx, T, fluxes)
 j_mean_GlyAld(T, fluxes) = j_mean(σ_GlyAld_interp, ϕ_GlyAld_jx, T, fluxes)
 j_mean_H2COa(T, fluxes) = j_mean(σ_H2COa_interp, ϕ_H2COa_jx, T, fluxes)
-j_mean_MGlyxl(T, fluxes) = j_mean(σ_MGlyxl_interp, ϕ_MGlyxl_jx, T, fluxes)
+j_mean_MGlyxl(p_hPa, fluxes) = j_mean(σ_MGlyxl_interp, ϕ_MGlyxl_jx, p_hPa, fluxes)
 j_mean_HOBr(T, fluxes) = j_mean(σ_HOBr_interp, ϕ_HOBr_jx, T, fluxes)
 j_mean_NO3a(T, fluxes) = j_mean(σ_NO3_interp, ϕ_NO3_jx, T, fluxes) .* 0.886
 j_mean_NO3b(T, fluxes) = j_mean(σ_NO3_interp, ϕ_NO3_jx, T, fluxes) .* 0.114
@@ -1374,7 +1402,7 @@ function FastJX(t_ref::AbstractFloat; name = :FastJX, domaininfo = nothing)
         j_H1301 ~ j_mean_H1301(T / T_unit, flux_vars);
         j_CFCl3 ~ j_mean_CFCl3(T / T_unit, flux_vars);
         j_NO ~ j_mean_NO(T / T_unit, flux_vars);
-        j_Glyxlc ~ j_mean_Glyxlc(T / T_unit, flux_vars);
+        j_Glyxlc ~ j_mean_Glyxlc(P / P_unit / 100, flux_vars);
         j_F114 ~ j_mean_F114(T / T_unit, flux_vars);
         j_CH3NO3 ~ j_mean_CH3NO3(T / T_unit, flux_vars);
         j_CHBr3 ~ j_mean_CHBr3(T / T_unit, flux_vars);
@@ -1384,13 +1412,13 @@ function FastJX(t_ref::AbstractFloat; name = :FastJX, domaininfo = nothing)
         j_H1211 ~ j_mean_H1211(T / T_unit, flux_vars);
         j_BrO ~ j_mean_BrO(T / T_unit, flux_vars);
         j_CH3Cl ~ j_mean_CH3Cl(T / T_unit, flux_vars);
-        j_MEKeto ~ j_mean_MEKeto(T / T_unit, flux_vars);
+        j_MEKeto ~ j_mean_MEKeto(P / P_unit / 100, flux_vars);
         j_PAN ~ j_mean_PAN(T / T_unit, flux_vars);
         j_H2402 ~ j_mean_H2402(T / T_unit, flux_vars);
         j_PrAld ~ j_mean_PrAld(T / T_unit, flux_vars);
-        j_MeVKa ~ j_mean_MeVKa(T / T_unit, flux_vars);
-        j_MeVKb ~ j_mean_MeVKb(T / T_unit, flux_vars);
-        j_MeVKc ~ j_mean_MeVKc(T / T_unit, flux_vars);
+        j_MeVKa ~ j_mean_MeVKa(P / P_unit / 100, flux_vars);
+        j_MeVKb ~ j_mean_MeVKb(P / P_unit / 100, flux_vars);
+        j_MeVKc ~ j_mean_MeVKc(P / P_unit / 100, flux_vars);
         j_ClNO3b ~ j_mean_ClNO3b(T / T_unit, flux_vars);
         j_F113 ~ j_mean_F113(T / T_unit, flux_vars);
         j_HNO4 ~ j_mean_HNO4(T / T_unit, flux_vars);
@@ -1402,28 +1430,28 @@ function FastJX(t_ref::AbstractFloat; name = :FastJX, domaininfo = nothing)
         j_F115 ~ j_mean_F115(T / T_unit, flux_vars);
         j_O31D ~ j_mean_O31D(T / T_unit, flux_vars);
         j_CF3I ~ j_mean_CF3I(T / T_unit, flux_vars);
-        j_Glyxla ~ j_mean_Glyxla(T / T_unit, flux_vars);
+        j_Glyxla ~ j_mean_Glyxla(P / P_unit / 100, flux_vars);
         j_CCl4 ~ j_mean_CCl4(T / T_unit, flux_vars);
         j_Cl2 ~ j_mean_Cl2(T / T_unit, flux_vars);
         j_CH3I ~ j_mean_CH3I(T / T_unit, flux_vars);
         j_HNO2 ~ j_mean_HNO2(T / T_unit, flux_vars);
-        j_Aceta ~ j_mean_Aceta(T / T_unit, flux_vars);
+        j_Aceta ~ j_mean_Aceta(P / P_unit / 100, flux_vars);
         j_MeCCl3 ~ j_mean_MeCCl3(T / T_unit, flux_vars);
         j_Cl2O2 ~ j_mean_Cl2O2(T / T_unit, flux_vars);
         j_CH3Br ~ j_mean_CH3Br(T / T_unit, flux_vars);
         j_HNO3 ~ j_mean_HNO3(T / T_unit, flux_vars);
         j_CF2Cl2 ~ j_mean_CF2Cl2(T / T_unit, flux_vars);
-        j_Glyxlb ~ j_mean_Glyxlb(T / T_unit, flux_vars);
+        j_Glyxlb ~ j_mean_Glyxlb(P / P_unit / 100, flux_vars);
         j_F141b ~ j_mean_F141b(T / T_unit, flux_vars);
         j_O3 ~ j_mean_O3(T / T_unit, flux_vars);
         j_ClNO3a ~ j_mean_ClNO3a(T / T_unit, flux_vars);
-        j_ActAld ~ j_mean_ActAld(T / T_unit, flux_vars);
+        j_ActAld ~ j_mean_ActAld(P / P_unit / 100, flux_vars);
         j_CH2Cl2 ~ j_mean_CH2Cl2(T / T_unit, flux_vars);
         j_O2 ~ j_mean_O2(T / T_unit, flux_vars);
         j_BrNO3 ~ j_mean_BrNO3(T / T_unit, flux_vars);
         j_GlyAld ~ j_mean_GlyAld(T / T_unit, flux_vars);
         j_H2COa ~ j_mean_H2COa(T / T_unit, flux_vars);
-        j_MGlyxl ~ j_mean_MGlyxl(T / T_unit, flux_vars);
+        j_MGlyxl ~ j_mean_MGlyxl(P / P_unit / 100, flux_vars);
         j_HOBr ~ j_mean_HOBr(T / T_unit, flux_vars);
         j_NO3a ~ j_mean_NO3a(T / T_unit, flux_vars);
         j_NO3b ~ j_mean_NO3b(T / T_unit, flux_vars);
