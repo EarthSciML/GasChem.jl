@@ -149,6 +149,22 @@ const _FJX_INTERP_J_FULL = [
     (:HOBr, j_mean_HOBr),
     (:Acetb, j_mean_Acetb),
     (:BrCl, j_mean_BrCl),
+    # --- photolysis-completion dedicated-σ channels (extend interp coverage 64 -> 77) ---
+    # These reuse the same (P, cosSZA) flux grid; only the species' σ/ϕ (in Fast-JX.jl)
+    # and these list entries are new — no .bson regeneration needed.
+    (:ONIT1, j_mean_ONIT1),
+    (:ETNO3, j_mean_ETNO3),
+    (:IPRNO3, j_mean_IPRNO3),
+    (:NPRNO3, j_mean_NPRNO3),
+    (:MVKN, j_mean_MVKN),
+    (:MACRN, j_mean_MACRN),
+    (:MACRNP, j_mean_MACRNP),
+    (:ICN, j_mean_ICN),
+    (:ETHLN, j_mean_ETHLN),
+    (:NITP, j_mean_NITP),
+    (:HMHP, j_mean_HMHP),
+    (:HP2, j_mean_HP2),
+    (:ENOL, j_mean_ENOL),
 ]
 
 const _FJX_INTERP_J_SUPERFAST = [
