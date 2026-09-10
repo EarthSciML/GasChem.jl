@@ -1221,7 +1221,7 @@ function rate_ALK(t, T, num_density, a0, b0, c0, n, x0, y0; name = :rate_ALK)
     C = num_density * ppb_unit * unit_conv
     eqs = [
         k0 ~ 2.0e-22 * exp(n) * num_density * num_density_unit_inv
-        k1 ~ k0 / 4.3e-1 * (T / T_298)^(-8)
+        k1 ~ k0 / (4.3e-1 * (T / T_298)^(-8))
         k2 ~ (k0 / (1.0 + k1)) * 4.1e-1^(1.0 / (1.0 + (log10(k1))^2))
         k3 ~ c0 / (k2 + c0)
         k4 ~ a0 * (x0 - T * y0)

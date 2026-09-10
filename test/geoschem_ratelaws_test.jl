@@ -331,5 +331,13 @@ end
     sys, k_var = compile_rate_law(GasChem.rate_ALK(t, T, num_density, a0, b0, c0, n, x0, y0))
     prob = ODEProblem(sys, [], (0.0, 3600.0))
     k_val = getsym(prob, k_var)(prob)
-    @test k_val ≈ 0.00018517572785290386
+    # Expected value reflects the corrected rate_ALK temperature-exponent
+    # parenthesization (matches GEOS-Chem fullchem_RateLawFuncs.F90 GC_ALK).
+    @test k_val ≈ 0.00018430587467471127
+    # Cold-temperature branch: pins the k1 grouping k0 / (4.3e-1 * (T / T_298)^(-8)).
+    # The buggy form multiplied the (T / T_298)^(-8) factor instead of dividing it
+    # (effective exponent +8 vs -8), so it diverges as (T/298)^16 away from ~298 K —
+    # ×16.6 in k1 at 250 K, which the single 293 K point above barely exercises (~1.3×).
+    prob_cold = ODEProblem(sys, [T => 250.0], (0.0, 3600.0))
+    @test getsym(prob_cold, k_var)(prob_cold) ≈ 0.00022289914232641306
 end
