@@ -168,8 +168,10 @@ end
 
     # Nothing is wired to a surrogate that GEOS-Chem does not ask for: the four species
     # whose dedicated cross-section this PR adds must not appear as CH3OOH/CH3NO3.
-    for (n, wrong) in [(142, "CH3OOH"), (143, "CH3OOH"), (89, "CH3NO3"), (166, "CH3NO3"),
-        (78, "CH3NO3"), (87, "CH3OOH"), (157, "CH3OOH")]
+    for (n, wrong) in [
+            (142, "CH3OOH"), (143, "CH3OOH"), (89, "CH3NO3"), (166, "CH3NO3"),
+            (78, "CH3NO3"), (87, "CH3OOH"), (157, "CH3OOH"),
+        ]
         @test !contains(string(j_eqs), "GEOSChemGasPhase₊j_$(n)(t) ~ FastJX₊j_$(wrong)(t)")
     end
 

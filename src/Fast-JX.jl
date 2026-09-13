@@ -1239,8 +1239,8 @@ const σ_H2SO4_interp = [(T) -> σ_H2SO4[i] for i in 1:18]
 const ϕ_ClOO_jx = 1.0f0
 const σ_ClOO = SA_F32[
     6.11e-18, 6.11e-18, 6.11e-18, 6.11e-18, 6.11e-18, 6.11e-18,
-    6.11e-18, 6.11e-18, 1.306e-17, 3.649e-18, 2.365e-18, 2e-18,
-    2e-18, 2e-18, 2e-18, 2e-18, 2e-18, 2e-18,
+    6.11e-18, 6.11e-18, 1.306e-17, 3.649e-18, 2.365e-18, 2.0e-18,
+    2.0e-18, 2.0e-18, 2.0e-18, 2.0e-18, 2.0e-18, 2.0e-18,
 ]
 const σ_ClOO_interp = [(T) -> σ_ClOO[i] for i in 1:18]
 
@@ -1998,4 +1998,4 @@ function FastJX(t_ref::AbstractFloat; name = :FastJX, domaininfo = nothing)
     return flatten(fjx) # Need to do flatten because otherwise coupling doesn't work correctly
 end
 FastJX(t_ref::DateTime; kwargs...) = FastJX(datetime2unix(t_ref); kwargs...)
-FastJX(domain::DomainInfo; kwargs...) = FastJX(get_tref(domain); domaininfo=domain, kwargs...)
+FastJX(domain::DomainInfo; kwargs...) = FastJX(get_tref(domain); domaininfo = domain, kwargs...)

@@ -358,9 +358,9 @@ end
     # minimum at the aphelion-side solstice (DOY 172), maximum near perihelion.
     t172 = datetime2unix(DateTime(2016, 6, 20, 12))
     t355 = datetime2unix(DateTime(2016, 12, 20, 12))
-    @test GasChem.solar_flux_factor(t172) ≈ 0.966 atol = 1e-3
-    @test GasChem.solar_flux_factor(t355) ≈ 1.0339 atol = 1e-3
+    @test GasChem.solar_flux_factor(t172) ≈ 0.966 atol = 1.0e-3
+    @test GasChem.solar_flux_factor(t355) ≈ 1.0339 atol = 1.0e-3
     # energy-neutral over a full year
     days = [datetime2unix(DateTime(2016, 1, 1) + Day(d)) for d in 0:364]
-    @test sum(GasChem.solar_flux_factor.(days)) / 365 ≈ 1.0 atol = 2e-3
+    @test sum(GasChem.solar_flux_factor.(days)) / 365 ≈ 1.0 atol = 2.0e-3
 end
