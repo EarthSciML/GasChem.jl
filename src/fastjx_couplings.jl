@@ -92,11 +92,12 @@ function EarthSciMLBase.couple2(c::GEOSChemGasPhaseCoupler, p::FastJXCoupler)
             c.j_77 ~ p.j_Acetb #
             c.j_122 ~ p.j_CH3I #
             c.j_134 ~ p.j_CH3NO3
-            # === organic surrogate channels (photolysis completion) ===
-            # Hydroperoxides/peroxides photolyze via the /CH3OOH/ surrogate, organic & alkyl
-            # nitrates via /CH3NO3/, plus 13 dedicated Cloud-J v7.3e cross-sections. Surrogate
-            # assignments + j-factors follow GEOS-Chem's FJX_j2j.dat (v7.3e, index-aligned in the
-            # organic block, species-verified). ETP carries GEOS-Chem's 0.5 factor.
+            # === organic channels (photolysis completion) ===
+            # Every parent below is the FJX code GEOS-Chem's own FJX_j2j.dat assigns to that
+            # reaction id (ExtData/CHEM_INPUTS/CLOUD_J/v2024-09, byte-identical over ids 1-166
+            # to CLOUD_J/v2023-05 and to FAST_JX/v2021-10 and v2024-05), and every branching
+            # ratio is its factor column. Hydroperoxides without a dedicated cross-section
+            # photolyze through /CH3OOH/ and alkyl nitrates through /CH3NO3/, as GEOS-Chem does.
             c.j_78 ~ p.j_ONIT2 # IDN
             c.j_79 ~ p.j_CH3OOH # PRPN
             c.j_80 ~ 0.5 * p.j_CH3OOH # ETP
