@@ -13,6 +13,10 @@
     # exactly zero, and every assertion below that compares the compiled system against
     # `j_mean_*` passes by comparing 0.0 to 0.0.
     test_time = 3600 * 18.0
+    # FastJX scales every band's flux by the Earth-Sun distance factor (SOLF); the bare
+    # `j_mean_*` helpers below take a flux array and do not. Comparisons between the two
+    # have to carry it explicitly.
+    solf = GasChem.solar_flux_factor(test_time)
     # [t_ref, lat, long, T, P, H2O]
     p = [0.0, 40.0, -97.0, 298.0, 101325.0, 450.0]
     prob = ODEProblem(
@@ -46,7 +50,7 @@ end
 
 #   Unit Test 1: H2O2 -> OH + OH
 @testitem "H2O2" setup = [FastJXSetup] begin
-    u_1 = [9.537314938390102e-5, 9.762101904345852e-5, 9.986888870301603e-5]
+    u_1 = [9.556109440917478e-5, 9.784078586085366e-5, 0.00010012047731253253]
 
     fluxes = get_fluxes(3600 * 12.0, 30.0, 0.0, 0.9)
     test_1 = [
@@ -59,7 +63,7 @@ end
 
     j_H2O2_func = getsym(prob, fj.j_H2O2)
     j_H2O2_value = j_H2O2_func(prob)
-    j_want = GasChem.j_mean_H2O2(298.0, get_fluxes(test_time, 40.0, -97.0, 101325))
+    j_want = solf * GasChem.j_mean_H2O2(298.0, get_fluxes(test_time, 40.0, -97.0, 101325))
     @test j_H2O2_value ≈ j_want rtol = 0.004
 end
 
@@ -78,14 +82,14 @@ end
 
     j_H2COa_func = getsym(prob, fj.j_H2COa)
     j_H2COa_value = j_H2COa_func(prob)
-    @test j_H2COa_value ≈ GasChem.j_mean_H2COa(
+    @test j_H2COa_value ≈ solf * GasChem.j_mean_H2COa(
         298.0,
         get_fluxes(test_time, 40.0, -97.0, 101325)
     ) rtol = 1.0e-6
 end
 
 @testitem "H2COb" setup = [FastJXSetup] begin
-    u_2 = [7.16264584129105e-5, 7.166900731492678e-5, 7.174464980740016e-5]
+    u_2 = [7.379813688974829e-5, 7.383806831956884e-5, 7.39090575281387e-5]
 
     fluxes = get_fluxes(3600 * 12.0, 30.0, 0.0, 0.9)
     test_2 = [
@@ -99,7 +103,7 @@ end
     j_H2COb_func = getsym(prob, fj.j_H2COb)
     j_H2COb_value = j_H2COb_func(prob)
     @test j_H2COb_value ≈
-        GasChem.j_mean_H2COb(
+        solf * GasChem.j_mean_H2COb(
         298.0,
         get_fluxes(test_time, 40.0, -97.0, 101325)
     ) rtol = 1.0e-6
@@ -107,7 +111,7 @@ end
 
 # Unit Test 3: CH3OOH -> OH + HO2 + CH2O
 @testitem "CH3OOH" setup = [FastJXSetup] begin
-    u_3 = [5.406743321900099e-5, 5.406743321900099e-5, 5.406743321900099e-5]
+    u_3 = [5.479266685458071e-5, 5.479266685458071e-5, 5.479266685458071e-5]
 
     test_3 = [
         GasChem.j_mean_CH3OOH(200.0, get_fluxes(3600 * 6.0, 30.0, 0.0, 0.9)),
@@ -120,7 +124,7 @@ end
     j_CH3OOH_func = getsym(prob, fj.j_CH3OOH)
     j_CH3OOH_value = j_CH3OOH_func(prob)
     @test j_CH3OOH_value ≈
-        GasChem.j_mean_CH3OOH(
+        solf * GasChem.j_mean_CH3OOH(
         298.0,
         get_fluxes(test_time, 40.0, -97.0, 101325)
     ) rtol = 1.0e-6
@@ -128,7 +132,7 @@ end
 
 # Unit Test 4: NO2 -> NO + O
 @testitem "NO2" setup = [FastJXSetup] begin
-    u_4 = [0.003926795211288372, 0.004094143741247612, 0.004261492271206852]
+    u_4 = [0.008441083782777305, 0.008793113374894837, 0.00914514296701237]
 
     fluxes = get_fluxes(3600 * 12.0, 30.0, 0.0, 0.9)
     test_4 = [
@@ -145,7 +149,7 @@ end
     @test j_NO2_value > 1.0e-4
 
     @test j_NO2_value ≈
-        GasChem.j_mean_NO2(298.0, get_fluxes(test_time, 40.0, -97.0, 101325)) rtol = 1.0e-6
+        solf * GasChem.j_mean_NO2(298.0, get_fluxes(test_time, 40.0, -97.0, 101325)) rtol = 1.0e-6
 end
 
 @testitem "GEOS-Chem: CFCl3, H1301, Glyxlc" setup = [FastJXSetup] begin
@@ -155,19 +159,19 @@ end
     j_CFCl3_value = j_CFCl3_func(prob)
 
     @test j_CFCl3_value ≈
-        GasChem.j_mean_CFCl3(298.0, get_fluxes(test_time, 40.0, -97.0, 101325)) rtol = 1.0e-6
+        solf * GasChem.j_mean_CFCl3(298.0, get_fluxes(test_time, 40.0, -97.0, 101325)) rtol = 1.0e-6
 
     j_H1301_func = getsym(prob, fj.j_H1301)
     j_H1301_value = j_H1301_func(prob)
 
     @test j_H1301_value ≈
-        GasChem.j_mean_H1301(298.0, get_fluxes(test_time, 40.0, -97.0, 101325)) rtol = 1.0e-6
+        solf * GasChem.j_mean_H1301(298.0, get_fluxes(test_time, 40.0, -97.0, 101325)) rtol = 1.0e-6
 
     j_Glyxlc_func = getsym(prob, fj.j_Glyxlc)
     j_Glyxlc_value = j_Glyxlc_func(prob)
 
     @test j_Glyxlc_value ≈
-        GasChem.j_mean_Glyxlc(298.0, get_fluxes(test_time, 40.0, -97.0, 101325)) rtol = 1.0e-6
+        solf * GasChem.j_mean_Glyxlc(298.0, get_fluxes(test_time, 40.0, -97.0, 101325)) rtol = 1.0e-6
 end
 
 @testitem "Ensure Cos SZA is non-allocating" begin
