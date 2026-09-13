@@ -994,81 +994,413 @@ const σ_BrCl_interp = create_fjx_interp(
     ]
 )
 
-# === GEOS-Chem Cloud-J v7.3e dedicated cross-sections (photolysis completion) ===
-# Dedicated σ for organic nitrates / hydroperoxides / isoprene-oxidation products that
-# GEOS-Chem 14.1.1 photolyzed via generic surrogates (CH3OOH / CH3NO3). The 18-bin layout
-# was verified against the port's σ_CH3OOH (17/18 bins identical; bin 17 is a minor v7.3e
-# revision), so these values share the port's bin grid and are directly usable.
-# ONIT1 (dedicated cross-section, GEOS-Chem Cloud-J v7.3e)
+# === GEOS-Chem dedicated photolysis cross-sections (photolysis completion) ===
+# σ for the organic nitrates, hydroperoxides and isoprene-oxidation products that this
+# package previously photolyzed through generic surrogates (CH3OOH / CH3NO3), transcribed
+# from the spectral table GEOS-Chem reads at run time:
+#     ExtData/CHEM_INPUTS/CLOUD_J/v2024-09/FJX_spec.dat
+# (byte-identical for these species to CHEM_INPUTS/FAST_JX/v2021-10 and v2024-05). That
+# file is on the same 18-bin grid as `WL` and `top_flux` above — effective wavelengths
+# 380 nm and 574 nm in bins 17 and 18 — so the values drop straight in.
+#
+# Five of them are, in GEOS-Chem's own table, exact linear combinations of cross-sections
+# already present here, so they are written as the combination instead of copied out:
+#     σ_HP2   = 2 σ_CH3OOH              σ_HMHP   = 0.7 σ_CH3OOH
+#     σ_ONIT2 = 2 σ_ONIT1               σ_NITP   = σ_CH3OOH + σ_ONIT1
+#     σ_MACRNP = 0.25 (σ_CH3OOH + σ_MACRN)
+
+# ONIT1 — lumped monoterpene nitrate (GEOS-Chem FJX code /ONIT1/)
 const ϕ_ONIT1_jx = 1.0f0
-const σ_ONIT1 = SA_F32[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1.099e-20, 4.532e-21, 1.951e-21, 7.55e-22, 3.3e-22, 0, 0]
+const σ_ONIT1 = SA_F32[
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1.099e-20,
+    4.532e-21, 1.951e-21, 7.55e-22, 3.3e-22, 0, 0,
+]
 const σ_ONIT1_interp = [(T) -> σ_ONIT1[i] for i in 1:18]
 
-# ETNO3 (dedicated cross-section, GEOS-Chem Cloud-J v7.3e)
+# ONIT2 — GEOS-Chem's /ONIT2/ is exactly 2 × /ONIT1/ in all 18 bins.
+const ϕ_ONIT2_jx = 1.0f0
+const σ_ONIT2 = 2.0f0 .* σ_ONIT1
+const σ_ONIT2_interp = [(T) -> σ_ONIT2[i] for i in 1:18]
+
+# ETNO3 — ethyl nitrate (/ETNO3/, MPI-Mainz, 240 K and 298 K)
 const ϕ_ETNO3_jx = 1.0f0
-const σ_ETNO3_interp = create_fjx_interp([240.0f0, 298.0f0],
+const σ_ETNO3_interp = create_fjx_interp(
+    [240.0f0, 298.0f0],
     [
-        SA_F32[1.667e-17, 1.602e-17, 1.513e-17, 1.389e-17, 9.456e-18, 4.923e-18, 4e-18, 2.127e-18, 3.47e-20, 7.726e-20, 1.134e-19, 6.854e-21, 3.033e-21, 1.299e-21, 5.169e-22, 6.655e-23, 0, 0],
-        SA_F32[1.667e-17, 1.602e-17, 1.513e-17, 1.389e-17, 9.456e-18, 4.923e-18, 4e-18, 2.127e-18, 4.065e-20, 8.057e-20, 1.159e-19, 8.938e-21, 4.157e-21, 1.914e-21, 8.239e-22, 1.246e-22, 0, 0],
-    ])
+        SA_F32[
+            1.667e-17, 1.602e-17, 1.513e-17, 1.389e-17, 9.456e-18, 4.923e-18,
+            4.0e-18, 2.127e-18, 3.47e-20, 7.726e-20, 1.134e-19, 6.854e-21,
+            3.033e-21, 1.299e-21, 5.169e-22, 6.655e-23, 0, 0,
+        ],
+        SA_F32[
+            1.667e-17, 1.602e-17, 1.513e-17, 1.389e-17, 9.456e-18, 4.923e-18,
+            4.0e-18, 2.127e-18, 4.065e-20, 8.057e-20, 1.159e-19, 8.938e-21,
+            4.157e-21, 1.914e-21, 8.239e-22, 1.246e-22, 0, 0,
+        ],
+    ]
+)
 
-# IPRNO3 (dedicated cross-section, GEOS-Chem Cloud-J v7.3e)
+# IPRNO3 — isopropyl nitrate (/IPRNO3/, MPI-Mainz, 240 K and 298 K)
 const ϕ_IPRNO3_jx = 1.0f0
-const σ_IPRNO3_interp = create_fjx_interp([240.0f0, 298.0f0],
+const σ_IPRNO3_interp = create_fjx_interp(
+    [240.0f0, 298.0f0],
     [
-        SA_F32[1.61e-17, 1.702e-17, 1.619e-17, 1.508e-17, 1.07e-17, 5.987e-18, 4.98e-18, 2.65e-18, 4.545e-20, 1.059e-19, 1.503e-19, 9.44e-21, 4.364e-21, 1.959e-21, 8.569e-22, 1.177e-22, 1.212e-24, 0],
-        SA_F32[1.61e-17, 1.702e-17, 1.619e-17, 1.508e-17, 1.07e-17, 5.987e-18, 4.98e-18, 2.65e-18, 5.23e-20, 1.101e-19, 1.537e-19, 1.242e-20, 6.091e-21, 2.921e-21, 1.392e-21, 2.235e-22, 1.212e-24, 0],
-    ])
+        SA_F32[
+            1.61e-17, 1.702e-17, 1.619e-17, 1.508e-17, 1.07e-17, 5.987e-18,
+            4.98e-18, 2.65e-18, 4.545e-20, 1.059e-19, 1.503e-19, 9.44e-21,
+            4.364e-21, 1.959e-21, 8.569e-22, 1.177e-22, 1.212e-24, 0,
+        ],
+        SA_F32[
+            1.61e-17, 1.702e-17, 1.619e-17, 1.508e-17, 1.07e-17, 5.987e-18,
+            4.98e-18, 2.65e-18, 5.23e-20, 1.101e-19, 1.537e-19, 1.242e-20,
+            6.091e-21, 2.921e-21, 1.392e-21, 2.235e-22, 1.212e-24, 0,
+        ],
+    ]
+)
 
-# NPRNO3 (dedicated cross-section, GEOS-Chem Cloud-J v7.3e)
+# NPRNO3 — n-propyl nitrate (/NPRNO3/)
 const ϕ_NPRNO3_jx = 1.0f0
-const σ_NPRNO3 = SA_F32[1.767e-17, 1.703e-17, 1.617e-17, 1.501e-17, 1.063e-17, 5.889e-18, 4.89e-18, 2.622e-18, 4.401e-20, 8.938e-20, 1.372e-19, 9.851e-21, 4.296e-21, 1.915e-21, 8.314e-22, 2.135e-22, 0, 0]
+const σ_NPRNO3 = SA_F32[
+    1.767e-17, 1.703e-17, 1.617e-17, 1.501e-17, 1.063e-17, 5.889e-18,
+    4.89e-18, 2.622e-18, 4.401e-20, 8.938e-20, 1.372e-19, 9.851e-21,
+    4.296e-21, 1.915e-21, 8.314e-22, 2.135e-22, 0, 0,
+]
 const σ_NPRNO3_interp = [(T) -> σ_NPRNO3[i] for i in 1:18]
 
-# MVKN (dedicated cross-section, GEOS-Chem Cloud-J v7.3e)
+# MVKN — nitrooxy-MVK (/MVKN/)
 const ϕ_MVKN_jx = 1.0f0
-const σ_MVKN = SA_F32[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9.601e-20, 6.372e-20, 4.202e-20, 2.535e-20, 4.86e-21, 0, 0]
+const σ_MVKN = SA_F32[
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9.601e-20,
+    6.372e-20, 4.202e-20, 2.535e-20, 4.86e-21, 0, 0,
+]
 const σ_MVKN_interp = [(T) -> σ_MVKN[i] for i in 1:18]
 
-# MACRN (dedicated cross-section, GEOS-Chem Cloud-J v7.3e)
+# MACRN — nitrooxy-methacrolein (/MACRN/)
 const ϕ_MACRN_jx = 1.0f0
-const σ_MACRN = SA_F32[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1.328e-19, 1.262e-19, 1.113e-19, 1.01e-19, 6.449e-20, 0, 0]
+const σ_MACRN = SA_F32[
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1.328e-19,
+    1.262e-19, 1.113e-19, 1.01e-19, 6.449e-20, 0, 0,
+]
 const σ_MACRN_interp = [(T) -> σ_MACRN[i] for i in 1:18]
 
-# MACRNP (dedicated cross-section, GEOS-Chem Cloud-J v7.3e)
+# MACRNP — GEOS-Chem's /MACRNP/ is 0.25 (σ_CH3OOH + σ_MACRN). The combination reproduces
+# the tabulated values exactly in bins 1-16 and 18; bin 17 of the table reads 1.734e-23
+# where the combination gives 1.743e-23 (0.5%, worth 0.003% of j).
 const ϕ_MACRNP_jx = 1.0f0
-const σ_MACRNP = SA_F32[0, 0, 0, 0, 0, 7.8e-20, 7.205e-20, 5.625e-20, 6.79e-21, 6.85e-21, 5.358e-21, 3.46e-20, 3.242e-20, 2.843e-20, 2.567e-20, 1.63e-20, 1.734e-23, 0]
+const σ_MACRNP = 0.25f0 .* (σ_CH3OOH .+ σ_MACRN)
 const σ_MACRNP_interp = [(T) -> σ_MACRNP[i] for i in 1:18]
 
-# ICN (dedicated cross-section, GEOS-Chem Cloud-J v7.3e)
+# ICN — isoprene carbonyl nitrate (/ICN/)
 const ϕ_ICN_jx = 1.0f0
-const σ_ICN = SA_F32[0, 0, 0, 0, 0, 0, 0, 0, 1.733e-21, 5.229e-21, 9.629e-21, 1.55e-20, 2.62e-20, 2.945e-20, 3.337e-20, 3.625e-20, 7.3e-21, 0]
+const σ_ICN = SA_F32[
+    0, 0, 0, 0, 0, 0, 0, 0, 1.733e-21, 5.229e-21, 9.629e-21, 1.55e-20,
+    2.62e-20, 2.945e-20, 3.337e-20, 3.625e-20, 7.3e-21, 0,
+]
 const σ_ICN_interp = [(T) -> σ_ICN[i] for i in 1:18]
 
-# ETHLN (dedicated cross-section, GEOS-Chem Cloud-J v7.3e)
+# ETHLN — nitrooxy-acetaldehyde (/ETHLN/)
 const ϕ_ETHLN_jx = 1.0f0
-const σ_ETHLN = SA_F32[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6.902e-20, 6.428e-20, 5.734e-20, 4.883e-20, 2.272e-20, 0, 0]
+const σ_ETHLN = SA_F32[
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6.902e-20,
+    6.428e-20, 5.734e-20, 4.883e-20, 2.272e-20, 0, 0,
+]
 const σ_ETHLN_interp = [(T) -> σ_ETHLN[i] for i in 1:18]
 
-# NITP (dedicated cross-section, GEOS-Chem Cloud-J v7.3e)
+# NITP — GEOS-Chem's /NITP/ is exactly σ_CH3OOH + σ_ONIT1 in all 18 bins.
 const ϕ_NITP_jx = 1.0f0
-const σ_NITP = SA_F32[0, 0, 0, 0, 0, 3.12e-19, 2.882e-19, 2.25e-19, 2.716e-20, 2.74e-20, 2.143e-20, 1.661e-20, 8.052e-21, 4.354e-21, 2.452e-21, 1.053e-21, 6.973e-23, 0]
+const σ_NITP = σ_CH3OOH .+ σ_ONIT1
 const σ_NITP_interp = [(T) -> σ_NITP[i] for i in 1:18]
 
-# HMHP (dedicated cross-section, GEOS-Chem Cloud-J v7.3e)
+# HMHP — GEOS-Chem's /HMHP/ is exactly 0.7 × σ_CH3OOH in all 18 bins.
 const ϕ_HMHP_jx = 1.0f0
-const σ_HMHP = SA_F32[0, 0, 0, 0, 0, 2.184e-19, 2.017e-19, 1.575e-19, 1.901e-20, 1.918e-20, 1.5e-20, 3.937e-21, 2.464e-21, 1.682e-21, 1.188e-21, 5.061e-22, 4.881e-23, 0]
+const σ_HMHP = 0.7f0 .* σ_CH3OOH
 const σ_HMHP_interp = [(T) -> σ_HMHP[i] for i in 1:18]
 
-# HP2 (dedicated cross-section, GEOS-Chem Cloud-J v7.3e)
+# HP2 — GEOS-Chem's /HP2/ is exactly 2 × σ_CH3OOH in all 18 bins.
 const ϕ_HP2_jx = 1.0f0
-const σ_HP2 = SA_F32[0, 0, 0, 0, 0, 6.24e-19, 5.764e-19, 4.5e-19, 5.432e-20, 5.48e-20, 4.286e-20, 1.125e-20, 7.04e-21, 4.806e-21, 3.394e-21, 1.446e-21, 1.395e-22, 0]
+const σ_HP2 = 2.0f0 .* σ_CH3OOH
 const σ_HP2_interp = [(T) -> σ_HP2[i] for i in 1:18]
 
-# ENOL (dedicated cross-section, GEOS-Chem Cloud-J v7.3e)
+# ENOL — methacrolein enol (/ENOL/)
 const ϕ_ENOL_jx = 1.0f0
-const σ_ENOL = SA_F32[0, 0, 0, 0, 0, 0, 0, 0, 1.375e-20, 1.085e-20, 1.305e-20, 1.6e-20, 2.125e-20, 2.61e-20, 3.045e-20, 3.295e-20, 8.25e-21, 0]
+const σ_ENOL = SA_F32[
+    0, 0, 0, 0, 0, 0, 0, 0, 1.375e-20, 1.085e-20, 1.305e-20, 1.6e-20,
+    2.125e-20, 2.61e-20, 3.045e-20, 3.295e-20, 8.25e-21, 0,
+]
 const σ_ENOL_interp = [(T) -> σ_ENOL[i] for i in 1:18]
+
+# PROPNN — propanone nitrate (/PROPNN/)
+const ϕ_PROPNN_jx = 1.0f0
+const σ_PROPNN = SA_F32[
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5.832e-20,
+    4.196e-20, 2.862e-20, 1.808e-20, 4.216e-21, 0, 0,
+]
+const σ_PROPNN_interp = [(T) -> σ_PROPNN[i] for i in 1:18]
+
+# HPALD1 — isoprene hydroperoxy-aldehyde, 1,6-H shift channel (/HPALD1/)
+const ϕ_HPALD1_jx = 1.0f0
+const σ_HPALD1 = SA_F32[
+    0, 0, 0, 0, 0, 0, 0, 0, 1.827e-21, 5.514e-21, 1.015e-20, 1.53e-20,
+    2.285e-20, 2.9e-20, 3.439e-20, 3.787e-20, 7.699e-21, 0,
+]
+const σ_HPALD1_interp = [(T) -> σ_HPALD1[i] for i in 1:18]
+
+# HPALD2 — isoprene hydroperoxy-aldehyde, second isomer (/HPALD2/)
+const ϕ_HPALD2_jx = 1.0f0
+const σ_HPALD2 = SA_F32[
+    0, 0, 0, 0, 0, 0, 0, 0, 1.733e-21, 5.229e-21, 9.629e-21, 1.451e-20,
+    2.167e-20, 2.75e-20, 3.262e-20, 3.592e-20, 7.3e-21, 0,
+]
+const σ_HPALD2_interp = [(T) -> σ_HPALD2[i] for i in 1:18]
+
+# PrAldP — peroxide-substituted propanal, GEOS-Chem's generic hydroperoxy-carbonyl
+# cross-section (/PrAldP/). Close to σ_PrAld + σ_CH3OOH but not exactly (1.2% at bin 15),
+# so the tabulated values are used.
+const ϕ_PrAldP_jx = 1.0f0
+const σ_PrAldP = SA_F32[
+    0, 0, 1.797e-23, 0, 3.43e-22, 3.125e-19, 2.888e-19, 2.257e-19, 5.704e-20,
+    7.26e-20, 7.265e-20, 6.107e-20, 4.98e-20, 3.816e-20, 2.636e-20, 6.559e-21,
+    8.219e-23, 0,
+]
+const σ_PrAldP_interp = [(T) -> σ_PrAldP[i] for i in 1:18]
+
+# BALD — benzaldehyde (/BALD/)
+const ϕ_BALD_jx = 1.0f0
+const σ_BALD = SA_F32[
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2.78e-19,
+    6.6e-20, 7.2e-20, 9.2e-20, 8.5e-20, 0, 0,
+]
+const σ_BALD_interp = [(T) -> σ_BALD[i] for i in 1:18]
+
+# === halogen, iodine and remaining inorganic cross-sections (photolysis completion) ===
+# Same source as the block above: ExtData/CHEM_INPUTS/CLOUD_J/v2024-09/FJX_spec.dat.
+# These carry the Cl/Br/I channels that GEOSChemGasPhase declares and photolyzes but
+# that had no cross-section here; their tropospheric lifetimes run from seconds to hours.
+
+# ClNO2 — nitryl chloride
+const ϕ_ClNO2_jx = 1.0f0
+const σ_ClNO2_interp = create_fjx_interp(
+    [210.0f0, 296.0f0],
+    [
+        SA_F32[
+            3.211e-18, 3.211e-18, 3.206e-18, 3.211e-18, 3.072e-18, 3.197e-18,
+            3.415e-18, 3.573e-18, 5.43e-19, 5.906e-19, 4.631e-19, 1.627e-19,
+            1.401e-19, 1.16e-19, 9.194e-20, 4.179e-20, 3.192e-21, 6.578e-24,
+        ],
+        SA_F32[
+            4.02e-18, 4.02e-18, 4.005e-18, 4.02e-18, 3.516e-18, 3.187e-18,
+            3.31e-18, 3.444e-18, 5.997e-19, 6.037e-19, 4.517e-19, 1.592e-19,
+            1.394e-19, 1.197e-19, 9.932e-20, 5.206e-20, 5.773e-21, 2.173e-23,
+        ],
+    ]
+)
+
+# Br2 — molecular bromine
+const ϕ_Br2_jx = 1.0f0
+const σ_Br2 = SA_F32[
+    5.62e-21, 5.62e-21, 5.645e-21, 5.62e-21, 6.527e-21, 8.167e-21,
+    8.953e-21, 9.579e-21, 3.185e-21, 2.293e-21, 1.207e-21, 2.027e-22,
+    1.134e-22, 1.497e-22, 3.956e-22, 6.865e-21, 3.594e-19, 1.157e-19,
+]
+const σ_Br2_interp = [(T) -> σ_Br2[i] for i in 1:18]
+
+# BrNO2 — nitryl bromide
+const ϕ_BrNO2_jx = 1.0f0
+const σ_BrNO2 = SA_F32[
+    3.006e-17, 3.905e-17, 4.383e-17, 5.035e-17, 4.817e-17, 3.238e-17,
+    2.22e-17, 1.446e-17, 2.26e-18, 1.318e-18, 1.072e-18, 3.169e-19,
+    1.701e-19, 1.149e-19, 1.063e-19, 1.369e-19, 1.577e-19, 1.374e-20,
+]
+const σ_BrNO2_interp = [(T) -> σ_BrNO2[i] for i in 1:18]
+
+# HAC — hydroxyacetone
+const ϕ_HAC_jx = 1.0f0
+const σ_HAC = SA_F32[
+    2.43e-20, 2.43e-20, 2.43e-20, 2.43e-20, 2.43e-20, 2.43e-20,
+    2.43e-20, 2.43e-20, 5.336e-20, 4.061e-20, 2.757e-20, 1.735e-20,
+    6.953e-21, 2.917e-21, 1.403e-21, 4.377e-22, 0, 0,
+]
+const σ_HAC_interp = [(T) -> σ_HAC[i] for i in 1:18]
+
+# H2SO4 — sulfuric acid (GEOS-Chem's SO4 photolysis channel)
+const ϕ_H2SO4_jx = 1.0f0
+const σ_H2SO4 = SA_F32[
+    0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 2.542e-25,
+]
+const σ_H2SO4_interp = [(T) -> σ_H2SO4[i] for i in 1:18]
+
+# ClOO — chlorine peroxy radical
+const ϕ_ClOO_jx = 1.0f0
+const σ_ClOO = SA_F32[
+    6.11e-18, 6.11e-18, 6.11e-18, 6.11e-18, 6.11e-18, 6.11e-18,
+    6.11e-18, 6.11e-18, 1.306e-17, 3.649e-18, 2.365e-18, 2e-18,
+    2e-18, 2e-18, 2e-18, 2e-18, 2e-18, 2e-18,
+]
+const σ_ClOO_interp = [(T) -> σ_ClOO[i] for i in 1:18]
+
+# MPN — methyl peroxy nitrate
+const ϕ_MPN_jx = 1.0f0
+const σ_MPN = SA_F32[
+    0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 2.601e-20,
+    1.103e-20, 5.239e-21, 2.793e-21, 2.25e-22, 0, 0,
+]
+const σ_MPN_interp = [(T) -> σ_MPN[i] for i in 1:18]
+
+# I2 — molecular iodine
+const ϕ_I2_jx = 1.0f0
+const σ_I2 = SA_F32[
+    1.764e-17, 1.609e-17, 1.436e-17, 1.121e-17, 6.547e-18, 4.546e-18,
+    4.033e-18, 3.805e-18, 9.654e-19, 8.461e-19, 6.429e-19, 3.313e-19,
+    2.461e-19, 1.831e-19, 1.425e-19, 7.183e-20, 2.142e-20, 8.271e-19,
+]
+const σ_I2_interp = [(T) -> σ_I2[i] for i in 1:18]
+
+# HOI — hypoiodous acid
+const ϕ_HOI_jx = 1.0f0
+const σ_HOI = SA_F32[
+    0, 0, 0, 0, 0, 0,
+    0, 0, 0, 9.7e-22, 4.848e-21, 1.42e-20,
+    4.809e-20, 9.995e-20, 1.732e-19, 3.478e-19, 2.595e-19, 1.377e-20,
+]
+const σ_HOI_interp = [(T) -> σ_HOI[i] for i in 1:18]
+
+# IO — iodine monoxide
+const ϕ_IO_jx = 1.0f0
+const σ_IO = SA_F32[
+    0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0,
+    0, 0, 0, 2.623e-19, 5.093e-18, 5.189e-19,
+]
+const σ_IO_interp = [(T) -> σ_IO[i] for i in 1:18]
+
+# OIO — iodine dioxide
+const ϕ_OIO_jx = 1.0f0
+const σ_OIO = SA_F32[
+    0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 9.667e-19,
+]
+const σ_OIO_interp = [(T) -> σ_OIO[i] for i in 1:18]
+
+# INO — nitrosyl iodide
+const ϕ_INO_jx = 1.0f0
+const σ_INO = SA_F32[
+    0, 0, 0, 0, 0, 0,
+    0, 0, 2.437e-17, 6.252e-18, 2.001e-18, 1.433e-18,
+    7.628e-19, 4.42e-19, 4.152e-19, 4.286e-19, 7.393e-19, 8.373e-20,
+]
+const σ_INO_interp = [(T) -> σ_INO[i] for i in 1:18]
+
+# IONO — iodine nitrite
+const ϕ_IONO_jx = 1.0f0
+const σ_IONO = SA_F32[
+    0, 0, 0, 0, 0, 0,
+    1.972e-18, 1.939e-18, 1.687e-18, 1.3e-18, 9.278e-19, 6.267e-19,
+    3.367e-19, 2.551e-19, 2.597e-19, 3.392e-19, 8.96e-20, 0,
+]
+const σ_IONO_interp = [(T) -> σ_IONO[i] for i in 1:18]
+
+# IONO2 — iodine nitrate
+const ϕ_IONO2_jx = 1.0f0
+const σ_IONO2 = SA_F32[
+    0, 0, 0, 0, 0, 0,
+    0, 0, 1.654e-18, 1.264e-18, 1.23e-18, 1.221e-18,
+    1.063e-18, 9.727e-19, 9.006e-19, 7.886e-19, 3.599e-19, 4.792e-22,
+]
+const σ_IONO2_interp = [(T) -> σ_IONO2[i] for i in 1:18]
+
+# I2O2 — di-iodine dioxide (also carries the I2O4 channel, per FJX_j2j.dat)
+const ϕ_I2O2_jx = 1.0f0
+const σ_I2O2 = SA_F32[
+    0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0,
+    0, 1.021e-17, 1.213e-17, 3.432e-18, 8.35e-19, 4.575e-20,
+]
+const σ_I2O2_interp = [(T) -> σ_I2O2[i] for i in 1:18]
+
+# CH2I2 — di-iodomethane
+const ϕ_CH2I2_jx = 1.0f0
+const σ_CH2I2_interp = create_fjx_interp(
+    [273.0f0, 298.0f0],
+    [
+        SA_F32[
+            0, 0, 0, 0, 9.204e-19, 4.051e-18,
+            3.949e-18, 3.666e-18, 1.571e-18, 3.144e-18, 3.789e-18, 3.773e-18,
+            3.466e-18, 3.116e-18, 2.679e-18, 1.356e-18, 5.362e-20, 0,
+        ],
+        SA_F32[
+            0, 0, 0, 0, 9.204e-19, 4.051e-18,
+            3.952e-18, 3.677e-18, 1.589e-18, 3.065e-18, 3.704e-18, 3.714e-18,
+            3.446e-18, 3.12e-18, 2.692e-18, 1.377e-18, 5.9e-20, 0,
+        ],
+    ]
+)
+
+# CH2ICl — chloroiodomethane
+const ϕ_CH2ICl_jx = 1.0f0
+const σ_CH2ICl_interp = create_fjx_interp(
+    [223.0f0, 298.0f0],
+    [
+        SA_F32[
+            0, 0, 0, 0, 2.377e-19, 5.873e-19,
+            2.12e-19, 1.145e-19, 1.091e-18, 8.447e-19, 5.521e-19, 3.727e-19,
+            1.646e-19, 8.692e-20, 5.127e-20, 1.212e-20, 5.625e-22, 0,
+        ],
+        SA_F32[
+            0, 0, 0, 0, 2.682e-19, 7.47e-19,
+            3.544e-19, 1.665e-19, 1.031e-18, 8.254e-19, 5.804e-19, 4.204e-19,
+            2.04e-19, 1.11e-19, 6.572e-20, 1.93e-20, 6.818e-22, 0,
+        ],
+    ]
+)
+
+# CH2IBr — bromoiodomethane
+const ϕ_CH2IBr_jx = 1.0f0
+const σ_CH2IBr_interp = create_fjx_interp(
+    [273.0f0, 298.0f0],
+    [
+        SA_F32[
+            0, 0, 0, 0, 0, 0,
+            0, 1.163e-18, 2.011e-18, 1.845e-18, 1.487e-18, 8.439e-19,
+            4.853e-19, 3.061e-19, 2.058e-19, 6.617e-20, 2.138e-21, 0,
+        ],
+        SA_F32[
+            0, 0, 0, 0, 0, 0,
+            0, 1.104e-18, 1.948e-18, 1.826e-18, 1.477e-18, 8.549e-19,
+            4.985e-19, 3.168e-19, 2.14e-19, 7.134e-20, 2.622e-21, 0,
+        ],
+    ]
+)
+
+# I2O3 — di-iodine trioxide
+const ϕ_I2O3_jx = 1.0f0
+const σ_I2O3 = SA_F32[
+    0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 9.361e-19,
+    3.989e-18, 3.37e-18, 3.099e-18, 2.357e-18, 9.867e-19, 4.855e-20,
+]
+const σ_I2O3_interp = [(T) -> σ_I2O3[i] for i in 1:18]
+
+# IBr — iodine monobromide
+const ϕ_IBr_jx = 1.0f0
+const σ_IBr = SA_F32[
+    0, 0, 0, 0, 0, 0,
+    0, 0, 2.018e-19, 1.777e-19, 1.578e-19, 1.477e-19,
+    1.097e-19, 8.05e-20, 6.293e-20, 3.124e-20, 8.039e-20, 3.41e-19,
+]
+const σ_IBr_interp = [(T) -> σ_IBr[i] for i in 1:18]
+
+# ICl — iodine monochloride
+const ϕ_ICl_jx = 1.0f0
+const σ_ICl = SA_F32[
+    0, 0, 0, 0, 0, 0,
+    8.147e-20, 1.297e-19, 3.256e-19, 1.617e-19, 8.155e-20, 4.926e-20,
+    2.175e-20, 1.975e-21, 0, 0, 1.185e-19, 1.029e-19,
+]
+const σ_ICl_interp = [(T) -> σ_ICl[i] for i in 1:18]
 
 """
     cos_solar_zenith_angle(lat, t, long)
@@ -1281,8 +1613,9 @@ j_mean_NO3a(T, fluxes) = j_mean(σ_NO3_interp, ϕ_NO3_jx, T, fluxes) .* 0.886
 j_mean_NO3b(T, fluxes) = j_mean(σ_NO3_interp, ϕ_NO3_jx, T, fluxes) .* 0.114
 j_mean_Acetb(T, fluxes) = j_mean(σ_Acetb_interp, ϕ_Acetb_jx, T, fluxes)
 j_mean_BrCl(T, fluxes) = j_mean(σ_BrCl_interp, ϕ_BrCl_jx, T, fluxes)
-# dedicated v7.3e cross-sections (photolysis completion)
+# GEOS-Chem dedicated cross-sections (photolysis completion)
 j_mean_ONIT1(T, fluxes) = j_mean(σ_ONIT1_interp, ϕ_ONIT1_jx, T, fluxes)
+j_mean_ONIT2(T, fluxes) = j_mean(σ_ONIT2_interp, ϕ_ONIT2_jx, T, fluxes)
 j_mean_ETNO3(T, fluxes) = j_mean(σ_ETNO3_interp, ϕ_ETNO3_jx, T, fluxes)
 j_mean_IPRNO3(T, fluxes) = j_mean(σ_IPRNO3_interp, ϕ_IPRNO3_jx, T, fluxes)
 j_mean_NPRNO3(T, fluxes) = j_mean(σ_NPRNO3_interp, ϕ_NPRNO3_jx, T, fluxes)
@@ -1295,6 +1628,33 @@ j_mean_NITP(T, fluxes) = j_mean(σ_NITP_interp, ϕ_NITP_jx, T, fluxes)
 j_mean_HMHP(T, fluxes) = j_mean(σ_HMHP_interp, ϕ_HMHP_jx, T, fluxes)
 j_mean_HP2(T, fluxes) = j_mean(σ_HP2_interp, ϕ_HP2_jx, T, fluxes)
 j_mean_ENOL(T, fluxes) = j_mean(σ_ENOL_interp, ϕ_ENOL_jx, T, fluxes)
+j_mean_PROPNN(T, fluxes) = j_mean(σ_PROPNN_interp, ϕ_PROPNN_jx, T, fluxes)
+j_mean_HPALD1(T, fluxes) = j_mean(σ_HPALD1_interp, ϕ_HPALD1_jx, T, fluxes)
+j_mean_HPALD2(T, fluxes) = j_mean(σ_HPALD2_interp, ϕ_HPALD2_jx, T, fluxes)
+j_mean_PrAldP(T, fluxes) = j_mean(σ_PrAldP_interp, ϕ_PrAldP_jx, T, fluxes)
+j_mean_BALD(T, fluxes) = j_mean(σ_BALD_interp, ϕ_BALD_jx, T, fluxes)
+# halogen, iodine and remaining inorganic channels (photolysis completion)
+j_mean_ClNO2(T, fluxes) = j_mean(σ_ClNO2_interp, ϕ_ClNO2_jx, T, fluxes)
+j_mean_Br2(T, fluxes) = j_mean(σ_Br2_interp, ϕ_Br2_jx, T, fluxes)
+j_mean_BrNO2(T, fluxes) = j_mean(σ_BrNO2_interp, ϕ_BrNO2_jx, T, fluxes)
+j_mean_HAC(T, fluxes) = j_mean(σ_HAC_interp, ϕ_HAC_jx, T, fluxes)
+j_mean_H2SO4(T, fluxes) = j_mean(σ_H2SO4_interp, ϕ_H2SO4_jx, T, fluxes)
+j_mean_ClOO(T, fluxes) = j_mean(σ_ClOO_interp, ϕ_ClOO_jx, T, fluxes)
+j_mean_MPN(T, fluxes) = j_mean(σ_MPN_interp, ϕ_MPN_jx, T, fluxes)
+j_mean_I2(T, fluxes) = j_mean(σ_I2_interp, ϕ_I2_jx, T, fluxes)
+j_mean_HOI(T, fluxes) = j_mean(σ_HOI_interp, ϕ_HOI_jx, T, fluxes)
+j_mean_IO(T, fluxes) = j_mean(σ_IO_interp, ϕ_IO_jx, T, fluxes)
+j_mean_OIO(T, fluxes) = j_mean(σ_OIO_interp, ϕ_OIO_jx, T, fluxes)
+j_mean_INO(T, fluxes) = j_mean(σ_INO_interp, ϕ_INO_jx, T, fluxes)
+j_mean_IONO(T, fluxes) = j_mean(σ_IONO_interp, ϕ_IONO_jx, T, fluxes)
+j_mean_IONO2(T, fluxes) = j_mean(σ_IONO2_interp, ϕ_IONO2_jx, T, fluxes)
+j_mean_I2O2(T, fluxes) = j_mean(σ_I2O2_interp, ϕ_I2O2_jx, T, fluxes)
+j_mean_CH2I2(T, fluxes) = j_mean(σ_CH2I2_interp, ϕ_CH2I2_jx, T, fluxes)
+j_mean_CH2ICl(T, fluxes) = j_mean(σ_CH2ICl_interp, ϕ_CH2ICl_jx, T, fluxes)
+j_mean_CH2IBr(T, fluxes) = j_mean(σ_CH2IBr_interp, ϕ_CH2IBr_jx, T, fluxes)
+j_mean_I2O3(T, fluxes) = j_mean(σ_I2O3_interp, ϕ_I2O3_jx, T, fluxes)
+j_mean_IBr(T, fluxes) = j_mean(σ_IBr_interp, ϕ_IBr_jx, T, fluxes)
+j_mean_ICl(T, fluxes) = j_mean(σ_ICl_interp, ϕ_ICl_jx, T, fluxes)
 
 """
     adjust_j_O31D(T, P, H2O)
@@ -1462,8 +1822,9 @@ function FastJX(t_ref::AbstractFloat; name = :FastJX, domaininfo = nothing)
         j_NO3b(t), [unit = u"s^-1"]
         j_Acetb(t), [unit = u"s^-1"]
         j_BrCl(t), [unit = u"s^-1"]
-        # dedicated v7.3e cross-sections (photolysis completion)
+        # GEOS-Chem dedicated cross-sections (photolysis completion)
         j_ONIT1(t), [unit = u"s^-1"]
+        j_ONIT2(t), [unit = u"s^-1"]
         j_ETNO3(t), [unit = u"s^-1"]
         j_IPRNO3(t), [unit = u"s^-1"]
         j_NPRNO3(t), [unit = u"s^-1"]
@@ -1476,6 +1837,33 @@ function FastJX(t_ref::AbstractFloat; name = :FastJX, domaininfo = nothing)
         j_HMHP(t), [unit = u"s^-1"]
         j_HP2(t), [unit = u"s^-1"]
         j_ENOL(t), [unit = u"s^-1"]
+        j_PROPNN(t), [unit = u"s^-1"]
+        j_HPALD1(t), [unit = u"s^-1"]
+        j_HPALD2(t), [unit = u"s^-1"]
+        j_PrAldP(t), [unit = u"s^-1"]
+        j_BALD(t), [unit = u"s^-1"]
+        # halogen, iodine and remaining inorganic channels (photolysis completion)
+        j_ClNO2(t), [unit = u"s^-1"]
+        j_Br2(t), [unit = u"s^-1"]
+        j_BrNO2(t), [unit = u"s^-1"]
+        j_HAC(t), [unit = u"s^-1"]
+        j_H2SO4(t), [unit = u"s^-1"]
+        j_ClOO(t), [unit = u"s^-1"]
+        j_MPN(t), [unit = u"s^-1"]
+        j_I2(t), [unit = u"s^-1"]
+        j_HOI(t), [unit = u"s^-1"]
+        j_IO(t), [unit = u"s^-1"]
+        j_OIO(t), [unit = u"s^-1"]
+        j_INO(t), [unit = u"s^-1"]
+        j_IONO(t), [unit = u"s^-1"]
+        j_IONO2(t), [unit = u"s^-1"]
+        j_I2O2(t), [unit = u"s^-1"]
+        j_CH2I2(t), [unit = u"s^-1"]
+        j_CH2ICl(t), [unit = u"s^-1"]
+        j_CH2IBr(t), [unit = u"s^-1"]
+        j_I2O3(t), [unit = u"s^-1"]
+        j_IBr(t), [unit = u"s^-1"]
+        j_ICl(t), [unit = u"s^-1"]
     end
 
     flux = flux_sys(ParentScope(cosSZA), ParentScope(P) / ParentScope(P_unit), solar_flux_factor(t + ParentScope(t_ref)))
@@ -1549,8 +1937,9 @@ function FastJX(t_ref::AbstractFloat; name = :FastJX, domaininfo = nothing)
         j_NO3b ~ j_mean_NO3b(T / T_unit, flux_vars);
         j_Acetb ~ j_mean_Acetb(T / T_unit, flux_vars);
         j_BrCl ~ j_mean_BrCl(T / T_unit, flux_vars);
-        # dedicated v7.3e cross-sections (photolysis completion)
+        # GEOS-Chem dedicated cross-sections (photolysis completion)
         j_ONIT1 ~ j_mean_ONIT1(T / T_unit, flux_vars);
+        j_ONIT2 ~ j_mean_ONIT2(T / T_unit, flux_vars);
         j_ETNO3 ~ j_mean_ETNO3(T / T_unit, flux_vars);
         j_IPRNO3 ~ j_mean_IPRNO3(T / T_unit, flux_vars);
         j_NPRNO3 ~ j_mean_NPRNO3(T / T_unit, flux_vars);
@@ -1562,7 +1951,35 @@ function FastJX(t_ref::AbstractFloat; name = :FastJX, domaininfo = nothing)
         j_NITP ~ j_mean_NITP(T / T_unit, flux_vars);
         j_HMHP ~ j_mean_HMHP(T / T_unit, flux_vars);
         j_HP2 ~ j_mean_HP2(T / T_unit, flux_vars);
-        j_ENOL ~ j_mean_ENOL(T / T_unit, flux_vars)
+        j_ENOL ~ j_mean_ENOL(T / T_unit, flux_vars);
+        j_PROPNN ~ j_mean_PROPNN(T / T_unit, flux_vars);
+        j_HPALD1 ~ j_mean_HPALD1(T / T_unit, flux_vars);
+        j_HPALD2 ~ j_mean_HPALD2(T / T_unit, flux_vars);
+        j_PrAldP ~ j_mean_PrAldP(T / T_unit, flux_vars);
+        j_BALD ~ j_mean_BALD(T / T_unit, flux_vars);
+        # halogen, iodine and remaining inorganic channels (photolysis completion)
+        j_N2O ~ j_mean_N2O(T / T_unit, flux_vars);
+        j_ClNO2 ~ j_mean_ClNO2(T / T_unit, flux_vars);
+        j_Br2 ~ j_mean_Br2(T / T_unit, flux_vars);
+        j_BrNO2 ~ j_mean_BrNO2(T / T_unit, flux_vars);
+        j_HAC ~ j_mean_HAC(T / T_unit, flux_vars);
+        j_H2SO4 ~ j_mean_H2SO4(T / T_unit, flux_vars);
+        j_ClOO ~ j_mean_ClOO(T / T_unit, flux_vars);
+        j_MPN ~ j_mean_MPN(T / T_unit, flux_vars);
+        j_I2 ~ j_mean_I2(T / T_unit, flux_vars);
+        j_HOI ~ j_mean_HOI(T / T_unit, flux_vars);
+        j_IO ~ j_mean_IO(T / T_unit, flux_vars);
+        j_OIO ~ j_mean_OIO(T / T_unit, flux_vars);
+        j_INO ~ j_mean_INO(T / T_unit, flux_vars);
+        j_IONO ~ j_mean_IONO(T / T_unit, flux_vars);
+        j_IONO2 ~ j_mean_IONO2(T / T_unit, flux_vars);
+        j_I2O2 ~ j_mean_I2O2(T / T_unit, flux_vars);
+        j_CH2I2 ~ j_mean_CH2I2(T / T_unit, flux_vars);
+        j_CH2ICl ~ j_mean_CH2ICl(T / T_unit, flux_vars);
+        j_CH2IBr ~ j_mean_CH2IBr(T / T_unit, flux_vars);
+        j_I2O3 ~ j_mean_I2O3(T / T_unit, flux_vars);
+        j_IBr ~ j_mean_IBr(T / T_unit, flux_vars);
+        j_ICl ~ j_mean_ICl(T / T_unit, flux_vars)
     ]
 
     fjx = System(

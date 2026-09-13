@@ -3,8 +3,8 @@ function EarthSciMLBase.couple2(c::GEOSChemGasPhaseCoupler, p::FastJXCoupler)
     c = param_to_var(
         c,
         :j_1, :j_2, :j_3, :j_6, :j_7, :j_8, :j_9, :j_10,
-        :j_11, :j_12, :j_13, :j_14, :j_15, :j_16, :j_18,
-        :j_19, :j_20, :j_22, :j_24, :j_25, :j_26, :j_27, :j_28, :j_30, :j_32, :j_33, :j_34, :j_37,
+        :j_11, :j_12, :j_13, :j_14, :j_15, :j_16, :j_17, :j_18,
+        :j_19, :j_20, :j_22, :j_24, :j_25, :j_26, :j_27, :j_28, :j_29, :j_30, :j_32, :j_33, :j_34, :j_37,
         :j_38, :j_39, :j_40, :j_41, :j_42, :j_43, :j_44,
         :j_45, :j_46, :j_47, :j_48, :j_49, :j_50, :j_51,
         :j_53, :j_54, :j_55, :j_56, :j_59, :j_61, :j_63,
@@ -18,7 +18,11 @@ function EarthSciMLBase.couple2(c::GEOSChemGasPhaseCoupler, p::FastJXCoupler)
         :j_136, :j_137, :j_138, :j_139, :j_140, :j_141, :j_142, :j_143,
         :j_144, :j_145, :j_146, :j_147, :j_148, :j_149, :j_150, :j_151,
         :j_152, :j_153, :j_154, :j_155, :j_156, :j_157, :j_158, :j_159,
-        :j_160, :j_161, :j_162, :j_164, :j_165, :j_166
+        :j_160, :j_161, :j_162, :j_163, :j_164, :j_165, :j_166,
+        # halogen, iodine and remaining inorganic channels (photolysis completion)
+        :j_21, :j_23, :j_31, :j_36, :j_75, :j_100, :j_101, :j_103,
+        :j_104, :j_114, :j_115, :j_116, :j_117, :j_118, :j_119, :j_120,
+        :j_121, :j_123, :j_124, :j_125, :j_126, :j_127, :j_128, :j_129
     )
     return ConnectorSystem(
         [
@@ -36,7 +40,8 @@ function EarthSciMLBase.couple2(c::GEOSChemGasPhaseCoupler, p::FastJXCoupler)
             c.j_14 ~ p.j_N2O5 #
             c.j_15 ~ p.j_HNO2 #
             c.j_16 ~ p.j_HNO3 #
-            c.j_18 ~ p.j_HNO4 #
+            c.j_17 ~ 0.05 * p.j_HNO4 # HNO4 -> OH + NO3
+            c.j_18 ~ 0.95 * p.j_HNO4 # HNO4 -> HO2 + NO2
             c.j_19 ~ p.j_ClNO3a #
             c.j_20 ~ p.j_ClNO3b #
             c.j_22 ~ p.j_Cl2 #
@@ -45,11 +50,12 @@ function EarthSciMLBase.couple2(c::GEOSChemGasPhaseCoupler, p::FastJXCoupler)
             c.j_26 ~ p.j_Cl2O2 #
             c.j_27 ~ p.j_ClO #
             c.j_28 ~ p.j_BrO #
-            c.j_30 ~ p.j_BrNO3 #
+            c.j_29 ~ 0.85 * p.j_BrNO3 # BrNO3 -> Br + NO3
+            c.j_30 ~ 0.15 * p.j_BrNO3 # BrNO3 -> BrO + NO2
             c.j_32 ~ p.j_HOBr #
             c.j_33 ~ p.j_BrCl #
             c.j_34 ~ p.j_OCS #
-            #c.j_35 ~ p.j_N2O#IS NOT IN geos-chem/KPP/fullchem/fullchem.eqn
+            # j_35 (SO2) is not declared by GEOSChemGasPhase; N2O is j_36, wired below.
             c.j_37 ~ p.j_CFCl3 #
             c.j_38 ~ p.j_CF2Cl2 #
             c.j_39 ~ p.j_F113 #
@@ -91,7 +97,7 @@ function EarthSciMLBase.couple2(c::GEOSChemGasPhaseCoupler, p::FastJXCoupler)
             # nitrates via /CH3NO3/, plus 13 dedicated Cloud-J v7.3e cross-sections. Surrogate
             # assignments + j-factors follow GEOS-Chem's FJX_j2j.dat (v7.3e, index-aligned in the
             # organic block, species-verified). ETP carries GEOS-Chem's 0.5 factor.
-            c.j_78 ~ p.j_CH3NO3 # IDN (14.1.1 generic /ONIT2/)
+            c.j_78 ~ p.j_ONIT2 # IDN
             c.j_79 ~ p.j_CH3OOH # PRPN
             c.j_80 ~ 0.5 * p.j_CH3OOH # ETP
             c.j_81 ~ p.j_CH3OOH # RA3P
@@ -99,60 +105,88 @@ function EarthSciMLBase.couple2(c::GEOSChemGasPhaseCoupler, p::FastJXCoupler)
             c.j_83 ~ p.j_CH3OOH # R4P
             c.j_84 ~ p.j_CH3OOH # PP
             c.j_85 ~ p.j_CH3OOH # RP
-            c.j_86 ~ p.j_HMHP # HMHP (dedicated v7.3e σ)
-            c.j_87 ~ p.j_CH3OOH # HPETHNL (14.1.1 generic /PrAldP/)
+            c.j_86 ~ p.j_HMHP # HMHP
+            c.j_87 ~ p.j_PrAldP # HPETHNL
             c.j_88 ~ p.j_MGlyxl # PYAC
-            c.j_89 ~ p.j_CH3NO3 # PROPNN (14.1.1 generic /PROPNN/)
+            c.j_89 ~ p.j_PROPNN # PROPNN
             c.j_90 ~ p.j_MGlyxl # MVKHC
             c.j_91 ~ p.j_PrAld # MVKHCB
             c.j_92 ~ p.j_CH3OOH # MVKHP
-            c.j_93 ~ p.j_CH3OOH # MVKPC (14.1.1 generic /PrAldP/)
-            c.j_94 ~ p.j_ENOL # MCRENOL (dedicated v7.3e σ)
-            c.j_95 ~ p.j_CH3OOH # MCRHP (14.1.1 generic /PrAldP/)
-            c.j_96 ~ p.j_CH3OOH # MACR1OOH (14.1.1 generic /PrAldP/)
+            c.j_93 ~ p.j_PrAldP # MVKPC
+            c.j_94 ~ p.j_ENOL # MCRENOL
+            c.j_95 ~ p.j_PrAldP # MCRHP
+            c.j_96 ~ p.j_PrAldP # MACR1OOH
             c.j_97 ~ p.j_CH3OOH # ATOOH
             c.j_98 ~ p.j_CH3NO3 # R4N2
             c.j_99 ~ p.j_CH3OOH # MAP
             c.j_105 ~ p.j_H2O2 # PIP
-            c.j_106 ~ p.j_ICN # ICN (dedicated v7.3e σ)
-            c.j_107 ~ p.j_ETHLN # ETHLN (dedicated v7.3e σ)
-            c.j_108 ~ p.j_MVKN # MVKN (dedicated v7.3e σ)
-            c.j_109 ~ p.j_MACRN # MCRHN (dedicated v7.3e σ)
-            c.j_110 ~ p.j_MACRNP # MCRHNB (dedicated v7.3e σ)
-            c.j_111 ~ p.j_ONIT1 # MONITS (dedicated v7.3e σ)
-            c.j_112 ~ p.j_ONIT1 # MONITU (dedicated v7.3e σ)
-            c.j_113 ~ p.j_ONIT1 # HONIT (dedicated v7.3e σ)
-            c.j_135 ~ p.j_ETNO3 # ETNO3 (dedicated v7.3e σ)
-            c.j_136 ~ p.j_IPRNO3 # IPRNO3 (dedicated v7.3e σ)
-            c.j_137 ~ p.j_NPRNO3 # NPRNO3 (dedicated v7.3e σ)
+            c.j_106 ~ p.j_ICN # ICN
+            c.j_107 ~ p.j_ETHLN # ETHLN
+            c.j_108 ~ p.j_MVKN # MVKN
+            c.j_109 ~ p.j_MACRN # MCRHN
+            c.j_110 ~ p.j_MACRNP # MCRHNB
+            c.j_111 ~ p.j_ONIT1 # MONITS
+            c.j_112 ~ p.j_ONIT1 # MONITU
+            c.j_113 ~ p.j_ONIT1 # HONIT
+            c.j_135 ~ p.j_ETNO3 # ETNO3
+            c.j_136 ~ p.j_IPRNO3 # IPRNO3
+            c.j_137 ~ p.j_NPRNO3 # NPRNO3
             c.j_138 ~ p.j_CH3OOH # RIPA
             c.j_139 ~ p.j_CH3OOH # RIPB
             c.j_140 ~ p.j_CH3OOH # RIPC
             c.j_141 ~ p.j_CH3OOH # RIPD
-            c.j_142 ~ p.j_CH3OOH # HPALD1 (14.1.1 generic /HPALD1/)
-            c.j_143 ~ p.j_CH3OOH # HPALD2 (14.1.1 generic /HPALD2/)
-            c.j_144 ~ p.j_CH3OOH # HPALD3 (14.1.1 generic /PrAldP/)
-            c.j_145 ~ p.j_CH3OOH # HPALD4 (14.1.1 generic /PrAldP/)
-            c.j_146 ~ p.j_ONIT1 # IHN1 (dedicated v7.3e σ)
-            c.j_147 ~ p.j_ONIT1 # IHN2 (dedicated v7.3e σ)
-            c.j_148 ~ p.j_ONIT1 # IHN3 (dedicated v7.3e σ)
-            c.j_149 ~ p.j_ONIT1 # IHN4 (dedicated v7.3e σ)
-            c.j_150 ~ p.j_NITP # INPB (dedicated v7.3e σ)
+            c.j_142 ~ p.j_HPALD1 # HPALD1
+            c.j_143 ~ p.j_HPALD2 # HPALD2
+            c.j_144 ~ p.j_PrAldP # HPALD3
+            c.j_145 ~ p.j_PrAldP # HPALD4
+            c.j_146 ~ p.j_ONIT1 # IHN1
+            c.j_147 ~ p.j_ONIT1 # IHN2
+            c.j_148 ~ p.j_ONIT1 # IHN3
+            c.j_149 ~ p.j_ONIT1 # IHN4
+            c.j_150 ~ p.j_NITP # INPB
             c.j_151 ~ p.j_CH3OOH # INPD
-            c.j_152 ~ p.j_ONIT1 # INPD (dedicated v7.3e σ)
+            c.j_152 ~ p.j_ONIT1 # INPD
             c.j_153 ~ p.j_PrAld # ICPDH
             c.j_154 ~ p.j_CH3OOH # ICPDH
-            c.j_155 ~ p.j_HP2 # IDHDP (dedicated v7.3e σ)
+            c.j_155 ~ p.j_HP2 # IDHDP
             c.j_156 ~ p.j_CH3OOH # IDHPE
-            c.j_157 ~ p.j_CH3OOH # IDCHP (14.1.1 generic /PrAldP/)
+            c.j_157 ~ p.j_PrAldP # IDCHP
             c.j_158 ~ p.j_CH3OOH # ITHN
-            c.j_159 ~ p.j_ONIT1 # ITHN (dedicated v7.3e σ)
-            c.j_160 ~ p.j_MACRNP # ITCN (dedicated v7.3e σ)
+            c.j_159 ~ p.j_ONIT1 # ITHN
+            c.j_160 ~ p.j_MACRNP # ITCN
             c.j_161 ~ p.j_PrAld # ITCN
             c.j_162 ~ p.j_CH3OOH # ETHP
+            c.j_163 ~ 0.06 * p.j_BALD # BALD
             c.j_164 ~ p.j_CH3OOH # BZCO3H
             c.j_165 ~ p.j_CH3OOH # BENZP
-            c.j_166 ~ p.j_CH3NO3 # NPHEN (14.1.1 generic /PROPNN/)
+            c.j_166 ~ p.j_PROPNN # NPHEN
+            # === halogen, iodine and remaining inorganic channels ===
+            # Cross-sections and branching ratios from GEOS-Chem's FJX_spec.dat /
+            # FJX_j2j.dat (CHEM_INPUTS/CLOUD_J/v2024-09).
+            c.j_21 ~ p.j_ClNO2 # ClNO2 -> Cl + NO2
+            c.j_23 ~ p.j_Br2 # Br2 -> 2 Br
+            c.j_31 ~ p.j_BrNO2 # BrNO2 -> Br + NO2
+            c.j_36 ~ p.j_N2O # N2O -> N2 + O(1D)
+            c.j_75 ~ 0.6 * p.j_HAC # HAC -> MCO3 + CH2O + HO2
+            c.j_100 ~ p.j_H2SO4 # SO4 -> SO2 + 2 OH
+            c.j_101 ~ p.j_ClOO # ClOO -> Cl + O2
+            c.j_103 ~ 0.05 * p.j_MPN # MPN -> CH2O + NO3 + HO2
+            c.j_104 ~ 0.95 * p.j_MPN # MPN -> MO2 + NO2
+            c.j_114 ~ p.j_I2 # I2 -> 2 I
+            c.j_115 ~ p.j_HOI # HOI -> I + OH
+            c.j_116 ~ p.j_IO # IO -> I + O
+            c.j_117 ~ p.j_OIO # OIO -> I + O2
+            c.j_118 ~ p.j_INO # INO -> I + NO
+            c.j_119 ~ p.j_IONO # IONO -> I + NO2
+            c.j_120 ~ p.j_IONO2 # IONO2 -> I + NO3
+            c.j_121 ~ p.j_I2O2 # I2O2 -> I + OIO
+            c.j_123 ~ p.j_CH2I2 # CH2I2 -> 2 I
+            c.j_124 ~ p.j_CH2ICl # CH2ICl -> I + Cl
+            c.j_125 ~ p.j_CH2IBr # CH2IBr -> I + Br
+            c.j_126 ~ p.j_I2O2 # I2O4 -> 2 OIO  (FJX_j2j.dat maps I2O4 to the I2O2 cross-section)
+            c.j_127 ~ p.j_I2O3 # I2O3 -> OIO + IO
+            c.j_128 ~ p.j_IBr # IBr -> I + Br
+            c.j_129 ~ p.j_ICl # ICl -> I + Cl
         ],
         c,
         p

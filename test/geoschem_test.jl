@@ -96,11 +96,11 @@ end
         "GEOSChemGasPhase₊j_11(t) ~ FastJX₊j_NO2(t)", "GEOSChemGasPhase₊j_12(t) ~ FastJX₊j_NO3a(t)",
         "GEOSChemGasPhase₊j_13(t) ~ FastJX₊j_NO3b(t)", "GEOSChemGasPhase₊j_14(t) ~ FastJX₊j_N2O5(t)",
         "GEOSChemGasPhase₊j_15(t) ~ FastJX₊j_HNO2(t)", "GEOSChemGasPhase₊j_16(t) ~ FastJX₊j_HNO3(t)",
-        "GEOSChemGasPhase₊j_18(t) ~ FastJX₊j_HNO4(t)", "GEOSChemGasPhase₊j_19(t) ~ FastJX₊j_ClNO3a(t)",
+        "GEOSChemGasPhase₊j_19(t) ~ FastJX₊j_ClNO3a(t)",
         "GEOSChemGasPhase₊j_20(t) ~ FastJX₊j_ClNO3b(t)", "GEOSChemGasPhase₊j_22(t) ~ FastJX₊j_Cl2(t)",
         "GEOSChemGasPhase₊j_24(t) ~ FastJX₊j_HOCl(t)", "GEOSChemGasPhase₊j_25(t) ~ FastJX₊j_OClO(t)",
         "GEOSChemGasPhase₊j_26(t) ~ FastJX₊j_Cl2O2(t)", "GEOSChemGasPhase₊j_27(t) ~ FastJX₊j_ClO(t)",
-        "GEOSChemGasPhase₊j_28(t) ~ FastJX₊j_BrO(t)", "GEOSChemGasPhase₊j_30(t) ~ FastJX₊j_BrNO3(t)",
+        "GEOSChemGasPhase₊j_28(t) ~ FastJX₊j_BrO(t)",
         "GEOSChemGasPhase₊j_32(t) ~ FastJX₊j_HOBr(t)", "GEOSChemGasPhase₊j_33(t) ~ FastJX₊j_BrCl(t)",
         "GEOSChemGasPhase₊j_34(t) ~ FastJX₊j_OCS(t)", "GEOSChemGasPhase₊j_37(t) ~ FastJX₊j_CFCl3(t)",
         "GEOSChemGasPhase₊j_38(t) ~ FastJX₊j_CF2Cl2(t)", "GEOSChemGasPhase₊j_39(t) ~ FastJX₊j_F113(t)",
@@ -126,34 +126,89 @@ end
         @test contains(string(j_eqs), eq)
     end
 
-    # Photolysis-completion: 62 organic surrogate channels added on top of the
-    # original 63. Hydroperoxides -> /CH3OOH/, organic & alkyl nitrates -> /CH3NO3/, plus 13
-    # dedicated Cloud-J v7.3e cross-sections (ONIT1/ETNO3/.../ENOL). j_80 (ETP) keeps the 0.5
-    # j-factor and is checked separately below.
+    # Photolysis completion.  Every parent below is the FJX code GEOS-Chem's own
+    # FJX_j2j.dat assigns to that reaction id (ExtData/CHEM_INPUTS/CLOUD_J/v2024-09,
+    # byte-identical over ids 1-166 to CLOUD_J/v2023-05 and to FAST_JX/v2021-10 and
+    # v2024-05).  Channels whose j2j entry carries a branching ratio are in `scaled`.
     new_parent = Dict(
-        78 => "CH3NO3", 79 => "CH3OOH", 81 => "CH3OOH", 82 => "CH3OOH", 83 => "CH3OOH",
-        84 => "CH3OOH", 85 => "CH3OOH", 86 => "HMHP", 87 => "CH3OOH", 88 => "MGlyxl",
-        89 => "CH3NO3", 90 => "MGlyxl", 91 => "PrAld", 92 => "CH3OOH", 93 => "CH3OOH",
-        94 => "ENOL", 95 => "CH3OOH", 96 => "CH3OOH", 97 => "CH3OOH", 98 => "CH3NO3",
+        78 => "ONIT2", 79 => "CH3OOH", 81 => "CH3OOH", 82 => "CH3OOH", 83 => "CH3OOH",
+        84 => "CH3OOH", 85 => "CH3OOH", 86 => "HMHP", 87 => "PrAldP", 88 => "MGlyxl",
+        89 => "PROPNN", 90 => "MGlyxl", 91 => "PrAld", 92 => "CH3OOH", 93 => "PrAldP",
+        94 => "ENOL", 95 => "PrAldP", 96 => "PrAldP", 97 => "CH3OOH", 98 => "CH3NO3",
         99 => "CH3OOH", 105 => "H2O2", 106 => "ICN", 107 => "ETHLN", 108 => "MVKN",
         109 => "MACRN", 110 => "MACRNP", 111 => "ONIT1", 112 => "ONIT1", 113 => "ONIT1",
         135 => "ETNO3", 136 => "IPRNO3", 137 => "NPRNO3", 138 => "CH3OOH", 139 => "CH3OOH",
-        140 => "CH3OOH", 141 => "CH3OOH", 142 => "CH3OOH", 143 => "CH3OOH", 144 => "CH3OOH",
-        145 => "CH3OOH", 146 => "ONIT1", 147 => "ONIT1", 148 => "ONIT1", 149 => "ONIT1",
+        140 => "CH3OOH", 141 => "CH3OOH", 142 => "HPALD1", 143 => "HPALD2", 144 => "PrAldP",
+        145 => "PrAldP", 146 => "ONIT1", 147 => "ONIT1", 148 => "ONIT1", 149 => "ONIT1",
         150 => "NITP", 151 => "CH3OOH", 152 => "ONIT1", 153 => "PrAld", 154 => "CH3OOH",
-        155 => "HP2", 156 => "CH3OOH", 157 => "CH3OOH", 158 => "CH3OOH", 159 => "ONIT1",
+        155 => "HP2", 156 => "CH3OOH", 157 => "PrAldP", 158 => "CH3OOH", 159 => "ONIT1",
         160 => "MACRNP", 161 => "PrAld", 162 => "CH3OOH", 164 => "CH3OOH", 165 => "CH3OOH",
-        166 => "CH3NO3",
+        166 => "PROPNN",
     )
     for (n, par) in new_parent
         @test contains(string(j_eqs), "GEOSChemGasPhase₊j_$(n)(t) ~ FastJX₊j_$(par)(t)")
     end
-    # ETP (j_80) carries GEOS-Chem's 0.5 j-factor on the CH3OOH surrogate.
-    @test any(
-        e -> contains(e, "GEOSChemGasPhase₊j_80(t) ~") && contains(e, "0.5") &&
-            contains(e, "FastJX₊j_CH3OOH(t)"),
-        j_eqs
+
+    # Branching ratios, straight out of the factor column of FJX_j2j.dat.
+    scaled = Dict(
+        17 => ("0.05", "HNO4"),    # HNO4 -> OH + NO3
+        18 => ("0.95", "HNO4"),    # HNO4 -> HO2 + NO2
+        29 => ("0.85", "BrNO3"),   # BrNO3 -> Br + NO3
+        30 => ("0.15", "BrNO3"),   # BrNO3 -> BrO + NO2
+        80 => ("0.5", "CH3OOH"),   # ETP
+        163 => ("0.06", "BALD"),   # BALD
     )
+    for (n, (fac, par)) in scaled
+        @test any(
+            e -> contains(e, "GEOSChemGasPhase₊j_$(n)(t) ~") && contains(e, fac) &&
+                contains(e, "FastJX₊j_$(par)(t)"),
+            j_eqs
+        )
+    end
+
+    # Nothing is wired to a surrogate that GEOS-Chem does not ask for: the four species
+    # whose dedicated cross-section this PR adds must not appear as CH3OOH/CH3NO3.
+    for (n, wrong) in [(142, "CH3OOH"), (143, "CH3OOH"), (89, "CH3NO3"), (166, "CH3NO3"),
+        (78, "CH3NO3"), (87, "CH3OOH"), (157, "CH3OOH")]
+        @test !contains(string(j_eqs), "GEOSChemGasPhase₊j_$(n)(t) ~ FastJX₊j_$(wrong)(t)")
+    end
+
+    # Halogen, iodine and remaining inorganic channels.
+    halogen_parent = Dict(
+        21 => "ClNO2",
+        23 => "Br2",
+        31 => "BrNO2",
+        36 => "N2O",
+        100 => "H2SO4",
+        101 => "ClOO",
+        114 => "I2",
+        115 => "HOI",
+        116 => "IO",
+        117 => "OIO",
+        118 => "INO",
+        119 => "IONO",
+        120 => "IONO2",
+        121 => "I2O2",
+        123 => "CH2I2",
+        124 => "CH2ICl",
+        125 => "CH2IBr",
+        126 => "I2O2",
+        127 => "I2O3",
+        128 => "IBr",
+        129 => "ICl",
+    )
+    for (n, par) in halogen_parent
+        @test contains(string(j_eqs), "GEOSChemGasPhase₊j_$(n)(t) ~ FastJX₊j_$(par)(t)")
+    end
+    for (n, fac, par) in [(75, "0.6", "HAC"), (103, "0.05", "MPN"), (104, "0.95", "MPN")]
+        @test any(
+            e -> contains(e, "GEOSChemGasPhase₊j_$(n)(t) ~") && contains(e, fac) &&
+                contains(e, "FastJX₊j_$(par)(t)"),
+            j_eqs
+        )
+    end
+    # 152 of the 157 declared photolysis reactions are now coupled.
+    @test length(j_eqs) == 152
 
     @test_nowarn convert(System, gf_coupled)
 end
