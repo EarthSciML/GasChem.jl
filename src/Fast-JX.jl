@@ -51,7 +51,7 @@ const ϕ_HOCl_jx = 1.0f0
 const σ_HOCl = SA_F32[
     0, 3.695e-21, 1.571e-20, 2.435e-20, 5.887e-20, 5.424e-20,
     5.798e-20, 6.694e-20, 1.019e-19, 6.541e-20, 5.43e-20, 5.57e-20,
-    6.067e-20, 5.955e-20, 5.376e-20, 3.12e-20, 2.197e-21, 0,
+    6.067e-20, 5.955e-20, 5.376e-20, 3.12e-20, 6.529e-21, 1.273e-23,
 ]
 const σ_HOCl_interp = [(T) -> σ_HOCl[i] for i in 1:18]
 
@@ -62,11 +62,11 @@ const σ_H2COb_interp = create_fjx_interp(
     [
         SA_F32[
             0, 0, 0, 0, 0, 0, 0, 0, 3.642e-21, 5.787e-21, 5.316e-21, 8.181e-21,
-            7.917e-21, 4.011e-21, 1.081e-20, 1.082e-20, 6.842e-23, 0,
+            7.917e-21, 4.011e-21, 1.081e-20, 1.082e-20, 2.088e-22, 0,
         ],
         SA_F32[
             0, 0, 0, 0, 0, 0, 0, 0, 3.649e-21, 5.768e-21, 5.305e-21, 8.154e-21,
-            7.914e-21, 4.002e-21, 1.085e-20, 1.085e-20, 6.819e-23, 0,
+            7.914e-21, 4.002e-21, 1.085e-20, 1.085e-20, 2.081e-22, 0,
         ],
     ]
 )
@@ -75,7 +75,7 @@ const σ_H2COb_interp = create_fjx_interp(
 const ϕ_MeAcr_jx = 1.0f0
 const σ_MeAcr = SA_F32[
     0, 0, 0, 0, 0, 0, 0, 0, 9.45e-24, 2.852e-23, 5.252e-23, 7.912e-23,
-    1.182e-22, 1.5e-22, 1.779e-22, 1.959e-22, 1.305e-23, 0,
+    1.182e-22, 1.5e-22, 1.779e-22, 1.959e-22, 3.982e-23, 0,
 ]
 const σ_MeAcr_interp = [(T) -> σ_MeAcr[i] for i in 1:18]
 
@@ -87,12 +87,12 @@ const σ_N2O5_interp = create_fjx_interp(
         SA_F32[
             0, 0, 8.922e-19, 1.183e-18, 5.868e-18, 4.682e-18, 3.395e-18,
             2.613e-18, 2.138e-19, 2.155e-19, 1.988e-19, 3.772e-20,
-            2.182e-20, 1.334e-20, 8.419e-21, 2.621e-21, 4.355e-23, 0,
+            2.182e-20, 1.334e-20, 8.419e-21, 2.621e-21, 1.313e-22, 1.159e-25,
         ],
         SA_F32[
             0, 0, 1.078e-18, 1.429e-18, 7.088e-18, 5.655e-18, 4.101e-18,
             3.156e-18, 2.606e-19, 2.645e-19, 2.454e-19, 5.154e-20,
-            3.21e-20, 2.135e-20, 1.468e-20, 5.902e-21, 2.025e-22, 0,
+            3.21e-20, 2.135e-20, 1.468e-20, 5.902e-21, 6.002e-22, 1.29e-24,
         ],
     ]
 )
@@ -144,11 +144,11 @@ const σ_Glyxlc_interp = create_fjx_interp(
     [
         SA_F32[
             0, 0, 0, 0, 0, 0, 0, 0, 2.968e-21, 1.178e-20, 1.5e-20, 1.704e-20,
-            1.636e-20, 1.462e-20, 1.148e-20, 4.054e-21, 1.431e-22, 0,
+            1.636e-20, 1.462e-20, 1.148e-20, 4.054e-21, 4.054e-22, 2.265e-24,
         ],
         SA_F32[
             0, 0, 0, 0, 0, 0, 0, 0, 2.968e-21, 1.178e-20, 1.5e-20, 1.704e-20,
-            1.636e-20, 1.462e-20, 1.148e-20, 4.054e-21, 9.496e-23, 0,
+            1.636e-20, 1.462e-20, 1.148e-20, 4.054e-21, 2.775e-22, 8.918e-25,
         ],
     ]
 )
@@ -177,12 +177,12 @@ const σ_CH3NO3_interp = create_fjx_interp(
         SA_F32[
             4.459e-18, 8.856e-18, 1.02e-17, 1.021e-17, 6.757e-18, 3.48e-18,
             2.248e-18, 1.458e-18, 2.364e-20, 4.404e-20, 6.296e-20, 3.955e-21,
-            1.626e-21, 6.61e-22, 2.584e-22, 2.194e-23, 8.431e-28, 0,
+            1.626e-21, 6.61e-22, 2.584e-22, 2.194e-23, 2.573e-27, 0,
         ],
         SA_F32[
             6.234e-18, 1.238e-17, 1.426e-17, 1.427e-17, 9.445e-18, 4.866e-18,
             3.143e-18, 2.038e-18, 3.219e-20, 6.182e-20, 8.858e-20, 6.137e-21,
-            2.74e-21, 1.236e-21, 5.475e-22, 6.702e-23, 4.217e-27, 0,
+            2.74e-21, 1.236e-21, 5.475e-22, 6.702e-23, 1.287e-26, 0,
         ],
     ]
 )
@@ -190,17 +190,17 @@ const σ_CH3NO3_interp = create_fjx_interp(
 # CHBr3=>          CHBr3 = bromoform   JPL10
 const ϕ_CHBr3_jx = 1.0f0
 const σ_CHBr3_interp = create_fjx_interp(
-    [210.0f0, 300.0f0],
+    [260.0f0, 296.0f0],
     [
         SA_F32[
-            5.928e-18, 4.527e-18, 4.157e-18, 3.943e-18, 4.498e-18, 4.775e-18,
-            5.072e-18, 5.503e-18, 7.881e-19, 9.16e-19, 5.449e-19, 7.716e-21,
-            1.996e-21, 6.036e-22, 2.461e-22, 3.24e-23, 1.119e-25, 0,
+            5.646e-18, 4.307e-18, 3.958e-18, 3.753e-18, 4.281e-18, 4.546e-18,
+            4.828e-18, 5.239e-18, 7.91e-19, 8.896e-19, 5.25e-19, 1.152e-20,
+            3.273e-21, 1.046e-21, 3.821e-22, 4.125e-23, 3.086e-25, 0,
         ],
         SA_F32[
-            5.63e-18, 4.299e-18, 3.948e-18, 3.744e-18, 4.272e-18, 4.535e-18,
-            4.817e-18, 5.227e-18, 8.969e-19, 9.049e-19, 5.338e-19, 1.676e-20,
-            5.066e-21, 1.783e-21, 7.401e-22, 9.748e-23, 3.365e-25, 0,
+            5.646e-18, 4.307e-18, 3.958e-18, 3.753e-18, 4.281e-18, 4.546e-18,
+            4.828e-18, 5.239e-18, 8.989e-19, 9.067e-19, 5.326e-19, 1.583e-20,
+            4.773e-21, 1.633e-21, 6.411e-22, 7.834e-23, 3.099e-25, 0,
         ],
     ]
 )
@@ -241,7 +241,7 @@ const σ_CHF2Cl_interp = create_fjx_interp(
 const ϕ_OClO_jx = 1.0f0
 const σ_OClO = SA_F32[
     0, 0, 0, 0, 0, 0, 0, 0, 4.061e-19, 5.616e-19, 8.776e-19, 1.211e-18,
-    1.857e-18, 2.606e-18, 2.522e-18, 4.227e-18, 1.25e-18, 0,
+    1.857e-18, 2.606e-18, 2.522e-18, 4.227e-18, 3.254e-18, 4.061e-20,
 ]
 const σ_OClO_interp = [(T) -> σ_OClO[i] for i in 1:18]
 
@@ -267,7 +267,7 @@ const σ_H1211_interp = create_fjx_interp(
 const ϕ_BrO_jx = 1.0f0
 const σ_BrO = SA_F32[
     0, 0, 0, 0, 0, 0, 0, 0, 0, 5.62e-19, 1.202e-18, 2.008e-18,
-    3.239e-18, 4.52e-18, 5.064e-18, 5.809e-18, 2.408e-19, 0,
+    3.239e-18, 4.52e-18, 5.064e-18, 5.809e-18, 7.35e-19, 0,
 ]
 const σ_BrO_interp = [(T) -> σ_BrO[i] for i in 1:18]
 
@@ -295,12 +295,12 @@ const σ_MEKeto_interp = create_fjx_interp(
         SA_F32[
             0, 0, 4.387e-22, 0, 4.393e-21, 1.291e-21, 1.231e-21,
             1.356e-21, 3.133e-20, 3.51e-20, 3.397e-20, 3.077e-20,
-            1.981e-20, 1.158e-20, 5.697e-21, 6.008e-22, 9.031e-26, 0,
+            1.981e-20, 1.158e-20, 5.697e-21, 6.008e-22, 2.756e-25, 0,
         ],
         SA_F32[
             0, 0, 1.982e-22, 0, 1.984e-21, 5.829e-22, 5.559e-22,
             6.123e-22, 1.415e-20, 1.586e-20, 1.534e-20, 1.39e-20,
-            8.947e-21, 5.232e-21, 2.574e-21, 2.714e-22, 4.076e-26, 0,
+            8.947e-21, 5.232e-21, 2.574e-21, 2.714e-22, 1.244e-25, 0,
         ],
     ]
 )
@@ -313,12 +313,12 @@ const σ_PAN_interp = create_fjx_interp(
         SA_F32[
             7.378e-19, 1.68e-18, 2.179e-18, 3.774e-18, 3.022e-18, 2.163e-18,
             1.735e-18, 1.343e-18, 6.568e-20, 9.393e-20, 8.602e-20, 2.421e-21,
-            9.352e-22, 4.32e-22, 2.291e-22, 5.393e-23, 2.381e-25, 0,
+            9.352e-22, 4.32e-22, 2.291e-22, 5.393e-23, 7.265e-25, 0,
         ],
         SA_F32[
             8.121e-19, 1.847e-18, 2.379e-18, 4.129e-18, 3.193e-18, 2.239e-18,
             1.803e-18, 1.407e-18, 7.914e-20, 1.055e-19, 9.304e-20, 3.531e-21,
-            1.414e-21, 6.696e-22, 3.632e-22, 9.109e-23, 4.339e-25, 0,
+            1.414e-21, 6.696e-22, 3.632e-22, 9.109e-23, 1.324e-24, 0,
         ],
     ]
 )
@@ -345,7 +345,7 @@ const σ_H2402_interp = create_fjx_interp(
 const ϕ_PrAld_jx = 1.0f0
 const σ_PrAld = SA_F32[
     0, 0, 1.797e-23, 0, 3.43e-22, 5.337e-22, 6.041e-22, 6.842e-22, 2.988e-20, 4.52e-20,
-    5.122e-20, 5.545e-20, 4.628e-20, 3.576e-20, 2.436e-20, 5.836e-21, 4.083e-24, 0,
+    5.122e-20, 5.545e-20, 4.628e-20, 3.576e-20, 2.436e-20, 5.836e-21, 1.246e-23, 0,
 ]
 const σ_PrAld_interp = [(T) -> σ_PrAld[i] for i in 1:18]
 
@@ -356,15 +356,15 @@ const σ_MeVK_interp = create_fjx_interp(
     [
         SA_F32[
             0, 0, 0, 0, 0, 0, 0, 0, 1.8e-22, 4.76e-21, 5.468e-21, 5.834e-21,
-            5.243e-21, 4.484e-21, 3.669e-21, 1.71e-21, 2.97e-23, 0,
+            5.243e-21, 4.484e-21, 3.669e-21, 1.71e-21, 9.063e-23, 0,
         ],
         SA_F32[
             0, 0, 0, 0, 0, 0, 0, 0, 1.011e-22, 2.673e-21, 3.07e-21, 3.275e-21,
-            2.943e-21, 2.517e-21, 2.061e-21, 9.6e-22, 1.664e-23, 0,
+            2.943e-21, 2.517e-21, 2.061e-21, 9.6e-22, 5.079e-23, 0,
         ],
         SA_F32[
             0, 0, 0, 0, 0, 0, 0, 0, 6.933e-23, 1.833e-21, 2.106e-21, 2.247e-21,
-            2.019e-21, 1.725e-21, 1.414e-21, 6.587e-22, 1.139e-23, 0,
+            2.019e-21, 1.725e-21, 1.414e-21, 6.587e-22, 3.477e-23, 0,
         ],
     ]
 )
@@ -377,12 +377,12 @@ const σ_ClNO3b_interp = create_fjx_interp(
         SA_F32[
             2.147e-19, 4.899e-19, 6.457e-19, 1.109e-18, 1.076e-18, 1.183e-18,
             1.281e-18, 1.339e-18, 1.299e-19, 1.867e-19, 1.364e-19, 1.362e-20,
-            7.256e-21, 4.187e-21, 2.372e-21, 7.063e-22, 8.654e-24, 0,
+            7.256e-21, 4.187e-21, 2.372e-21, 7.063e-22, 2.641e-23, 0,
         ],
         SA_F32[
             2.351e-19, 5.361e-19, 7.034e-19, 1.21e-18, 1.136e-18, 1.203e-18,
             1.285e-18, 1.334e-18, 1.546e-19, 2.022e-19, 1.427e-19, 1.858e-20,
-            1.043e-20, 6.303e-21, 3.68e-21, 1.052e-21, 1.091e-23, 0,
+            1.043e-20, 6.303e-21, 3.68e-21, 1.052e-21, 3.33e-23, 0,
         ],
     ]
 )
@@ -408,7 +408,7 @@ const ϕ_HNO4_jx = 1.0f0
 const σ_HNO4 = SA_F32[
     4.631e-18, 7.576e-18, 8.407e-18, 7.479e-18, 4.744e-18, 2.854e-18,
     2.217e-18, 1.843e-18, 2.799e-19, 2.21e-19, 1.539e-19, 2.685e-20,
-    1.171e-20, 5.683e-21, 3.102e-21, 8.269e-22, 1.309e-23, 6.723e-23,
+    1.171e-20, 5.683e-21, 3.102e-21, 8.269e-22, 1.309e-23, 4.694e-23,
 ]
 const σ_HNO4_interp = [(T) -> σ_HNO4[i] for i in 1:18]
 
@@ -428,12 +428,12 @@ const σ_H2O2_interp = create_fjx_interp(
         SA_F32[
             2.325e-19, 4.629e-19, 5.394e-19, 5.429e-19, 4.447e-19, 3.755e-19,
             3.457e-19, 3.197e-19, 5.346e-20, 4.855e-20, 3.423e-20, 8.407e-21,
-            5.029e-21, 3.308e-21, 2.221e-21, 8.598e-22, 5.921e-24, 0,
+            5.029e-21, 3.308e-21, 2.221e-21, 8.598e-22, 1.807e-23, 0,
         ],
         SA_F32[
             2.325e-19, 4.629e-19, 5.394e-19, 5.429e-19, 4.447e-19, 3.755e-19,
             3.457e-19, 3.197e-19, 5.465e-20, 4.966e-20, 3.524e-20, 9.354e-21,
-            5.763e-21, 3.911e-21, 2.718e-21, 1.138e-21, 7.927e-24, 0,
+            5.763e-21, 3.911e-21, 2.718e-21, 1.138e-21, 2.419e-23, 0,
         ],
     ]
 )
@@ -526,12 +526,12 @@ const σ_CF3I_interp = create_fjx_interp(
         SA_F32[
             8.229e-21, 3.885e-21, 2.404e-21, 1.653e-21, 1.772e-21, 2.856e-21,
             4.178e-21, 6.205e-21, 5.54e-19, 3.605e-19, 2.108e-19, 1.33e-19,
-            4.992e-20, 2.036e-20, 9.495e-21, 1.567e-21, 6.121e-24, 0,
+            4.992e-20, 2.036e-20, 9.495e-21, 1.567e-21, 1.868e-23, 0,
         ],
         SA_F32[
             8.229e-21, 3.885e-21, 2.404e-21, 1.653e-21, 1.772e-21, 2.856e-21,
             4.178e-21, 6.205e-21, 5.164e-19, 3.545e-19, 2.275e-19, 1.544e-19,
-            6.552e-20, 2.972e-20, 1.471e-20, 2.62e-21, 1.292e-23, 0,
+            6.552e-20, 2.972e-20, 1.471e-20, 2.62e-21, 3.944e-23, 0,
         ],
     ]
 )
@@ -543,11 +543,11 @@ const σ_Glyxla_interp = create_fjx_interp(
     [
         SA_F32[
             0, 0, 0, 0, 0, 0, 0, 0, 1.173e-21, 4.354e-21, 5.353e-21,
-            6.331e-21, 7.09e-21, 7.781e-21, 7.452e-21, 4.214e-21, 1.9e-21, 0,
+            6.331e-21, 7.09e-21, 7.781e-21, 7.452e-21, 4.214e-21, 5.124e-21, 4.897e-23,
         ],
         SA_F32[
             0, 0, 0, 0, 0, 0, 0, 0, 1.173e-21, 4.354e-21, 5.353e-21, 6.331e-21,
-            7.09e-21, 7.781e-21, 7.452e-21, 4.214e-21, 1.025e-21, 0,
+            7.09e-21, 7.781e-21, 7.452e-21, 4.214e-21, 2.864e-21, 1.927e-23,
         ],
     ]
 )
@@ -575,11 +575,11 @@ const σ_Cl2_interp = create_fjx_interp(
     [
         SA_F32[
             0, 0, 0, 0, 0, 0, 0, 0, 5.482e-21, 2.419e-20, 4.98e-20, 8.413e-20,
-            1.393e-19, 1.878e-19, 2.265e-19, 2.524e-19, 2.388e-20, 0,
+            1.393e-19, 1.878e-19, 2.265e-19, 2.524e-19, 6.328e-20, 6.963e-22,
         ],
         SA_F32[
             0, 0, 0, 0, 0, 0, 0, 0, 6.002e-21, 2.708e-20, 5.409e-20, 8.855e-20,
-            1.404e-19, 1.844e-19, 2.185e-19, 2.411e-19, 2.455e-20, 0,
+            1.404e-19, 1.844e-19, 2.185e-19, 2.411e-19, 6.552e-20, 6.823e-22,
         ],
     ]
 )
@@ -587,15 +587,17 @@ const σ_Cl2_interp = create_fjx_interp(
 # CH3I=>CH3+I      CH3I = Methyl iodide    JPL10
 const ϕ_CH3I_jx = 1.0f0
 const σ_CH3I_interp = create_fjx_interp(
-    [243.0f0, 300.0f0],
+    [210.0f0, 298.0f0],
     [
         SA_F32[
-            0, 0, 0, 0, 0, 0, 3.958e-20, 4.769e-20, 8.257e-19, 2.154e-19, 7.349e-20,
-            3.351e-20, 1.034e-20, 4.435e-21, 2.272e-21, 4.393e-22, 1.328e-24, 0,
+            0, 0, 0, 0, 0, 0,
+            3.279e-20, 4.5e-20, 8.681e-19, 2.112e-19, 6.595e-20, 2.84e-20,
+            8.993e-21, 4.084e-21, 2.115e-21, 3.561e-22, 2.789e-24, 0,
         ],
         SA_F32[
-            0, 0, 0, 0, 0, 0, 3.958e-20, 4.769e-20, 8.376e-19, 2.438e-19, 9.355e-20,
-            4.68e-20, 1.529e-20, 6.532e-21, 3.328e-21, 6.783e-22, 3.401e-24, 0,
+            0, 0, 0, 0, 0, 0,
+            3.537e-20, 4.769e-20, 8.377e-19, 2.425e-19, 9.275e-20, 4.624e-20,
+            1.508e-20, 6.443e-21, 3.283e-21, 6.681e-22, 9.709e-24, 0,
         ],
     ]
 )
@@ -605,7 +607,7 @@ const ϕ_HNO2_jx = 1.0f0
 const σ_HNO2 = SA_F32[
     9.693e-19, 1.387e-18, 1.574e-18, 1.808e-18, 2.154e-18, 2.188e-18,
     2.079e-18, 1.911e-18, 1.171e-19, 1.849e-19, 1.489e-19, 5.487e-21,
-    9.353e-21, 1.895e-20, 3.195e-20, 9.008e-20, 2.261e-20, 0,
+    9.353e-21, 1.895e-20, 3.195e-20, 9.008e-20, 6.9e-20, 0,
 ]
 const σ_HNO2_interp = [(T) -> σ_HNO2[i] for i in 1:18]
 
@@ -664,9 +666,9 @@ const σ_MeCCl3_interp = create_fjx_interp(
 # ClOOCl=>ClO+ClO  JPL10
 const ϕ_Cl2O2_jx = 1.0f0
 const σ_Cl2O2 = SA_F32[
-    0, 2.177e-19, 9.321e-19, 1.435e-18, 3.578e-18, 3.009e-18,
-    2.648e-18, 2.357e-18, 4.063e-18, 1.971e-18, 1.236e-18, 8.681e-19,
-    5.719e-19, 4.163e-19, 3.234e-19, 1.921e-19, 1.541e-20, 0,
+    4.23e-18, 4.23e-18, 4.219e-18, 4.23e-18, 3.803e-18, 3.009e-18,
+    2.648e-18, 2.407e-18, 4.064e-18, 1.97e-18, 1.235e-18, 8.68e-19,
+    5.718e-19, 4.162e-19, 3.233e-19, 1.921e-19, 3.855e-20, 7.238e-22,
 ]
 const σ_Cl2O2_interp = [(T) -> σ_Cl2O2[i] for i in 1:18]
 
@@ -694,12 +696,12 @@ const σ_HNO3_interp = create_fjx_interp(
         SA_F32[
             4.169e-18, 8.113e-18, 8.882e-18, 8.211e-18, 3.777e-18, 1.288e-18,
             6.882e-19, 4.998e-19, 1.611e-20, 1.794e-20, 1.848e-20, 3.383e-21,
-            1.374e-21, 5.442e-22, 2.087e-22, 2.118e-23, 2.685e-26, 0,
+            1.374e-21, 5.442e-22, 2.087e-22, 2.118e-23, 8.193e-26, 0,
         ],
         SA_F32[
             4.284e-18, 8.419e-18, 9.368e-18, 9.112e-18, 4.462e-18, 1.551e-18,
             8.426e-19, 5.852e-19, 1.855e-20, 2.162e-20, 2.299e-20, 4.371e-21,
-            1.92e-21, 8.312e-22, 3.573e-22, 4.706e-23, 8.32e-26, 0,
+            1.92e-21, 8.312e-22, 3.573e-22, 4.706e-23, 2.539e-25, 0,
         ],
     ]
 )
@@ -727,11 +729,11 @@ const σ_Glyxlb_interp = create_fjx_interp(
     [
         SA_F32[
             0, 0, 0, 0, 0, 0, 0, 0, 3.378e-21, 1.177e-20, 1.388e-20, 1.453e-20,
-            1.224e-20, 9.558e-21, 6.758e-21, 2.443e-21, 2.613e-23, 0,
+            1.224e-20, 9.558e-21, 6.758e-21, 2.443e-21, 7.973e-23, 0,
         ],
         SA_F32[
             0, 0, 0, 0, 0, 0, 0, 0, 3.378e-21, 1.177e-20, 1.388e-20, 1.453e-20,
-            1.224e-20, 9.558e-21, 6.758e-21, 2.443e-21, 2.613e-23, 0,
+            1.224e-20, 9.558e-21, 6.758e-21, 2.443e-21, 7.973e-23, 0,
         ],
     ]
 )
@@ -758,19 +760,19 @@ const σ_O3_interp = create_fjx_interp(
     [218.0f0, 258.0f0, 298.0f0],
     [
         SA_F32[
-            5.992e-19, 4.866e-19, 4.31e-19, 3.657e-19, 3.403e-19, 4.829e-19,
-            6.515e-19, 9.272e-19, 8.764e-18, 3.528e-18, 1.511e-18, 7.955e-19,
-            2.468e-19, 8.939e-20, 3.675e-20, 4.56e-21, 2.125e-22, 2.325e-21,
+            5.988e-19, 4.859e-19, 4.307e-19, 3.654e-19, 3.41e-19, 4.849e-19,
+            6.534e-19, 9.32e-19, 8.757e-18, 3.513e-18, 1.508e-18, 7.925e-19,
+            2.456e-19, 8.904e-20, 3.661e-20, 4.539e-21, 6.167e-23, 1.666e-21,
         ],
         SA_F32[
-            5.993e-19, 4.869e-19, 4.317e-19, 3.67e-19, 3.414e-19, 4.824e-19,
-            6.5e-19, 9.251e-19, 8.837e-18, 3.582e-18, 1.551e-18, 8.304e-19,
-            2.636e-19, 9.81e-20, 4.173e-20, 5.578e-21, 2.125e-22, 2.325e-21,
+            5.989e-19, 4.862e-19, 4.314e-19, 3.666e-19, 3.421e-19, 4.845e-19,
+            6.519e-19, 9.299e-19, 8.826e-18, 3.566e-18, 1.547e-18, 8.26e-19,
+            2.617e-19, 9.739e-20, 4.139e-20, 5.515e-21, 6.167e-23, 1.666e-21,
         ],
         SA_F32[
-            5.994e-19, 4.873e-19, 4.323e-19, 3.681e-19, 3.425e-19, 4.82e-19,
-            6.485e-19, 9.231e-19, 8.904e-18, 3.632e-18, 1.589e-18, 8.626e-19,
-            2.791e-19, 1.062e-19, 4.634e-20, 6.52e-21, 2.125e-22, 2.325e-21,
+            5.99e-19, 4.866e-19, 4.32e-19, 3.678e-19, 3.432e-19, 4.84e-19,
+            6.504e-19, 9.278e-19, 8.896e-18, 3.618e-18, 1.586e-18, 8.595e-19,
+            2.778e-19, 1.058e-19, 4.617e-20, 6.493e-21, 6.167e-23, 1.666e-21,
         ],
     ]
 )
@@ -783,12 +785,12 @@ const σ_ClNO3a_interp = create_fjx_interp(
         SA_F32[
             3.222e-19, 7.351e-19, 9.688e-19, 1.664e-18, 1.614e-18, 1.774e-18,
             1.921e-18, 2.009e-18, 1.948e-19, 2.801e-19, 2.046e-19, 2.043e-20,
-            1.088e-20, 6.655e-21, 4.564e-21, 2.324e-21, 3.331e-22, 0,
+            1.088e-20, 6.655e-21, 4.564e-21, 2.324e-21, 9.207e-22, 6.955e-24,
         ],
         SA_F32[
             3.527e-19, 8.041e-19, 1.055e-18, 1.815e-18, 1.705e-18, 1.805e-18,
             1.928e-18, 2.001e-18, 2.319e-19, 3.033e-19, 2.14e-19, 2.787e-20,
-            1.564e-20, 1.002e-20, 7.086e-21, 3.404e-21, 4.302e-22, 0,
+            1.564e-20, 1.002e-20, 7.086e-21, 3.404e-21, 1.177e-21, 9.858e-24,
         ],
     ]
 )
@@ -801,17 +803,17 @@ const σ_ActAld_interp = create_fjx_interp(
         SA_F32[
             0, 0, 1.989e-23, 0, 3.699e-22, 4.938e-22, 4.737e-22,
             4.659e-22, 2.45e-20, 3.409e-20, 3.82e-20, 3.732e-20,
-            2.707e-20, 1.579e-20, 6.566e-21, 3.883e-22, 1.862e-26, 0,
+            2.707e-20, 1.579e-20, 6.566e-21, 3.883e-22, 5.683e-26, 0,
         ],
         SA_F32[
             0, 0, 1.903e-23, 0, 3.539e-22, 4.725e-22, 4.533e-22,
             4.458e-22, 2.27e-20, 2.985e-20, 3.199e-20, 2.987e-20,
-            1.923e-20, 9.497e-21, 3.45e-21, 1.914e-22, 1.233e-26, 0,
+            1.923e-20, 9.497e-21, 3.45e-21, 1.914e-22, 3.762e-26, 0,
         ],
         SA_F32[
             0, 0, 1.822e-23, 0, 3.389e-22, 4.525e-22, 4.34e-22,
             4.269e-22, 2.112e-20, 2.647e-20, 2.74e-20, 2.479e-20,
-            1.485e-20, 6.739e-21, 2.319e-21, 1.258e-22, 9.142e-27, 0,
+            1.485e-20, 6.739e-21, 2.319e-21, 1.258e-22, 2.79e-26, 0,
         ],
     ]
 )
@@ -860,12 +862,12 @@ const σ_BrNO3_interp = create_fjx_interp(
         SA_F32[
             0, 0, 5.484e-19, 7.245e-19, 3.702e-18, 3.475e-18, 3.182e-18,
             2.978e-18, 5.304e-19, 6.086e-19, 4.489e-19, 1.963e-19,
-            1.584e-19, 1.307e-19, 1.11e-19, 8.033e-20, 1.68e-20, 0,
+            1.584e-19, 1.307e-19, 1.11e-19, 8.033e-20, 3.377e-20, 1.27e-21,
         ],
         SA_F32[
             0, 0, 8.026e-19, 1.071e-18, 5.166e-18, 4.19e-18, 3.467e-18,
             3.039e-18, 5.567e-19, 5.989e-19, 4.528e-19, 2.098e-19,
-            1.705e-19, 1.425e-19, 1.207e-19, 8.648e-20, 1.87e-20, 0,
+            1.705e-19, 1.425e-19, 1.207e-19, 8.648e-20, 3.716e-20, 1.445e-21,
         ],
     ]
 )
@@ -873,15 +875,17 @@ const σ_BrNO3_interp = create_fjx_interp(
 # NO2=>NO+O        JPL10 (1/2016) log-extrap 200-300K (rev.integ. over wavel)
 const ϕ_NO2_jx = 1.0f0
 const σ_NO2_interp = create_fjx_interp(
-    [200.0f0, 300.0f0],
+    [200.0f0, 294.0f0],
     [
         SA_F32[
-            0, 0, 0, 0, 0, 0, 0, 0, 1.834e-20, 4.696e-20, 7.707e-20, 1.078e-19,
-            1.47e-19, 1.832e-19, 2.181e-19, 3.138e-19, 1.422e-19, 0,
+            0, 0, 0, 0, 0, 0,
+            0, 0, 1.835e-20, 4.693e-20, 7.705e-20, 1.078e-19,
+            1.47e-19, 1.832e-19, 2.181e-19, 3.138e-19, 4.321e-19, 1.386e-22,
         ],
         SA_F32[
-            0, 0, 0, 0, 0, 0, 0, 0, 2.354e-20, 4.697e-20, 7.546e-20, 1.063e-19,
-            1.477e-19, 1.872e-19, 2.303e-19, 3.469e-19, 1.546e-19, 0,
+            0, 0, 0, 0, 0, 0,
+            0, 0, 2.313e-20, 4.694e-20, 7.553e-20, 1.063e-19,
+            1.477e-19, 1.869e-19, 2.295e-19, 3.448e-19, 4.643e-19, 4.345e-22,
         ],
     ]
 )
@@ -890,7 +894,7 @@ const σ_NO2_interp = create_fjx_interp(
 const ϕ_CH3OOH_jx = 1.0f0
 const σ_CH3OOH = SA_F32[
     0, 0, 0, 0, 0, 3.12e-19, 2.882e-19, 2.25e-19, 2.716e-20, 2.74e-20, 2.143e-20,
-    5.624e-21, 3.52e-21, 2.403e-21, 1.697e-21, 7.23e-22, 2.285e-23, 0,
+    5.624e-21, 3.52e-21, 2.403e-21, 1.697e-21, 7.23e-22, 6.973e-23, 0,
 ]
 const σ_CH3OOH_interp = [(T) -> σ_CH3OOH[i] for i in 1:18]
 
@@ -925,15 +929,15 @@ const σ_MGlyxl_interp = create_fjx_interp(
     [
         SA_F32[
             0, 0, 0, 0, 0, 0, 0, 0, 2.085e-20, 3.955e-20, 4.398e-20, 4.414e-20,
-            3.504e-20, 2.355e-20, 1.811e-20, 6.006e-21, 7.416e-21, 0,
+            3.504e-20, 2.355e-20, 1.811e-20, 6.006e-21, 1.256e-20, 7.311e-22,
         ],
         SA_F32[
             0, 0, 0, 0, 0, 0, 0, 0, 2.085e-20, 3.955e-20, 4.398e-20, 4.414e-20,
-            3.504e-20, 2.355e-20, 1.811e-20, 6.006e-21, 3.855e-21, 0,
+            3.504e-20, 2.355e-20, 1.811e-20, 6.006e-21, 7.045e-21, 3.425e-22,
         ],
         SA_F32[
             0, 0, 0, 0, 0, 0, 0, 0, 2.085e-20, 3.955e-20, 4.398e-20, 4.414e-20,
-            3.504e-20, 2.355e-20, 1.811e-20, 6.006e-21, 2.687e-21, 0,
+            3.504e-20, 2.355e-20, 1.811e-20, 6.006e-21, 5.232e-21, 2.154e-22,
         ],
     ]
 )
@@ -942,7 +946,7 @@ const σ_MGlyxl_interp = create_fjx_interp(
 const ϕ_HOBr_jx = 1.0f0
 const σ_HOBr = SA_F32[
     0, 0, 0, 0, 0, 0, 0, 0, 1.324e-19, 2.011e-19, 2.202e-19, 2.196e-19,
-    1.726e-19, 1.367e-19, 1.157e-19, 1.125e-19, 3.274e-20, 0,
+    1.726e-19, 1.367e-19, 1.157e-19, 1.125e-19, 6.197e-20, 2.755e-21,
 ]
 const σ_HOBr_interp = [(T) -> σ_HOBr[i] for i in 1:18]
 
@@ -951,8 +955,8 @@ const ϕ_NO3_jx = 1.0f0
 const σ_NO3_interp = create_fjx_interp(
     [190.0f0, 298.0f0],
     [
-        SA_F32[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3.622e-19, 1.48e-18],
-        SA_F32[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2.597e-19, 1.178e-18],
+        SA_F32[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5.294e-21, 1.112e-18],
+        SA_F32[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3.796e-21, 8.713e-19],
     ]
 )
 
@@ -984,15 +988,423 @@ const σ_BrCl_interp = create_fjx_interp(
         SA_F32[
             0, 0, 3.138e-21, 3.852e-21, 2.798e-20, 4.258e-20, 4.915e-20,
             5.482e-20, 2.293e-20, 1.531e-20, 7.62e-21, 1.983e-21,
-            4.115e-21, 9.571e-21, 2.126e-20, 1.102e-19, 1.966e-19, 0,
+            4.115e-21, 9.571e-21, 2.126e-20, 1.102e-19, 3.272e-19, 1.98e-20,
         ],
         SA_F32[
             0, 0, 3.356e-21, 4.152e-21, 2.906e-20, 4.234e-20, 4.785e-20,
             5.244e-20, 2.43e-20, 1.596e-20, 8.718e-21, 3.854e-21,
-            7.582e-21, 1.55e-20, 3.038e-20, 1.223e-19, 1.966e-19, 0,
+            7.582e-21, 1.55e-20, 3.038e-20, 1.223e-19, 3.184e-19, 2.045e-20,
         ],
     ]
 )
+
+# === GEOS-Chem dedicated photolysis cross-sections (photolysis completion) ===
+# σ for the organic nitrates, hydroperoxides and isoprene-oxidation products that this
+# package previously photolyzed through generic surrogates (CH3OOH / CH3NO3), transcribed
+# from the spectral table GEOS-Chem reads at run time:
+#     ExtData/CHEM_INPUTS/CLOUD_J/v2024-09/FJX_spec.dat
+# (byte-identical for these species to CHEM_INPUTS/FAST_JX/v2021-10 and v2024-05). That
+# file is on the same 18-bin grid as `WL` and `top_flux` above — effective wavelengths
+# 380 nm and 574 nm in bins 17 and 18 — so the values drop straight in.
+#
+# Five of them are, in GEOS-Chem's own table, exact linear combinations of cross-sections
+# already present here, so they are written as the combination instead of copied out:
+#     σ_HP2   = 2 σ_CH3OOH              σ_HMHP   = 0.7 σ_CH3OOH
+#     σ_ONIT2 = 2 σ_ONIT1               σ_NITP   = σ_CH3OOH + σ_ONIT1
+#     σ_MACRNP = 0.25 (σ_CH3OOH + σ_MACRN)
+
+# ONIT1 — lumped monoterpene nitrate (GEOS-Chem FJX code /ONIT1/)
+const ϕ_ONIT1_jx = 1.0f0
+const σ_ONIT1 = SA_F32[
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1.099e-20,
+    4.532e-21, 1.951e-21, 7.55e-22, 3.3e-22, 0, 0,
+]
+const σ_ONIT1_interp = [(T) -> σ_ONIT1[i] for i in 1:18]
+
+# ONIT2 — GEOS-Chem's /ONIT2/ is exactly 2 × /ONIT1/ in all 18 bins.
+const ϕ_ONIT2_jx = 1.0f0
+const σ_ONIT2 = 2.0f0 .* σ_ONIT1
+const σ_ONIT2_interp = [(T) -> σ_ONIT2[i] for i in 1:18]
+
+# ETNO3 — ethyl nitrate (/ETNO3/, MPI-Mainz, 240 K and 298 K)
+const ϕ_ETNO3_jx = 1.0f0
+const σ_ETNO3_interp = create_fjx_interp(
+    [240.0f0, 298.0f0],
+    [
+        SA_F32[
+            1.667e-17, 1.602e-17, 1.513e-17, 1.389e-17, 9.456e-18, 4.923e-18,
+            4.0e-18, 2.127e-18, 3.47e-20, 7.726e-20, 1.134e-19, 6.854e-21,
+            3.033e-21, 1.299e-21, 5.169e-22, 6.655e-23, 0, 0,
+        ],
+        SA_F32[
+            1.667e-17, 1.602e-17, 1.513e-17, 1.389e-17, 9.456e-18, 4.923e-18,
+            4.0e-18, 2.127e-18, 4.065e-20, 8.057e-20, 1.159e-19, 8.938e-21,
+            4.157e-21, 1.914e-21, 8.239e-22, 1.246e-22, 0, 0,
+        ],
+    ]
+)
+
+# IPRNO3 — isopropyl nitrate (/IPRNO3/, MPI-Mainz, 240 K and 298 K)
+const ϕ_IPRNO3_jx = 1.0f0
+const σ_IPRNO3_interp = create_fjx_interp(
+    [240.0f0, 298.0f0],
+    [
+        SA_F32[
+            1.61e-17, 1.702e-17, 1.619e-17, 1.508e-17, 1.07e-17, 5.987e-18,
+            4.98e-18, 2.65e-18, 4.545e-20, 1.059e-19, 1.503e-19, 9.44e-21,
+            4.364e-21, 1.959e-21, 8.569e-22, 1.177e-22, 1.212e-24, 0,
+        ],
+        SA_F32[
+            1.61e-17, 1.702e-17, 1.619e-17, 1.508e-17, 1.07e-17, 5.987e-18,
+            4.98e-18, 2.65e-18, 5.23e-20, 1.101e-19, 1.537e-19, 1.242e-20,
+            6.091e-21, 2.921e-21, 1.392e-21, 2.235e-22, 1.212e-24, 0,
+        ],
+    ]
+)
+
+# NPRNO3 — n-propyl nitrate (/NPRNO3/)
+const ϕ_NPRNO3_jx = 1.0f0
+const σ_NPRNO3 = SA_F32[
+    1.767e-17, 1.703e-17, 1.617e-17, 1.501e-17, 1.063e-17, 5.889e-18,
+    4.89e-18, 2.622e-18, 4.401e-20, 8.938e-20, 1.372e-19, 9.851e-21,
+    4.296e-21, 1.915e-21, 8.314e-22, 2.135e-22, 0, 0,
+]
+const σ_NPRNO3_interp = [(T) -> σ_NPRNO3[i] for i in 1:18]
+
+# MVKN — nitrooxy-MVK (/MVKN/)
+const ϕ_MVKN_jx = 1.0f0
+const σ_MVKN = SA_F32[
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9.601e-20,
+    6.372e-20, 4.202e-20, 2.535e-20, 4.86e-21, 0, 0,
+]
+const σ_MVKN_interp = [(T) -> σ_MVKN[i] for i in 1:18]
+
+# MACRN — nitrooxy-methacrolein (/MACRN/)
+const ϕ_MACRN_jx = 1.0f0
+const σ_MACRN = SA_F32[
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1.328e-19,
+    1.262e-19, 1.113e-19, 1.01e-19, 6.449e-20, 0, 0,
+]
+const σ_MACRN_interp = [(T) -> σ_MACRN[i] for i in 1:18]
+
+# MACRNP — GEOS-Chem's /MACRNP/ is 0.25 (σ_CH3OOH + σ_MACRN). The combination reproduces
+# the tabulated values exactly in bins 1-16 and 18; bin 17 of the table reads 1.734e-23
+# where the combination gives 1.743e-23 (0.5%, worth 0.003% of j).
+const ϕ_MACRNP_jx = 1.0f0
+const σ_MACRNP = 0.25f0 .* (σ_CH3OOH .+ σ_MACRN)
+const σ_MACRNP_interp = [(T) -> σ_MACRNP[i] for i in 1:18]
+
+# ICN — isoprene carbonyl nitrate (/ICN/)
+const ϕ_ICN_jx = 1.0f0
+const σ_ICN = SA_F32[
+    0, 0, 0, 0, 0, 0, 0, 0, 1.733e-21, 5.229e-21, 9.629e-21, 1.55e-20,
+    2.62e-20, 2.945e-20, 3.337e-20, 3.625e-20, 7.3e-21, 0,
+]
+const σ_ICN_interp = [(T) -> σ_ICN[i] for i in 1:18]
+
+# ETHLN — nitrooxy-acetaldehyde (/ETHLN/)
+const ϕ_ETHLN_jx = 1.0f0
+const σ_ETHLN = SA_F32[
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6.902e-20,
+    6.428e-20, 5.734e-20, 4.883e-20, 2.272e-20, 0, 0,
+]
+const σ_ETHLN_interp = [(T) -> σ_ETHLN[i] for i in 1:18]
+
+# NITP — GEOS-Chem's /NITP/ is exactly σ_CH3OOH + σ_ONIT1 in all 18 bins.
+const ϕ_NITP_jx = 1.0f0
+const σ_NITP = σ_CH3OOH .+ σ_ONIT1
+const σ_NITP_interp = [(T) -> σ_NITP[i] for i in 1:18]
+
+# HMHP — GEOS-Chem's /HMHP/ is exactly 0.7 × σ_CH3OOH in all 18 bins.
+const ϕ_HMHP_jx = 1.0f0
+const σ_HMHP = 0.7f0 .* σ_CH3OOH
+const σ_HMHP_interp = [(T) -> σ_HMHP[i] for i in 1:18]
+
+# HP2 — GEOS-Chem's /HP2/ is exactly 2 × σ_CH3OOH in all 18 bins.
+const ϕ_HP2_jx = 1.0f0
+const σ_HP2 = 2.0f0 .* σ_CH3OOH
+const σ_HP2_interp = [(T) -> σ_HP2[i] for i in 1:18]
+
+# ENOL — methacrolein enol (/ENOL/)
+const ϕ_ENOL_jx = 1.0f0
+const σ_ENOL = SA_F32[
+    0, 0, 0, 0, 0, 0, 0, 0, 1.375e-20, 1.085e-20, 1.305e-20, 1.6e-20,
+    2.125e-20, 2.61e-20, 3.045e-20, 3.295e-20, 8.25e-21, 0,
+]
+const σ_ENOL_interp = [(T) -> σ_ENOL[i] for i in 1:18]
+
+# PROPNN — propanone nitrate (/PROPNN/)
+const ϕ_PROPNN_jx = 1.0f0
+const σ_PROPNN = SA_F32[
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5.832e-20,
+    4.196e-20, 2.862e-20, 1.808e-20, 4.216e-21, 0, 0,
+]
+const σ_PROPNN_interp = [(T) -> σ_PROPNN[i] for i in 1:18]
+
+# HPALD1 — isoprene hydroperoxy-aldehyde, 1,6-H shift channel (/HPALD1/)
+const ϕ_HPALD1_jx = 1.0f0
+const σ_HPALD1 = SA_F32[
+    0, 0, 0, 0, 0, 0, 0, 0, 1.827e-21, 5.514e-21, 1.015e-20, 1.53e-20,
+    2.285e-20, 2.9e-20, 3.439e-20, 3.787e-20, 7.699e-21, 0,
+]
+const σ_HPALD1_interp = [(T) -> σ_HPALD1[i] for i in 1:18]
+
+# HPALD2 — isoprene hydroperoxy-aldehyde, second isomer (/HPALD2/)
+const ϕ_HPALD2_jx = 1.0f0
+const σ_HPALD2 = SA_F32[
+    0, 0, 0, 0, 0, 0, 0, 0, 1.733e-21, 5.229e-21, 9.629e-21, 1.451e-20,
+    2.167e-20, 2.75e-20, 3.262e-20, 3.592e-20, 7.3e-21, 0,
+]
+const σ_HPALD2_interp = [(T) -> σ_HPALD2[i] for i in 1:18]
+
+# PrAldP — peroxide-substituted propanal, GEOS-Chem's generic hydroperoxy-carbonyl
+# cross-section (/PrAldP/). Close to σ_PrAld + σ_CH3OOH but not exactly (1.2% at bin 15),
+# so the tabulated values are used.
+const ϕ_PrAldP_jx = 1.0f0
+const σ_PrAldP = SA_F32[
+    0, 0, 1.797e-23, 0, 3.43e-22, 3.125e-19, 2.888e-19, 2.257e-19, 5.704e-20,
+    7.26e-20, 7.265e-20, 6.107e-20, 4.98e-20, 3.816e-20, 2.636e-20, 6.559e-21,
+    8.219e-23, 0,
+]
+const σ_PrAldP_interp = [(T) -> σ_PrAldP[i] for i in 1:18]
+
+# BALD — benzaldehyde (/BALD/)
+const ϕ_BALD_jx = 1.0f0
+const σ_BALD = SA_F32[
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2.78e-19,
+    6.6e-20, 7.2e-20, 9.2e-20, 8.5e-20, 0, 0,
+]
+const σ_BALD_interp = [(T) -> σ_BALD[i] for i in 1:18]
+
+# === halogen, iodine and remaining inorganic cross-sections (photolysis completion) ===
+# Same source as the block above: ExtData/CHEM_INPUTS/CLOUD_J/v2024-09/FJX_spec.dat.
+# These carry the Cl/Br/I channels that GEOSChemGasPhase declares and photolyzes but
+# that had no cross-section here; their tropospheric lifetimes run from seconds to hours.
+
+# ClNO2 — nitryl chloride
+const ϕ_ClNO2_jx = 1.0f0
+const σ_ClNO2_interp = create_fjx_interp(
+    [210.0f0, 296.0f0],
+    [
+        SA_F32[
+            3.211e-18, 3.211e-18, 3.206e-18, 3.211e-18, 3.072e-18, 3.197e-18,
+            3.415e-18, 3.573e-18, 5.43e-19, 5.906e-19, 4.631e-19, 1.627e-19,
+            1.401e-19, 1.16e-19, 9.194e-20, 4.179e-20, 3.192e-21, 6.578e-24,
+        ],
+        SA_F32[
+            4.02e-18, 4.02e-18, 4.005e-18, 4.02e-18, 3.516e-18, 3.187e-18,
+            3.31e-18, 3.444e-18, 5.997e-19, 6.037e-19, 4.517e-19, 1.592e-19,
+            1.394e-19, 1.197e-19, 9.932e-20, 5.206e-20, 5.773e-21, 2.173e-23,
+        ],
+    ]
+)
+
+# Br2 — molecular bromine
+const ϕ_Br2_jx = 1.0f0
+const σ_Br2 = SA_F32[
+    5.62e-21, 5.62e-21, 5.645e-21, 5.62e-21, 6.527e-21, 8.167e-21,
+    8.953e-21, 9.579e-21, 3.185e-21, 2.293e-21, 1.207e-21, 2.027e-22,
+    1.134e-22, 1.497e-22, 3.956e-22, 6.865e-21, 3.594e-19, 1.157e-19,
+]
+const σ_Br2_interp = [(T) -> σ_Br2[i] for i in 1:18]
+
+# BrNO2 — nitryl bromide
+const ϕ_BrNO2_jx = 1.0f0
+const σ_BrNO2 = SA_F32[
+    3.006e-17, 3.905e-17, 4.383e-17, 5.035e-17, 4.817e-17, 3.238e-17,
+    2.22e-17, 1.446e-17, 2.26e-18, 1.318e-18, 1.072e-18, 3.169e-19,
+    1.701e-19, 1.149e-19, 1.063e-19, 1.369e-19, 1.577e-19, 1.374e-20,
+]
+const σ_BrNO2_interp = [(T) -> σ_BrNO2[i] for i in 1:18]
+
+# HAC — hydroxyacetone
+const ϕ_HAC_jx = 1.0f0
+const σ_HAC = SA_F32[
+    2.43e-20, 2.43e-20, 2.43e-20, 2.43e-20, 2.43e-20, 2.43e-20,
+    2.43e-20, 2.43e-20, 5.336e-20, 4.061e-20, 2.757e-20, 1.735e-20,
+    6.953e-21, 2.917e-21, 1.403e-21, 4.377e-22, 0, 0,
+]
+const σ_HAC_interp = [(T) -> σ_HAC[i] for i in 1:18]
+
+# H2SO4 — sulfuric acid (GEOS-Chem's SO4 photolysis channel)
+const ϕ_H2SO4_jx = 1.0f0
+const σ_H2SO4 = SA_F32[
+    0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 2.542e-25,
+]
+const σ_H2SO4_interp = [(T) -> σ_H2SO4[i] for i in 1:18]
+
+# ClOO — chlorine peroxy radical
+const ϕ_ClOO_jx = 1.0f0
+const σ_ClOO = SA_F32[
+    6.11e-18, 6.11e-18, 6.11e-18, 6.11e-18, 6.11e-18, 6.11e-18,
+    6.11e-18, 6.11e-18, 1.306e-17, 3.649e-18, 2.365e-18, 2.0e-18,
+    2.0e-18, 2.0e-18, 2.0e-18, 2.0e-18, 2.0e-18, 2.0e-18,
+]
+const σ_ClOO_interp = [(T) -> σ_ClOO[i] for i in 1:18]
+
+# MPN — methyl peroxy nitrate
+const ϕ_MPN_jx = 1.0f0
+const σ_MPN = SA_F32[
+    0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 2.601e-20,
+    1.103e-20, 5.239e-21, 2.793e-21, 2.25e-22, 0, 0,
+]
+const σ_MPN_interp = [(T) -> σ_MPN[i] for i in 1:18]
+
+# I2 — molecular iodine
+const ϕ_I2_jx = 1.0f0
+const σ_I2 = SA_F32[
+    1.764e-17, 1.609e-17, 1.436e-17, 1.121e-17, 6.547e-18, 4.546e-18,
+    4.033e-18, 3.805e-18, 9.654e-19, 8.461e-19, 6.429e-19, 3.313e-19,
+    2.461e-19, 1.831e-19, 1.425e-19, 7.183e-20, 2.142e-20, 8.271e-19,
+]
+const σ_I2_interp = [(T) -> σ_I2[i] for i in 1:18]
+
+# HOI — hypoiodous acid
+const ϕ_HOI_jx = 1.0f0
+const σ_HOI = SA_F32[
+    0, 0, 0, 0, 0, 0,
+    0, 0, 0, 9.7e-22, 4.848e-21, 1.42e-20,
+    4.809e-20, 9.995e-20, 1.732e-19, 3.478e-19, 2.595e-19, 1.377e-20,
+]
+const σ_HOI_interp = [(T) -> σ_HOI[i] for i in 1:18]
+
+# IO — iodine monoxide
+const ϕ_IO_jx = 1.0f0
+const σ_IO = SA_F32[
+    0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0,
+    0, 0, 0, 2.623e-19, 5.093e-18, 5.189e-19,
+]
+const σ_IO_interp = [(T) -> σ_IO[i] for i in 1:18]
+
+# OIO — iodine dioxide
+const ϕ_OIO_jx = 1.0f0
+const σ_OIO = SA_F32[
+    0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 9.667e-19,
+]
+const σ_OIO_interp = [(T) -> σ_OIO[i] for i in 1:18]
+
+# INO — nitrosyl iodide
+const ϕ_INO_jx = 1.0f0
+const σ_INO = SA_F32[
+    0, 0, 0, 0, 0, 0,
+    0, 0, 2.437e-17, 6.252e-18, 2.001e-18, 1.433e-18,
+    7.628e-19, 4.42e-19, 4.152e-19, 4.286e-19, 7.393e-19, 8.373e-20,
+]
+const σ_INO_interp = [(T) -> σ_INO[i] for i in 1:18]
+
+# IONO — iodine nitrite
+const ϕ_IONO_jx = 1.0f0
+const σ_IONO = SA_F32[
+    0, 0, 0, 0, 0, 0,
+    1.972e-18, 1.939e-18, 1.687e-18, 1.3e-18, 9.278e-19, 6.267e-19,
+    3.367e-19, 2.551e-19, 2.597e-19, 3.392e-19, 8.96e-20, 0,
+]
+const σ_IONO_interp = [(T) -> σ_IONO[i] for i in 1:18]
+
+# IONO2 — iodine nitrate
+const ϕ_IONO2_jx = 1.0f0
+const σ_IONO2 = SA_F32[
+    0, 0, 0, 0, 0, 0,
+    0, 0, 1.654e-18, 1.264e-18, 1.23e-18, 1.221e-18,
+    1.063e-18, 9.727e-19, 9.006e-19, 7.886e-19, 3.599e-19, 4.792e-22,
+]
+const σ_IONO2_interp = [(T) -> σ_IONO2[i] for i in 1:18]
+
+# I2O2 — di-iodine dioxide (also carries the I2O4 channel, per FJX_j2j.dat)
+const ϕ_I2O2_jx = 1.0f0
+const σ_I2O2 = SA_F32[
+    0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0,
+    0, 1.021e-17, 1.213e-17, 3.432e-18, 8.35e-19, 4.575e-20,
+]
+const σ_I2O2_interp = [(T) -> σ_I2O2[i] for i in 1:18]
+
+# CH2I2 — di-iodomethane
+const ϕ_CH2I2_jx = 1.0f0
+const σ_CH2I2_interp = create_fjx_interp(
+    [273.0f0, 298.0f0],
+    [
+        SA_F32[
+            0, 0, 0, 0, 9.204e-19, 4.051e-18,
+            3.949e-18, 3.666e-18, 1.571e-18, 3.144e-18, 3.789e-18, 3.773e-18,
+            3.466e-18, 3.116e-18, 2.679e-18, 1.356e-18, 5.362e-20, 0,
+        ],
+        SA_F32[
+            0, 0, 0, 0, 9.204e-19, 4.051e-18,
+            3.952e-18, 3.677e-18, 1.589e-18, 3.065e-18, 3.704e-18, 3.714e-18,
+            3.446e-18, 3.12e-18, 2.692e-18, 1.377e-18, 5.9e-20, 0,
+        ],
+    ]
+)
+
+# CH2ICl — chloroiodomethane
+const ϕ_CH2ICl_jx = 1.0f0
+const σ_CH2ICl_interp = create_fjx_interp(
+    [223.0f0, 298.0f0],
+    [
+        SA_F32[
+            0, 0, 0, 0, 2.377e-19, 5.873e-19,
+            2.12e-19, 1.145e-19, 1.091e-18, 8.447e-19, 5.521e-19, 3.727e-19,
+            1.646e-19, 8.692e-20, 5.127e-20, 1.212e-20, 5.625e-22, 0,
+        ],
+        SA_F32[
+            0, 0, 0, 0, 2.682e-19, 7.47e-19,
+            3.544e-19, 1.665e-19, 1.031e-18, 8.254e-19, 5.804e-19, 4.204e-19,
+            2.04e-19, 1.11e-19, 6.572e-20, 1.93e-20, 6.818e-22, 0,
+        ],
+    ]
+)
+
+# CH2IBr — bromoiodomethane
+const ϕ_CH2IBr_jx = 1.0f0
+const σ_CH2IBr_interp = create_fjx_interp(
+    [273.0f0, 298.0f0],
+    [
+        SA_F32[
+            0, 0, 0, 0, 0, 0,
+            0, 1.163e-18, 2.011e-18, 1.845e-18, 1.487e-18, 8.439e-19,
+            4.853e-19, 3.061e-19, 2.058e-19, 6.617e-20, 2.138e-21, 0,
+        ],
+        SA_F32[
+            0, 0, 0, 0, 0, 0,
+            0, 1.104e-18, 1.948e-18, 1.826e-18, 1.477e-18, 8.549e-19,
+            4.985e-19, 3.168e-19, 2.14e-19, 7.134e-20, 2.622e-21, 0,
+        ],
+    ]
+)
+
+# I2O3 — di-iodine trioxide
+const ϕ_I2O3_jx = 1.0f0
+const σ_I2O3 = SA_F32[
+    0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 9.361e-19,
+    3.989e-18, 3.37e-18, 3.099e-18, 2.357e-18, 9.867e-19, 4.855e-20,
+]
+const σ_I2O3_interp = [(T) -> σ_I2O3[i] for i in 1:18]
+
+# IBr — iodine monobromide
+const ϕ_IBr_jx = 1.0f0
+const σ_IBr = SA_F32[
+    0, 0, 0, 0, 0, 0,
+    0, 0, 2.018e-19, 1.777e-19, 1.578e-19, 1.477e-19,
+    1.097e-19, 8.05e-20, 6.293e-20, 3.124e-20, 8.039e-20, 3.41e-19,
+]
+const σ_IBr_interp = [(T) -> σ_IBr[i] for i in 1:18]
+
+# ICl — iodine monochloride
+const ϕ_ICl_jx = 1.0f0
+const σ_ICl = SA_F32[
+    0, 0, 0, 0, 0, 0,
+    8.147e-20, 1.297e-19, 3.256e-19, 1.617e-19, 8.155e-20, 4.926e-20,
+    2.175e-20, 1.975e-21, 0, 0, 1.185e-19, 1.029e-19,
+]
+const σ_ICl_interp = [(T) -> σ_ICl[i] for i in 1:18]
 
 """
     cos_solar_zenith_angle(lat, t, long)
@@ -1205,6 +1617,48 @@ j_mean_NO3a(T, fluxes) = j_mean(σ_NO3_interp, ϕ_NO3_jx, T, fluxes) .* 0.886
 j_mean_NO3b(T, fluxes) = j_mean(σ_NO3_interp, ϕ_NO3_jx, T, fluxes) .* 0.114
 j_mean_Acetb(T, fluxes) = j_mean(σ_Acetb_interp, ϕ_Acetb_jx, T, fluxes)
 j_mean_BrCl(T, fluxes) = j_mean(σ_BrCl_interp, ϕ_BrCl_jx, T, fluxes)
+# GEOS-Chem dedicated cross-sections (photolysis completion)
+j_mean_ONIT1(T, fluxes) = j_mean(σ_ONIT1_interp, ϕ_ONIT1_jx, T, fluxes)
+j_mean_ONIT2(T, fluxes) = j_mean(σ_ONIT2_interp, ϕ_ONIT2_jx, T, fluxes)
+j_mean_ETNO3(T, fluxes) = j_mean(σ_ETNO3_interp, ϕ_ETNO3_jx, T, fluxes)
+j_mean_IPRNO3(T, fluxes) = j_mean(σ_IPRNO3_interp, ϕ_IPRNO3_jx, T, fluxes)
+j_mean_NPRNO3(T, fluxes) = j_mean(σ_NPRNO3_interp, ϕ_NPRNO3_jx, T, fluxes)
+j_mean_MVKN(T, fluxes) = j_mean(σ_MVKN_interp, ϕ_MVKN_jx, T, fluxes)
+j_mean_MACRN(T, fluxes) = j_mean(σ_MACRN_interp, ϕ_MACRN_jx, T, fluxes)
+j_mean_MACRNP(T, fluxes) = j_mean(σ_MACRNP_interp, ϕ_MACRNP_jx, T, fluxes)
+j_mean_ICN(T, fluxes) = j_mean(σ_ICN_interp, ϕ_ICN_jx, T, fluxes)
+j_mean_ETHLN(T, fluxes) = j_mean(σ_ETHLN_interp, ϕ_ETHLN_jx, T, fluxes)
+j_mean_NITP(T, fluxes) = j_mean(σ_NITP_interp, ϕ_NITP_jx, T, fluxes)
+j_mean_HMHP(T, fluxes) = j_mean(σ_HMHP_interp, ϕ_HMHP_jx, T, fluxes)
+j_mean_HP2(T, fluxes) = j_mean(σ_HP2_interp, ϕ_HP2_jx, T, fluxes)
+j_mean_ENOL(T, fluxes) = j_mean(σ_ENOL_interp, ϕ_ENOL_jx, T, fluxes)
+j_mean_PROPNN(T, fluxes) = j_mean(σ_PROPNN_interp, ϕ_PROPNN_jx, T, fluxes)
+j_mean_HPALD1(T, fluxes) = j_mean(σ_HPALD1_interp, ϕ_HPALD1_jx, T, fluxes)
+j_mean_HPALD2(T, fluxes) = j_mean(σ_HPALD2_interp, ϕ_HPALD2_jx, T, fluxes)
+j_mean_PrAldP(T, fluxes) = j_mean(σ_PrAldP_interp, ϕ_PrAldP_jx, T, fluxes)
+j_mean_BALD(T, fluxes) = j_mean(σ_BALD_interp, ϕ_BALD_jx, T, fluxes)
+# halogen, iodine and remaining inorganic channels (photolysis completion)
+j_mean_ClNO2(T, fluxes) = j_mean(σ_ClNO2_interp, ϕ_ClNO2_jx, T, fluxes)
+j_mean_Br2(T, fluxes) = j_mean(σ_Br2_interp, ϕ_Br2_jx, T, fluxes)
+j_mean_BrNO2(T, fluxes) = j_mean(σ_BrNO2_interp, ϕ_BrNO2_jx, T, fluxes)
+j_mean_HAC(T, fluxes) = j_mean(σ_HAC_interp, ϕ_HAC_jx, T, fluxes)
+j_mean_H2SO4(T, fluxes) = j_mean(σ_H2SO4_interp, ϕ_H2SO4_jx, T, fluxes)
+j_mean_ClOO(T, fluxes) = j_mean(σ_ClOO_interp, ϕ_ClOO_jx, T, fluxes)
+j_mean_MPN(T, fluxes) = j_mean(σ_MPN_interp, ϕ_MPN_jx, T, fluxes)
+j_mean_I2(T, fluxes) = j_mean(σ_I2_interp, ϕ_I2_jx, T, fluxes)
+j_mean_HOI(T, fluxes) = j_mean(σ_HOI_interp, ϕ_HOI_jx, T, fluxes)
+j_mean_IO(T, fluxes) = j_mean(σ_IO_interp, ϕ_IO_jx, T, fluxes)
+j_mean_OIO(T, fluxes) = j_mean(σ_OIO_interp, ϕ_OIO_jx, T, fluxes)
+j_mean_INO(T, fluxes) = j_mean(σ_INO_interp, ϕ_INO_jx, T, fluxes)
+j_mean_IONO(T, fluxes) = j_mean(σ_IONO_interp, ϕ_IONO_jx, T, fluxes)
+j_mean_IONO2(T, fluxes) = j_mean(σ_IONO2_interp, ϕ_IONO2_jx, T, fluxes)
+j_mean_I2O2(T, fluxes) = j_mean(σ_I2O2_interp, ϕ_I2O2_jx, T, fluxes)
+j_mean_CH2I2(T, fluxes) = j_mean(σ_CH2I2_interp, ϕ_CH2I2_jx, T, fluxes)
+j_mean_CH2ICl(T, fluxes) = j_mean(σ_CH2ICl_interp, ϕ_CH2ICl_jx, T, fluxes)
+j_mean_CH2IBr(T, fluxes) = j_mean(σ_CH2IBr_interp, ϕ_CH2IBr_jx, T, fluxes)
+j_mean_I2O3(T, fluxes) = j_mean(σ_I2O3_interp, ϕ_I2O3_jx, T, fluxes)
+j_mean_IBr(T, fluxes) = j_mean(σ_IBr_interp, ϕ_IBr_jx, T, fluxes)
+j_mean_ICl(T, fluxes) = j_mean(σ_ICl_interp, ϕ_ICl_jx, T, fluxes)
 
 """
     adjust_j_O31D(T, P, H2O)
@@ -1372,6 +1826,48 @@ function FastJX(t_ref::AbstractFloat; name = :FastJX, domaininfo = nothing)
         j_NO3b(t), [unit = u"s^-1"]
         j_Acetb(t), [unit = u"s^-1"]
         j_BrCl(t), [unit = u"s^-1"]
+        # GEOS-Chem dedicated cross-sections (photolysis completion)
+        j_ONIT1(t), [unit = u"s^-1"]
+        j_ONIT2(t), [unit = u"s^-1"]
+        j_ETNO3(t), [unit = u"s^-1"]
+        j_IPRNO3(t), [unit = u"s^-1"]
+        j_NPRNO3(t), [unit = u"s^-1"]
+        j_MVKN(t), [unit = u"s^-1"]
+        j_MACRN(t), [unit = u"s^-1"]
+        j_MACRNP(t), [unit = u"s^-1"]
+        j_ICN(t), [unit = u"s^-1"]
+        j_ETHLN(t), [unit = u"s^-1"]
+        j_NITP(t), [unit = u"s^-1"]
+        j_HMHP(t), [unit = u"s^-1"]
+        j_HP2(t), [unit = u"s^-1"]
+        j_ENOL(t), [unit = u"s^-1"]
+        j_PROPNN(t), [unit = u"s^-1"]
+        j_HPALD1(t), [unit = u"s^-1"]
+        j_HPALD2(t), [unit = u"s^-1"]
+        j_PrAldP(t), [unit = u"s^-1"]
+        j_BALD(t), [unit = u"s^-1"]
+        # halogen, iodine and remaining inorganic channels (photolysis completion)
+        j_ClNO2(t), [unit = u"s^-1"]
+        j_Br2(t), [unit = u"s^-1"]
+        j_BrNO2(t), [unit = u"s^-1"]
+        j_HAC(t), [unit = u"s^-1"]
+        j_H2SO4(t), [unit = u"s^-1"]
+        j_ClOO(t), [unit = u"s^-1"]
+        j_MPN(t), [unit = u"s^-1"]
+        j_I2(t), [unit = u"s^-1"]
+        j_HOI(t), [unit = u"s^-1"]
+        j_IO(t), [unit = u"s^-1"]
+        j_OIO(t), [unit = u"s^-1"]
+        j_INO(t), [unit = u"s^-1"]
+        j_IONO(t), [unit = u"s^-1"]
+        j_IONO2(t), [unit = u"s^-1"]
+        j_I2O2(t), [unit = u"s^-1"]
+        j_CH2I2(t), [unit = u"s^-1"]
+        j_CH2ICl(t), [unit = u"s^-1"]
+        j_CH2IBr(t), [unit = u"s^-1"]
+        j_I2O3(t), [unit = u"s^-1"]
+        j_IBr(t), [unit = u"s^-1"]
+        j_ICl(t), [unit = u"s^-1"]
     end
 
     flux = flux_sys(ParentScope(cosSZA), ParentScope(P) / ParentScope(P_unit), solar_flux_factor(t + ParentScope(t_ref)))
@@ -1444,7 +1940,50 @@ function FastJX(t_ref::AbstractFloat; name = :FastJX, domaininfo = nothing)
         j_NO3a ~ j_mean_NO3a(T / T_unit, flux_vars);
         j_NO3b ~ j_mean_NO3b(T / T_unit, flux_vars);
         j_Acetb ~ j_mean_Acetb(T / T_unit, flux_vars);
-        j_BrCl ~ j_mean_BrCl(T / T_unit, flux_vars)
+        j_BrCl ~ j_mean_BrCl(T / T_unit, flux_vars);
+        # GEOS-Chem dedicated cross-sections (photolysis completion)
+        j_ONIT1 ~ j_mean_ONIT1(T / T_unit, flux_vars);
+        j_ONIT2 ~ j_mean_ONIT2(T / T_unit, flux_vars);
+        j_ETNO3 ~ j_mean_ETNO3(T / T_unit, flux_vars);
+        j_IPRNO3 ~ j_mean_IPRNO3(T / T_unit, flux_vars);
+        j_NPRNO3 ~ j_mean_NPRNO3(T / T_unit, flux_vars);
+        j_MVKN ~ j_mean_MVKN(T / T_unit, flux_vars);
+        j_MACRN ~ j_mean_MACRN(T / T_unit, flux_vars);
+        j_MACRNP ~ j_mean_MACRNP(T / T_unit, flux_vars);
+        j_ICN ~ j_mean_ICN(T / T_unit, flux_vars);
+        j_ETHLN ~ j_mean_ETHLN(T / T_unit, flux_vars);
+        j_NITP ~ j_mean_NITP(T / T_unit, flux_vars);
+        j_HMHP ~ j_mean_HMHP(T / T_unit, flux_vars);
+        j_HP2 ~ j_mean_HP2(T / T_unit, flux_vars);
+        j_ENOL ~ j_mean_ENOL(T / T_unit, flux_vars);
+        j_PROPNN ~ j_mean_PROPNN(T / T_unit, flux_vars);
+        j_HPALD1 ~ j_mean_HPALD1(T / T_unit, flux_vars);
+        j_HPALD2 ~ j_mean_HPALD2(T / T_unit, flux_vars);
+        j_PrAldP ~ j_mean_PrAldP(T / T_unit, flux_vars);
+        j_BALD ~ j_mean_BALD(T / T_unit, flux_vars);
+        # halogen, iodine and remaining inorganic channels (photolysis completion)
+        j_N2O ~ j_mean_N2O(T / T_unit, flux_vars);
+        j_ClNO2 ~ j_mean_ClNO2(T / T_unit, flux_vars);
+        j_Br2 ~ j_mean_Br2(T / T_unit, flux_vars);
+        j_BrNO2 ~ j_mean_BrNO2(T / T_unit, flux_vars);
+        j_HAC ~ j_mean_HAC(T / T_unit, flux_vars);
+        j_H2SO4 ~ j_mean_H2SO4(T / T_unit, flux_vars);
+        j_ClOO ~ j_mean_ClOO(T / T_unit, flux_vars);
+        j_MPN ~ j_mean_MPN(T / T_unit, flux_vars);
+        j_I2 ~ j_mean_I2(T / T_unit, flux_vars);
+        j_HOI ~ j_mean_HOI(T / T_unit, flux_vars);
+        j_IO ~ j_mean_IO(T / T_unit, flux_vars);
+        j_OIO ~ j_mean_OIO(T / T_unit, flux_vars);
+        j_INO ~ j_mean_INO(T / T_unit, flux_vars);
+        j_IONO ~ j_mean_IONO(T / T_unit, flux_vars);
+        j_IONO2 ~ j_mean_IONO2(T / T_unit, flux_vars);
+        j_I2O2 ~ j_mean_I2O2(T / T_unit, flux_vars);
+        j_CH2I2 ~ j_mean_CH2I2(T / T_unit, flux_vars);
+        j_CH2ICl ~ j_mean_CH2ICl(T / T_unit, flux_vars);
+        j_CH2IBr ~ j_mean_CH2IBr(T / T_unit, flux_vars);
+        j_I2O3 ~ j_mean_I2O3(T / T_unit, flux_vars);
+        j_IBr ~ j_mean_IBr(T / T_unit, flux_vars);
+        j_ICl ~ j_mean_ICl(T / T_unit, flux_vars)
     ]
 
     fjx = System(
@@ -1459,4 +1998,4 @@ function FastJX(t_ref::AbstractFloat; name = :FastJX, domaininfo = nothing)
     return flatten(fjx) # Need to do flatten because otherwise coupling doesn't work correctly
 end
 FastJX(t_ref::DateTime; kwargs...) = FastJX(datetime2unix(t_ref); kwargs...)
-FastJX(domain::DomainInfo; kwargs...) = FastJX(get_tref(domain); domaininfo=domain, kwargs...)
+FastJX(domain::DomainInfo; kwargs...) = FastJX(get_tref(domain); domaininfo = domain, kwargs...)
