@@ -1,4 +1,3 @@
-
 using BenchmarkTools
 
 @benchmark j_mean_H2O2(3600 * 12.0, 30.0f0, 200.0f0)
