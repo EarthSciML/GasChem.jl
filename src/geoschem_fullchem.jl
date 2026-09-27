@@ -615,8 +615,6 @@ function GEOSChemGasPhase(; name = :GEOSChemGasPhase, rxn_sys = false)
             [unit = u"ppb", description = "CBrF3; H-1301"],
             H2402(t) = 0.0,
             [unit = u"ppb", description = "C2Br2F4; H-2402"],
-            H2O(t) = 1.84e7,
-            [unit = u"ppb", description = "H2O; Water vapor"],
             H2O2(t) = 4.0e-6,
             [unit = u"ppb", description = "H2O2; Hydrogen peroxide"],
             HAC(t) = 0.0,
@@ -1041,6 +1039,8 @@ function GEOSChemGasPhase(; name = :GEOSChemGasPhase, rxn_sys = false)
         @parameters(
             H2 = 5.0e2,
             [isconstantspecies = true, unit = u"ppb", description = "H2; Molecular hydrogen"],
+            H2O = 1.84e7,
+            [isconstantspecies = true, unit = u"ppb", description = "H2O; Water vapor (constant species, driven by meteorology)"],
             N2 = 7.81e8, [
                 isconstantspecies = true, unit = u"ppb", description = "N2; Molecular nitrogen",
             ],
