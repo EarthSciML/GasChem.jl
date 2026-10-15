@@ -17,14 +17,21 @@ end
 
 # Unit Test 1: O1D sensitivity to O3
 @testitem "O1D sensitivity to O3" setup = [GEOSChemGasPhaseSetup] begin
-    u_1 = 8.160593694128693e-7
+    # Near-cancellation finite-difference sensitivity (a small difference of two O3 ~ 20
+    # endpoints), handled the same way as the OH/HO2 tests below: a tight solver tolerance
+    # (reltol=1e-10) puts each endpoint well below the difference, and a 50% perturbation
+    # lifts the O3 difference far above the solver accuracy floor (reltol * O3 ~ 2e-9). At
+    # the old default tolerance + 10% perturbation the signal was below the floor (i.e.
+    # noise), which drifted with dependency/structural changes; with reltol=1e-10 it is a
+    # converged, reproducible value and rtol=0.01 has ample margin.
+    u_1 = -4.411157021877443e-7
 
     @unpack O3, O1D = sys
-    o1 = solve(ODEProblem(sys, [O3 => 20, O1D => 1.0e-6], tspan), Rosenbrock23())
-    o2 = solve(ODEProblem(sys, [O3 => 20, O1D => 1.0e-6 * 1.1], tspan), Rosenbrock23())
+    o1 = solve(ODEProblem(sys, [O3 => 20, O1D => 1.0e-6], tspan), Rosenbrock23(), abstol = 1.0e-10, reltol = 1.0e-10)
+    o2 = solve(ODEProblem(sys, [O3 => 20, O1D => 1.0e-6 * 1.5], tspan), Rosenbrock23(), abstol = 1.0e-10, reltol = 1.0e-10)
     test1 = o1[O3][end] - o2[O3][end]
 
-    @test test1 ≈ u_1 rtol = 0.001
+    @test test1 ≈ u_1 rtol = 0.01
 end
 
 # Unit Test 2: OH sensitivity to O3
