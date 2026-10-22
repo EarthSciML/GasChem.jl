@@ -32,6 +32,10 @@ function EarthSciMLBase.couple2(
         [unit = u"kg/mol", description = "Carbon monoxide molar mass"],
         MW_SO2 = 64.0638e-3,
         [unit = u"kg/mol", description = "Sulfur dioxide molar mass"],
+        MW_SULF = 98.079e-3,
+        [unit = u"kg/mol", description = "Sulfuric acid (NEI SULF sulfate emission) molar mass"],
+        MW_NH3 = 17.031e-3,
+        [unit = u"kg/mol", description = "Ammonia molar mass"],
         MW_ISOP = 68.12e-3,
         [unit = u"kg/mol", description = "Isoprene molar mass"],
         MW_Air = 28.97e-3,
@@ -41,18 +45,28 @@ function EarthSciMLBase.couple2(
     )
 
     # Emissions are in units of "kg/kg air/s" and need to be converted to "ppb/s" or "nmol/mol/s".
+    # NOTE: the translate table is a VECTOR of pairs, not a Dict — `c.NH3` appears twice
+    # (NH3 + NH3_FERT sectors) and a Dict would silently keep only the last entry
+    # (`operator_compose`'s `normalize_translate(::AbstractVector)` + `findall` handle
+    # duplicate left-hand species natively).
     uconv = nmolpermol * MW_Air # Conversion factor with MW factored out.
     return operator_compose(
         convert(System, c),
         e,
-        Dict(
+        [
             c.NO2 => e.NO2 => uconv / MW_NO2,
             c.NO => e.NO => uconv / MW_NO,
             c.CH2O => e.FORM => uconv / MW_FORM,
             #c.CH4 => e.CH4 => uconv / MW_CH4, # CH4 is currently a constant in SuperFast.
             c.CO => e.CO => uconv / MW_CO,
-            c.ISOP => e.ISOP => uconv / MW_ISOP
-        )
+            c.ISOP => e.ISOP => uconv / MW_ISOP,
+            # SF-aerosol port: SO2 (gas) + SULF (direct sulfate) + NH3 (livestock/other +
+            # fertilizer sectors) feed the het/cloud/ISORROPIA components.
+            c.SO2 => e.SO2 => uconv / MW_SO2,
+            c.SO4 => e.SULF => uconv / MW_SULF,
+            c.NH3 => e.NH3 => uconv / MW_NH3,
+            c.NH3 => e.NH3_FERT => uconv / MW_NH3
+        ]
     )
 end
 
@@ -83,6 +97,27 @@ function EarthSciMLBase.couple2(
         [unit = u"kg/mol", description = "Sulfur dioxide molar mass"],
         MW_ISOP = 68.12e-3,
         [unit = u"kg/mol", description = "Isoprene molar mass"],
+        MW_NH3 = 17.031e-3,
+        [unit = u"kg/mol", description = "Ammonia molar mass"],
+        MW_SULF = 98.079e-3, [unit = u"kg/mol", description = "H2SO4; Sulfuric acid"],
+        MW_C2H4 = 28.054e-3, [unit = u"kg/mol", description = "C2H4; Ethylene"],
+        MW_C2H6 = 30.070e-3, [unit = u"kg/mol", description = "C2H6; Ethane"],
+        MW_C2H2 = 26.038e-3, [unit = u"kg/mol", description = "C2H2; Acetylene"],
+        MW_C3H8 = 44.096e-3, [unit = u"kg/mol", description = "C3H8; Propane"],
+        MW_TOLU = 92.141e-3, [unit = u"kg/mol", description = "C7H8; Toluene"],
+        MW_MOH = 32.042e-3, [unit = u"kg/mol", description = "CH3OH; Methanol"],
+        MW_EOH = 46.069e-3, [unit = u"kg/mol", description = "C2H5OH; Ethanol"],
+        MW_NAP = 128.174e-3, [unit = u"kg/mol", description = "C10H8; Naphthalene"],
+        MW_HNO2 = 47.014e-3, [unit = u"kg/mol", description = "HONO; Nitrous acid"],
+        MW_HCl = 36.461e-3, [unit = u"kg/mol", description = "HCl; Hydrochloric acid"],
+        MW_Cl2 = 70.906e-3, [unit = u"kg/mol", description = "Cl2; Molecular chlorine"],
+        MW_CO2 = 44.010e-3, [unit = u"kg/mol", description = "CO2; Carbon dioxide"],
+        MW_N2O = 44.013e-3, [unit = u"kg/mol", description = "N2O; Nitrous oxide"],
+        MW_XYLE = 106.167e-3, [unit = u"kg/mol", description = "C8H10; Xylene (lumped)"],
+        MW_MTPA = 136.234e-3, [unit = u"kg/mol", description = "C10H16; Monoterpenes"],
+        MW_RCHO = 58.080e-3, [unit = u"kg/mol", description = "C2H5CHO; Propionaldehyde"],
+        MW_PRPE = 42.081e-3, [unit = u"kg/mol", description = "C3H6; Propylene"],
+        MW_MEK = 72.107e-3, [unit = u"kg/mol", description = "C4H8O; Methyl ethyl ketone"],
         MW_Air = 28.97e-3,
         [unit = u"kg/mol", description = "Molar mass of air"],
         nmolpermol = 1.0e9,
@@ -92,10 +127,15 @@ function EarthSciMLBase.couple2(
     # Emissions are in units of "kg/kg_air/s" and need to be converted to "ppb/s" or "nmol/mol/s".
     uconv = nmolpermol * MW_Air
     #TODO(CT): Add missing couplings.
+    # NOTE: the translate table is a VECTOR of pairs, not a Dict. Upstream's Dict literal
+    # keyed c.SO2 twice (=> e.SULF and => e.SO2), silently collapsing last-wins — dropping
+    # the e.SO2 gas emission (~98% of NEI sulfur). The Vector form preserves every entry,
+    # and `operator_compose` handles duplicate left-hand entries natively for vectors
+    # (`normalize_translate(::AbstractVector)` + `findall`).
     return operator_compose(
         convert(System, c),
         e,
-        Dict(
+        [
             c.ACET => e.ACET => uconv / MW_ACET,
             c.ALD2 => e.ALD2 => uconv / MW_ALD2,
             c.BENZ => e.BENZ => uconv / MW_BENZ,
@@ -105,9 +145,35 @@ function EarthSciMLBase.couple2(
             c.CH4 => e.CH4 => uconv / MW_CH4,
             c.CO => e.CO => uconv / MW_CO,
             c.SO2 => e.SO2 => uconv / MW_SO2,
-            c.SO2 => e.SULF => uconv / MW_SO2,
-            c.ISOP => e.ISOP => uconv / MW_ISOP
-        )
+            c.ISOP => e.ISOP => uconv / MW_ISOP,
+            # NEI ammonia: the merged grid keeps anthropogenic (livestock/other, `NH3`) and
+            # fertilizer (`NH3_FERT`) sectors separate, so sum both into total NH3 — same
+            # two-source pattern as SO2+SULF above. NH3 feeds the ISORROPIA aerosol partition
+            # (IsorropiaOp). (If a NEI product reports NH3 inclusive of fertilizer, drop the
+            # NH3_FERT term to avoid double-counting.)
+            c.NH3 => e.NH3 => uconv / MW_NH3,
+            c.NH3 => e.NH3_FERT => uconv / MW_NH3
+            c.SO4 => e.SULF => uconv / MW_SULF,   # NEI SULF is direct sulfate emission -> SO4
+            # --- the 18 remaining NEI species not yet in the base coupling ---
+            c.C2H4 => e.ETH => uconv / MW_C2H4,
+            c.C2H6 => e.ETHA => uconv / MW_C2H6,
+            c.C2H2 => e.ETHY => uconv / MW_C2H2,
+            c.C3H8 => e.PRPA => uconv / MW_C3H8,
+            c.TOLU => e.TOL => uconv / MW_TOLU,
+            c.MOH => e.MEOH => uconv / MW_MOH,
+            c.EOH => e.ETOH => uconv / MW_EOH,
+            c.NAP => e.NAPH => uconv / MW_NAP,
+            c.HNO2 => e.HONO => uconv / MW_HNO2,
+            c.HCl => e.HCL => uconv / MW_HCl,
+            c.Cl2 => e.CL2 => uconv / MW_Cl2,
+            c.CO2 => e.CO2_INV => uconv / MW_CO2,
+            c.N2O => e.N2O_INV => uconv / MW_N2O,
+            c.XYLE => e.XYLMN => uconv / MW_XYLE,
+            c.MTPA => e.TERP => uconv / MW_MTPA,
+            c.RCHO => e.ALDX => uconv / MW_RCHO,
+            c.PRPE => e.OLE => uconv / MW_PRPE,
+            c.MEK => e.KET => uconv / MW_MEK,
+        ]
     )
 end
 
@@ -129,12 +195,27 @@ function EarthSciMLBase.couple2(c::GasChem.SuperFastCoupler, g::EarthSciData.GEO
         return (e / p) * 1.0e9       # ppb
     end
 
-    c = param_to_var(c, :T, :P, :H2O)
+    # H2O is met-coupled: an isconstantspecies parameter param_to_var'd here
+    # and driven from GEOSFP RH. IsorropiaOp reads it per-cell through its
+    # coordinate-observed function (AerosolExt.jl), so it does NOT need H2O in the state
+    # vector — the observed `c.H2O ~ ...` equation is exactly what it consumes.
+    @constants(
+        MWair = 0.028964,
+        [unit = u"kg/mol", description = "Molar mass of air"],
+        R_lwc = 8.31446261815324,
+        [unit = u"m^3*Pa/mol/K", description = "Ideal gas constant (LWC conversion)"],
+    )
+    c = param_to_var(c, :T, :P, :H2O, :LWC_cld)
     return ConnectorSystem(
         [
             c.T ~ g.I3₊T,
             c.P ~ g.P,
             c.H2O ~ water_concentration_ppb(g.A3dyn₊RH, g.P * P_inv, g.I3₊T * T_inv) * ppb_unit,
+            # cloud gating: grid-mean LWC from met scales the in-cloud
+            # SO2+H2O2 rate (the mechanism multiplies k_cld1 by LWC_cld/LWC_ref).
+            # QL [kg/kg] x rho_air [g/m^3] = grid-mean LWC [g/m^3]; QL~0 in ice/no-cloud
+            # cells gates the channel off (implicit temperature cutoff).
+            c.LWC_cld ~ g.A3cld₊QL * g.P * MWair / (R_lwc * g.I3₊T),
         ],
         c,
         g
@@ -147,16 +228,44 @@ function EarthSciMLBase.couple2(
     )
     c, gfp = c.sys, gfp.sys
 
-    #TODO(CT): Add missing couplings.
-    c = param_to_var(c, :T, :num_density)
+    # Note on P vs SuperFast:
+    # P is defined as @parameter but unused in any reaction rate (num_density
+    # is used instead), so the compiler strips it. Use GEOSFP₊P directly.
+    #
+    # H2O is a constant species (@parameter with isconstantspecies=true, the
+    # GEOS-Chem met-driven fixed-species treatment) coupled from GEOSFP meteorology via param_to_var,
+    # same as SuperFast. This drives the explicit O1D + H2O --> 2OH OH source with
+    # real per-cell humidity instead of a frozen boundary-layer constant.
     @constants(
         R = 8.31446261815324,
         [unit = u"m^3*Pa/mol/K", description = "Ideal gas constant"],
+        T_inv = 1,
+        [unit = u"K^-1", description = "Inverse of temperature"],
+        P_inv = 1,
+        [unit = u"Pa^-1", description = "Inverse of pressure"],
+        ppb_unit = 1,
+        [unit = u"ppb"],
     )
+    function water_concentration_ppb(RH, p, T)
+        Tc = T - 273.15
+        es_hPa = 6.112 * exp((17.62 * Tc) / (Tc + 243.12))
+        es = es_hPa * 100.0          # Convert hPa to Pa
+        e = RH * es                  # Actual water vapor partial pressure
+        return (e / p) * 1.0e9       # ppb
+    end
+
+    @constants(
+        MWair = 0.028964,
+        [unit = u"kg/mol", description = "Molar mass of air"],
+    )
+    c = param_to_var(c, :T, :num_density, :H2O, :LWC_cld)
     return ConnectorSystem(
         [
             c.T ~ gfp.I3₊T,
             c.num_density ~ (gfp.P / R / gfp.I3₊T),
+            c.H2O ~ water_concentration_ppb(gfp.A3dyn₊RH, gfp.P * P_inv, gfp.I3₊T * T_inv) * ppb_unit,
+            # cloud gating: see SuperFast coupling note above.
+            c.LWC_cld ~ gfp.A3cld₊QL * gfp.P * MWair / (R * gfp.I3₊T),
         ], c, gfp
     )
 end
@@ -235,6 +344,67 @@ function EarthSciMLBase.couple2(
             c.ALD => e.ALD2 => uconv / MW_ALD2,
             # c.ALD => e.ALDX => uconv / MW_ALDX,
         )
+    )
+end
+
+
+# ============================================================================
+# NEI 2016 INLINE elevated point-source emissions (EarthSciData#211): EGU power
+# plants etc. that the 2-D surface merge excludes. The inline emission variables
+# are already in mixing-ratio rate (kg/kg/s) after the loader's per-layer flux
+# normalization, so the mole->ppb conversion is the SAME uconv/MW as the surface
+# NEI coupling. Only the (elevated) vertical placement differs, and that lives
+# entirely inside the emissions System's wrapper. ptegu carries SO2/NO/NO2/CO/NH3
+# as moles/s (the default coupled set); VOC/PM extensions go through `species`.
+# ============================================================================
+function _inline_emis_constants()
+    @constants(
+        MW_SO2 = 64.0638e-3, [unit = u"kg/mol", description = "SO2 molar mass"],
+        MW_NO = 30.006e-3, [unit = u"kg/mol", description = "NO molar mass"],
+        MW_NO2 = 46.0055e-3, [unit = u"kg/mol", description = "NO2 molar mass"],
+        MW_CO = 28.0101e-3, [unit = u"kg/mol", description = "CO molar mass"],
+        MW_NH3 = 17.031e-3, [unit = u"kg/mol", description = "NH3 molar mass"],
+        MW_Air = 28.97e-3, [unit = u"kg/mol", description = "Molar mass of air"],
+        nmolpermol = 1.0e9, [unit = u"ppb", description = "nmol/mol conversion"],
+    )
+    return (; MW_SO2, MW_NO, MW_NO2, MW_CO, MW_NH3, MW_Air, nmolpermol)
+end
+
+function EarthSciMLBase.couple2(
+        c::GasChem.SuperFastCoupler,
+        e::EarthSciData.NEI2016InlineEmisCoupler
+    )
+    c, e = c.sys, e.sys
+    k = _inline_emis_constants()
+    uconv = k.nmolpermol * k.MW_Air
+    return operator_compose(
+        convert(System, c), e,
+        [
+            c.SO2 => e.SO2 => uconv / k.MW_SO2,
+            c.NO => e.NO => uconv / k.MW_NO,
+            c.NO2 => e.NO2 => uconv / k.MW_NO2,
+            c.CO => e.CO => uconv / k.MW_CO,
+            c.NH3 => e.NH3 => uconv / k.MW_NH3,
+        ]
+    )
+end
+
+function EarthSciMLBase.couple2(
+        c::GasChem.GEOSChemGasPhaseCoupler,
+        e::EarthSciData.NEI2016InlineEmisCoupler
+    )
+    c, e = c.sys, e.sys
+    k = _inline_emis_constants()
+    uconv = k.nmolpermol * k.MW_Air
+    return operator_compose(
+        convert(System, c), e,
+        [
+            c.SO2 => e.SO2 => uconv / k.MW_SO2,
+            c.NO => e.NO => uconv / k.MW_NO,
+            c.NO2 => e.NO2 => uconv / k.MW_NO2,
+            c.CO => e.CO => uconv / k.MW_CO,
+            c.NH3 => e.NH3 => uconv / k.MW_NH3,
+        ]
     )
 end
 
