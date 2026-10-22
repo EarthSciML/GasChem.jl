@@ -125,7 +125,7 @@ function rate_2HO2(t, T, P, H2O, a0, c0, a1, c1; name = :rate_HO2HO2)
         [
             k ~
                 (k0.k + k1.k * num_density_unitless) *
-                (1.0 + 1.4e-21 * H2O * H2O_ppb_molec_cm3 * exp(T_0 / T)),
+                (1.0 + 1.4e-21 * H2O_ppb_molec_cm3 * exp(T_0 / T)),
         ],
         t,
         [k],
