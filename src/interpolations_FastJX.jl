@@ -53,7 +53,7 @@ flux_interp_18(P, csa) = interpolations_18_const[18](ustrip(P), ustrip(csa))
 @register_symbolic flux_interp_18(P, csa)
 
 # Symbolic equations for actinic flux
-function flux_eqs_interpolation(csa, P)
+function flux_eqs_interpolation(csa, P, solf)
     flux_vals = []
     flux_vars = []
     @constants c_flux = 1.0 [
@@ -76,7 +76,7 @@ function flux_eqs_interpolation(csa, P)
         push!(flux_vals, f)
     end
 
-    return flux_vars, (flux_vars .~ collect(flux_vals) .* c_flux), c_flux # TODO(CT): remove "collect" when https://github.com/SciML/ModelingToolkit.jl/issues/3888 is fixed.
+    return flux_vars, (flux_vars .~ collect(flux_vals) .* c_flux .* solf), c_flux # TODO(CT): remove "collect" when https://github.com/SciML/ModelingToolkit.jl/issues/3888 is fixed.
 end
 
 # Photolysis species exposed by the interpolated Fast-JX, as (name, cross-section
@@ -149,6 +149,52 @@ const _FJX_INTERP_J_FULL = [
     (:HOBr, j_mean_HOBr),
     (:Acetb, j_mean_Acetb),
     (:BrCl, j_mean_BrCl),
+    # --- photolysis-completion dedicated-σ channels (extend interp coverage 64 -> 105) ---
+    # These reuse the same (P, cosSZA) flux grid stored in the .bson, which holds actinic
+    # flux per wavelength bin and nothing species-specific; only the σ/ϕ in Fast-JX.jl and
+    # these list entries are new, so no .bson regeneration is needed.
+    (:ONIT1, j_mean_ONIT1),
+    (:ONIT2, j_mean_ONIT2),
+    (:ETNO3, j_mean_ETNO3),
+    (:IPRNO3, j_mean_IPRNO3),
+    (:NPRNO3, j_mean_NPRNO3),
+    (:MVKN, j_mean_MVKN),
+    (:MACRN, j_mean_MACRN),
+    (:MACRNP, j_mean_MACRNP),
+    (:ICN, j_mean_ICN),
+    (:ETHLN, j_mean_ETHLN),
+    (:NITP, j_mean_NITP),
+    (:HMHP, j_mean_HMHP),
+    (:HP2, j_mean_HP2),
+    (:ENOL, j_mean_ENOL),
+    (:PROPNN, j_mean_PROPNN),
+    (:HPALD1, j_mean_HPALD1),
+    (:HPALD2, j_mean_HPALD2),
+    (:PrAldP, j_mean_PrAldP),
+    (:BALD, j_mean_BALD),
+    # halogen, iodine and remaining inorganic channels
+    (:N2O, j_mean_N2O),
+    (:ClNO2, j_mean_ClNO2),
+    (:Br2, j_mean_Br2),
+    (:BrNO2, j_mean_BrNO2),
+    (:HAC, j_mean_HAC),
+    (:H2SO4, j_mean_H2SO4),
+    (:ClOO, j_mean_ClOO),
+    (:MPN, j_mean_MPN),
+    (:I2, j_mean_I2),
+    (:HOI, j_mean_HOI),
+    (:IO, j_mean_IO),
+    (:OIO, j_mean_OIO),
+    (:INO, j_mean_INO),
+    (:IONO, j_mean_IONO),
+    (:IONO2, j_mean_IONO2),
+    (:I2O2, j_mean_I2O2),
+    (:CH2I2, j_mean_CH2I2),
+    (:CH2ICl, j_mean_CH2ICl),
+    (:CH2IBr, j_mean_CH2IBr),
+    (:I2O3, j_mean_I2O3),
+    (:IBr, j_mean_IBr),
+    (:ICl, j_mean_ICl),
 ]
 
 const _FJX_INTERP_J_SUPERFAST = [
@@ -222,7 +268,7 @@ function FastJX_interpolation_troposphere(
     @variables cosSZA(t) [description = "Cosine of the solar zenith angle"]
     @variables j_o32OH(t) [unit = u"s^-1"]
 
-    flux_vars, fluxeqs, c_flux = flux_eqs_interpolation(cosSZA, P / P_unit)
+    flux_vars, fluxeqs, c_flux = flux_eqs_interpolation(cosSZA, P / P_unit, solar_flux_factor(t + t_ref))
     j_o31D_adj = adjust_j_o31D(ParentScope(T), ParentScope(P), ParentScope(H2O))
 
     # Build the requested j-variables and their cross-section equations.

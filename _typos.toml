@@ -6,6 +6,7 @@
 ONO = "ONO"  # Organic Nitrate Oxygen / Nitrogen monoxide
 ETO = "ETO"  # Ethylene Oxide
 MEK = "MEK"  # Methyl Ethyl Ketone
+KET = "KET"  # NEI/CB6 lumped ketones species key
 TRO = "TRO"  # Tropospheric species
 
 # Scientific code conventions
@@ -19,3 +20,7 @@ setp = "setp"      # Function from SymbolicIndexingInterface.jl
 # Author names from referenced papers
 Jenkin = "Jenkin"  # M. E. Jenkin (atmospheric chemistry researcher)
 Strang = "Strang"  # Gilbert Strang (Strang operator splitting)
+
+# GEOS-Chem Earth-Sun distance solar-flux factor (fast_jx_mod.F90 SOLAR_JX / PHOTO_JX)
+SOLF = "SOLF"
+solf = "solf"
