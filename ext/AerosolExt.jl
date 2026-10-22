@@ -71,13 +71,32 @@ function EarthSciMLBase.couple2(
     # evaluated at the gas-phase temperature.
     c_bar(MW) = sqrt(8 * k_B * c.T * N_A / (π * MW))
 
+    @constants(
+        R_sp = 8.31446261815324,
+        [unit = u"m^3*Pa/mol/K", description = "Ideal gas constant (pressure reconstruction)"],
+        P_ref = 101325.0,
+        [unit = u"Pa", description = "Reference surface pressure for the S_t vertical profile"],
+        P_top = 20000.0,
+        [unit = u"Pa", description = "Pressure above which S_t holds the free-troposphere floor"],
+        zero_P = 0.0,
+        [unit = u"Pa"],
+        s_floor = 0.022,
+        [unit = u"1", description = "S_t floor = S&P free-troposphere/urban surface-area ratio (~25/1130)"],
+    )
+    # Vertical shape for the aerosol surface area (the S&P urban S_t is a
+    # SURFACE value; holding it constant aloft over-drives het uptake in the free
+    # troposphere and collapses aloft HO2/H2O2). Quadratic decay in pressure toward the
+    # S&P free-troposphere floor: 1.0 at 1013 hPa, ~0.65 at 850, ~0.15 at 500, floor above 200.
+    P_eq = c.num_density * R_sp * c.T   # GC leaves P a scalar; reconstruct from num_density [mol/m^3]
+    s_shape = s_floor + (1 - s_floor) * (max(P_eq - P_top, zero_P) / (P_ref - P_top))^2
+
     c = param_to_var(c, :k_het_N2O5, :k_het_HO2, :k_het_NO2, :k_het_NO3)
     return ConnectorSystem(
         [
-            c.k_het_N2O5 ~ a.S_t * c_bar(MW_N2O5) * gamma_N2O5 / 4,
-            c.k_het_HO2 ~ a.S_t * c_bar(MW_HO2) * gamma_HO2 / 4,
-            c.k_het_NO2 ~ a.S_t * c_bar(MW_NO2) * gamma_NO2 / 4,
-            c.k_het_NO3 ~ a.S_t * c_bar(MW_NO3) * gamma_NO3 / 4,
+            c.k_het_N2O5 ~ a.S_t * s_shape * c_bar(MW_N2O5) * gamma_N2O5 / 4,
+            c.k_het_HO2 ~ a.S_t * s_shape * c_bar(MW_HO2) * gamma_HO2 / 4,
+            c.k_het_NO2 ~ a.S_t * s_shape * c_bar(MW_NO2) * gamma_NO2 / 4,
+            c.k_het_NO3 ~ a.S_t * s_shape * c_bar(MW_NO3) * gamma_NO3 / 4,
         ],
         c, a
     )
@@ -118,11 +137,10 @@ function EarthSciMLBase.couple2(
         [unit = u"m^3*Pa/mol/K", description = "Gas constant"],
         rho_w_inv = 1.0e-6,
         [unit = u"m^3/g", description = "Inverse water density (LWC conversion)"],
-        FC = 0.15,
-        [unit = u"1",
-            description = "Cloud fraction (prescribed climatological mean; interim until coupled from GEOSFP A3cld CLOUD)"],
-        L_cld = 0.3,
-        [unit = u"g/m^3", description = "In-cloud liquid water content (prescribed)"],
+        L_incld = 0.3,
+        [unit = u"g/m^3", description = "representative in-cloud LWC for the aqueous equilibrium solve (rate scaling with the actual grid-mean LWC happens in the mechanism via LWC_cld/LWC_ref)"],
+        LWC_ref = 0.045,
+        [unit = u"g/m^3", description = "reference grid-mean LWC (0.15 cloud fraction x 0.3 g/m^3); must equal 1/inv_LWC_ref in the mechanism"],
         pH_cld = 4.5,
         [unit = u"1", description = "Cloud droplet pH (prescribed; H2O2 path is pH-insensitive)"],
         Fe_cld = 1.0e-9,
@@ -137,17 +155,19 @@ function EarthSciMLBase.couple2(
         [unit = u"ppb", description = "Denominator guard"],
     )
 
-    # in-cloud liquid water volume mixing ratio (dimensionless)
-    w_L = rho_w_inv * L_cld
+    c = param_to_var(c, :k_cld1)
+    # k_cld1 is computed at the REFERENCE grid-mean LWC; the mechanism's cloud-reaction
+    # rate multiplies by LWC_cld/LWC_ref (met-coupled), so the realized rate scales with
+    # the actual A3cld liquid water and shuts off where QL~0 (ice/cloud-free cells) —
+    # the temperature/cloud gate the prescribed-constant interim version lacked.
+    w_L = rho_w_inv * LWC_ref
     # aqueous oxidation rate (mol/m^3/s) -> gas-phase loss rate (ppb/s), per S&P Eq. 7.75
     Lpp(R) = ppb_per1 * w_L * R_gas * c.T * R / c.P
-
-    c = param_to_var(c, :k_cld1)
     return ConnectorSystem(
         [
             cc.T ~ c.T,
             cc.pH_input ~ pH_cld,
-            cc.L ~ L_cld,
+            cc.L ~ L_incld,
             cc.xi_SO2 ~ c.SO2 * inv_ppb,
             cc.Fe_III ~ Fe_cld,
             cc.Mn_II ~ Mn_cld,
@@ -157,7 +177,7 @@ function EarthSciMLBase.couple2(
             cc.p_HNO3 ~ c.HNO3 * inv_ppb * c.P,
             cc.p_CO2 ~ co2_frac * c.P,
             cc.p_NH3 ~ zero_pa,
-            c.k_cld1 ~ FC * Lpp(cc.R_H2O2) / ((c.SO2 + floor_c) * (c.H2O2 + floor_c)),
+            c.k_cld1 ~ Lpp(cc.R_H2O2) / ((c.SO2 + floor_c) * (c.H2O2 + floor_c)),
         ],
         c, cc
     )
@@ -193,11 +213,10 @@ function EarthSciMLBase.couple2(
         [unit = u"m^3*Pa/mol/K", description = "Gas constant"],
         rho_w_inv = 1.0e-6,
         [unit = u"m^3/g", description = "Inverse water density (LWC conversion)"],
-        FC = 0.15,
-        [unit = u"1",
-            description = "Cloud fraction (prescribed climatological mean; interim until coupled from GEOSFP A3cld CLOUD)"],
-        L_cld = 0.3,
-        [unit = u"g/m^3", description = "In-cloud liquid water content (prescribed)"],
+        L_incld = 0.3,
+        [unit = u"g/m^3", description = "representative in-cloud LWC for the aqueous equilibrium solve (rate scaling with the actual grid-mean LWC happens in the mechanism via LWC_cld/LWC_ref)"],
+        LWC_ref = 0.045,
+        [unit = u"g/m^3", description = "reference grid-mean LWC (0.15 cloud fraction x 0.3 g/m^3); must equal 1/inv_LWC_ref in the mechanism"],
         pH_cld = 4.5,
         [unit = u"1", description = "Cloud droplet pH (prescribed; H2O2 path is pH-insensitive)"],
         Fe_cld = 1.0e-9,
@@ -210,17 +229,19 @@ function EarthSciMLBase.couple2(
         [unit = u"ppb", description = "Denominator guard"],
     )
 
-    # in-cloud liquid water volume mixing ratio (dimensionless)
-    w_L = rho_w_inv * L_cld
+    c = param_to_var(c, :k_cld1)
+    # k_cld1 is computed at the REFERENCE grid-mean LWC; the mechanism's cloud-reaction
+    # rate multiplies by LWC_cld/LWC_ref (met-coupled), so the realized rate scales with
+    # the actual A3cld liquid water and shuts off where QL~0 (ice/cloud-free cells) —
+    # the temperature/cloud gate the prescribed-constant interim version lacked.
+    w_L = rho_w_inv * LWC_ref
     # aqueous oxidation rate (mol/m^3/s) -> gas-phase loss rate (ppb/s), per S&P Eq. 7.75
     Lpp(R) = ppb_per1 * w_L * R_gas * c.T * R / c.P
-
-    c = param_to_var(c, :k_cld1)
     return ConnectorSystem(
         [
             cc.T ~ c.T,
             cc.pH_input ~ pH_cld,
-            cc.L ~ L_cld,
+            cc.L ~ L_incld,
             cc.xi_SO2 ~ c.SO2 * inv_ppb,
             cc.Fe_III ~ Fe_cld,
             cc.Mn_II ~ Mn_cld,
@@ -233,7 +254,7 @@ function EarthSciMLBase.couple2(
             # pH_input is prescribed, but feed the real NH3 so the aqueous speciation
             # sees it rather than a hard-wired zero).
             cc.p_NH3 ~ c.NH3 * inv_ppb * c.P,
-            c.k_cld1 ~ FC * Lpp(cc.R_H2O2) / ((c.SO2 + floor_c) * (c.H2O2 + floor_c)),
+            c.k_cld1 ~ Lpp(cc.R_H2O2) / ((c.SO2 + floor_c) * (c.H2O2 + floor_c)),
         ],
         c, cc
     )
@@ -281,13 +302,25 @@ function EarthSciMLBase.couple2(
 
     # param_to_var includes :T because the SuperFast↔GEOSFP coupling makes T a variable (see
     # the cloud couple2 note); referencing raw-parameter T here would collide with T(t).
-    c = param_to_var(c, :k_het_N2O5, :k_het_HO2, :k_het_NO2, :k_het_NO3, :T)
+    @constants(
+        P_ref = 101325.0,
+        [unit = u"Pa", description = "Reference surface pressure for the S_t vertical profile"],
+        P_top = 20000.0,
+        [unit = u"Pa", description = "Pressure above which S_t holds the free-troposphere floor"],
+        zero_P = 0.0,
+        [unit = u"Pa"],
+        s_floor = 0.022,
+        [unit = u"1", description = "S_t floor = S&P free-troposphere/urban surface-area ratio (~25/1130)"],
+    )
+    c = param_to_var(c, :k_het_N2O5, :k_het_HO2, :k_het_NO2, :k_het_NO3, :T, :P)
+    # Vertical S_t shape (see GEOS-Chem method above for rationale); SF's P is met-coupled.
+    s_shape = s_floor + (1 - s_floor) * (max(c.P - P_top, zero_P) / (P_ref - P_top))^2
     return ConnectorSystem(
         [
-            c.k_het_N2O5 ~ a.S_t * c_bar(MW_N2O5) * gamma_N2O5 / 4,
-            c.k_het_HO2 ~ a.S_t * c_bar(MW_HO2) * gamma_HO2 / 4,
-            c.k_het_NO2 ~ a.S_t * c_bar(MW_NO2) * gamma_NO2 / 4,
-            c.k_het_NO3 ~ a.S_t * c_bar(MW_NO3) * gamma_NO3 / 4,
+            c.k_het_N2O5 ~ a.S_t * s_shape * c_bar(MW_N2O5) * gamma_N2O5 / 4,
+            c.k_het_HO2 ~ a.S_t * s_shape * c_bar(MW_HO2) * gamma_HO2 / 4,
+            c.k_het_NO2 ~ a.S_t * s_shape * c_bar(MW_NO2) * gamma_NO2 / 4,
+            c.k_het_NO3 ~ a.S_t * s_shape * c_bar(MW_NO3) * gamma_NO3 / 4,
         ],
         c, a
     )

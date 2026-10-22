@@ -204,3 +204,36 @@ end
     @test duM[row("HNO3"), dry...] != duM[row("HNO3"), hum...]
     @test abs(duM[row("HNO3"), dry...]) + abs(duM[row("HNO3"), hum...]) > 0
 end
+
+@testitem "ISORROPIA ternary equilibrium: gas-phase HNO3 fraction across ammonia regimes" setup = [IsorropiaOpSetup] begin
+    # Unit test of `_iso_ternary`, pinning the NH4NO3 regime behavior that sets the
+    # gas/particle nitrate split (Fountoukis & Nenes 2007): nitrate condenses only
+    # where free ammonia remains after sulfate neutralization (TNH ≳ 2·TSO4 + TNO3).
+    # A uniform ammonia-rich initial condition therefore pushes every cell into the
+    # condensing regime and collapses the gas-phase HNO3 fraction domain-wide (the
+    # artifact behind the realistic-IC change, NH3 1.0 → 0.1 ppb); clean-background
+    # ammonia leaves nitrate in the gas phase, and partial partitioning appears only
+    # near the neutralization point (in NEI ammonia-source cells in production runs).
+    ext = Base.get_extension(GasChem, :AerosolExt)
+    # Midwest late-winter conditions; totals in mol m⁻³ (ppb × 1e-9 × n_air).
+    T = 278.0
+    RH = 0.70
+    n_air = 9.5e4 / (8.314462 * T)
+    ppb(x) = x * 1.0e-9 * n_air
+    function gasfrac(TSO4, TNH, TNO3)
+        ok, g_HNO3, g_NH3 = ext._iso_ternary(ppb(TSO4), ppb(TNH), ppb(TNO3), T, RH)
+        @test ok
+        @test 0 <= g_HNO3 <= ppb(TNO3) * (1 + 1.0e-6)   # gas nitrate bounded by total
+        @test 0 <= g_NH3 <= ppb(TNH) * (1 + 1.0e-6)     # gas ammonia bounded by total
+        g_HNO3 / ppb(TNO3)
+    end
+    # ammonia-flooded (uniform ~2-ppb NH3): nitrate almost fully condensed
+    @test gasfrac(0.30, 2.0, 0.5) < 0.05
+    # clean background (current default ICs): nitrate stays in the gas phase
+    @test gasfrac(0.10, 0.15, 0.5) > 0.95
+    # near the neutralization point: genuine partial partitioning
+    f_mid = gasfrac(0.10, 0.6, 0.5)
+    @test 0.05 < f_mid < 0.95
+    # fraction is monotone in total ammonia at fixed sulfate/nitrate
+    @test gasfrac(0.10, 2.0, 0.5) < f_mid < gasfrac(0.10, 0.05, 0.5)
+end

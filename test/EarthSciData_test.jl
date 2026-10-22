@@ -141,7 +141,6 @@ end
     @test any(o -> endswith(o, "₊H2O(t)"), obs)
 end
 
-
 @testitem "GEOS-Chem<->NEI: SULF->SO4 and gas SO2 restored" begin
     using EarthSciMLBase, EarthSciData, Dates, ModelingToolkit
     using EarthSciMLBase: DomainInfo
