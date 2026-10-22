@@ -1,5 +1,11 @@
 export FastJX_interpolation_troposphere
 
+# The table is read at module top level and baked into `interpolations_18_const` below, which is
+# serialized into the precompile cache. Julia's staleness check only tracks files it has been
+# told about, so without this declaration replacing the .bson leaves the stale table in the .ji
+# and the new one is silently ignored - reproduced locally: swap the data, leave the source
+# untouched, and a fresh process still serves the old values.
+include_dependency("tropospheric_interpolation_data.bson")
 BSON.@load joinpath(@__DIR__, "tropospheric_interpolation_data.bson") Z_all tropospheric_P cosSZA_vals
 # Z_all is a vector of 18 matrices, each of which represents the actinic flux at different CSZA and Pressure.
 
