@@ -9,7 +9,7 @@ function rate_toppb(t, T, P, a0; name = :rateconvert)
     consts = @constants begin
         A = 6.02e23, [unit = u"molec/mol", description = "Avogadro's number"]
         R = 8.314e6, [unit = u"(Pa*cm^3)/(K*mol)", description = "universal gas constant"]
-        ppb_unit = 1.0e-9, [unit = u"ppb", description = "Convert from mol/mol_air to ppb"]
+        ppb_unit = 1.0e-9, [unit = u"ppb^-1", description = "mol/mol_air per ppb"]
         num_density_unit_inv = 1,
             [
                 unit = u"cm^3/molec",
@@ -37,7 +37,7 @@ function arrh(t, T, P, a0, b0, c0; name = :arrhenius)
     consts = @constants begin
         A = 6.02e23, [unit = u"molec/mol", description = "Avogadro's number"]
         R = 8.314e6, [unit = u"(Pa*cm^3)/(K*mol)", description = "universal gas constant"]
-        ppb_unit = 1.0e-9, [unit = u"ppb", description = "Convert from mol/mol_air to ppb"]
+        ppb_unit = 1.0e-9, [unit = u"ppb^-1", description = "mol/mol_air per ppb"]
         num_density_unit_inv = 1,
             [
                 unit = u"cm^3/molec",
@@ -68,7 +68,7 @@ function arr_3rd(t, T, P, a1, b1, c1, a2, b2, c2, fv; name = :arr_3rdbody)
     consts = @constants begin
         A = 6.02e23, [unit = u"molec/mol", description = "Avogadro's number"]
         R = 8.314e6, [unit = u"(Pa*cm^3)/(K*mol)", description = "universal gas constant"]
-        ppb_unit = 1.0e-9, [unit = u"ppb", description = "Convert from mol/mol_air to ppb"]
+        ppb_unit = 1.0e-9, [unit = u"ppb^-1", description = "mol/mol_air per ppb"]
         num_density_unit_inv = 1,
             [
                 unit = u"cm^3/molec",
@@ -107,7 +107,7 @@ function rate_2HO2(t, T, P, H2O, a0, c0, a1, c1; name = :rate_HO2HO2)
         T_0 = 2200.0, [unit = u"K"]
         A = 6.02e23, [unit = u"molec/mol", description = "Avogadro's number"]
         R = 8.314e6, [unit = u"(Pa*cm^3)/(K*mol)", description = "universal gas constant"]
-        ppb_unit = 1.0e-9, [unit = u"ppb", description = "Convert from mol/mol_air to ppb"]
+        ppb_unit = 1.0e-9, [unit = u"ppb^-1", description = "mol/mol_air per ppb"]
         num_density_unit_inv = 1,
             [
                 unit = u"cm^3/molec",
@@ -145,7 +145,7 @@ function rate_OH_CO(t, T, P; name = :rate_OHCO)
     consts = @constants begin
         A = 6.02e23, [unit = u"molec/mol", description = "Avogadro's number"]
         R = 8.314e6, [unit = u"(Pa*cm^3)/(K*mol)", description = "universal gas constant"]
-        ppb_unit = 1.0e-9, [unit = u"ppb", description = "Convert from mol/mol_air to ppb"]
+        ppb_unit = 1.0e-9, [unit = u"ppb^-1", description = "mol/mol_air per ppb"]
         num_density_unit_inv = 1,
             [
                 unit = u"cm^3/molec",

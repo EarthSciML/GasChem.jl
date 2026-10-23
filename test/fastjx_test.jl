@@ -7,6 +7,12 @@
         return GasChem.calc_direct_fluxes(cos_sza, P)
     end
 
+    # Fluxes seen by the default `FastJX` (`fluxes = :scattering`): direct beam + precomputed diffuse field.
+    function get_scattering_fluxes(t, lat, lon, P)
+        cos_sza = GasChem.cos_solar_zenith_angle(t, lat, lon)
+        return get_fluxes(t, lat, lon, P) .+ [GasChem.diffuse_interp_const[i](P, cos_sza) for i in 1:18]
+    end
+
     fj = mtkcompile(FastJX(0.0))
     # 18:00 UTC is local noon at 97W (cos(SZA) = 0.45).  Do not move this back to 12:00
     # UTC: the sun is then 20 degrees below the horizon there, every actinic flux is
@@ -63,7 +69,7 @@ end
 
     j_H2O2_func = getsym(prob, fj.j_H2O2)
     j_H2O2_value = j_H2O2_func(prob)
-    j_want = solf * GasChem.j_mean_H2O2(298.0, get_fluxes(test_time, 40.0, -97.0, 101325))
+    j_want = solf * GasChem.j_mean_H2O2(298.0, get_scattering_fluxes(test_time, 40.0, -97.0, 101325))
     @test j_H2O2_value ≈ j_want rtol = 0.004
 end
 
@@ -84,7 +90,7 @@ end
     j_H2COa_value = j_H2COa_func(prob)
     @test j_H2COa_value ≈ solf * GasChem.j_mean_H2COa(
         298.0,
-        get_fluxes(test_time, 40.0, -97.0, 101325)
+        get_scattering_fluxes(test_time, 40.0, -97.0, 101325)
     ) rtol = 1.0e-6
 end
 
@@ -105,7 +111,7 @@ end
     @test j_H2COb_value ≈
         solf * GasChem.j_mean_H2COb(
         298.0,
-        get_fluxes(test_time, 40.0, -97.0, 101325)
+        get_scattering_fluxes(test_time, 40.0, -97.0, 101325)
     ) rtol = 1.0e-6
 end
 
@@ -126,7 +132,7 @@ end
     @test j_CH3OOH_value ≈
         solf * GasChem.j_mean_CH3OOH(
         298.0,
-        get_fluxes(test_time, 40.0, -97.0, 101325)
+        get_scattering_fluxes(test_time, 40.0, -97.0, 101325)
     ) rtol = 1.0e-6
 end
 
@@ -149,7 +155,7 @@ end
     @test j_NO2_value > 1.0e-4
 
     @test j_NO2_value ≈
-        solf * GasChem.j_mean_NO2(298.0, get_fluxes(test_time, 40.0, -97.0, 101325)) rtol = 1.0e-6
+        solf * GasChem.j_mean_NO2(298.0, get_scattering_fluxes(test_time, 40.0, -97.0, 101325)) rtol = 1.0e-6
 end
 
 @testitem "GEOS-Chem: CFCl3, H1301, Glyxlc" setup = [FastJXSetup] begin
@@ -159,19 +165,36 @@ end
     j_CFCl3_value = j_CFCl3_func(prob)
 
     @test j_CFCl3_value ≈
-        solf * GasChem.j_mean_CFCl3(298.0, get_fluxes(test_time, 40.0, -97.0, 101325)) rtol = 1.0e-6
+        solf * GasChem.j_mean_CFCl3(298.0, get_scattering_fluxes(test_time, 40.0, -97.0, 101325)) rtol = 1.0e-6
 
     j_H1301_func = getsym(prob, fj.j_H1301)
     j_H1301_value = j_H1301_func(prob)
 
     @test j_H1301_value ≈
-        solf * GasChem.j_mean_H1301(298.0, get_fluxes(test_time, 40.0, -97.0, 101325)) rtol = 1.0e-6
+        solf * GasChem.j_mean_H1301(298.0, get_scattering_fluxes(test_time, 40.0, -97.0, 101325)) rtol = 1.0e-6
 
     j_Glyxlc_func = getsym(prob, fj.j_Glyxlc)
     j_Glyxlc_value = j_Glyxlc_func(prob)
 
     @test j_Glyxlc_value ≈
-        solf * GasChem.j_mean_Glyxlc(298.0, get_fluxes(test_time, 40.0, -97.0, 101325)) rtol = 1.0e-6
+        solf * GasChem.j_mean_Glyxlc(1013.25, get_scattering_fluxes(test_time, 40.0, -97.0, 101325)) rtol = 1.0e-6 # pressure-axis σ (hPa)
+end
+
+@testitem "FastJX fluxes = :direct keeps the direct beam only" setup = [FastJXSetup] begin
+    fjd = mtkcompile(FastJX(0.0; fluxes = :direct))
+    probd = ODEProblem(
+        fjd,
+        [
+            fjd.t_ref => 0.0, fjd.lat => 40.0, fjd.long => -97.0,
+            fjd.T => 298.0, fjd.P => 101325.0, fjd.H2O => 450.0,
+        ],
+        (test_time, test_time + 1)
+    )
+    j_direct = getsym(probd, fjd.j_NO2)(probd)
+    @test j_direct ≈ solf * GasChem.j_mean_NO2(298.0, get_fluxes(test_time, 40.0, -97.0, 101325)) rtol = 1.0e-6
+    # the diffuse field adds to, never replaces, the direct beam
+    @test getsym(prob, fj.j_NO2)(prob) > 1.5 * j_direct
+    @test_throws ArgumentError FastJX(0.0; fluxes = :bogus)
 end
 
 @testitem "Ensure Cos SZA is non-allocating" begin
@@ -193,6 +216,20 @@ end
     @test_throws ArgumentError GasChem.FastJX_interpolation_troposphere(0.0; mech = :nope)
 end
 
+@testitem "FastJX_interpolation_troposphere DomainInfo Initialization" begin
+    using Dates, EarthSciMLBase, GasChem, ModelingToolkit
+
+    domain = DomainInfo(
+        DateTime(2016, 5, 1),
+        DateTime(2016, 5, 2);
+        lonrange = deg2rad(-180.0f0):deg2rad(2.5):deg2rad(175.0f0),
+        latrange = deg2rad(-85.0f0):deg2rad(2):deg2rad(85.0f0),
+        levrange = 1:10
+    )
+
+    @test_nowarn mtkcompile(GasChem.FastJX_interpolation_troposphere(domain))
+end
+
 @testitem "Direct Flux" begin
     using GasChem
     @test GasChem.calc_direct_fluxes(0.42255961917649837, 1013525) ≈ [
@@ -212,8 +249,8 @@ end
         7.162608365510285e12,
         4.381532157326822e13,
         5.5736656209660256e14,
-        2.3314577436356748e16,  # bin 17: Cloud-J v8.0 flux (4.721e16) + v8 Rayleigh/O3 @429nm
-        1.2131944868309216e17,  # bin 18: v8.0 flux (1.488e17) + v8 Rayleigh/O3 @631nm
+        5.378272528516121e15,
+        1.6978055609093792e17,
     ]
 end
 
@@ -232,12 +269,12 @@ end
     @test GasChem.calc_direct_flux(cos_sza, P, 12) ≈ 5.88900011606016e14
     @test GasChem.calc_direct_flux(cos_sza, P, 14) ≈ 5.04500011925504e14
     @test GasChem.calc_direct_flux(cos_sza, P, 16) ≈ 3.853000128856064e15
-    @test GasChem.calc_direct_flux(cos_sza, P, 18) ≈ 1.488000009633792e17  # Cloud-J v8.0 bin-18 TOA flux
+    @test GasChem.calc_direct_flux(cos_sza, P, 18) ≈ 2.1310000789140275e17
 
     P = 100
-    @test GasChem.calc_direct_flux(cos_sza, P, 1) ≈ 3.0643508503689505e6
+    @test GasChem.calc_direct_flux(cos_sza, P, 1) ≈ 94784.71849297105
     P = 500
-    @test GasChem.calc_direct_flux(cos_sza, P, 1) ≈ 8.931704683157367e-17
+    @test GasChem.calc_direct_flux(cos_sza, P, 1) ≈ 0.0
 end
 
 @testitem "Direct Flux Twilight" begin
@@ -245,19 +282,19 @@ end
     P = 1
     cos_sza = -0.1
     @test GasChem.calc_direct_flux(cos_sza, P, 1) ≈ 0.0
-    @test GasChem.calc_direct_flux(cos_sza, P, 3) ≈ 890275.9088383563
-    @test GasChem.calc_direct_flux(cos_sza, P, 5) ≈ 4.250677812848234e10
+    @test GasChem.calc_direct_flux(cos_sza, P, 3) ≈ 1100.308270194103
+    @test GasChem.calc_direct_flux(cos_sza, P, 5) ≈ 3.725356994214641e10
     @test GasChem.calc_direct_flux(cos_sza, P, 7) ≈ 1.6784210577555624e10
     @test GasChem.calc_direct_flux(cos_sza, P, 9) ≈ 8.920108354738617e-7
     @test GasChem.calc_direct_flux(cos_sza, P, 11) ≈ 5.4169480803700356e10
     @test GasChem.calc_direct_flux(cos_sza, P, 13) ≈ 1.697289300309447e14
     @test GasChem.calc_direct_flux(cos_sza, P, 15) ≈ 6.569697111320194e14
-    @test GasChem.calc_direct_flux(cos_sza, P, 18) ≈ 1.461091050513562e17
+    @test GasChem.calc_direct_flux(cos_sza, P, 18) ≈ 2.0972515867967904e17
 
     P = 100
     @test GasChem.calc_direct_flux(cos_sza, P, 3) ≈ 0.0
     @test GasChem.calc_direct_flux(cos_sza, P, 9) ≈ 0.0
-    @test GasChem.calc_direct_flux(cos_sza, P, 18) ≈ 3.275164457691825e16
+    @test GasChem.calc_direct_flux(cos_sza, P, 18) ≈ 4.908683888514731e16
 end
 
 #   Dedicated cross-sections for the GEOS-Chem photolysis-completion channels, transcribed
@@ -343,6 +380,7 @@ end
     using GasChem
     @test GasChem.WL[17] == 380 && GasChem.WL[18] == 574
     @test GasChem.top_flux[17] ≈ 1.547e16 && GasChem.top_flux[18] ≈ 2.131e17
+    @test GasChem.σ_Raylay[17] ≈ 2.087e-26 && GasChem.σ_Raylay[18] ≈ 3.848e-27
     # spot values straight out of ExtData/CHEM_INPUTS/CLOUD_J/v2024-09/FJX_spec.dat
     @test GasChem.σ_NO2_interp[17](300.0) ≈ 4.643e-19 rtol = 1.0e-3
     @test GasChem.σ_NO2_interp[18](300.0) ≈ 4.345e-22 rtol = 1.0e-3
