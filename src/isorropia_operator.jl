@@ -3,9 +3,9 @@ export IsorropiaOp
 """
     IsorropiaOp(; k_mt = 1 / 300)
 
-An [`EarthSciMLBase.Operator`](@ref) that couples the GEOS-Chem gas phase to the
+An `EarthSciMLBase.Operator` that couples the GEOS-Chem gas phase to the
 ISORROPIA II inorganic aerosol thermodynamic-equilibrium model
-([`Aerosol.IsorropiaEquilibrium`](@ref)) as an operator-split (Strang) step,
+(`Aerosol.IsorropiaEquilibrium`) as an operator-split (Strang) step,
 repartitioning total ammonium (`NH3` ⇌ `NH4`) and total nitrate (`HNO3` ⇌ `NIT`)
 toward thermodynamic equilibrium given the sulfate load, temperature, and humidity.
 

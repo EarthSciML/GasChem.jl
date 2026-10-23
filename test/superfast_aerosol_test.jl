@@ -29,8 +29,10 @@
         @parameters P_met = 101325.0 [unit = u"Pa"]
         @variables T(t) = 280.0 [unit = u"K"]
         @variables P(t) = 101325.0 [unit = u"Pa"]
-        System([T ~ T_met, P ~ P_met], t; name = :sftestmet,
-            metadata = Dict(EarthSciMLBase.CoupleType => SFTestMetCoupler))
+        System(
+            [T ~ T_met, P ~ P_met], t; name = :sftestmet,
+            metadata = Dict(EarthSciMLBase.CoupleType => SFTestMetCoupler)
+        )
     end
     function EarthSciMLBase.couple2(c::GasChem.SuperFastCoupler, m::SFTestMetCoupler)
         c, m = c.sys, m.sys
@@ -106,8 +108,10 @@ end
     # SFTestMet plays the CTM met coupling's role (param_to_var(c,:T,:P) + connector
     # equations), so the three-way param_to_var(:T) collision surface (met + cloud +
     # aerosol couplings on the same SuperFast instance) is exercised without GEOSFP data.
-    csys = couple(GasChem.SuperFast(), Aerosol.CloudChemistryFixedpH(),
-        Aerosol.AerosolDistribution(), GasChem.IsorropiaOp(), SFTestMet())
+    csys = couple(
+        GasChem.SuperFast(), Aerosol.CloudChemistryFixedpH(),
+        Aerosol.AerosolDistribution(), GasChem.IsorropiaOp(), SFTestMet()
+    )
     sys = try
         convert(System, csys)  # convert compiles by default; double mtkcompile errors on MTK ≥ v11
     catch e
