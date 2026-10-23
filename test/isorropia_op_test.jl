@@ -20,44 +20,59 @@
     # which the ISORROPIA II nonlinear solve converges robustly; T varies per cell but stays
     # near 298 K so RH stays in that regime in every cell.
     function InorgGasHost(; name = :gas)
-        @variables(HNO3(t)=1.0, NIT(t)=0.22, NH3(t)=7.0, NH4(t)=0.34, SO4(t)=2.45, H2O(t)=2.48e7,
-            T(t), P(t))
-        @parameters lon=0.0 lat=0.0 lev=1.0
+        @variables(
+            HNO3(t) = 1.0, NIT(t) = 0.22, NH3(t) = 7.0, NH4(t) = 0.34, SO4(t) = 2.45, H2O(t) = 2.48e7,
+            T(t), P(t)
+        )
+        @parameters lon = 0.0 lat = 0.0 lev = 1.0
         System(
-            [D(HNO3) ~ 0.0, D(NIT) ~ 0.0, D(NH3) ~ 0.0, D(NH4) ~ 0.0, D(SO4) ~ 0.0,
+            [
+                D(HNO3) ~ 0.0, D(NIT) ~ 0.0, D(NH3) ~ 0.0, D(NH4) ~ 0.0, D(SO4) ~ 0.0,
                 D(H2O) ~ 1.0e-30 * lon,                  # keep the lon coordinate param alive
                 T ~ 298.0 + 0.5 * lat,                   # per-cell temperature [K]
-                P ~ 101325.0 - 100.0 * lev],             # per-cell pressure [Pa]
-            t; name)
+                P ~ 101325.0 - 100.0 * lev,
+            ],             # per-cell pressure [Pa]
+            t; name
+        )
     end
     # Sulfate-rich (acidic) composition [ppb]: a demanding acidic regime handled
     # robustly by the regime-classify + bisection solve. Excess sulfate
     # ⇒ ammonia condenses onto the acidic aerosol while nitrate is driven to the gas phase.
     function InorgGasHostRich(; name = :gas)
-        @variables(HNO3(t)=0.5, NIT(t)=1.0, NH3(t)=1.0, NH4(t)=0.5, SO4(t)=4.0, H2O(t)=2.48e7,
-            T(t), P(t))
-        @parameters lon=0.0 lat=0.0 lev=1.0
+        @variables(
+            HNO3(t) = 0.5, NIT(t) = 1.0, NH3(t) = 1.0, NH4(t) = 0.5, SO4(t) = 4.0, H2O(t) = 2.48e7,
+            T(t), P(t)
+        )
+        @parameters lon = 0.0 lat = 0.0 lev = 1.0
         System(
-            [D(HNO3) ~ 0.0, D(NIT) ~ 0.0, D(NH3) ~ 0.0, D(NH4) ~ 0.0, D(SO4) ~ 0.0,
+            [
+                D(HNO3) ~ 0.0, D(NIT) ~ 0.0, D(NH3) ~ 0.0, D(NH4) ~ 0.0, D(SO4) ~ 0.0,
                 D(H2O) ~ 1.0e-30 * lon,
                 T ~ 298.0 + 0.5 * lat,
-                P ~ 101325.0 - 100.0 * lev],
-            t; name)
+                P ~ 101325.0 - 100.0 * lev,
+            ],
+            t; name
+        )
     end
     # Host with H2O as a met-like OBSERVED variable (the full-CTM configuration after the
     # SuperFast/GEOSChem↔GEOSFP couple2 param_to_var's H2O and drives it from RH): H2O varies
     # per cell with lat, so the op's observed read path — and its per-cell RH sensitivity —
     # is exercised, guarding against a stuck/constant H2O regression.
     function InorgGasHostMetH2O(; name = :gas)
-        @variables(HNO3(t)=1.0, NIT(t)=0.22, NH3(t)=7.0, NH4(t)=0.34, SO4(t)=2.45,
-            H2O(t), T(t), P(t))
-        @parameters lon=0.0 lat=0.0 lev=1.0
+        @variables(
+            HNO3(t) = 1.0, NIT(t) = 0.22, NH3(t) = 7.0, NH4(t) = 0.34, SO4(t) = 2.45,
+            H2O(t), T(t), P(t)
+        )
+        @parameters lon = 0.0 lat = 0.0 lev = 1.0
         System(
-            [D(HNO3) ~ 0.0, D(NIT) ~ 0.0, D(NH3) ~ 0.0, D(NH4) ~ 0.0, D(SO4) ~ 0.0,
+            [
+                D(HNO3) ~ 0.0, D(NIT) ~ 0.0, D(NH3) ~ 0.0, D(NH4) ~ 0.0, D(SO4) ~ 0.0,
                 H2O ~ 2.48e7 * (1.0 + 0.3 * lat) + 1.0e-30 * lon,  # per-cell met-like H2O (RH varies with lat)
                 T ~ 298.0 + 0.0 * lat,
-                P ~ 101325.0 - 100.0 * lev],
-            t; name)
+                P ~ 101325.0 - 100.0 * lev,
+            ],
+            t; name
+        )
     end
     function small_domain()
         @parameters lon lat lev
@@ -71,7 +86,8 @@ end
     @test Base.get_extension(GasChem, :AerosolExt) !== nothing
     @test hasmethod(
         EarthSciMLBase.get_odefunction,
-        Tuple{IsorropiaOp, Any, Any, Any, DomainInfo, Any, Any, Any})
+        Tuple{IsorropiaOp, Any, Any, Any, DomainInfo, Any, Any, Any}
+    )
     @test IsorropiaOp() isa EarthSciMLBase.Operator
     @test IsorropiaOp(k_mt = 0.5).k_mt == 0.5
 end
@@ -177,8 +193,10 @@ end
 
     # H2O must be OBSERVED here (met-coupled configuration), not a state unknown —
     # this exercises the op's preferred observed read path.
-    @test !any(s -> endswith(string(s), "₊H2O"),
-        EarthSciMLBase.var2symbol.(unknowns(sc)))
+    @test !any(
+        s -> endswith(string(s), "₊H2O"),
+        EarthSciMLBase.var2symbol.(unknowns(sc))
+    )
 
     pp = EarthSciMLBase.default_params(sc)
     u = EarthSciMLBase.init_u(sc, domain)
@@ -217,7 +235,7 @@ end
     ext = Base.get_extension(GasChem, :AerosolExt)
     # Midwest late-winter conditions; totals in mol m⁻³ (ppb × 1e-9 × n_air).
     T = 278.0
-    RH = 0.70
+    RH = 0.7
     n_air = 9.5e4 / (8.314462 * T)
     ppb(x) = x * 1.0e-9 * n_air
     function gasfrac(TSO4, TNH, TNO3)
@@ -228,12 +246,12 @@ end
         g_HNO3 / ppb(TNO3)
     end
     # ammonia-flooded (uniform ~2-ppb NH3): nitrate almost fully condensed
-    @test gasfrac(0.30, 2.0, 0.5) < 0.05
+    @test gasfrac(0.3, 2.0, 0.5) < 0.05
     # clean background (current default ICs): nitrate stays in the gas phase
-    @test gasfrac(0.10, 0.15, 0.5) > 0.95
+    @test gasfrac(0.1, 0.15, 0.5) > 0.95
     # near the neutralization point: genuine partial partitioning
-    f_mid = gasfrac(0.10, 0.6, 0.5)
+    f_mid = gasfrac(0.1, 0.6, 0.5)
     @test 0.05 < f_mid < 0.95
     # fraction is monotone in total ammonia at fixed sulfate/nitrate
-    @test gasfrac(0.10, 2.0, 0.5) < f_mid < gasfrac(0.10, 0.05, 0.5)
+    @test gasfrac(0.1, 2.0, 0.5) < f_mid < gasfrac(0.1, 0.05, 0.5)
 end

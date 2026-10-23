@@ -353,7 +353,7 @@ _iso_name(v) = replace(string(v), "(t)" => "")
 function _iso_find(syms, name)
     i = findfirst(s -> endswith(string(s), "₊" * name), syms)
     i === nothing && error("IsorropiaOp: state variable ending in `₊$name` not found in the coupled system")
-    i
+    return i
 end
 
 # Temperature/pressure variable to read per grid cell (coupled from the meteorology, e.g.
@@ -369,8 +369,9 @@ function _iso_metvar(mtk_sys, name)
     i = findfirst(v -> endswith(_iso_name(v), "₊" * name), cands)
     i === nothing && error(
         "IsorropiaOp: per-cell meteorology variable ending in `₊$name` not found — couple a " *
-        "met source (e.g. GEOSFP, plus FastJX for per-cell pressure) so $name is available per grid cell")
-    cands[i]
+            "met source (e.g. GEOSFP, plus FastJX for per-cell pressure) so $name is available per grid cell"
+    )
+    return cands[i]
 end
 
 # State species the operator reads from / writes to. H2O is NOT among them: it is a
@@ -484,7 +485,7 @@ end
 function _iso_observed_or_nothing(mtk_sys, name)
     obs = [eq.lhs for eq in observed(mtk_sys)]
     i = findfirst(v -> endswith(_iso_name(v), "₊" * name), obs)
-    i === nothing ? nothing : obs[i]
+    return i === nothing ? nothing : obs[i]
 end
 
 function EarthSciMLBase.get_needed_vars(::GasChem.IsorropiaOp, csys, mtk_sys, domain::DomainInfo)
@@ -496,11 +497,12 @@ function EarthSciMLBase.get_needed_vars(::GasChem.IsorropiaOp, csys, mtk_sys, do
     vars = [_iso_metvar(mtk_sys, "T"), _iso_metvar(mtk_sys, "P")]
     h2o = _iso_observed_or_nothing(mtk_sys, "H2O")
     h2o === nothing || push!(vars, h2o)
-    vars
+    return vars
 end
 
 function EarthSciMLBase.get_odefunction(
-        op::GasChem.IsorropiaOp, csys, mtk_sys, coord_args, domain::DomainInfo, u0, p, alg)
+        op::GasChem.IsorropiaOp, csys, mtk_sys, coord_args, domain::DomainInfo, u0, p, alg
+    )
     sz = tuple(size(domain)...)
     II = CartesianIndices(sz)
     ncell = prod(sz)
@@ -527,7 +529,7 @@ function EarthSciMLBase.get_odefunction(
     # (mechanisms that carry H2O as a species), else the isconstantspecies parameter
     # default (standalone SuperFast/GEOSChem without met coupling).
     ix_h2o = has_h2o_obs ? nothing :
-             findfirst(s -> endswith(string(s), "₊H2O"), syms)
+        findfirst(s -> endswith(string(s), "₊H2O"), syms)
     h2o_const = if has_h2o_obs || ix_h2o !== nothing
         0.0
     else
@@ -535,8 +537,9 @@ function EarthSciMLBase.get_odefunction(
         ip = findfirst(p_ -> endswith(_iso_name(p_), "₊H2O"), ps)
         ip === nothing && error(
             "IsorropiaOp: H2O not found among observed variables, state unknowns, or " *
-            "parameters — the mechanism must carry H2O (met-coupled, as a species, or as " *
-            "an isconstantspecies parameter)")
+                "parameters — the mechanism must carry H2O (met-coupled, as a species, or as " *
+                "an isconstantspecies parameter)"
+        )
         Float64(ModelingToolkit.getdefault(ps[ip]))
     end
 
@@ -584,11 +587,12 @@ function EarthSciMLBase.get_odefunction(
             T = obscache[1]
             P = obscache[2]
             H2O = has_h2o_obs ? obscache[3] :
-                  (ix_h2o !== nothing ? u[ix_h2o, II[j]] : h2o_const)
+                (ix_h2o !== nothing ? u[ix_h2o, II[j]] : h2o_const)
             ppb2m = 1.0e-9 * P / (_ISO_RG * T)            # ppb -> mol m^-3
             RH = clamp(H2O * 1.0e-9 * P / _iso_esat(T), 0.01, 0.99)
             ok, gHNO3, gNH3 = _iso_ternary(
-                SO4 * ppb2m, (NH3 + NH4) * ppb2m, (HNO3 + NIT) * ppb2m, T, RH)
+                SO4 * ppb2m, (NH3 + NH4) * ppb2m, (HNO3 + NIT) * ppb2m, T, RH
+            )
             if ok
                 # Relax each gas toward its equilibrium partial concentration; the paired
                 # aerosol species takes the mirror tendency so total nitrate (HNO3+NIT) and

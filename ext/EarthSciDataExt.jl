@@ -65,7 +65,7 @@ function EarthSciMLBase.couple2(
             c.SO2 => e.SO2 => uconv / MW_SO2,
             c.SO4 => e.SULF => uconv / MW_SULF,
             c.NH3 => e.NH3 => uconv / MW_NH3,
-            c.NH3 => e.NH3_FERT => uconv / MW_NH3
+            c.NH3 => e.NH3_FERT => uconv / MW_NH3,
         ]
     )
 end
@@ -101,7 +101,7 @@ function EarthSciMLBase.couple2(
         [unit = u"kg/mol", description = "Ammonia molar mass"],
         MW_SULF = 98.079e-3, [unit = u"kg/mol", description = "H2SO4; Sulfuric acid"],
         MW_C2H4 = 28.054e-3, [unit = u"kg/mol", description = "C2H4; Ethylene"],
-        MW_C2H6 = 30.070e-3, [unit = u"kg/mol", description = "C2H6; Ethane"],
+        MW_C2H6 = 30.07e-3, [unit = u"kg/mol", description = "C2H6; Ethane"],
         MW_C2H2 = 26.038e-3, [unit = u"kg/mol", description = "C2H2; Acetylene"],
         MW_C3H8 = 44.096e-3, [unit = u"kg/mol", description = "C3H8; Propane"],
         MW_TOLU = 92.141e-3, [unit = u"kg/mol", description = "C7H8; Toluene"],
@@ -111,11 +111,11 @@ function EarthSciMLBase.couple2(
         MW_HNO2 = 47.014e-3, [unit = u"kg/mol", description = "HONO; Nitrous acid"],
         MW_HCl = 36.461e-3, [unit = u"kg/mol", description = "HCl; Hydrochloric acid"],
         MW_Cl2 = 70.906e-3, [unit = u"kg/mol", description = "Cl2; Molecular chlorine"],
-        MW_CO2 = 44.010e-3, [unit = u"kg/mol", description = "CO2; Carbon dioxide"],
+        MW_CO2 = 44.01e-3, [unit = u"kg/mol", description = "CO2; Carbon dioxide"],
         MW_N2O = 44.013e-3, [unit = u"kg/mol", description = "N2O; Nitrous oxide"],
         MW_XYLE = 106.167e-3, [unit = u"kg/mol", description = "C8H10; Xylene (lumped)"],
         MW_MTPA = 136.234e-3, [unit = u"kg/mol", description = "C10H16; Monoterpenes"],
-        MW_RCHO = 58.080e-3, [unit = u"kg/mol", description = "C2H5CHO; Propionaldehyde"],
+        MW_RCHO = 58.08e-3, [unit = u"kg/mol", description = "C2H5CHO; Propionaldehyde"],
         MW_PRPE = 42.081e-3, [unit = u"kg/mol", description = "C3H6; Propylene"],
         MW_ALK4 = 58.12e-3, [unit = u"kg/mol", description = "Lumped C4+C5 alkanes (GC species_database MW_g)"],
         MW_HNO4 = 79.01e-3, [unit = u"kg/mol", description = "HNO4; Peroxynitric acid"],
@@ -149,12 +149,12 @@ function EarthSciMLBase.couple2(
             c.SO2 => e.SO2 => uconv / MW_SO2,
             c.ISOP => e.ISOP => uconv / MW_ISOP,
             # NEI ammonia: the merged grid keeps anthropogenic (livestock/other, `NH3`) and
-            # fertilizer (`NH3_FERT`) sectors separate, so sum both into total NH3 — same
-            # two-source pattern as SO2+SULF above. NH3 feeds the ISORROPIA aerosol partition
+            # fertilizer (`NH3_FERT`) sectors separate, so sum both into total NH3 (two
+            # entries keyed on c.NH3 are summed). NH3 feeds the ISORROPIA aerosol partition
             # (IsorropiaOp). (If a NEI product reports NH3 inclusive of fertilizer, drop the
             # NH3_FERT term to avoid double-counting.)
             c.NH3 => e.NH3 => uconv / MW_NH3,
-            c.NH3 => e.NH3_FERT => uconv / MW_NH3
+            c.NH3 => e.NH3_FERT => uconv / MW_NH3,
             c.SO4 => e.SULF => uconv / MW_SULF,   # NEI SULF is direct sulfate emission -> SO4
             # --- the 18 remaining NEI species not yet in the base coupling ---
             c.C2H4 => e.ETH => uconv / MW_C2H4,
