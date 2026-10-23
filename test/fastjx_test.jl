@@ -7,6 +7,12 @@
         return GasChem.calc_direct_fluxes(cos_sza, P)
     end
 
+    # Fluxes seen by the default `FastJX` (`fluxes = :scattering`): direct beam + precomputed diffuse field.
+    function get_scattering_fluxes(t, lat, lon, P)
+        cos_sza = GasChem.cos_solar_zenith_angle(t, lat, lon)
+        return get_fluxes(t, lat, lon, P) .+ [GasChem.diffuse_interp_const[i](P, cos_sza) for i in 1:18]
+    end
+
     fj = mtkcompile(FastJX(0.0))
     # 18:00 UTC is local noon at 97W (cos(SZA) = 0.45).  Do not move this back to 12:00
     # UTC: the sun is then 20 degrees below the horizon there, every actinic flux is
@@ -63,7 +69,7 @@ end
 
     j_H2O2_func = getsym(prob, fj.j_H2O2)
     j_H2O2_value = j_H2O2_func(prob)
-    j_want = solf * GasChem.j_mean_H2O2(298.0, get_fluxes(test_time, 40.0, -97.0, 101325))
+    j_want = solf * GasChem.j_mean_H2O2(298.0, get_scattering_fluxes(test_time, 40.0, -97.0, 101325))
     @test j_H2O2_value ≈ j_want rtol = 0.004
 end
 
@@ -84,7 +90,7 @@ end
     j_H2COa_value = j_H2COa_func(prob)
     @test j_H2COa_value ≈ solf * GasChem.j_mean_H2COa(
         298.0,
-        get_fluxes(test_time, 40.0, -97.0, 101325)
+        get_scattering_fluxes(test_time, 40.0, -97.0, 101325)
     ) rtol = 1.0e-6
 end
 
@@ -105,7 +111,7 @@ end
     @test j_H2COb_value ≈
         solf * GasChem.j_mean_H2COb(
         298.0,
-        get_fluxes(test_time, 40.0, -97.0, 101325)
+        get_scattering_fluxes(test_time, 40.0, -97.0, 101325)
     ) rtol = 1.0e-6
 end
 
@@ -126,7 +132,7 @@ end
     @test j_CH3OOH_value ≈
         solf * GasChem.j_mean_CH3OOH(
         298.0,
-        get_fluxes(test_time, 40.0, -97.0, 101325)
+        get_scattering_fluxes(test_time, 40.0, -97.0, 101325)
     ) rtol = 1.0e-6
 end
 
@@ -149,7 +155,7 @@ end
     @test j_NO2_value > 1.0e-4
 
     @test j_NO2_value ≈
-        solf * GasChem.j_mean_NO2(298.0, get_fluxes(test_time, 40.0, -97.0, 101325)) rtol = 1.0e-6
+        solf * GasChem.j_mean_NO2(298.0, get_scattering_fluxes(test_time, 40.0, -97.0, 101325)) rtol = 1.0e-6
 end
 
 @testitem "GEOS-Chem: CFCl3, H1301, Glyxlc" setup = [FastJXSetup] begin
@@ -159,19 +165,36 @@ end
     j_CFCl3_value = j_CFCl3_func(prob)
 
     @test j_CFCl3_value ≈
-        solf * GasChem.j_mean_CFCl3(298.0, get_fluxes(test_time, 40.0, -97.0, 101325)) rtol = 1.0e-6
+        solf * GasChem.j_mean_CFCl3(298.0, get_scattering_fluxes(test_time, 40.0, -97.0, 101325)) rtol = 1.0e-6
 
     j_H1301_func = getsym(prob, fj.j_H1301)
     j_H1301_value = j_H1301_func(prob)
 
     @test j_H1301_value ≈
-        solf * GasChem.j_mean_H1301(298.0, get_fluxes(test_time, 40.0, -97.0, 101325)) rtol = 1.0e-6
+        solf * GasChem.j_mean_H1301(298.0, get_scattering_fluxes(test_time, 40.0, -97.0, 101325)) rtol = 1.0e-6
 
     j_Glyxlc_func = getsym(prob, fj.j_Glyxlc)
     j_Glyxlc_value = j_Glyxlc_func(prob)
 
     @test j_Glyxlc_value ≈
-        solf * GasChem.j_mean_Glyxlc(298.0, get_fluxes(test_time, 40.0, -97.0, 101325)) rtol = 1.0e-6
+        solf * GasChem.j_mean_Glyxlc(298.0, get_scattering_fluxes(test_time, 40.0, -97.0, 101325)) rtol = 1.0e-6
+end
+
+@testitem "FastJX fluxes = :direct keeps the direct beam only" setup = [FastJXSetup] begin
+    fjd = mtkcompile(FastJX(0.0; fluxes = :direct))
+    probd = ODEProblem(
+        fjd,
+        [
+            fjd.t_ref => 0.0, fjd.lat => 40.0, fjd.long => -97.0,
+            fjd.T => 298.0, fjd.P => 101325.0, fjd.H2O => 450.0,
+        ],
+        (test_time, test_time + 1)
+    )
+    j_direct = getsym(probd, fjd.j_NO2)(probd)
+    @test j_direct ≈ solf * GasChem.j_mean_NO2(298.0, get_fluxes(test_time, 40.0, -97.0, 101325)) rtol = 1.0e-6
+    # the diffuse field adds to, never replaces, the direct beam
+    @test getsym(prob, fj.j_NO2)(prob) > 1.5 * j_direct
+    @test_throws ArgumentError FastJX(0.0; fluxes = :bogus)
 end
 
 @testitem "Ensure Cos SZA is non-allocating" begin

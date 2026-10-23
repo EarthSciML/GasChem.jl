@@ -90,6 +90,51 @@ function flux_eqs_interpolation(csa, P, solf)
     return flux_vars, (flux_vars .~ collect(flux_vals) .* c_flux .* solf), c_flux # TODO(CT): remove "collect" when https://github.com/SciML/ModelingToolkit.jl/issues/3888 is fixed.
 end
 
+# Clear-sky diffuse field (Rayleigh multiple scattering + surface reflection) vs (P, cosSZA),
+# precomputed by scripts/scattering/precompute_table.jl; `FastJX` adds it to its online direct beam.
+include_dependency("diffuse_flux_data.bson")
+const _diffuse_data = BSON.load(joinpath(@__DIR__, "diffuse_flux_data.bson"))
+const diffuse_interp_const = tuple(
+    [
+        extrapolate(
+            Interpolations.scale(
+                interpolate(_diffuse_data[:Z_all][i], BSpline(Linear()), OnGrid()),
+                _diffuse_data[:tropospheric_P], _diffuse_data[:cosSZA_vals]
+            ),
+            Flat()
+        )
+            for i in 1:18
+    ]...
+)
+
+for i in 1:18
+    fname = Symbol(:diffuse_interp_, i)
+    @eval begin
+        $fname(P, csa) = diffuse_interp_const[$i](ustrip(P), ustrip(csa))
+        @register_symbolic $fname(P, csa)
+    end
+end
+@eval const diffuse_funcs = tuple($([Symbol(:diffuse_interp_, i) for i in 1:18]...))
+
+# Drop-in for `flux_sys`: online direct beam plus the precomputed diffuse field (valid 10-1000 hPa, flat outside).
+function flux_sys_scattering(csa, P, solf)
+    @constants c_flux = 1.0 [
+        unit = u"s^-1", description = "Constant actinic flux (for unit conversion)",
+    ]
+    flux_vals = []
+    flux_vars = []
+    for i in 1:18
+        f = calc_direct_flux(csa, P, i) + diffuse_funcs[i](P, csa)
+        wl = WL[i]
+        n1 = Symbol("F_", Int(round(wl)))
+        v1 = @variables $n1(t) [unit = u"s^-1", description = "Actinic flux at $wl nm"]
+        push!(flux_vars, only(v1))
+        push!(flux_vals, f)
+    end
+    eqs = flux_vars .~ collect(flux_vals) .* c_flux .* solf
+    return System(eqs, t, flux_vars, [c_flux], name = :ActinicFlux)
+end
+
 # Photolysis species exposed by the interpolated Fast-JX, as (name, cross-section
 # function) pairs. `:all` is the complete set (couples to the full
 # `GEOSChemGasPhase` mechanism); `:superfast` is the reduced set used by
@@ -227,12 +272,13 @@ const _FJX_INTERP_J_SUPERFAST = [
     FastJX_interpolation_troposphere(t_ref; name=:FastJX, domaininfo=nothing, mech=:all)
 
 Fast-JX photolysis using **interpolated** actinic fluxes from a precomputed
-`(pressure, cosSZA)` table (`flux_eqs_interpolation`) rather than the online
-direct-beam radiative-transfer integral of [`FastJX`](@ref). The
-temperature-dependent cross sections and quantum yields are applied identically
-to [`FastJX`](@ref), so the only approximation relative to the online scheme is
-the flux interpolation. The included table spans ~10-1000 hPa (flux held flat
-above the table top), so this targets tropospheric / lower-stratospheric columns.
+`(pressure, cosSZA)` table (`flux_eqs_interpolation`): the offline precompute of
+the online [`FastJX`](@ref) calculation (direct beam + clear-sky diffuse
+scattering; see scripts/scattering/), so no radiation is computed at runtime.
+The temperature-dependent cross sections and quantum yields are applied
+identically to [`FastJX`](@ref), so the two agree up to interpolation error of
+the direct-beam part. The table spans ~10-1000 hPa and cosSZA -0.2..1.0 (flux
+held flat outside), so this targets tropospheric / lower-stratospheric columns.
 
 # Arguments
 

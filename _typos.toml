@@ -13,6 +13,7 @@ TRO = "TRO"  # Tropospheric species
 consts = "consts"  # Short for constants (Julia convention)
 alow = "alow"      # Arrhenius low-pressure limit (variable name)
 strat = "strat"    # Stratospheric (common abbreviation)
+ND = "ND"          # Cloud-J Feautrier grid size (scripts/scattering)
 
 # External library functions
 setp = "setp"      # Function from SymbolicIndexingInterface.jl

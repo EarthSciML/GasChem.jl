@@ -1741,6 +1741,15 @@ Description: This is a box model used to calculate the photolysis reaction rate 
 Argument:
 
   - `t_ref`: Reference time for the model, can be a `DateTime` or a Unix timestamp (in seconds).
+  - `fluxes`: actinic-flux source for all 18 bands.
+      * `:scattering` (default) - the direct beam is computed online (spherical
+        Beer-Lambert through Rayleigh + O2/O3, any pressure) and the precomputed
+        clear-sky diffuse field is added (Rayleigh multiple scattering + surface
+        albedo 0.10, Cloud-J Feautrier solver over the fixed climatological column;
+        see scripts/scattering/; valid 10-1000 hPa, held flat outside).
+        [`FastJX_interpolation_troposphere`](@ref) reads the offline precompute of
+        exactly this calculation.
+      * `:direct` - online Beer-Lambert direct beam only (no diffuse field).
 
 # Example
 
@@ -1750,7 +1759,7 @@ Build Fast-JX model:
 fj = FastJX(DateTime(2000, 1, 1))
 ```
 """
-function FastJX(t_ref::AbstractFloat; name = :FastJX, domaininfo = nothing)
+function FastJX(t_ref::AbstractFloat; name = :FastJX, domaininfo = nothing, fluxes::Symbol = :scattering)
     consts = @constants begin
         T_unit = 1.0, [unit = u"K", description = "Unit temperature (for unit conversion)"]
         P_unit = 1.0, [unit = u"Pa", description = "Unit pressure"]
@@ -1877,7 +1886,13 @@ function FastJX(t_ref::AbstractFloat; name = :FastJX, domaininfo = nothing)
         j_ICl(t), [unit = u"s^-1"]
     end
 
-    flux = flux_sys(ParentScope(cosSZA), ParentScope(P) / ParentScope(P_unit), solar_flux_factor(t + ParentScope(t_ref)))
+    flux = if fluxes === :scattering
+        flux_sys_scattering(ParentScope(cosSZA), ParentScope(P) / ParentScope(P_unit), solar_flux_factor(t + ParentScope(t_ref)))
+    elseif fluxes === :direct
+        flux_sys(ParentScope(cosSZA), ParentScope(P) / ParentScope(P_unit), solar_flux_factor(t + ParentScope(t_ref)))
+    else
+        throw(ArgumentError("fluxes must be :scattering or :direct, got $fluxes"))
+    end
     flux_vars = fluxvars(flux)
     j_o31D_adj = adjust_j_o31D(ParentScope(T), ParentScope(P), ParentScope(H2O))
 
