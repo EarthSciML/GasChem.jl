@@ -23,8 +23,6 @@ function EarthSciMLBase.couple2(
     @constants(
         MW_NO2 = 46.0055e-3,
         [unit = u"kg/mol", description = "NO2 molar mass"],
-        MW_NO = 30.01e-3,
-        [unit = u"kg/mol", description = "NO molar mass"],
         MW_FORM = 30.026e-3,
         [unit = u"kg/mol", description = "Formaldehyde molar mass"],
         #MW_CH4 = 16.0425e-3, [unit = u"kg/mol", description="Methane molar mass"], # CH4 is currently a constant in SuperFast.
@@ -55,7 +53,7 @@ function EarthSciMLBase.couple2(
         e,
         [
             c.NO2 => e.NO2 => uconv / MW_NO2,
-            c.NO => e.NO => uconv / MW_NO,
+            c.NO => e.NO => uconv / MW_NO2, # NEI NO is NOx-as-NO2 mass
             c.CH2O => e.FORM => uconv / MW_FORM,
             #c.CH4 => e.CH4 => uconv / MW_CH4, # CH4 is currently a constant in SuperFast.
             c.CO => e.CO => uconv / MW_CO,
@@ -85,8 +83,6 @@ function EarthSciMLBase.couple2(
         [unit = u"kg/mol", description = "Benzene molar mass"],
         MW_NO2 = 46.0055e-3,
         [unit = u"kg/mol", description = "NO2 molar mass"],
-        MW_NO = 30.01e-3,
-        [unit = u"kg/mol", description = "NO molar mass"],
         MW_FORM = 30.026e-3,
         [unit = u"kg/mol", description = "Formaldehyde molar mass"],
         MW_CH4 = 16.0425e-3,
@@ -108,7 +104,6 @@ function EarthSciMLBase.couple2(
         MW_MOH = 32.042e-3, [unit = u"kg/mol", description = "CH3OH; Methanol"],
         MW_EOH = 46.069e-3, [unit = u"kg/mol", description = "C2H5OH; Ethanol"],
         MW_NAP = 128.174e-3, [unit = u"kg/mol", description = "C10H8; Naphthalene"],
-        MW_HNO2 = 47.014e-3, [unit = u"kg/mol", description = "HONO; Nitrous acid"],
         MW_HCl = 36.461e-3, [unit = u"kg/mol", description = "HCl; Hydrochloric acid"],
         MW_Cl2 = 70.906e-3, [unit = u"kg/mol", description = "Cl2; Molecular chlorine"],
         MW_CO2 = 44.010e-3, [unit = u"kg/mol", description = "CO2; Carbon dioxide"],
@@ -142,7 +137,7 @@ function EarthSciMLBase.couple2(
             c.ALD2 => e.ALD2 => uconv / MW_ALD2,
             c.BENZ => e.BENZ => uconv / MW_BENZ,
             c.NO2 => e.NO2 => uconv / MW_NO2,
-            c.NO => e.NO => uconv / MW_NO,
+            c.NO => e.NO => uconv / MW_NO2, # NEI NO is NOx-as-NO2 mass
             c.CH2O => e.FORM => uconv / MW_FORM,
             c.CH4 => e.CH4 => uconv / MW_CH4,
             c.CO => e.CO => uconv / MW_CO,
@@ -154,7 +149,7 @@ function EarthSciMLBase.couple2(
             # (IsorropiaOp). (If a NEI product reports NH3 inclusive of fertilizer, drop the
             # NH3_FERT term to avoid double-counting.)
             c.NH3 => e.NH3 => uconv / MW_NH3,
-            c.NH3 => e.NH3_FERT => uconv / MW_NH3
+            c.NH3 => e.NH3_FERT => uconv / MW_NH3,
             c.SO4 => e.SULF => uconv / MW_SULF,   # NEI SULF is direct sulfate emission -> SO4
             # --- the 18 remaining NEI species not yet in the base coupling ---
             c.C2H4 => e.ETH => uconv / MW_C2H4,
@@ -165,7 +160,7 @@ function EarthSciMLBase.couple2(
             c.MOH => e.MEOH => uconv / MW_MOH,
             c.EOH => e.ETOH => uconv / MW_EOH,
             c.NAP => e.NAPH => uconv / MW_NAP,
-            c.HNO2 => e.HONO => uconv / MW_HNO2,
+            c.HNO2 => e.HONO => uconv / MW_NO2, # NEI HONO is NOx-as-NO2 mass
             c.HCl => e.HCL => uconv / MW_HCl,
             c.Cl2 => e.CL2 => uconv / MW_Cl2,
             c.CO2 => e.CO2_INV => uconv / MW_CO2,
@@ -321,8 +316,6 @@ function EarthSciMLBase.couple2(
     @constants(
         MW_NO2 = 46.0055e-3,
         [unit = u"kg/mol", description = "NO2 molar mass"],
-        MW_NO = 30.01e-3,
-        [unit = u"kg/mol", description = "NO molar mass"],
         MW_FORM = 30.026e-3,
         [unit = u"kg/mol", description = "Formaldehyde molar mass"],
         #MW_CH4 = 16.0425e-3, [unit = u"kg/mol", description="Methane molar mass"], # CH4 is currently a constant in SuperFast.
@@ -347,7 +340,7 @@ function EarthSciMLBase.couple2(
         e,
         Dict(
             c.NO2 => e.NO2 => uconv / MW_NO2,
-            c.NO => e.NO => uconv / MW_NO,
+            c.NO => e.NO => uconv / MW_NO2, # NEI NO is NOx-as-NO2 mass
             c.CH2O => e.FORM => uconv / MW_FORM,
             c.CO => e.CO => uconv / MW_CO,
             c.ALD => e.ALD2 => uconv / MW_ALD2,
