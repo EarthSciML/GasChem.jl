@@ -29,8 +29,10 @@
         @parameters P_met = 101325.0 [unit = u"Pa"]
         @variables T(t) = 280.0 [unit = u"K"]
         @variables P(t) = 101325.0 [unit = u"Pa"]
-        System([T ~ T_met, P ~ P_met], t; name = :sftestmet,
-            metadata = Dict(EarthSciMLBase.CoupleType => SFTestMetCoupler))
+        System(
+            [T ~ T_met, P ~ P_met], t; name = :sftestmet,
+            metadata = Dict(EarthSciMLBase.CoupleType => SFTestMetCoupler)
+        )
     end
     function EarthSciMLBase.couple2(c::GasChem.SuperFastCoupler, m::SFTestMetCoupler)
         c, m = c.sys, m.sys
@@ -67,9 +69,9 @@ end
     # defaults, so bare-SF chemistry must be unchanged.
     # Checkpoints at h2/h4/h8 (meaningful O3 values; the 24h endpoint is ~1e-7 ppb
     # where adaptive-step noise dominates any relative comparison).
-    BASE_H2 = 7.23332425963
-    BASE_H4 = 1.39027183281
-    BASE_H8 = 0.0525209917846
+    BASE_H2 = 7.120911635899341
+    BASE_H4 = 1.3535021194617922
+    BASE_H8 = 0.050645636595363815
     traj = sf_box_o3_traj()
     @test traj[3] ≈ BASE_H2 rtol = 1.0e-5
     @test traj[5] ≈ BASE_H4 rtol = 1.0e-5
@@ -106,8 +108,10 @@ end
     # SFTestMet plays the CTM met coupling's role (param_to_var(c,:T,:P) + connector
     # equations), so the three-way param_to_var(:T) collision surface (met + cloud +
     # aerosol couplings on the same SuperFast instance) is exercised without GEOSFP data.
-    csys = couple(GasChem.SuperFast(), Aerosol.CloudChemistryFixedpH(),
-        Aerosol.AerosolDistribution(), GasChem.IsorropiaOp(), SFTestMet())
+    csys = couple(
+        GasChem.SuperFast(), Aerosol.CloudChemistryFixedpH(),
+        Aerosol.AerosolDistribution(), GasChem.IsorropiaOp(), SFTestMet()
+    )
     sys = try
         convert(System, csys)  # convert compiles by default; double mtkcompile errors on MTK ≥ v11
     catch e

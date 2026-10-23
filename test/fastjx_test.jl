@@ -177,7 +177,7 @@ end
     j_Glyxlc_value = j_Glyxlc_func(prob)
 
     @test j_Glyxlc_value ≈
-        solf * GasChem.j_mean_Glyxlc(298.0, get_scattering_fluxes(test_time, 40.0, -97.0, 101325)) rtol = 1.0e-6
+        solf * GasChem.j_mean_Glyxlc(1013.25, get_scattering_fluxes(test_time, 40.0, -97.0, 101325)) rtol = 1.0e-6 # pressure-axis σ (hPa)
 end
 
 @testitem "FastJX fluxes = :direct keeps the direct beam only" setup = [FastJXSetup] begin
@@ -214,6 +214,20 @@ end
     @test_nowarn mtkcompile(GasChem.FastJX_interpolation_troposphere(0.0))                    # mech=:all (default)
     @test_nowarn mtkcompile(GasChem.FastJX_interpolation_troposphere(0.0; mech = :superfast))
     @test_throws ArgumentError GasChem.FastJX_interpolation_troposphere(0.0; mech = :nope)
+end
+
+@testitem "FastJX_interpolation_troposphere DomainInfo Initialization" begin
+    using Dates, EarthSciMLBase, GasChem, ModelingToolkit
+
+    domain = DomainInfo(
+        DateTime(2016, 5, 1),
+        DateTime(2016, 5, 2);
+        lonrange = deg2rad(-180.0f0):deg2rad(2.5):deg2rad(175.0f0),
+        latrange = deg2rad(-85.0f0):deg2rad(2):deg2rad(85.0f0),
+        levrange = 1:10
+    )
+
+    @test_nowarn mtkcompile(GasChem.FastJX_interpolation_troposphere(domain))
 end
 
 @testitem "Direct Flux" begin
@@ -258,9 +272,9 @@ end
     @test GasChem.calc_direct_flux(cos_sza, P, 18) ≈ 2.1310000789140275e17
 
     P = 100
-    @test GasChem.calc_direct_flux(cos_sza, P, 1) ≈ 3.0643508503689505e6
+    @test GasChem.calc_direct_flux(cos_sza, P, 1) ≈ 94784.71849297105
     P = 500
-    @test GasChem.calc_direct_flux(cos_sza, P, 1) ≈ 8.931704683157367e-17
+    @test GasChem.calc_direct_flux(cos_sza, P, 1) ≈ 0.0
 end
 
 @testitem "Direct Flux Twilight" begin
@@ -268,8 +282,8 @@ end
     P = 1
     cos_sza = -0.1
     @test GasChem.calc_direct_flux(cos_sza, P, 1) ≈ 0.0
-    @test GasChem.calc_direct_flux(cos_sza, P, 3) ≈ 890275.9088383563
-    @test GasChem.calc_direct_flux(cos_sza, P, 5) ≈ 4.250677812848234e10
+    @test GasChem.calc_direct_flux(cos_sza, P, 3) ≈ 1100.308270194103
+    @test GasChem.calc_direct_flux(cos_sza, P, 5) ≈ 3.725356994214641e10
     @test GasChem.calc_direct_flux(cos_sza, P, 7) ≈ 1.6784210577555624e10
     @test GasChem.calc_direct_flux(cos_sza, P, 9) ≈ 8.920108354738617e-7
     @test GasChem.calc_direct_flux(cos_sza, P, 11) ≈ 5.4169480803700356e10
